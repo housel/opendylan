@@ -1,0 +1,23 @@
+#
+# Generated config
+#
+include $(SYSTEM_ROOT)/lib/config.jam ;
+
+#
+# Configuration variables
+#
+SUFDLL  ?= .dylib ;             # shared library suffix
+
+ARCHFLAG ?= -arch $(TARGET_OSPLAT:E=x86_64) ;
+CCFLAGS  += -fno-strict-aliasing $(ARCHFLAG) -D_POSIX_C_SOURCE;
+
+#
+# Runtime
+#
+
+RTOBJS_llvm ?= ;
+
+#
+# Common build script
+#
+include $(SYSTEM_ROOT)/lib/posix-build.jam ;

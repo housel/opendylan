@@ -1,4 +1,9 @@
 #
+# Generated config
+#
+include $(SYSTEM_ROOT)/lib/config.jam ;
+
+#
 # Runtime
 #
 

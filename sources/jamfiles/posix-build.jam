@@ -19,11 +19,6 @@
 }
 
 #
-# Generated config
-#
-include $(SYSTEM_LIBDIR)/config.jam ;
-
-#
 # Configuration variables
 #
 SEPARATE ?= true ;		# Separate compilation of *.c/*.bc output
