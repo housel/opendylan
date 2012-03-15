@@ -9,7 +9,7 @@ include $(SYSTEM_ROOT)/lib/config.jam ;
 SUFDLL  ?= .dylib ;             # shared library suffix
 
 ARCHFLAG ?= -arch $(TARGET_OSPLAT:E=i386) ;
-CCFLAGS  += -fno-strict-aliasing $(ARCHFLAG) -D_POSIX_C_SOURCE;
+CCFLAGS  += -fno-strict-aliasing $(ARCHFLAG) -D_POSIX_C_SOURCE ;
 
 #
 # Runtime
@@ -18,6 +18,19 @@ CCFLAGS  += -fno-strict-aliasing $(ARCHFLAG) -D_POSIX_C_SOURCE;
 RTOBJS_llvm ?= ;
 
 #
+# Library search path
+#
+LINKFLAGSEXE ?= -Wl,-rpath,@executable_path/../lib/ ;
+
+#
 # Common build script
 #
 include $(SYSTEM_ROOT)/lib/posix-build.jam ;
+
+#
+# Overrides/redefinitions
+#
+
+actions together LinkDLL bind NEEDLIBS {
+  $(LINK) -dynamiclib -o $(<) -install_name @rpath/$(<:BS=$(SUFDLL)) $(LINKFLAGS) $(>) -L"$(LIBPATH)" $(NEEDLIBS) $(LINKLIBS) $(GC_LFLAGS)
+}

@@ -31,11 +31,7 @@ OBJS    = posix-threads.o \
           trace.o
 
 JAMFILES = \
-    $(runtime_srcdir)/common.jam \
-    $(runtime_srcdir)/x86_64-linux-build.jam \
-    $(runtime_srcdir)/ppc-darwin-build.jam \
-    $(runtime_srcdir)/x86-darwin-build.jam \
-    $(runtime_srcdir)/x86_64-darwin-build.jam
+    $(runtime_srcdir)/x86_64-linux-build.jam
 
 RUNTIMELIBDEST	 = $(LIBDEST)/runtime/
 
