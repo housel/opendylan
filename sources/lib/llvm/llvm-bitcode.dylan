@@ -994,6 +994,15 @@ define method write-constant-record
     (stream :: <bitcode-stream>,
      type-partition-table :: <object-table>,
      value-partition-table :: <explicit-key-collection>,
+     value :: <llvm-function>)
+ => ();
+  error("Duh, %= (%s) isn't a constant", value, value.llvm-global-name)
+end method;
+
+define method write-constant-record
+    (stream :: <bitcode-stream>,
+     type-partition-table :: <object-table>,
+     value-partition-table :: <explicit-key-collection>,
      value :: <llvm-null-constant>)
  => ();
   write-record(stream, #"NULL");

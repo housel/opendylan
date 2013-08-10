@@ -131,6 +131,12 @@ end method;
 /// Value import support
 
 define method llvm-back-end-value-function
+    (builder :: <llvm-back-end>, value)
+ => (result :: <llvm-value>);
+  break();
+end method;
+
+define method llvm-back-end-value-function
     (builder :: <llvm-back-end>, value :: <llvm-value>)
  => (result :: <llvm-value>);
   value

@@ -252,7 +252,8 @@ define inline method builder-insert
     = builder.llvm-builder-basic-block.llvm-basic-block-instructions;
   unless (empty?(instructions)
             | instance?(instructions.last, <llvm-phi-node>))
-    error("PHI nodes must be grouped at the top of a basic block")
+    error("PHI nodes must be grouped at the top of a basic block (%=)",
+	  instructions);
   end unless;
   next-method()
 end method;
