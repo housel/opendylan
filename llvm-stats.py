@@ -20,6 +20,7 @@ def analyze():
     gen_re = re.compile(r'^Generating code for (.*)')
     err_re = re.compile(r'^emit ')
 
+    libraries = []
     stats = {}
     library_name = ''
     fn = open(sys.argv[1])
@@ -27,6 +28,7 @@ def analyze():
         m = gen_re.match(line)
         if m:
             library_name = m.group(1)
+            if library_name not in stats: libraries.append(library_name)
             stat = {'errors': 0, 'ieps': 0}
             stats[library_name] = stat
             grovel(library_name, stat)
@@ -36,14 +38,15 @@ def analyze():
             stats[library_name]['errors'] += 1
 
     fn.close()
-    return stats
+    return (stats, libraries)
 
-def report(stats):
-    for name, stat in stats.iteritems():
+def report(stats, libraries):
+    for name in libraries:
+        stat = stats[name]
         sys.stdout.write("%-20s %5d IEPs %5d errors (%.1f%% completed)\n" %
                          (name, stat['ieps'], stat['errors'],
-                          (stat['ieps'] - stat['errors']) * 100 / stat['ieps']))
+                          (stat['ieps'] - stat['errors']) * 100.0 / stat['ieps']))
 
 if __name__ == '__main__':
-    stats = analyze()
-    report(stats)
+    (stats, libraries) = analyze()
+    report(stats, libraries)
