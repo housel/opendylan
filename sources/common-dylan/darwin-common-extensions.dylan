@@ -24,8 +24,8 @@ define function darwin-sysctl
   for (i from 0 below mib-size)
     let mibval :: <integer> = mib[i];
     primitive-c-signed-int-at
-      (primitive-string-as-raw(rmib),
-       integer-as-raw(0), integer-as-raw(i * 4)) := integer-as-raw(mibval)
+      (primitive-cast-raw-as-pointer(primitive-string-as-raw(rmib)),
+        integer-as-raw(0), integer-as-raw(i * 4)) := integer-as-raw(mibval)
   end for;
 
   // get the size of the available data
