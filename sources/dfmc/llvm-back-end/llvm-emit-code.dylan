@@ -161,6 +161,7 @@ define method emit-code
     cleanup
       back-end.llvm-builder-dbg := #f;
       back-end.llvm-builder-function := #f;
+      back-end.llvm-builder-basic-block := #f; // FIXME
     EXCEPTION (e :: <error>)    // FIXME
       back-end.llvm-builder-basic-block := #f;
       back-end.llvm-builder-function.llvm-function-basic-blocks.size := 0;

@@ -145,7 +145,6 @@ define side-effecting stateless dynamic-extent mapped &primitive-descriptor prim
         end method;
 
   ins--block(be, case0-bb);
-
   ins--store(be, xep-ref(slotacc-single-q-instance-getter-xep-descriptor),
              xep-slot-ptr);
   ins--br(be, return);
@@ -493,18 +492,22 @@ end;
 
 /// Apply
 
+/*
 define side-effecting stateless indefinite-extent &unimplemented-primitive-descriptor primitive-xep-apply
     (function :: <object>, buffer-size :: <raw-integer>, buffer :: <object>)
  => (#rest values);
   //---*** Fill this in...
 end;
+*/
 
+/*
 define side-effecting stateless indefinite-extent &unimplemented-primitive-descriptor primitive-mep-apply // runtime
     (function :: <object>, next-methods :: <object>,
      args :: <simple-object-vector>)
  => (#rest values);
   //---*** Fill this in...
 end;
+*/
 
 define side-effecting stateless indefinite-extent can-unwind &runtime-primitive-descriptor primitive-mep-apply-with-optionals
     (meth :: <object>, next-methods :: <object>, mepargs :: <object>)
@@ -722,7 +725,7 @@ define side-effecting stateless indefinite-extent can-unwind mapped-parameter &r
     parameter-values[0] := fn-unmapped;
     parameter-values[1] := argument-count;
 
-    // Retrieve argument values
+    // Retrieve argument values from vector
     for (i from 0 below count)
       parameter-values[2 + i]
         := begin

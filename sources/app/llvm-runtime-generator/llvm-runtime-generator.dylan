@@ -151,7 +151,7 @@ define function generate-runtime-primitive
       end if;
     end if;
     force-output(*standard-error*);
-  exception (e :: <error>)
+/*  exception (e :: <error>)
     format(*standard-error*, "Generation of %s failed: %s\n", name, e);
     force-output(*standard-error*);
 
@@ -162,6 +162,7 @@ define function generate-runtime-primitive
               & instance?(instructions.last, <llvm-terminator-instruction>))
       ins--unreachable(be);
     end unless;
+*/
   end block;
   be.llvm-builder-basic-block := #f;
   be.llvm-builder-function := #f;
@@ -218,6 +219,7 @@ define function generate-runtime-entry-point
     if (be.llvm-builder-basic-block)
       ins--ret(be, result);
     end if;
+/*
   exception (e :: <error>)
     format(*standard-error*, "Generation of %s failed: %s\n", name, e);
     force-output(*standard-error*);
@@ -229,6 +231,7 @@ define function generate-runtime-entry-point
               & instance?(instructions.last, <llvm-terminator-instruction>))
       ins--unreachable(be);
     end unless;
+*/
   end block;
 
   be.llvm-builder-basic-block := #f;
