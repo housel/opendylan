@@ -281,9 +281,8 @@ rtg:
 
 BOOTSTRAP_4_ENV = \
 	OPEN_DYLAN_TARGET_PLATFORM=$(OPEN_DYLAN_TARGET_PLATFORM) \
-	OPEN_DYLAN_RELEASE_ROOT=$(abs_builddir)/Bootstrap.3 \
-	OPEN_DYLAN_RELEASE_INSTALL=$(abs_builddir)/Bootstrap.3 \
-	OPEN_DYLAN_RELEASE_BUILD=$(abs_builddir)/Bootstrap.3/build \
+	OPEN_DYLAN_RELEASE_ROOT=$(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM) \
+	OPEN_DYLAN_RELEASE_INSTALL=$(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM) \
 	OPEN_DYLAN_RELEASE_REGISTRIES=$(abs_srcdir)/sources/registry:$(library_srcdir)/registry \
 	OPEN_DYLAN_RELEASE_SOURCES=$(abs_srcdir)/sources \
 	OPEN_DYLAN_BUILD_LOGS=$(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM)/build/logs \
@@ -346,6 +345,24 @@ xtestl:
 	for target in $(BACKENDS); do \
 	  $(MAKE) testl OPEN_DYLAN_TARGET_PLATFORM=$$target; \
 	done
+
+gloml: cleanl $(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM)
+	@OPEN_DYLAN_USER_INSTALL=$(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM) \
+	  $(MAKE) -C sources/jamfiles install
+	$(MAKE) bootstrap-stage-3 BOOTSTRAP_3_LIBRARIES="llvm-runtime-generator dylan-compiler"
+	@for target_platform in $(RUNTIME_TARGET_PLATFORMS); do \
+	  (cd $(RUNTIME_SOURCES) \
+	    && $(abs_builddir)/Bootstrap.3/bin/llvm-runtime-generator $(abs_srcdir)/sources/dylan/dylan.lid $$target_platform); \
+	  $(MAKE) -C $(RUNTIME_SOURCES) \
+	    OPEN_DYLAN_USER_INSTALL=$(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM) \
+	    OPEN_DYLAN_TARGET_PLATFORM=$$target_platform \
+	    install-llvm-runtime; \
+	done
+	printf "set compiler-back-end llvm\nopen dylan\nbuild -output dfm" \
+	       | $(BOOTSTRAP_4_ENV) $(BOOTSTRAP_4_COMPILER)
+
+cleanl:
+	@rm -rf $(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM)
 
 ###
 # Install stage installs stage 3 into prefix
