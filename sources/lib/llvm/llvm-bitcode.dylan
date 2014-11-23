@@ -1100,11 +1100,15 @@ define method write-constant-record
      value-partition-table :: <explicit-key-collection>,
      value :: <llvm-asm-constant>)
  => ();
-    error("write-constant-record INLINEASM");
-//   llvm-asm-constant-asm-string
-//   llvm-asm-constant-constraint
-//   llvm-asm-constant-side-effect?
-//   llvm-asm-constant-align-stack?
+  let operands = make(<stretchy-object-vector>);
+  add!(operands,
+       logior(if (value.llvm-asm-constant-side-effect?) 1 else 0 end,
+              if (value.llvm-asm-constant-align-stack?) 2 else 0 end));
+  add!(operands, value.llvm-asm-constant-asm-string.size);
+  do(curry(add!, operands), value.llvm-asm-constant-asm-string);
+  add!(operands, value.llvm-asm-constant-constraint.size);
+  do(curry(add!, operands), value.llvm-asm-constant-constraint);
+  write-record(stream, #"INLINEASM", operands);
 end method;
 
 define function binop-operator-encoding

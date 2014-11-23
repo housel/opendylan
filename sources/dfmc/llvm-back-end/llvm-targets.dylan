@@ -233,8 +233,10 @@ define method llvm-thread-local-support?
   #t
 end method;
 
+/*
 define method llvm-thread-local-support?
     (back-end :: <llvm-windows-back-end>)
  => (support? :: <boolean>)
   #f
 end method;
+*/

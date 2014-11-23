@@ -81,10 +81,18 @@ define method op--teb
   llvm-runtime-variable(be, module, %teb-descriptor)
 end method;
 
+/*
 define method op--teb
     (be :: <llvm-windows-back-end>) => (teb :: <llvm-value>);
-  error("FIXME windows TEB");
+  let teb-type = llvm-reference-type(be, be.llvm-teb-struct-type);
+  ins--call(be, make(<llvm-asm-constant>,
+                     asm-string: "movl %fs:0x14, $0",
+                     constraint: "=r,~{dirflag},~{fpsr},~{flags}",
+                     type: llvm-pointer-to(be, teb-type)),
+            #[],
+            type: llvm-pointer-to(be, teb-type))
 end method;
+*/
 
 define method op--teb-getelementptr
     (be :: <llvm-back-end>, field :: <symbol>, #rest indices)
