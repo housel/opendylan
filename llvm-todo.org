@@ -5,12 +5,21 @@
 ** llvm-externalize tool?
 ** Generate Windows native debugging info from LLVM-MC
 * Open Dylan LLVM IR library
+** DONE llvm-builder ins--* for new (LLVM 3.0) instructions
 ** Bitcode abbreviations
 *** TODO Implement bitcode abbreviation infrastructure
 *** TODO Analyze records with high relative bit counts in DFMC-generated output
 *** TODO Add abbreviations to inefficient records
 *** TODO Use efficient encoding for debug info
+** Other features
+*** nonlazybind
+*** blockaddress/indirectbr
+*** half
+*** asm
 * Open Dylan LLVM back-end
+** DONE Bugs
+primitive-raw-as-byte-character(primitive-byte-element())
+no source-location in <make-cell>
 ** Primitives implementation
 *** TODO primitive-invoke-debugger
 *** DONE primitive-inside-debugger?
@@ -104,21 +113,22 @@
 *** TODO primitive-set-generic-function-entrypoints
 *** TODO primitive-set-accessor-method-xep
 Fix dfmc/modeling/primitives.dylan definition (missing 'what')
-*** TODO primitive-xep-apply
+*** DONE primitive-apply
+*** primitive-xep-apply
 *** TODO primitive-mep-apply
 *** TODO primitive-mep-apply-with-optionals
 *** TODO primitive-engine-node-apply-with-optionals
-*** TODO primitive-iep-apply
+*** primitive-iep-apply
 *** TODO primitive-initialize-engine-node
 *** TODO primitive-initialize-discriminator
-*** TODO primitive-values
-*** primitive-resolve-symbol
-*** primitive-string-as-symbol
-*** primitive-preboot-symbols
+*** DONE primitive-values
+*** DONE primitive-resolve-symbol
+*** DONE primitive-string-as-symbol
+*** DONE primitive-preboot-symbols
 *** DONE primitive-unwrap-c-pointer
-*** TODO primitive-wrap-c-pointer
-*** TODO primitive-*-at
-*** TODO primitive-*-at-setter
+*** DONE primitive-wrap-c-pointer
+*** DONE primitive-*-at
+*** DONE primitive-*-at-setter
 *** TODO primitive-*-field
 *** TODO primitive-*-field-setter
 *** TODO primitive-exit-application
@@ -234,8 +244,8 @@ Fix dfmc/modeling/primitives.dylan definition (missing 'what')
 *** DONE primitive-machine-word-shift-left-low
 *** DONE primitive-machine-word-shift-left-high
 *** DONE primitive-machine-word-shift-left-low/high
-*** TODO primitive-machine-word-shift-left-low-with-overflow
-*** TODO primitive-machine-word-shift-left-with-overflow
+*** DONE primitive-machine-word-shift-left-low-with-overflow
+*** DONE primitive-machine-word-shift-left-with-overflow
 *** DONE primitive-machine-word-shift-right
 *** DONE primitive-machine-word-add-signal-overflow
 *** DONE primitive-machine-word-subtract-signal-overflow
@@ -243,21 +253,21 @@ Fix dfmc/modeling/primitives.dylan definition (missing 'what')
 *** DONE primitive-machine-word-negative-signal-overflow
 *** DONE primitive-machine-word-abs-signal-overflow
 *** DONE primitive-machine-word-shift-left-signal-overflow
-*** TODO primitive-machine-word-double-floor/-quotient
-*** TODO primitive-machine-word-double-floor/-remainder
-*** TODO primitive-machine-word-double-floor/
-*** TODO primitive-machine-word-double-ceiling/-quotient
-*** TODO primitive-machine-word-double-ceiling/-remainder
-*** TODO primitive-machine-word-double-ceiling/
-*** TODO primitive-machine-word-double-round/-quotient
-*** TODO primitive-machine-word-double-round/-remainder
-*** TODO primitive-machine-word-double-round/
-*** TODO primitive-machine-word-double-truncate/-quotient
-*** TODO primitive-machine-word-double-truncate/-remainder
-*** TODO primitive-machine-word-double-truncate/
-*** TODO primitive-machine-word-double-divide-quotient
-*** TODO primitive-machine-word-double-divide-remainder
-*** TODO primitive-machine-word-double-divide
+*** DONE primitive-machine-word-double-floor/-quotient
+*** DONE primitive-machine-word-double-floor/-remainder
+*** DONE primitive-machine-word-double-floor/
+*** DONE primitive-machine-word-double-ceiling/-quotient
+*** DONE primitive-machine-word-double-ceiling/-remainder
+*** DONE primitive-machine-word-double-ceiling/
+*** DONE primitive-machine-word-double-round/-quotient
+*** DONE primitive-machine-word-double-round/-remainder
+*** DONE primitive-machine-word-double-round/
+*** DONE primitive-machine-word-double-truncate/-quotient
+*** DONE primitive-machine-word-double-truncate/-remainder
+*** DONE primitive-machine-word-double-truncate/
+*** DONE primitive-machine-word-double-divide-quotient
+*** DONE primitive-machine-word-double-divide-remainder
+*** DONE primitive-machine-word-double-divide
 *** DONE primitive-machine-word-unsigned-less-than?
 *** DONE primitive-machine-word-unsigned-greater-than?
 *** DONE primitive-machine-word-unsigned-not-less-than?
@@ -272,29 +282,30 @@ Fix dfmc/modeling/primitives.dylan definition (missing 'what')
 *** DONE primitive-machine-word-unsigned-rotate-left
 *** DONE primitive-machine-word-unsigned-rotate-right
 *** DONE primitive-machine-word-unsigned-shift-right
-*** TODO primitive-machine-word-unsigned-double-divide-quotient
-*** TODO primitive-machine-word-unsigned-double-divide-remainder
-*** TODO primitive-machine-word-unsigned-double-divide
-*** TODO primitive-machine-word-unsigned-shift-left-high
+*** DONE primitive-machine-word-unsigned-double-divide-quotient
+*** DONE primitive-machine-word-unsigned-double-divide-remainder
+*** DONE primitive-machine-word-unsigned-double-divide
+*** DONE primitive-machine-word-unsigned-shift-left-high
 *** DONE primitive-machine-word-unsigned-double-shift-left-high
 *** DONE primitive-machine-word-unsigned-double-shift-left
 *** DONE primitive-machine-word-unsigned-double-shift-right-low
 *** TODO primitive-machine-word-unsigned-double-shift-right-high
 *** DONE primitive-machine-word-unsigned-double-shift-right
 ** TEB and GC-TEB
-*** TODO Define structures
-*** TODO Define accessor/setter functions
+*** DONE Define structures
+*** DONE Define accessor/setter functions
 General raw struct accessors?
-** TODO Thread-Local Variables
-** TODO Entry points definitions
-*** TODO xep
-*** TODO rest-xep
+** DONE Thread-Local Variables
+** Entry points definitions
+*** TODO Tie emit-object to entry points definitions
+*** DONE xep
+*** DONE rest-xep
 *** TODO rest-key-xep
 *** TODO rest-key-mep
-*** TODO gf-xep
+*** DONE gf-xep
 *** TODO key-mep
-*** TODO gf-optional-xep
-*** TODO apply-xep
+*** DONE gf-optional-xep
+*** DONE apply-xep
 *** TODO general-engine-node-n
 *** TODO general-engine-node-n-optionals
 *** TODO general-engine-node-spread-optionals
@@ -306,16 +317,16 @@ General raw struct accessors?
 *** TODO typecheck-discriminator-engine
 *** TODO monomorphic-by-class-discriminator-engine
 ** TODO Function calls
-*** TODO <simple-call>
-*** TODO <method-call>
-*** TODO <engine-node-call>
-*** TODO <apply>
-** TODO Closure construction
-** TODO Local exits
-** TODO Non-local exits
-** TODO Cleanups (unwind-protect)
-** TODO MV transfers
-** TODO Box construction
+*** DONE <simple-call>
+*** DONE <method-call>
+*** DONE <engine-node-call>
+*** DONE <apply>
+** DONE Closure construction
+** DONE Local exits
+** DONE Non-local exits
+** DONE Cleanups (unwind-protect)
+** DONE MV transfers
+** DONE Box construction
 ** TODO 'tbaa' (Type-Based Alias Analysis) metadata
 See http://llvm.org/llvm/docs/LangRef.html#tbaa
 * Open Dylan LLVM linker
@@ -323,9 +334,17 @@ See http://llvm.org/llvm/docs/LangRef.html#tbaa
 ** TODO Emit mainfile
 ** TODO Jamfile
 * Open Dylan LLVM Runtime Generator
-** TODO Entry points generation
-** TODO C header output generator
+** DONE Entry points generation
+** DONE C header output generator
 ** TODO Support file generator
 * Open Dylan LLVM Runtime
 ** TODO GC primitives implementation/adaptation
 ** TODO Threads primitives implementation/adaptation
+* Other
+** Blog Entries
+*** What is HARP and Why Should It Go Away?
+*** Starting LLVM Support: Dylan-based LLVM IR and Bitcode
+*** Representing Dylan Objects and Types as LLVM
+*** Generating Dylan Runtime Primitives as LLVM
+*** Generating Dylan Method Code as LLVM
+*** Implementing Dylan Multimethod Dispatch and Function Calls
