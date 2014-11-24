@@ -125,6 +125,7 @@ define &dylan-raw-types
 
   export
     machine-word,
+    pointer,
     single-float,
     double-float,
     double-integer,
@@ -173,7 +174,13 @@ define &raw-machine-word-subtypes-and-accessors
     c-size-t,
     c-ssize-t,
     c-signed-long-long,
-    c-unsigned-long-long,
+    c-unsigned-long-long;
+
+end;
+
+define &raw-pointer-subtypes-and-accessors
+
+  export
     c-pointer;
 
 end;
@@ -190,8 +197,13 @@ define &dylan-raw-machine-word-subtypes
     byte,
     double-byte,
     integer,
-    pointer,
-    address,
+    address;
+
+end;
+
+define &dylan-raw-pointer-subtypes
+
+  export
     byte-string;
 
 end;

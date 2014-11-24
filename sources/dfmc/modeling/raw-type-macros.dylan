@@ -132,6 +132,18 @@ type-names:
     => { define &dylan-raw-type ?name machine-word; ... }
 end macro;
 
+define macro &dylan-raw-pointer-subtypes-definer
+  { define &dylan-raw-pointer-subtypes
+      export ?type-names;
+    end }
+    => { ?type-names }
+type-names:
+  { }
+    => { }
+  { ?name:*, ... }
+    => { define &dylan-raw-type ?name pointer; ... }
+end macro;
+
 define macro &raw-machine-word-subtypes-and-accessors-definer
   { define &raw-machine-word-subtypes-and-accessors
       export ?type-names;
@@ -142,4 +154,16 @@ type-names:
     => { }
   { ?name:*, ... }
     => { define &raw-type-and-accessors ?name machine-word; ... }
+end macro;
+
+define macro &raw-pointer-subtypes-and-accessors-definer
+  { define &raw-pointer-subtypes-and-accessors
+      export ?type-names;
+    end }
+    => { ?type-names }
+type-names:
+  { }
+    => { }
+  { ?name:*, ... }
+    => { define &raw-type-and-accessors ?name pointer; ... }
 end macro;
