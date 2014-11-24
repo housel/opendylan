@@ -6,7 +6,6 @@
 
 #include <signal.h>
 #include <sys/signal.h>
-#include <sys/ucontext.h>
 
 #include <fenv.h>
 //#pragma STDC FENV_ACCESS ON
