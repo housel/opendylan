@@ -62,7 +62,10 @@ define method analyze-calls (c :: <computation>)
 end method;
 
 define method analyze-calls (c :: <primitive-call>)
-  maybe-optimize-function-call(c, c.primitive, c.arguments);
+  let call-ok? = maybe-check-primitive-call(c);
+  //if (call-ok?)
+    maybe-optimize-function-call(c, c.primitive, c.arguments);
+  //end if;
 end method;
 
 define method analyze-calls (c :: <function-call>)

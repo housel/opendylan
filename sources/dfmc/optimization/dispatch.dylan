@@ -1314,7 +1314,7 @@ define method upgrade-call-to-slot-accessor
 end;
 
 define method argument-type-estimates
-    (c :: <function-call>) => (estimates :: <argument-sequence>)
+    (c :: <call>) => (estimates :: <argument-sequence>)
   // gts-debug("errs", "arg-tes(funcall): c.args=%=.\n", c.arguments);
   map-as(<argument-sequence>, type-estimate, c.arguments);
 end;
@@ -1471,7 +1471,88 @@ define method upgrade-to-simple-typechecked-gf-cache!
   call-c
 end method;
 
+//// Primitive call checking
 
+define method maybe-check-primitive-call
+    (c :: <primitive-call>) => (ok-to-analyse?)
+  // The compatibility state prevents a call from being check this way
+  // more than once.
+  let state = c.compatibility-state;
+  select (state)
+    $compatibility-checked-compatible
+      => #t;
+    $compatibility-checked-incompatible
+      => #f;
+    $compatibility-unchecked
+      => let ok? = check-primitive-call(c);
+      c.compatibility-state
+	:= if (ok?)
+	     $compatibility-checked-compatible
+	   else
+	     $compatibility-checked-incompatible
+	   end;
+      ok?;
+  end
+end method;
+
+define method check-primitive-call
+    (call :: <primitive-call>)
+ => (ok-to-analyse?)
+  let prim = call.primitive;
+  let signature = prim.primitive-signature;
+  let arg-te* = argument-type-estimates(call);
+  block (return)
+    let required-types = ^signature-required(signature);
+    let required-count = ^signature-number-required(signature);
+    let supplied-count = size(arg-te*);
+    if (supplied-count < required-count)
+      note(<too-few-arguments-in-call>,
+           source-location: dfm-source-location(call),
+           context-id:      dfm-context-id(call),
+           function: prim,
+           required-count: required-count,
+           supplied-count: supplied-count);
+      return(#f);
+    end;
+    let accepts-rest? = ^signature-rest?(signature);
+    if (~accepts-rest? & supplied-count > required-count)
+      note(<too-many-arguments-in-call>,
+           source-location: dfm-source-location(call),
+           context-id:      dfm-context-id(call),
+           function: prim,
+           required-count: required-count,
+           supplied-count: supplied-count);
+      return(#f);
+    end;
+    let guaranteed-compatible? = #t;
+    let guaranteed-incompatible? = #f;
+    for (arg-te in arg-te*, required-type in required-types,
+         i :: <integer> from 0 below required-count)
+      if (~guaranteed-joint?(arg-te, required-type))
+        guaranteed-compatible? := #f;
+        // if (guaranteed-disjoint?(arg-te, required-type))
+        if (effectively-disjoint?(arg-te, required-type))
+          guaranteed-incompatible? := #t;
+	  let primitive-signature-spec
+	    = prim.primitive-signature-spec;
+          let required-specs
+            = spec-argument-required-variable-specs(primitive-signature-spec);
+          note(<argument-type-mismatch-in-call>,
+               source-location: dfm-source-location(call),
+               context-id:      dfm-context-id(call),
+               function: prim,
+               required-type:  required-type,
+               supplied-type-estimate: arg-te,
+               arg: spec-variable-name(required-specs[i]));
+        end if;
+      end if;
+    end for;
+    if (guaranteed-incompatible?)
+      return(#f);
+    end if;
+    guaranteed-compatible?
+  end
+end method;
 
 //// Call consistency checking.
 
