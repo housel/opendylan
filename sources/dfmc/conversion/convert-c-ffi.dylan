@@ -79,12 +79,12 @@ define method convert-%c-call-function
      name, signature, arguments, modifiers)
   let sig-spec = parse-primitive-signature(name, signature);
   let (ffi-signature, signature) = make-ffi-signature(sig-spec);
-  let function
     = make(<&c-function>,
-           binding-name: name & as-string(name),
-           c-signature: ffi-signature,
-           signature: signature,
-           c-modifiers: as-string(modifiers));
+	   binding-name: name & as-string(name),
+	   c-signature: ffi-signature,
+	   signature: signature,
+           signature-spec: sig-spec,
+	   c-modifiers: as-string(modifiers));
   convert-primitive-call(env, context, <primitive-call>, function, arguments);
 end method;
 
@@ -105,11 +105,12 @@ define method convert-%c-call-function-indirect
   let (ffi-signature, signature) = make-ffi-signature(sig-spec);
   let function
      = make(<&c-function>,
-            binding-name: #f,
-            signature: signature,
-            c-signature: ffi-signature,
-            value: #f,
-            c-modifiers: as-string(modifiers));
+	    binding-name: #f,
+	    signature: signature,
+            signature-spec: sig-spec,
+	    c-signature: ffi-signature,
+	    value: #f,
+	    c-modifiers: as-string(modifiers));
   convert-primitive-call(env, context, <primitive-indirect-call>, function, arguments);
 end method;
 
@@ -168,6 +169,7 @@ define method convert-%objc-msgsend
     = make(<&objc-msgsend>,
            c-signature: ffi-signature,
            signature: signature,
+           signature-spec: sig-spec,
            c-modifiers: as-string(modifiers));
   convert-primitive-call(env, context, <primitive-call>, function, arguments);
 end method;
