@@ -274,7 +274,7 @@ define method op--call-error-iep
   let undef = make(<llvm-undef-constant>, type: $llvm-object-pointer-type);
   op--call(back-end, err-global,
            concatenate(arguments, vector(undef, undef)),
-           type: llvm-reference-type(back-end, back-end.%mv-struct-type),
+           type: llvm-reference-type(back-end, back-end.llvm-mv-struct-type),
            calling-convention: llvm-calling-convention(back-end, err-iep),
            tail-call?: #t);
   ins--unreachable(back-end);

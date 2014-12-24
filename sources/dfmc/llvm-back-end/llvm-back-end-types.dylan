@@ -367,7 +367,7 @@ define method llvm-lambda-type
         llvm-dynamic-signature-types(back-end, o, signature-spec(fun))
       end if;
   make(<llvm-function-type>,
-       return-type: llvm-reference-type(back-end, back-end.%mv-struct-type),
+       return-type: llvm-reference-type(back-end, back-end.llvm-mv-struct-type),
        parameter-types: parameter-types,
        varargs?: #f)
 end method;

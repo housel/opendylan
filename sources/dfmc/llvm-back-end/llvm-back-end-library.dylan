@@ -41,6 +41,8 @@ define module dfmc-llvm-back-end
 
     llvm-back-end-dbg-functions,
 
+    llvm-mv-struct-type,
+
     llvm-thread-local-support?,
     llvm-teb-struct-type,
 

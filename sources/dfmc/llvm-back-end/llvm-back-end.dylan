@@ -66,7 +66,7 @@ define abstract class <llvm-back-end> (<back-end>, <llvm-builder>)
     = make(<object-table>);
 
   // Precomputed multiple value return structure type
-  slot %mv-struct-type :: <&raw-struct-type>;
+  slot llvm-mv-struct-type :: <&raw-struct-type>;
 
   // Precomputed Thread Environment Block structure type
   slot llvm-teb-struct-type :: <&raw-struct-type>;
@@ -90,7 +90,7 @@ define sealed method initialize
   next-method();
 
   // Initialize MV return value structure
-  back-end.%mv-struct-type
+  back-end.llvm-mv-struct-type
     := make(<&raw-struct-type>,
             debug-name: "MV",
             options: #[],

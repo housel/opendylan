@@ -386,7 +386,7 @@ define method llvm-primitive-function-type
   // Compute return type
   let return-type
     = if (values-rest?)
-        llvm-reference-type(back-end, back-end.%mv-struct-type)
+        llvm-reference-type(back-end, back-end.llvm-mv-struct-type)
       elseif (required-value-type-specs.empty?)
         $llvm-void-type
       else
@@ -634,7 +634,7 @@ define method make-primitive-dbg-function
   // Return value
   let dbg-return-type
     = if (values-rest?)
-        llvm-reference-dbg-type(back-end, back-end.%mv-struct-type)
+        llvm-reference-dbg-type(back-end, back-end.llvm-mv-struct-type)
       elseif (required-value-type-specs.empty?)
         #f
       else
