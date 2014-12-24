@@ -276,7 +276,8 @@ define function generate-runtime-header
     // Generate struct declarations for raw types needed by the C code
     begin
       let types
-        = vector(llvm-teb-struct-type(be),
+        = vector(llvm-mv-struct-type(be),
+                 llvm-teb-struct-type(be),
                  llvm-bef-struct-type(be));
       for (type in types)
         print-raw-struct-c-declaration(be, type, stream);

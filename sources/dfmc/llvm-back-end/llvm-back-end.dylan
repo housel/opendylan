@@ -96,8 +96,10 @@ define sealed method initialize
             options: #[],
             members:
               vector(make(<raw-aggregate-ordinary-member>,
+                          name: "mv-primary",
                           raw-type: dylan-value(#"<raw-pointer>")),
                      make(<raw-aggregate-ordinary-member>,
+                          name: "mv-count",
                           raw-type: dylan-value(#"<raw-byte>"))));
 
   // Initialize TEB structure

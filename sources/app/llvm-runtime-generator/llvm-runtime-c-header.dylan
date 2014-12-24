@@ -63,7 +63,9 @@ define method print-primitive-c-function-declaration
     (be :: <llvm-back-end>, name :: <symbol>, signature :: <&signature>,
      stream :: <stream>)
  => ();
-  if (zero?(^signature-number-values(signature)))
+  if (^signature-rest?(signature))
+    format(stream, "struct MV");
+  elseif (zero?(^signature-number-values(signature)))
     format(stream, "void");
   else
     print-primitive-c-type(be, ^signature-values(signature).first, stream);
