@@ -8,10 +8,12 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library hello-world
   use common-dylan;
-  export hello-world;
+  use io;
 end library;
 
 define module hello-world
   use common-dylan;
-  use simple-io;
+  use format;
+  use streams;
+  use standard-io;
 end module;

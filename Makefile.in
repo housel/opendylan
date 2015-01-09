@@ -276,7 +276,7 @@ rtg:
 	for target in $(BACKENDS); do \
 	  ./Bootstrap.3/bin/llvm-runtime-generator $(abs_srcdir)/sources/dylan/dylan.lid $$target && \
 	  llvm-dis $$target-runtime.bc && \
-	  clang -O3 -S $$target-runtime.bc; \
+	  clang -O3 -S -arch i386 $$target-runtime.bc; \
 	done
 
 BOOTSTRAP_4_ENV = \
@@ -319,8 +319,8 @@ cli4:
 	@$(BOOTSTRAP_4_ENV) $(BOOTSTRAP_4_COMPILER)
 
 testc: $(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM)
-	@printf "set compiler-back-end c\nopen dylan\nbuild -nolink -output dfm" \
-	| $(BOOTSTRAP_4_ENV) $(BOOTSTRAP_4_COMPILER) \
+	$(BOOTSTRAP_4_ENV) $(BOOTSTRAP_4_COMPILER) -back-end c -dfm -build $$library; \
+           | tee -a llvm-build.log; \
 	| tee llvm-compile.log
 	@printf "set compiler-back-end c\nopen common-dylan\nbuild -nolink -output dfm" \
 	| $(BOOTSTRAP_4_ENV) $(BOOTSTRAP_4_COMPILER) \
@@ -328,10 +328,9 @@ testc: $(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM)
 	$(abs_srcdir)/llvm-stats.py
 
 testl:  $(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM)
-	@rm llvm-build.log
-	@for library in dylan common-dylan io system generic-arithmetic big-integers c-ffi c-ffi-test; do \
-	     printf "set compiler-back-end llvm\nopen $$library\nbuild -nolink -output dfm" \
-	       | $(BOOTSTRAP_4_ENV) $(BOOTSTRAP_4_COMPILER) \
+	@rm -f llvm-build.log
+	@for library in dylan common-dylan; do \
+	    $(BOOTSTRAP_4_ENV) $(BOOTSTRAP_4_COMPILER) -back-end llvm -dfm -build $$library; \
 	       | tee -a llvm-build.log; \
 	     (cd Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM)/build/$$library && \
               for i in *.bc; do \
@@ -358,8 +357,15 @@ gloml: cleanl $(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM)
 	    OPEN_DYLAN_TARGET_PLATFORM=$$target_platform \
 	    install-llvm-runtime; \
 	done
-	printf "set compiler-back-end llvm\nopen dylan\nbuild -output dfm" \
-	       | $(BOOTSTRAP_4_ENV) $(BOOTSTRAP_4_COMPILER)
+	@for library in dylan common-dylan io hello-world system testworks testworks-specs dylan-test-suite dylan-test-suite-app; do \
+	    $(BOOTSTRAP_4_ENV) $(BOOTSTRAP_4_COMPILER) -back-end llvm -dfm -build $$library; \
+	done
+
+glomlx: $(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM)
+	@for library in dylan common-dylan io hello-world system testworks testworks-specs dylan-test-suite dylan-test-suite-app apple-dylan-test-suite-app common-dylan-test-suite-app io-test-suite-app system-test-suite-app collections-test-suite-app; do \
+	    $(BOOTSTRAP_4_ENV) $(BOOTSTRAP_4_COMPILER) -back-end llvm -dfm -build $$library; \
+	done
+
 
 cleanl:
 	@rm -rf $(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM)

@@ -63,6 +63,7 @@ define common-extensions class-test <division-by-zero-error> ()
 end class-test <division-by-zero-error>;
 
 define common-extensions class-test <arithmetic-overflow-error> ()
+/*
   check-condition("$maximum-integer + 1 signals <arithmetic-overflow-error>",
                   <arithmetic-overflow-error>,
                   begin
@@ -97,9 +98,11 @@ define common-extensions class-test <arithmetic-overflow-error> ()
                     end;
                     x
                   end);
+*/
 end class-test <arithmetic-overflow-error>;
 
 define common-extensions class-test <arithmetic-underflow-error> ()
+/*
   check-condition("1.0s-20 * 1.0s-20 signals <arithmetic-underflow-error>",
                   <arithmetic-underflow-error>,
                   begin
@@ -118,6 +121,7 @@ define common-extensions class-test <arithmetic-underflow-error> ()
                     end;
                     x
                   end);
+*/
 end class-test <arithmetic-underflow-error>;
 
 define sideways method make-test-instance

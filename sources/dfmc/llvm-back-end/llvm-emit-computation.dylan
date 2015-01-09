@@ -977,6 +977,7 @@ define method emit-computation
   let index = emit-reference(back-end, m, c.computation-index);
   let index
     = if (c.computation-index-tagged?)
+        // FIXME add llvm.assert() call
         ins--ashr(back-end, index, $dylan-tag-bits)
       else
         index
@@ -1013,6 +1014,7 @@ define method emit-computation
   let index = emit-reference(back-end, m, c.computation-index);
   let index
     = if (c.computation-index-tagged?)
+        // FIXME add llvm.assert() call
         ins--ashr(back-end, index, $dylan-tag-bits)
       else
         index

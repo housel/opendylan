@@ -134,14 +134,15 @@ register-back-end(<llvm-x86-darwin-back-end>, #"llvm", #"x86-darwin");
 
 define method llvm-back-end-target-triple
     (back-end :: <llvm-x86-darwin-back-end>) => (triple :: <string>);
-  "i386-apple-macosx10.7.0"
+  "i386-apple-macosx10.10.0"
 end method;
 
 define method llvm-back-end-data-layout
     (back-end :: <llvm-x86-darwin-back-end>) => (layout :: <string>);
-  "e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32"
-    "-i64:32:64-f32:32:32-f64:32:64-v64:64:64-"
-    "v128:128:128-a0:0:64-f80:128:128-n8:16:32-S128"
+  "e-m:o-p:32:32-f64:32:64-f80:128-n8:16:32-S128"
+  // "e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32"
+  //   "-i64:32:64-f32:32:32-f64:32:64-v64:64:64-"
+  //   "v128:128:128-a0:0:64-f80:128:128-n8:16:32-S128"
 end method;
 
 // x86_64-darwin

@@ -5,7 +5,9 @@ License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define method say-hello()
-  format-out("hello there!\n");
+  format(*standard-output*, "hello there!\n");
+  force-output(*standard-output*);
+  for (i in range(from: 0.0, to: 1.0, by: 0.1)) end
 end method say-hello;
 
 say-hello();

@@ -23,12 +23,22 @@ end;
 
 define side-effect-free stateless indefinite-extent &primitive-descriptor primitive-cast-pointer-as-raw
     (x :: <raw-pointer>) => (z :: <raw-address>)
-  ins--ptrtoint(be, x, llvm-reference-type(be, dylan-value(#"<raw-address>")))
+  let type = x.llvm-value-type;
+  if (instance?(type, <llvm-pointer-type>))
+    ins--ptrtoint(be, x, llvm-reference-type(be, dylan-value(#"<raw-address>")))
+  else
+    x
+  end if
 end;
 
 define side-effect-free stateless indefinite-extent &primitive-descriptor primitive-cast-raw-as-pointer
     (x :: <raw-address>) => (z :: <raw-pointer>)
-  ins--inttoptr(be, x, llvm-reference-type(be, dylan-value(#"<raw-pointer>")))
+  let type = x.llvm-value-type;
+  if (instance?(type, <llvm-integer-type>))
+    ins--inttoptr(be, x, llvm-reference-type(be, dylan-value(#"<raw-pointer>")))
+  else
+    x
+  end if
 end;
 
 

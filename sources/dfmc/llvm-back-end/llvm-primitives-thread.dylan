@@ -38,16 +38,15 @@ define method initialize-teb-struct-type (back-end :: <llvm-back-end>) => ()
 		     make(<raw-aggregate-ordinary-member>,
 		     	  name: #"teb-runtime-state",
                           raw-type: dylan-value(#"<raw-pointer>")),
-		     // Padding
-		     make(<raw-aggregate-array-member>,
-			  name: #"teb-pad",
-			  array-length: 2,
-                          raw-type: dylan-value(#"<raw-pointer>")),
-		     // Offset 8: MV count
+                     // Offset 6: Allocation count
+		     make(<raw-aggregate-ordinary-member>,
+		     	  name: #"teb-allocation-count",
+                          raw-type: dylan-value(#"<raw-integer>")),
+		     // Offset 7: MV count
 		     make(<raw-aggregate-ordinary-member>,
 		     	  name: #"teb-mv-count",
                           raw-type: dylan-value(#"<raw-pointer>")),
-		     // Offset 9: MV area
+		     // Offset 8: MV area
 		     make(<raw-aggregate-array-member>,
 			  name: #"teb-mv-area",
 			  array-length: $maximum-value-count,

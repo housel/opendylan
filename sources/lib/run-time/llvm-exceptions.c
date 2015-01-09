@@ -8,7 +8,7 @@
 #include <sys/signal.h>
 
 #include <fenv.h>
-//#pragma STDC FENV_ACCESS ON
+// #pragma STDC FENV_ACCESS ON
 
 void primitive_reset_float_environment(void)
 {

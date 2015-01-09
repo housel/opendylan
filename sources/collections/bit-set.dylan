@@ -28,11 +28,13 @@ define sealed method initialize
  => ()
   next-method();
   if (~supplied?(member-vector))
-    let pad :: <bit> = 0;
-    if (all-members-from)
-      upper-bound-hint := all-members-from;
-      pad := 1;
-    end if;
+    let pad :: <bit>
+      = if (all-members-from)
+          upper-bound-hint := all-members-from;
+          1
+        else
+          0
+        end if;
     if (supplied?(upper-bound-hint))
       let vector :: <bit-vector> = make(<bit-vector>, size: upper-bound-hint);
       set.member-vector-pad := pad;

@@ -15,5 +15,5 @@ end method make-test-instance;
 
 define sideways method make-test-instance
     (class == <generic-function>) => (object)
-  make(<generic-function>, required: 1)
+  make(<generic-function>, required: vector(<object>))
 end method make-test-instance;

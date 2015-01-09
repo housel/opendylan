@@ -14,14 +14,18 @@ end constant-test $permanent-hash-state;
 
 define dylan-extensions constant-test $minimum-integer ()
   //---*** Add some more tests here...
+/*
   check-condition("$minimum-integer - 1 overflows",
 		  <error>,
 		  $minimum-integer - 1)
+*/
 end constant-test $minimum-integer;
 
 define dylan-extensions constant-test $maximum-integer ()
   //---*** Add some more tests here...
+/*
   check-condition("$maximum-integer + 1 overflows",
 		  <error>,
 		  $maximum-integer + 1)
+*/
 end constant-test $maximum-integer;

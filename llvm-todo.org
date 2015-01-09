@@ -180,10 +180,10 @@ Fix dfmc/modeling/primitives.dylan definition (missing 'what')
 *** DONE primitive-double-float-expt
 *** DONE primitive-double-float-sin
 *** DONE primitive-double-float-cos
-*** TODO primitive-double-float-tan
-*** TODO primitive-double-float-asin
-*** TODO primitive-double-float-acos
-*** TODO primitive-double-float-atan
+*** DONE primitive-double-float-tan
+*** DONE primitive-double-float-asin
+*** DONE primitive-double-float-acos
+*** DONE primitive-double-float-atan
 *** DONE primitive-single-float-as-double
 *** DONE primitive-double-float-as-single
 *** DONE primitive-single-float-class
@@ -297,26 +297,32 @@ Fix dfmc/modeling/primitives.dylan definition (missing 'what')
 General raw struct accessors?
 ** DONE Thread-Local Variables
 ** Entry points definitions
-*** TODO Tie emit-object to entry points definitions
+*** DONE Tie emit-object to entry points definitions
 *** DONE xep
 *** DONE rest-xep
-*** TODO rest-key-xep
-*** TODO rest-key-mep
+*** DONE rest-key-xep
+*** DONE rest-key-mep
 *** DONE gf-xep
-*** TODO key-mep
 *** DONE gf-optional-xep
 *** DONE apply-xep
-*** TODO general-engine-node-n
-*** TODO general-engine-node-n-optionals
-*** TODO general-engine-node-spread-optionals
-*** TODO unrestricted-keyed-single-method-entry
-*** TODO explicit-keyed-single-method-entry
-*** TODO implicit-keyed-single-method-entry
-*** TODO discriminate-on-argument-entry
-*** TODO if-type-discriminator-engine
-*** TODO typecheck-discriminator-engine
-*** TODO monomorphic-by-class-discriminator-engine
-** TODO Function calls
+*** DONE general-engine-node-n
+*** DONE general-engine-node-1
+*** DONE general-engine-node-2
+*** DONE general-engine-node-spread
+*** DONE single-method
+*** DONE implicit-keyed-single-method-entry
+*** DONE explicit-keyed-single-method-entry
+
+*** DONE unrestricted-keyed-single-method-entry
+*** DONE cache-header
+*** DONE boxed-instance-slot-getter
+*** DONE boxed-instance-slot-setter
+*** DONE boxed-repeated-instance-slot-getter
+*** DONE discriminate-on-argument-entry
+*** DONE if-type-discriminator-engine
+*** DONE typecheck-discriminator-engine
+*** DONE monomorphic-by-class-discriminator-engine
+** Function calls
 *** DONE <simple-call>
 *** DONE <method-call>
 *** DONE <engine-node-call>
@@ -330,9 +336,9 @@ General raw struct accessors?
 ** TODO 'tbaa' (Type-Based Alias Analysis) metadata
 See http://llvm.org/llvm/docs/LangRef.html#tbaa
 * Open Dylan LLVM linker
-** TODO Emit gluefile
-** TODO Emit mainfile
-** TODO Jamfile
+** DONE Emit gluefile
+** DONE Emit mainfile
+** DONE Jamfile
 * Open Dylan LLVM Runtime Generator
 ** DONE Entry points generation
 ** DONE C header output generator
@@ -348,3 +354,4 @@ See http://llvm.org/llvm/docs/LangRef.html#tbaa
 *** Generating Dylan Runtime Primitives as LLVM
 *** Generating Dylan Method Code as LLVM
 *** Implementing Dylan Multimethod Dispatch and Function Calls
+*** Implementing Dylan nonlocal-exit and unwind-protect
