@@ -521,7 +521,8 @@ check:	bootstrap-stage-$(CHECK_COMPILER_STAGE)
 BOOTSTRAP_4_RTG = $(abs_builddir)/Bootstrap.3/bin/llvm-runtime-generator
 
 LLVM_CHECK_APPS = \
-	dylan-test-suite-app
+	dylan-test-suite-app \
+	common-dylan-test-suite-app
 
 check-llvm: $(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM)
 	$(MAKE) bootstrap-stage-3 \
