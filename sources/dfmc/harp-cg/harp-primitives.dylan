@@ -1870,10 +1870,14 @@ define &primitive-descriptor primitive-raw-as-unicode-character, emitter: op--un
 // Unsigned-Machine Integer.
 
 // Address.
+define &primitive-descriptor primitive-object-address, emitter: ins--move;
 
 // Pointer.
 define &primitive-descriptor primitive-cast-pointer-as-raw, emitter: ins--move;
 define &primitive-descriptor primitive-cast-raw-as-pointer, emitter: ins--move;
+
+// Raw Cast
+define &primitive-descriptor primitive-raw-as, emitter: op--raw-as;
 
 // Machine-words
 define &primitive-descriptor primitive-integer?, emitter: op--integer?;

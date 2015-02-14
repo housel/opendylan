@@ -361,7 +361,7 @@ define method type-estimate-call-from-site(call :: <primitive-call>,
   let fn = primitive(call);
   block (return)
     // special cases
-    when (fn == dylan-value(#"primitive-object-allocate-filled"))
+    if (fn == dylan-value(#"primitive-object-allocate-filled"))
       // type returned is actually contained in second argument
       let (c?, wrapper) = constant-value?(second(arguments(call)));
       when (c?)
@@ -370,7 +370,13 @@ define method type-estimate-call-from-site(call :: <primitive-call>,
         return(make(<type-estimate-values>,
                     fixed: vector(as(<type-estimate>, class))))
       end when
-    end when;
+    elseif (fn == dylan-value(#"primitive-raw-as"))
+      let (c?, type) = constant-value?(first(arguments(call)));
+      when (c? & instance?(type, <&raw-type>))
+        make(<type-estimate-values>,
+             fixed: vector(as(<type-estimate>, type)));
+      end when;
+    end if;
     type-estimate-call-stupidly-from-fn(call, fn, cache)
   end block;
 end method;

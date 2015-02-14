@@ -365,12 +365,20 @@ end;
 
 /// ADDRESSES
 
+define side-effect-free stateless indefinite-extent &primitive primitive-object-address
+    (x :: <object>) => (z :: <raw-address>);
+
 /// POINTER
 
 define side-effect-free stateless indefinite-extent &primitive primitive-cast-pointer-as-raw
     (x :: <raw-pointer>) => (z :: <raw-address>);
 define side-effect-free stateless indefinite-extent &primitive primitive-cast-raw-as-pointer
     (x :: <raw-address>) => (z :: <raw-pointer>);
+
+/// RAW CAST
+
+define side-effect-free stateless indefinite-extent &primitive primitive-raw-as
+    (type :: <raw-type>, x :: <raw-object>) => (z :: <raw-object>);
 
 /// TYPE-CHECKS
 

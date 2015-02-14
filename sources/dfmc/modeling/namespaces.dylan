@@ -272,11 +272,17 @@ define &module dylan-primitives
 //    primitive-extended-float-as-single;
 
   // Address.
+  create
+    primitive-object-address;
 
   // Pointer.
   create
     primitive-cast-pointer-as-raw,
     primitive-cast-raw-as-pointer;
+
+  // Raw Cast
+  create
+    primitive-raw-as;
 
   // Machine-words.
   create

@@ -210,6 +210,12 @@ define method op--df-as-raw(back-end :: <harp-back-end>, result, object) => (res
 
 end method op--df-as-raw;
 
+define method op--raw-as
+    (back-end :: <harp-back-end>, result, type, object) => (result)
+  ins--move(back-end, result, object);
+  result
+end method;
+
 
 define method op--add(back-end :: <harp-back-end>, result, x, y) => (result)
 

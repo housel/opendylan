@@ -87,7 +87,8 @@ if $(LLVM_GC_STATIC) {
   RTCLIBS_llvm ?= $(LLVM_GC_LIBS) ;
 }
 
-LINKFLAGS += -L$(SYSTEM_LIBDIR)/runtime/$(RUNTIMEDIR)/ ;
+LINKFLAGS += -L$(SYSTEM_LIBDIR)/runtime/$(RUNTIMEDIR)/
+             -L$(SYSTEM_LIBDIR) ;
 
 # These are passed to the link rules by way of the dylan.lid file
 rtlibs  ?= $(RTOBJS_$(COMPILER_BACK_END)) ;
