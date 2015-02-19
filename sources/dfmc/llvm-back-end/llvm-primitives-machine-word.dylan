@@ -245,9 +245,33 @@ define side-effect-free stateless dynamic-extent &runtime-primitive-descriptor p
   ins--phi*(be, untagged, return-untagged, low, return-double)
 end;
 
+define function coerce
+    (be :: <llvm-back-end>, x :: <llvm-value>, y :: <llvm-value>)
+ => (x :: <llvm-value>, y :: <llvm-value>);
+  let x-type = x.llvm-value-type;
+  let y-type = y.llvm-value-type;
+  if (instance?(x-type, <llvm-integer-type>) & instance?(y-type, <llvm-integer-type>))
+    let width = max(x-type.llvm-integer-type-width, y-type.llvm-integer-type-width);
+    let widened-type = make(<llvm-integer-type>, width: width);
+    values(if (x-type.llvm-integer-type-width < width)
+             ins--zext(be, x, widened-type)
+           else
+             x
+           end,
+           if (y-type.llvm-integer-type-width < width)
+             ins--zext(be, y, widened-type)
+           else
+             y
+           end)
+  else
+    values(x, y)
+  end if
+end function;
+
 define side-effect-free stateless dynamic-extent &primitive-descriptor primitive-machine-word-logand
     (x :: <raw-machine-word>, y :: <raw-machine-word>)
  => (result :: <raw-machine-word>);
+  let (x, y) = coerce(be, x, y);
   ins--and(be, x, y)
 end;
 

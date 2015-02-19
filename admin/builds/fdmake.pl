@@ -225,6 +225,9 @@ sub build_library {
                 undef $prefix;
                 print $_;
             }
+            elsif (m|^emit |) {
+                print $_;
+            }
        }
 
         my $elapsed_time = sprintf '%.3f', time() - $start_time;

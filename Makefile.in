@@ -232,7 +232,7 @@ BOOTSTRAP_3_ENV = \
 BOOTSTRAP_3_LIBRARIES = dylan-compiler parser-compiler dswank make-dylan-app
 
 BOOTSTRAP_3_COMPILER = \
-	$(abs_builddir)/Bootstrap.2/bin/dylan-compiler -build -verbose
+	$(abs_builddir)/Bootstrap.2/bin/dylan-compiler -build -verbose -dfm
 ifneq (@SUPPORT_LLVM@,)
 BOOTSTRAP_3_RTG = $(abs_builddir)/Bootstrap.2/bin/llvm-runtime-generator
 endif
@@ -540,6 +540,12 @@ check-llvm: $(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM)
 	  echo "Executing test app $$app ..."; \
 	  $(abs_builddir)/Bootstrap.4.$(OPEN_DYLAN_TARGET_PLATFORM)/bin/$$app $(OPEN_DYLAN_CHECK_FLAGS); \
 	done
+
+http-llvm:
+	@$(BOOTSTRAP_4_ENV) \
+          OPEN_DYLAN_USER_REGISTRIES=/Users/housel/src/dylan/dylan-lang/http/registry:$(abs_srcdir)/sources/registry:$(library_srcdir)/registry \
+	  $(fdmake) --compiler="$(BOOTSTRAP_4_COMPILER) -back-end llvm" \
+	  http-server-demo
 
 installcheck:
 

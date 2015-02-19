@@ -3,6 +3,7 @@
 import lldb
 import shlex
 import sys
+import struct
 
 OBJECT_TAG = 0
 INTEGER_TAG = 1
@@ -43,7 +44,9 @@ class DylanObjectPrinter:
         size = self.get_slot(addr, 0) >> 2
         string_addr = addr + 2 * self.word_size
         error = lldb.SBError()
-        if size < 256:
+        if size == 0:
+            return ""
+        elif size < 256:
             value = self.process.ReadMemory(string_addr, size, error)
             return value
         else:
@@ -59,7 +62,9 @@ class DylanObjectPrinter:
 
     def print_object(self, addr):
         tag = addr & 3
-        if tag == OBJECT_TAG:
+        if addr == 0:
+            self.stream.write("nullptr")
+        elif tag == OBJECT_TAG:
             wrapper = self.get_wrapper(addr)
             wrapperaddr = self.target.ResolveLoadAddress(wrapper)
             wrappersym = wrapperaddr.symbol.name
@@ -71,7 +76,12 @@ class DylanObjectPrinter:
                 try:
                     self.stream.write("{%s: #x%x}" % (self.get_class_name(addr), addr))
                 except Exception:
-                    self.stream.write("{???: #x%x}" % addr)
+                    resolved = self.target.ResolveLoadAddress(addr)
+                    addrsym = resolved.symbol.name
+                    if addrsym:
+                        self.stream.write("{???: #x%x (%s)}" % (addr, addrsym))
+                    else:
+                        self.stream.write("{???: #x%x}" % addr)
         elif tag == INTEGER_TAG:
             self.stream.write("%d" % (addr >> 2))
         else:
@@ -127,6 +137,13 @@ class DylanObjectPrinter:
         name = self.get_string(name_addr)
         self.stream.write("{%s: %s #x%x}" % (self.get_class_name(addr), name, addr))
 
+    def print_single_float(self, addr):
+        error = lldb.SBError()
+        float_addr = addr + 1 * self.word_size
+        float_bytes = self.process.ReadMemory(float_addr, 4, error)
+        float_value, = struct.unpack('f', float_bytes)
+        self.stream.write("{%s: %g #x%x}" % (self.get_class_name(addr), float_value, addr))
+
     WRAPPER_PRINTER = { 'KLsimple_object_vectorGVKdW' : print_sov,
                         'KLpairGVKdW' : print_pair,
                         'KLempty_listGVKdW' : print_nil,
@@ -135,7 +152,8 @@ class DylanObjectPrinter:
                         'KLbooleanGVKdW' : print_boolean,
                         'KLclassGVKdW' : print_class,
                         'KLincremental_generic_functionGVKeW' : print_gf,
-                        'KLsealed_generic_functionGVKeW' : print_gf }
+                        'KLsealed_generic_functionGVKeW' : print_gf,
+                        'KLsingle_floatGVKdW' : print_single_float }
 
     def print_slots(self, addr):
         tag = addr & 3
