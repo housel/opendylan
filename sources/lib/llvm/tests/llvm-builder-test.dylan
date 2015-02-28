@@ -1189,6 +1189,19 @@ define llvm-builder function-test ins--store ()
               builder-test-function-disassembly(builder));
 end function-test ins--store;
 
+define llvm-builder function-test ins--load-atomic ()
+  let builder = make-builder-with-test-function();
+  let ptr = ins--alloca(builder, $llvm-float-type, 1);
+  ins--load-atomic(builder, ptr, ordering: #"monotonic");
+  ins--ret(builder);
+  check-equal("ins--load-atomic disassembly",
+              #("entry:",
+                "%0 = alloca float, align 1",
+                "%1 = load atomic float* %0 monotonic, align 1",
+                "ret void"),
+              builder-test-function-disassembly(builder));
+end function-test ins--load-atomic;
+
 define llvm-builder function-test ins--cmpxchg ()
   let builder = make-builder-with-test-function();
   let ptr = ins--alloca(builder, $llvm-i32-type, 1, alignment: 4);

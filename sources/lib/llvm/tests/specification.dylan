@@ -266,6 +266,9 @@ define module-spec llvm-builder ()
       (<llvm-builder>, <llvm-value>, <llvm-value>, #"rest")
    => (<llvm-instruction>);
 
+  function ins--load-atomic
+      (<llvm-builder>, <llvm-value>, #"rest") => (<llvm-instruction>);
+
   function ins--cmpxchg
       (<llvm-builder>, <llvm-value>, <llvm-value>, <llvm-value>, #"rest")
    => (<llvm-instruction>);

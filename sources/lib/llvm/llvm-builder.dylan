@@ -600,6 +600,21 @@ define instruction-set
                options)
        end if;
 
+  op load-atomic (pointer, #rest options, #key metadata :: <list> = #(), #all-keys)
+    => let ptrtype = type-forward(pointer.llvm-value-type);
+       if (instance?(ptrtype, <llvm-pointer-type>))
+         apply(make, <llvm-atomic-load-instruction>,
+               type: type-forward(ptrtype.llvm-pointer-type-pointee),
+               operands: vector(llvm-builder-value(builder, pointer)),
+               metadata: builder-metadata(builder, metadata),
+               options)
+       else
+         apply(make, <llvm-atomic-load-instruction>,
+               operands: vector(llvm-builder-value(builder, pointer)),
+               metadata: builder-metadata(builder, metadata),
+               options)
+       end if;
+
   op store (value, pointer, #rest options,
             #key metadata :: <list> = #(), #all-keys)
     => apply(make, <llvm-store-instruction>,

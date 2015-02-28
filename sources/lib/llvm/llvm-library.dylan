@@ -330,6 +330,7 @@ define module llvm-builder
     ins--alloca,
     ins--load,
     ins--store,
+    ins--load-atomic,
     ins--cmpxchg,
     ins--atomicrmw-xchg,
     ins--atomicrmw-add,
