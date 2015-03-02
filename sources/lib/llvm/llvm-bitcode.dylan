@@ -1036,11 +1036,12 @@ define method write-constant-record
   let type = type-forward(llvm-value-type(value));
   select (type.llvm-primitive-type-kind)
     #"FLOAT" =>
-      let single-float = as(<single-float>, value.llvm-float-constant-float);
+      let single-float :: <single-float>
+        = as(<single-float>, value.llvm-float-constant-float);
       write-record(stream, #"FLOAT", decode-single-float(single-float));
     
     #"DOUBLE" =>
-      let double-float
+      let double-float :: <double-float>
         = as(<double-float>, value.llvm-float-constant-float);
       let (low :: <machine-word>, high :: <machine-word>)
         = decode-double-float(double-float);
