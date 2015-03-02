@@ -1498,10 +1498,13 @@ end method;
 define method check-primitive-call
     (call :: <primitive-call>)
  => (ok-to-analyse?)
+/*
   let prim = call.primitive;
   let signature = prim.primitive-signature;
   let arg-te* = argument-type-estimates(call);
+*/
   block (return)
+/*
     let required-types = ^signature-required(signature);
     let required-count = ^signature-number-required(signature);
     let supplied-count = size(arg-te*);
@@ -1524,8 +1527,10 @@ define method check-primitive-call
            supplied-count: supplied-count);
       return(#f);
     end;
+*/
     let guaranteed-compatible? = #t;
     let guaranteed-incompatible? = #f;
+/*
     for (arg-te in arg-te*, required-type in required-types,
          i :: <integer> from 0 below required-count)
       if (~guaranteed-joint?(arg-te, required-type))
@@ -1547,6 +1552,7 @@ define method check-primitive-call
         end if;
       end if;
     end for;
+*/
     if (guaranteed-incompatible?)
       return(#f);
     end if;

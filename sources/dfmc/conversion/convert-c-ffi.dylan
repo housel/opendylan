@@ -79,6 +79,7 @@ define method convert-%c-call-function
      name, signature, arguments, modifiers)
   let sig-spec = parse-primitive-signature(name, signature);
   let (ffi-signature, signature) = make-ffi-signature(sig-spec);
+  let function
     = make(<&c-function>,
 	   binding-name: name & as-string(name),
 	   c-signature: ffi-signature,

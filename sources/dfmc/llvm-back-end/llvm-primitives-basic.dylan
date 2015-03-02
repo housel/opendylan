@@ -541,7 +541,7 @@ define side-effect-free stateless indefinite-extent &unimplemented-primitive-des
   //---*** Fill this in...
 end;
 
-define side-effect-free stateless dynamic-extent mapped &runtime-primitive-descriptor primitive-copy-vector
+define side-effect-free stateless dynamic-extent mapped c-callable &runtime-primitive-descriptor primitive-copy-vector
     (x :: <simple-object-vector>) => (value :: <simple-object-vector>);
   let word-size = back-end-word-size(be);
   let module = be.llvm-builder-module;
