@@ -32,7 +32,7 @@ define constant $month-days = #[0,
                                 31   // December
                                 ];
 
-define inline-only function leap-year? (year :: <integer>)
+define inline function leap-year? (year :: <integer>)
  => (leaping? :: <boolean>)
   modulo(year, 4) = 0
   & (modulo(year, 100) ~= 0 | modulo(year, 400) = 0)
