@@ -6,7 +6,8 @@ License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library corba-tests-server-app
-  use dylan;
+  use common-dylan;
+  use corba-dylan;
   use dylan-orb;
   use corba-tests-server;
   use corba-tests-utilities;
@@ -14,7 +15,7 @@ define library corba-tests-server-app
 end library;
 
 define module corba-tests-server-app
-  use dylan;
+  use common-dylan;
   use dylan-orb;
   use corba-tests-utilities;
 end module;

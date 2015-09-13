@@ -18,7 +18,7 @@ end method;
 
 define constant <demo-account> = <property-object>;
 
-define method account/name (account :: <demo-account>)
+define method tie/account/name (account :: <demo-account>)
  => (name :: corba/<string>)
   get-property(object-properties(account), name:);
 end method;
@@ -36,7 +36,7 @@ end method;
 
 define method initialize-account (object :: <demo-account>)
   let bank = get-property(object-properties(object), bank:);
-  let name = account/name(object);
+  let name = tie/account/name(object);
   let id = as(<symbol>, name);
   let accounts = bank/accounts(bank);
   let existing-account = element(accounts, id, default: #f);
@@ -55,10 +55,10 @@ end method;
 define method tie/account/makeWithdrawal (object :: <demo-account>, withdrawl :: corba/<float>)
  => ()
   if (currentaccount?(object) & ((tie/account/balance(object) + tie/currentaccount/overdraftlimit(object)) < withdrawl))
-    error("ALERT: Account \"%s\" over agreed overdraft limit.", account/name(object));
+    error("ALERT: Account \"%s\" over agreed overdraft limit.", tie/account/name(object));
   end if;
   if (tie/account/balance(object) < withdrawl)
-    error("Warning: Account \"%s\" overdrawn.", account/name(object));
+    error("Warning: Account \"%s\" overdrawn.", tie/account/name(object));
   end if;
   tie/account/balance(object) := tie/account/balance(object) - withdrawl;
 end method;

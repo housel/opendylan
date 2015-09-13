@@ -1,0 +1,20 @@
+// Author:    Keith Dennison
+// Copyright: Copyright 1998 Functional Objects, Inc.  All rights reserved.
+
+interface ChatRoom;
+
+interface Callback {
+  readonly attribute string name;
+  oneway void NewMessage     (in string message);
+  oneway void RegisterClient (in Callback client, in string name);
+  oneway void RemoveClient   (in Callback client, in string name);
+  oneway void NewRoom        (in ChatRoom room, in string name);
+};
+
+interface Chat {
+  readonly attribute string name;
+  readonly attribute sequence<Callback> clients;
+  oneway void SendMessage    (in string message);
+  oneway void RegisterClient (in Callback client, in string name);
+  oneway void RemoveClient   (in Callback client, in string name);
+};
