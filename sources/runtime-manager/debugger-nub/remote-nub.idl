@@ -1,11 +1,11 @@
-#pragma prefix "functionalobjects.com"
+#pragma prefix "opendylan.org"
 
 module Rtmgr {
 
 interface AccessPath {
 
 typedef long           NUBINT;
-typedef unsigned long  RTARGET_ADDRESS;
+typedef unsigned long long RTARGET_ADDRESS;
 typedef unsigned long  RNUBPROCESS;
 typedef unsigned long  RNUBTHREAD;
 
@@ -50,7 +50,7 @@ typedef unsigned long  RSERVER;
 typedef unsigned long  RNUBPROCESS;
 typedef unsigned long  RNUBTHREAD;
 typedef unsigned long  RNUBLIBRARY;
-typedef unsigned long  RTARGET_ADDRESS;
+typedef unsigned long long RTARGET_ADDRESS;
 
 typedef unsigned long FLAG;
 
@@ -322,13 +322,23 @@ void restore_context
   (in RNUBTHREAD nubthread,
    in RNUBHANDLE the_context);
 
-
+/* Sets a breakpoint at the given address, returning OK if successful,
+ * BREAKPOINT_ALREADY_EXISTS if there was already a breakpoint there,
+ * or BREAKPOINT_WAS_DISABLED if a disabled breakpoint at that address
+ * was re-enabled.
+ */
 NUB_ERROR set_breakpoint
   (in RTARGET_ADDRESS address);
 
+/* Clears the breakpoint at the given address, returning OK if
+ * successful, or BREAKPOINT_DOES_NOT_EXIST if there was no breakpoint
+ * there.
+ */
 NUB_ERROR clear_breakpoint
   (in RTARGET_ADDRESS address);
 
+/* Returns 1 if a breakpoint is set at the given address, or 0 if not.
+ */
 NUBINT query_breakpoint
   (in RTARGET_ADDRESS address);
 
@@ -337,23 +347,39 @@ void wait_for_stop_reason_with_timeout
   (in NUBINT timeout,
    out NUBINT code);
 
+/* Not currently implemented.
+ */
 void profile_wait_for_stop_reason_with_timeout
   (in NUBINT timeout,
    in NUBINT profiling_interval,
    out NUBINT code);
 
+/* Called when profiling is turned on to raise the nub's thread
+ * priority so that the profiler manager gets a profiling interval
+ * closer to the value requested.
+ */
 void inform_profiling_started
   ();
 
+/* Called when profiling is turned off to lower the nub's thread
+ * priority back to normal.
+ */
 void inform_profiling_stopped
   ();
 
+/* Tests if the target process can receive the given first-chance
+ * exception code. Returns a 1 value if it can.
+ */
 NUBINT can_receive_first_chance
   (in NUBINT ecode);
 
+/* Sets the given first-chance exception flag for the process.
+ */
 void set_first_chance
   (in NUBINT ecode);
 
+/* Clears the given first-chance exception flag for the process.
+ */
 void unset_first_chance
   (in NUBINT ecode);
 

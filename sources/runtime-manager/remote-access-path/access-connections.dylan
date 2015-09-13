@@ -12,7 +12,8 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 //    different machine than the development environment.
 
 define class <remote-debugger-connection-implementation> (<remote-debugger-connection>)
-  slot connection-server :: Rtmgr/<NubServer>;
+  slot connection-server :: Rtmgr/<NubServer>,
+    init-keyword: server:;
   slot connection-orb;
   slot nub :: Rtmgr/<RemoteNub>;
 end class;
@@ -26,7 +27,7 @@ end method;
 // Some hard-coded constants for connecting to the Remote Debugger
 // Debugger Server
 
-define constant $DebuggerServerId = "Functional Developer Debugger Server";
+define constant $DebuggerServerId = "Open Dylan Debugger Server";
 
 define constant $DebuggerServerPOA = "DebuggerServerPOA";
 
@@ -38,7 +39,7 @@ define constant $RootPOAs =
 
 define constant $DebuggerServerPort = 7777;
 
-define constant $RepositoryID = "IDL:functionalobjects.com/Rtmgr/NubServer:1.0";
+define constant $RepositoryID = "IDL:opendylan.org/Rtmgr/NubServer:1.0";
 
 
 define method initialize
@@ -47,16 +48,20 @@ define method initialize
   next-method();
 
   let orb = CORBA/orb-init(make(corba/<arg-list>), "Functional Developer ORB");
-  let location =
-    make(IIOP/<location>,
-	 repository-id: $RepositoryID,
-	 host: connection.connection-network-address,
-	 port: $DebuggerServerPort,
-	 adaptor-path: $RootPOAs,
-	 objectid: $DebuggerServerId);
-  let server =
-    as(Rtmgr/<NubServer>,
-       CORBA/ORB/create-reference(orb, location));
+  let address = connection.connection-network-address;
+  let server
+    = if (address.size > 4 & copy-sequence(address, end: 4) = "IOR:")
+        as(Rtmgr/<NubServer>, CORBA/ORB/string-to-object(orb, address))
+      else
+        let location
+          = make(IIOP/<location>,
+                 repository-id: $RepositoryID,
+                 host: address,
+                 port: $DebuggerServerPort,
+                 adaptor-path: $RootPOAs,
+                 objectid: $DebuggerServerId);
+        as(Rtmgr/<NubServer>, CORBA/ORB/create-reference(orb, location));
+      end if;
 
   let password-ok = 
     block ()
@@ -65,8 +70,9 @@ define method initialize
 	 connection.connection-password,
 	 $local-hostname);
     exception (condition :: CORBA/<exception>)
-      error(make(<open-debugger-connection-failure>,
-		 network-address: connection.connection-network-address));
+      format(*standard-error*, "CORBA exception %s\n", condition);
+      force-output(*standard-output*);
+      error(make(<open-debugger-connection-failure>, network-address: address));
     end block;
 
   if (password-ok == 1)

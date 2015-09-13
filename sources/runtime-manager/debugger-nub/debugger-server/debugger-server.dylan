@@ -213,7 +213,7 @@ end method;
 
 // Some hard-coded constants for connecting to the Debugger Server
 
-define constant $DebuggerServerId = "Functional Developer Debugger Server";
+define constant $DebuggerServerId = "Open Dylan Debugger Server";
 
 define constant $DebuggerServerPOA = "DebuggerServerPOA";
 

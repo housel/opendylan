@@ -688,6 +688,13 @@ define sideways method initialize-application-client
             message(context,
                     "Could not execute the file '%s'.",
                     application.application-filename);
+            let application-context = context.context-application-context;
+            let thread = application-context.context-thread;
+            synchronize-application-release
+              (context,
+               method ()
+               end,
+               thread: thread)
           end,
           message-type: <run-application-failed-message>);
 end method initialize-application-client;
@@ -851,8 +858,10 @@ define method synchronize-application-call
   let notification = context.context-notification;
   with-lock (associated-lock(notification))
     context.context-call-active? := #t;
+    message(context, "Debugger invocation is active");
     apply(function, args);
     while (context.context-call-active?)
+      message(context, "Debugger invocation waiting");
       wait-for(notification);
     end while;
     refresh-application-context(context)

@@ -18,6 +18,7 @@ define module remote-access-path
   use threads, exclude: {thread-name};
   use format;
   use format-out;
+  use standard-io;
   use print;
   use streams, import: {<file-stream>, <stream>, force-output, close};
   use byte-vector;

@@ -84,7 +84,7 @@ define frame <debugger-server-frame> (<simple-frame>)
   status-bar (frame)    frame.debugger-server-status-bar;
   tool-bar (frame)      frame.debugger-server-tool-bar;
   command-table (frame) *debugger-server-command-table*;
-  keyword title: = "Functional Developer Debugger Server";
+  keyword title: = "Open Dylan Debugger Server";
   keyword icon: = $AAA-icon;
 end frame;
 
