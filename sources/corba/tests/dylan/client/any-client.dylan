@@ -70,6 +70,8 @@ define test any-tree-test ()
   check-equal("Any tree attribute getter", AnyTest/any-tree-attribute(AnyTest), any);
 end test;
 
+ignore(any-tree-test);
+
 define suite any-test-suite ()
   test any-short-test;
 //  test any-tree-test;

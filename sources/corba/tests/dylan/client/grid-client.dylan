@@ -5,10 +5,6 @@ Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
 License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-define suite grid-test-suite ()
-  test grid-request-tests;
-end suite;
-
 define constant $grid-ior-file :: <string> = "c:\\temp\\grid.ior";
 
 define constant $wrong-grid-ior-file :: <string> = "c:\\temp\\wrong-grid.ior";
@@ -63,3 +59,7 @@ define method grid/asynch-height (object :: <grid>)
   corba/request/get-response(request, 0); // NB now block until result arrives
   as(corba/<short>, corba/namedvalue/argument(result));
 end method;
+
+define suite grid-test-suite ()
+  test grid-request-tests;
+end suite;
