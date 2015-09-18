@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import os.path
 import socket
 import inspect
 import psutil
@@ -59,13 +60,19 @@ class EventDispatcher (threading.Thread):
         self._listener = listener
         self._consumer = consumer
         self._launching = False
+        self._launching_lock = threading.Lock()
+
+    def set_launching(self):
+        with self._launching_lock:
+            self._launching = True
 
     def run(self):
         event = lldb.SBEvent()
         while self._listener.WaitForEvent(lldb.UINT32_MAX, event):
             stream = lldb.SBStream()
             event.GetDescription(stream)
-            sys.stdout.write("=> Event (flavor %s): %s\n" % (event.GetDataFlavor(), stream.GetData()))
+            sys.stdout.write("=> Event (data flavor %s): %s\n" %
+                             (event.GetDataFlavor(), stream.GetData()))
 
             if lldb.SBThread.EventIsThreadEvent(event):
                 thread = lldb.SBThread.GetThreadFromEvent(event)
@@ -80,18 +87,22 @@ class EventDispatcher (threading.Thread):
                     sys.stdout.write("  => Hey, launching!\n")
                     self._launching = True
                 elif state == lldb.eStateStopped:
-                    if self._launching:
-                        self._launching = False
-                        stop = StopReason(StopReason.CREATE_PROCESS,
-                                          process=process, thread=thread)
-                        self._consumer.notify_stop(stop)
-                    else:
-                        stop = StopReason(StopReason.UNCLASSIFIED,
-                                          process=process,
-                                          thread=thread)
-                        self._consumer.notify_stop(stop)
+                    with self._launching_lock:
+                        if self._launching:
+                            stop = StopReason(StopReason.CREATE_PROCESS,
+                                              process=process, thread=None)
+                            self._consumer.notify_stop(stop)
+                            stop = StopReason(StopReason.HARD_CODED_BREAKPOINT_EXCEPTION,
+                                              process=process,
+                                              thread=process.threads[0])
+                            self._consumer.notify_stop(stop)
+                        else:
+                            stop = StopReason(StopReason.UNCLASSIFIED,
+                                              process=process,
+                                              thread=thread)
+                            self._consumer.notify_stop(stop)
                 elif state == lldb.eStateExited:
-                    stop = StopReason(StopReason.EXIT_PROCESS, process=process)
+                    stop = StopReason(StopReason.EXIT_PROCESS, process=process, thread=None)
                     self._consumer.notify_stop(stop)
             else:
                 sys.stdout.write("  => Something else event (%s)\n" % event.GetBroadcasterClass())
@@ -119,8 +130,7 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
         self._dispatcher = EventDispatcher(self._listener, self)
         self._dispatcher.start()
 
-        self._pending_process = None
-        self._pending_thread = None
+        self._pending_stop = None
 
     def notify_stop(self, stop):
         with self._condition:
@@ -180,16 +190,34 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
         oops()
 
     def get_library_base_address(self, dll):
-        oops()
+        self._trace("get_library_filename %d\n" % dll)
+        module = self._target.modules[dll]
+        for s in module.sections:
+            a = s.GetLoadAddress(self._target)
+            if a != lldb.LLDB_INVALID_ADDRESS:
+                return a
+        return lldb.LLDB_INVALID_ADDRESS
 
     def get_library_version(self, dll):
-        oops()
+        self._trace("get_library_version %d\n" % dll)
+        module = self._target.modules[dll]
+        version = module.GetVersion()
+        if len(version) > 1:
+            return version[0], version[1]
+        elif len(version) > 0:
+            return version[0], 0
+        else:
+            return 0, 0
 
     def get_library_filename(self, dll):
-        oops()
+        self._trace("get_library_filename %d\n" % dll)
+        module = self._target.modules[dll]
+        return module.GetFileSpec().GetFilename()
 
     def get_library_undecorated_name(self, dll):
-        oops()
+        self._trace("get_library_undecorated_name %d\n" % dll)
+        module = self._target.modules[dll]
+        return os.path.basename(module.GetFileSpec().GetFilename())
 
     def get_register_name(self, reg):
         oops()
@@ -281,7 +309,7 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
         self._trace("application_restart: Process in state %d\n" % state)
         if self._unstarted:
             self._unstarted = False
-            self._process.Continue()
+            # self._process.Continue()
         else:
             m = "Restart from state %d" % state
             sys.stderr.write(m + "\n")
@@ -293,6 +321,9 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
 
     def application_continue(self):
         self._trace("application_continue\n");
+        stop = self._pending_stop
+        if stop and stop.code == StopReason.CREATE_PROCESS:
+            return              # Don't actually continue
         self._process.Continue()
 
     def application_continue_unhandled(self):
@@ -367,9 +398,8 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
         deadline = time.time() + timeout_ms / 1000.0
         stop = self._wait_for_stop(deadline)
         if stop:
-            self._pending_process = stop.process
-            if 'thread' in stop:
-                self._pending_thread = stop.thread
+            self._pending_stop = stop
+            self._trace("wait_for_stop_reason_with_timeout: code=%d\n" % stop.code)
             return stop.code
         else:
             return StopReason.TIMED_OUT
@@ -404,29 +434,39 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
 
     def stop_reason_process(self):
         self._trace("stop_reason_process\n");
-        if self._pending_process:
-            return self._pending_process.id
+        stop = self._pending_stop
+        if stop and stop.process:
+            return stop.process.id
         else:
             return 0
 
     def stop_reason_thread(self):
         self._trace("stop_reason_thread\n");
-        if self._pending_thread:
-            return self._pending_thread.id
+        stop = self._pending_stop
+        if stop and stop.thread:
+            return stop.thread.id
         else:
             return 0
 
     def first_hard_coded_breakpoint(self):
-        oops()
+        self._trace("first_hard_coded_breakpoint\n");
+        stop = self._pending_stop
+        return 1                # FIXME
 
     def stop_reason_process_exit_code(self):
-        oops()
+        self._trace("stop_reason_process_exit_code\n")
+        return self._process.GetExitStatus()
 
     def stop_reason_thread_exit_code(self):
         oops()
 
     def stop_reason_library(self):
-        oops()
+        self._trace("stop_reason_library\n")
+        stop = self._pending_stop
+        if stop.code == StopReason.CREATE_PROCESS:
+            return 0
+        else:
+            raise RuntimeError("Unknown library for stop reason %d" % stop.code)
 
     def stop_reason_violation_op(self):
         oops()
@@ -440,7 +480,8 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
 
     def stop_reason_exception_address(self):
         self._trace("stop_reason_exception_address\n")
-        frame = self._pending_thread.GetFrameAtIndex(0)
+        thread = self._pending_stop.thread
+        frame = thread.GetFrameAtIndex(0)
         return frame.GetPC()
 
     def stop_reason_debug_string_address(self):
@@ -565,9 +606,11 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
 
     def open_local_tether(self, command, args, paths, lib_paths, \
                           working_directory, create_shell):
+        self._dispatcher.set_launching()
+
         self._target = lldb.debugger.CreateTarget(command)
         if not self._target:
-            return (0, 0)
+            return 0, 0
 
         # Subscribe to target notifications
         target_broadcaster = self._target.GetBroadcaster()
@@ -576,7 +619,7 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
         target_broadcaster.AddListener(self._listener, flags)
 
         error = lldb.SBError()
-        flags = lldb.eLaunchFlagStopAtEntry
+        flags = lldb.eLaunchFlagDebug | lldb.eLaunchFlagStopAtEntry
         self._process = self._target.Launch (self._listener,
                                              None,      # argv
                                              None,      # envp
@@ -599,7 +642,7 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
                 sys.stderr.write("Waiting...\n")
                 self._condition.wait()
 
-        return (self._process.id, 1)
+        return self._process.id, 1
 
     def attach_local_tether(self, process, process_name, process_system_id, \
                             process_actual_id, symbol_paths, system_jit_info):
@@ -611,20 +654,30 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
 
     def CloseNub(self):
         sys.stderr.write("Closing nub for %s\n" % self._process_name)
+        if self._process:
+            self._process.Destroy()
         self._access_path = None
+        poa = self._default_POA()
+        objid = poa.servant_to_id(self)
+        poa.deactivate_object(objid)
 
 class NubServer_i (Rtmgr__POA.NubServer):
     def __init__(self):
         self._local_processes = []
-        self._nubs = []
+
+    def _trace(self, string):
+        sys.stderr.write(string)
 
     def CreateNub(self, process_name, remote_machine):
         servant = RemoteNub_i(process_name, remote_machine)
-        self._nubs.append(servant)
-        return servant._this()
+        poa = self._default_POA()
+        objid  = poa.activate_object(servant)
+        ref = poa.id_to_reference(objid)
+        return ref
 
     def DestroyNub(self, nub):
-        oops()
+        self._trace("DestroyNub\n")
+        nub.CloseNub();
 
     def RegisterNub(self, nub, process_name, process_id, remote_machine):
         oops()
@@ -636,8 +689,7 @@ class NubServer_i (Rtmgr__POA.NubServer):
         return socket.gethostname()
 
     def verify_local_password(self, password, remote_machine):
-        sys.stderr.write("Verify password %s for %s\n" \
-                         % (password, remote_machine))
+        self._trace("Verify password %s for %s\n" % (password, remote_machine))
         return 1
 
     def update_local_process_list(self):
@@ -662,7 +714,7 @@ class NubServer_i (Rtmgr__POA.NubServer):
 if __name__ == '__main__':
     lldb.debugger = lldb.SBDebugger.Create()
     lldb.debugger.SetAsync(True)
-    lldb.debugger.EnableLog("lldb", ["api"])
+    #lldb.debugger.EnableLog("lldb", ["api"])
 
     # giop:tcp:<host>:<port>
 
@@ -682,12 +734,12 @@ if __name__ == '__main__':
     # Create a child POA
     policies = [poa.create_id_assignment_policy(PortableServer.USER_ID),
                 poa.create_lifespan_policy(PortableServer.PERSISTENT)]
-    child = poa.create_POA("DebuggerServerPOA", poaManager, policies)
+    child_poa = poa.create_POA("DebuggerServerPOA", poaManager, policies)
 
     # Activate the NubServer servant object (with a known object id)
     servant = NubServer_i()
     object_id = 'Open Dylan Debugger Server'
-    child.activate_object_with_id(object_id, servant)
+    child_poa.activate_object_with_id(object_id, servant)
 
     # and print an IOR string to stdout
     ref = servant._this()
