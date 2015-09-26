@@ -16,6 +16,7 @@ import Rtmgr, Rtmgr__POA
 class StopReason:
     def __init__(self, code, **kwargs):
         self.code = code
+        self.defer_continue = False
         for keyword, val in kwargs.items():
             setattr(self, keyword, val)
 
@@ -55,16 +56,21 @@ class StopReason:
     SOURCE_STEP_INTO                    = 31
 
 class EventDispatcher (threading.Thread):
+    IDLE = 0
+    LAUNCHING = 1
+    INITIALIZING = 2
+    RUNNING = 3
+
     def __init__(self, listener, consumer):
         threading.Thread.__init__(self)
         self._listener = listener
         self._consumer = consumer
-        self._launching = False
+        self._launch_state = EventDispatcher.IDLE
         self._launching_lock = threading.Lock()
 
-    def set_launching(self):
+    def set_launch_state(self, state):
         with self._launching_lock:
-            self._launching = True
+            self._launch_state = state
 
     def run(self):
         event = lldb.SBEvent()
@@ -85,25 +91,53 @@ class EventDispatcher (threading.Thread):
                 sys.stdout.write("  => Process Event, state=%d\n" % state)
                 if state == lldb.eStateLaunching:
                     sys.stdout.write("  => Hey, launching!\n")
-                    self._launching = True
+                    self._launch_state = EventDispatcher.LAUNCHING
                 elif state == lldb.eStateStopped:
+                    lldb.debugger.HandleCommand('bt')
                     with self._launching_lock:
-                        if self._launching:
+                        sys.stdout.write("  => launch state %d\n" % self._launch_state)
+                        if self._launch_state == EventDispatcher.LAUNCHING:
+                            self._launch_state = EventDispatcher.INITIALIZING
                             stop = StopReason(StopReason.CREATE_PROCESS,
                                               process=process, thread=None)
                             self._consumer.notify_stop(stop)
+                        elif self._launch_state == EventDispatcher.INITIALIZING:
+                            self._launch_state = EventDispatcher.RUNNING
+
+                            target = process.target
+                            modules = target.modules
+                            for i in range(1, len(modules)):
+                                stop = StopReason(StopReason.LOAD_DLL,
+                                                  process=process,
+                                                  thread=None,
+                                                  defer_continue=True,
+                                                  library=i)
+                                self._consumer.notify_stop(stop)
+
                             stop = StopReason(StopReason.HARD_CODED_BREAKPOINT_EXCEPTION,
                                               process=process,
                                               thread=process.threads[0])
                             self._consumer.notify_stop(stop)
                         else:
-                            stop = StopReason(StopReason.UNCLASSIFIED,
-                                              process=process,
-                                              thread=thread)
-                            self._consumer.notify_stop(stop)
+                            handled = False
+                            for t in process:
+                                sys.stdout.write("    => Thread %d: stop reason %d\n" % (t.id, t.stop_reason))
+                                if t.stop_reason == lldb.eStopReasonBreakpoint:
+                                    stop = StopReason(StopReason.BREAKPOINT_EXCEPTION,
+                                                      process=process,
+                                                      thread=t)
+                                    self._consumer.notify_stop(stop)
+                                    handled = True
+                            if not handled:
+                                stop = StopReason(StopReason.UNCLASSIFIED,
+                                                  process=process,
+                                                  thread=thread)
+                                self._consumer.notify_stop(stop)
                 elif state == lldb.eStateExited:
                     stop = StopReason(StopReason.EXIT_PROCESS, process=process, thread=None)
                     self._consumer.notify_stop(stop)
+                else:
+                    sys.stdout.write("  => Unhandled process state %d\n" % state)
             else:
                 sys.stdout.write("  => Something else event (%s)\n" % event.GetBroadcasterClass())
 
@@ -122,6 +156,7 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
         self._target = None
         self._process = None
         self._unstarted = True
+        self._breakpoints = {}
 
         # Create the debugging event dispatcher thread
         self._condition = threading.Condition()
@@ -322,7 +357,8 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
     def application_continue(self):
         self._trace("application_continue\n");
         stop = self._pending_stop
-        if stop and stop.code == StopReason.CREATE_PROCESS:
+        if stop and stop.defer_continue:
+            self._trace("Continue deferred\n");
             return              # Don't actually continue
         self._process.Continue()
 
@@ -384,8 +420,32 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
     def restore_context(self, nubthread, the_context):
         oops()
 
+    NOT_SUPPORTED = 0
+    BREAKPOINT_ALREADY_EXISTS = 1
+    BREAKPOINT_DOES_NOT_EXIST = 2
+    WATCHPOINT_ALREADY_EXISTS = 3
+    WATCHPOINT_DOES_NOT_EXIST = 4
+    SET_BREAKPOINT_FAILED = 5
+    CLEAR_BREAKPOINT_FAILED = 6
+    OK = 7
+    BREAKPOINT_WAS_DISABLED = 8
+
     def set_breakpoint(self, address):
-        oops()
+        self._trace("set_breakpoint %016x\n" % address)
+        hex_address = "%016x" % address
+        if hex_address in self._breakpoints:
+            self._trace("ALREADY EXISTS\n")
+            return RemoteNub_i.BREAKPOINT_ALREADY_EXISTS
+
+        breakpoint = self._target.BreakpointCreateByAddress(address)
+        if breakpoint.GetNumLocations() == 1:
+            self._trace("OK\n")
+            self._breakpoints[hex_address] = breakpoint
+            lldb.debugger.HandleCommand('breakpoint list')
+            return RemoteNub_i.OK
+        else:
+            self._trace("FAILED\n")
+            return RemoteNub_i.SET_BREAKPOINT_FAILED
 
     def clear_breakpoint(self, address):
         oops()
@@ -465,6 +525,8 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
         stop = self._pending_stop
         if stop.code == StopReason.CREATE_PROCESS:
             return 0
+        elif stop.code == StopReason.LOAD_DLL or stop.code == StopReason.UNLOAD_DLL:
+            return stop.library
         else:
             raise RuntimeError("Unknown library for stop reason %d" % stop.code)
 
@@ -547,7 +609,37 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
         oops()
 
     def find_symbol_in_library(self, nublibrary, sz, name):
+        name = name[0 : sz]
+        self._trace("find_symbol_in_library %d %s\n" % (nublibrary, name))
+        module = self._target.modules[nublibrary]
+        symbol = module.FindSymbol(name)
+        start = symbol.addr
+        address = start.GetLoadAddress(self._target)
+        if symbol.type == lldb.eSymbolTypeInvalid:
+            return (0, 0, -1, 0, 0, 0, -1, 0) # not found
+        if symbol.type == lldb.eSymbolTypeCode:
+            self._trace("  address = %#x\n" % address)
+            type = -1           # currenly ignored
+            if address != lldb.LLDB_INVALID_ADDRESS:
+                debug_start = address + symbol.prologue_size
+            else:
+                debug_start = lldb.LLDB_INVALID_ADDRESS
+            self._trace("  debug_start = %#x\n" % debug_start)
+            debug_end = final_address_of_definition = symbol.end_addr.GetLoadAddress(self._target)
+            self._trace("  final_address = %#x\n" % final_address_of_definition)
+            symbol_language = -1
+            return (1, address, type, 1,
+                    debug_start, debug_end,
+                    symbol_language, final_address_of_definition)
+        elif symbol.type == lldb.eSymbolTypeData:
+            return (1, address, -1, 0, 0, 0, -1, 0)
+        else:
+            raise RuntimeError("Unknown symbol type %d for %s" %
+                               (symbol.type, name))
         oops()
+        return (result, address, type, is_function,
+                debug_start, debug_end,
+                symbol_language, final_address_of_definition)
 
     def dispose_lookups(self, lookups):
         oops()
@@ -606,7 +698,7 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
 
     def open_local_tether(self, command, args, paths, lib_paths, \
                           working_directory, create_shell):
-        self._dispatcher.set_launching()
+        self._dispatcher.set_launch_state(EventDispatcher.LAUNCHING)
 
         self._target = lldb.debugger.CreateTarget(command)
         if not self._target:
@@ -620,12 +712,13 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
 
         error = lldb.SBError()
         flags = lldb.eLaunchFlagDebug | lldb.eLaunchFlagStopAtEntry
+        argv = args.split()
         self._process = self._target.Launch (self._listener,
-                                             None,      # argv
-                                             None,      # envp
-                                             None,      # stdin_path
-                                             None,      # stdout_path
-                                             None,      # stderr_path
+                                             argv[1:], # argv
+                                             None,     # envp
+                                             None,     # stdin_path
+                                             '/tmp/stdout.txt',      # stdout_path
+                                             '/tmp/stderr.txt',      # stderr_path
                                              working_directory, # working directory
                                              flags,     # launch flags
                                              True,      # Stop at entry
@@ -714,7 +807,10 @@ class NubServer_i (Rtmgr__POA.NubServer):
 if __name__ == '__main__':
     lldb.debugger = lldb.SBDebugger.Create()
     lldb.debugger.SetAsync(True)
-    #lldb.debugger.EnableLog("lldb", ["api"])
+    #lldb.debugger.EnableLog("lldb", ["all"])
+
+    # Stop when a shared library is loaded
+    lldb.debugger.HandleCommand('settings set target.process.stop-on-sharedlibrary-events true')
 
     # giop:tcp:<host>:<port>
 
