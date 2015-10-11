@@ -5,9 +5,9 @@ Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
 License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-define constant $grid-ior-file :: <string> = "c:\\temp\\grid.ior";
+define constant $grid-ior-file :: <string> = "grid.ior";
 
-define constant $wrong-grid-ior-file :: <string> = "c:\\temp\\wrong-grid.ior";
+define constant $wrong-grid-ior-file :: <string> = "wrong-grid.ior";
 
 define test grid-request-tests ()
   let orb = corba/orb-init(make(corba/<arg-list>), "Functional Developer ORB");
