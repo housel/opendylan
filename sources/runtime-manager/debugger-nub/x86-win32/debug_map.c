@@ -832,10 +832,10 @@ DWORD pull_lexicals_within_scope
 }
 
 
-LOOKUP_TABLE *static_symbols_from_debug_map 
-  (LPDBGPROCESS process, LPDBGLIBRARY module, DWORD *first, DWORD *last)
+void static_symbols_from_debug_map
+  (LPDBGPROCESS process, LPDBGLIBRARY module,
+   DEBUG_MAP_CALLBACK callback, void *user_context)
 {
-  LOOKUP_TABLE              *table = new_lookup_table (process, module);
   PIMAGE_DEBUG_INFORMATION  info = module->DebugMap;
   DWORD                     this_subsection;
   DWORD                     max_symbols;
@@ -845,9 +845,6 @@ LOOKUP_TABLE *static_symbols_from_debug_map
   DWORD                     max_subsections;
 
   // First of all, find out basic navigation info for the debug map.
-
-  (*first) = 1;
-  (*last) = 0;
 
   max_subsections = number_of_codeview_subsections (info);
 
@@ -877,10 +874,7 @@ LOOKUP_TABLE *static_symbols_from_debug_map
 
         if ((this_record != NULL) &&
             (should_be_in_all_symbols_scan (this_record))) {
-
-          add_lookup_table_entry (table, MAPPED_CODEVIEW_SYMBOL,
-                                  (void*) this_record, 0);
-          (*last) ++;
+          callback((void *) this_record, user_context);
         }
       }
       break;
@@ -889,7 +883,6 @@ LOOKUP_TABLE *static_symbols_from_debug_map
       break;
     }
   }
-  return (table);
 }
 
 BOOL should_be_in_all_symbols_scan (CV_HEADER *sym)
@@ -924,10 +917,10 @@ BOOL should_be_in_all_symbols_scan (CV_HEADER *sym)
   }
 }
 
-LOOKUP_TABLE *global_symbols_from_debug_map 
-  (LPDBGPROCESS process, LPDBGLIBRARY module, DWORD *first, DWORD *last)
+void global_symbols_from_debug_map
+  (LPDBGPROCESS process, LPDBGLIBRARY module,
+   DEBUG_MAP_CALLBACK callback, void *user_context)
 {
-  LOOKUP_TABLE              *table = new_lookup_table (process, module);
   PIMAGE_DEBUG_INFORMATION  info = module->DebugMap;
   DWORD                     this_subsection;
   DWORD                     max_symbols;
@@ -939,9 +932,6 @@ LOOKUP_TABLE *global_symbols_from_debug_map
   // First of all, find out basic navigation info for the debug map.
 
   max_subsections = number_of_codeview_subsections (info);
-
-  (*first) = 1;
-  (*last) = 0;
 
   for (this_subsection = 0; 
        this_subsection < max_subsections; 
@@ -962,15 +952,11 @@ LOOKUP_TABLE *global_symbols_from_debug_map
           get_cv_sym_from_debug_map (process, module,
                                      this_subsection, this_symbol);
 
-        // See if it's of interest to us, and add it to the
-        // growing lookup table if it is.
-
+        // See if it's of interest to us, and pass it to the callback
+        // if it is.
         if ((this_record != NULL) &&
             (should_be_in_all_symbols_scan (this_record))) {
-
-          add_lookup_table_entry (table, MAPPED_CODEVIEW_SYMBOL,
-                                  (void*) this_record, 0);
-          (*last) ++;
+          callback((void *) this_record, user_context);
         }
       }
       break;
@@ -979,17 +965,16 @@ LOOKUP_TABLE *global_symbols_from_debug_map
       break;
     }
   }
-  return (table);
 }
 
 
 // TODO: This function always fails to find any symbols. Need to
 // add code to look at the exported names in the debug map.
 
-LOOKUP_TABLE *exported_symbols_from_debug_map 
-   (LPDBGPROCESS process, LPDBGLIBRARY module, DWORD *first, DWORD *last)
+void exported_symbols_from_debug_map
+   (LPDBGPROCESS process, LPDBGLIBRARY module,
+    DEBUG_MAP_CALLBACK callback, void *user_context)
 {
-  LOOKUP_TABLE              *table = new_lookup_table (process, module);
   PIMAGE_DEBUG_INFORMATION  info = module->DebugMap;
   DWORD                     this_subsection;
   WORD                      subsection_type;
@@ -1022,9 +1007,6 @@ LOOKUP_TABLE *exported_symbols_from_debug_map
       break;
     }
   }
-  (*first) = 1;
-  (*last) = 0;
-  return (table);
 }
 
 DWORD cv_symbol_debug_start_offset (CV_HEADER *sym, BOOL *valid)

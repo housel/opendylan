@@ -193,6 +193,8 @@ BOOL is_exported_name_in_debug_map
 // else returns false. The "name" must contain the entire symbol name, and
 // be null-terminated.
 
+typedef void (*DEBUG_MAP_CALLBACK)(void *record, void *user_context);
+
 LOOKUP_TABLE *all_lexicals_from_debug_map 
   (LPDBGPROCESS process,
    LPDBGLIBRARY module,
@@ -203,29 +205,29 @@ LOOKUP_TABLE *all_lexicals_from_debug_map
 // Scans for all lexical variables that are currently visible in the
 // given stack frame, and generates a lookup table of them.
 
-LOOKUP_TABLE *static_symbols_from_debug_map 
+void static_symbols_from_debug_map 
   (LPDBGPROCESS process,
    LPDBGLIBRARY module,
-   DWORD *first, 
-   DWORD *last);
-// Scans for all static symbols in the given module, and generates a
-// quick-lookup table for them.
+   DEBUG_MAP_CALLBACK callback,
+   void *user_context);
+// Scans for all static symbols in the given module, and calls a provided
+// callback for each symbol record.
 
-LOOKUP_TABLE *global_symbols_from_debug_map 
+void global_symbols_from_debug_map 
   (LPDBGPROCESS process,
    LPDBGLIBRARY module,
-   DWORD *first, 
-   DWORD *last);
+   DEBUG_MAP_CALLBACK callback,
+   void *user_context);
 // Scans for all symbols that are global in the given module, and
-// constructs a quick-lookup table for them.
+// calls a provided callback for each symbol record.
 
-LOOKUP_TABLE *exported_symbols_from_debug_map 
+void exported_symbols_from_debug_map 
   (LPDBGPROCESS process,
    LPDBGLIBRARY module,
-   DWORD *first, 
-   DWORD *last);
+   DEBUG_MAP_CALLBACK callback,
+   void *user_context);
 // Scans for all symbols that are exported from the given module, and
-// constructs a quick-lookup table for them.
+// calls a provided callback for each symbol record.
 
 DWORD lexical_name_length_from_debug_map 
   (LOOKUP_TABLE *table,
