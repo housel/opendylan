@@ -33,7 +33,7 @@ COBJS       = app_control.obj debug_map.obj coff_map.obj debug_points.obj memory
 LOBJS       = $(COBJS) server.obj server_locals.obj proxy.obj lproxy.obj
 
 CLIBS        = DBGHELP.LIB
-LLIBS        = $(CLIBS) devnub.lib
+LLIBS        = $(CLIBS) devnub.lib Shlwapi.lib
 
 nub-core.h:       coff-extract.h cv-extract.h cv-types.h  nub_interface.h debug_map.h utils.h nub-core-types.h
 

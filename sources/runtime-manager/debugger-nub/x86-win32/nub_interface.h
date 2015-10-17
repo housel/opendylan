@@ -340,6 +340,15 @@ NUBINT nub_find_symbol_in_library
     TARGET_ADDRESS *debug_end,
     NUBINT *symbol_language,
     TARGET_ADDRESS *final_address_of_definition);
+
+void nub_do_symbols
+  (NUB nub,
+   NUBLIBRARY library,
+   NUBINT match_length, char *match,
+   NUB_INDEX *first,
+   NUB_INDEX *last,
+   NUBHANDLE *lookups);
+
 void nub_dispose_lookups
   (NUB nub,  NUBHANDLE lookups);
 
