@@ -272,14 +272,7 @@ NUBINT nub_find_symbol_in_library
 		     process);
     if (status && process->SymbolBufferValid) {
       (*address) = (TARGET_ADDRESS) process->SymbolBuffer.Info.Address;
-      // TODO: Something better here.
-      // When using DbgHelp's symbol handler, we have no real way to
-      // identify the programming language that defined the symbol.
-      // This is a slight hack.
-      if ((name[0] == 'K')  && (name[name_length - 1] == 'I'))
-        (*language) = DYLAN_LANGUAGE;
-      else
-        (*language) = C_LANGUAGE;
+      (*language) = 0; // nothing uses this
       (*debug_start) = (*address);
       (*debug_end) = 
         (TARGET_ADDRESS) 
