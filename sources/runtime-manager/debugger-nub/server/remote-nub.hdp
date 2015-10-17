@@ -17,4 +17,5 @@ C-Header-Files: ..\debugger-server.ico
 C-libraries: devnub.lib
              minvcrt.lib
              dbghelp.lib
+             Shlwapi.lib
 comment:	additional keywords
