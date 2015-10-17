@@ -8,6 +8,8 @@
 
 #include "nub-core.h"
 
+#include <Shlwapi.h>
+
 /*
   Every loaded library has a NUBLIBRARY descriptor, which stores a
   code indicating what kind of debug information is available for that
@@ -285,6 +287,116 @@ NUBINT nub_find_symbol_in_library
     else {
       return((NUBINT) 0);
     }
+  }
+}
+
+struct _ENUM_CONTEXT {
+  LOOKUP_TABLE *lookups;
+  NUB_INDEX count;
+  char *match;
+};
+typedef struct _ENUM_CONTEXT ENUM_CONTEXT;
+
+void debug_map_enumerate_symbols_callback
+  (PVOID record, PVOID UserContext)
+{
+  ENUM_CONTEXT *context = (ENUM_CONTEXT *) UserContext;
+  SYMBOL_LOOKUP_ENTRY fake_sym;
+  char name[MAX_PATH];
+  fake_sym.Pointer = record;
+  symbol_name_from_debug_map(context->lookups, &fake_sym, sizeof name, name);
+  if (context->match[0] != '\0' && !PathMatchSpec(name, context->match))
+    return;
+
+  debug_me("Found symbol: %s", pSymInfo->Name);
+
+  add_lookup_table_entry(context->lookups, MAPPED_CODEVIEW_SYMBOL, record, 0);
+  context->count++;
+}
+
+BOOL CALLBACK dbghelp_enumerate_symbols_callback
+  (PSYMBOL_INFO pSymInfo,
+   ULONG        SymbolSize,
+   PVOID        UserContext)
+{
+  ENUM_CONTEXT *context = (ENUM_CONTEXT *) UserContext;
+
+  size_t SymInfoSize
+    = pSymInfo->SizeOfStruct + (pSymInfo->NameLen - 1) * sizeof(TCHAR);
+  PSYMBOL_INFO newInfo = malloc(SymInfoSize);
+  memcpy(newInfo, pSymInfo, SymInfoSize);
+
+  add_lookup_table_entry(context->lookups, PTR_SYMBOL_INFO, newInfo, 0);
+
+  debug_me("Found symbol: %s", pSymInfo->Name);
+
+  context->count++;
+  return TRUE;
+}
+
+void nub_do_symbols
+  (NUB nub,
+   NUBLIBRARY library,
+   NUBINT match_length, char *match,
+   NUB_INDEX *first,
+   NUB_INDEX *last,
+   NUBHANDLE *lookups)
+{
+  LPDBGPROCESS process = (LPDBGPROCESS) nub;
+  LPDBGLIBRARY module = (LPDBGLIBRARY) library;
+  BOOL status;
+  ENUM_CONTEXT context;
+  char extended_name[300];
+  int i = 0;
+
+  *first = 1;
+  *last = 0;
+  *lookups = new_lookup_table (process, module);
+
+  debug_me("nub_do_symbols", 0);
+
+  for (; i < match_length; ++i) {
+    extended_name[i] = *match++;
+  }
+  extended_name[i] = '\0';
+
+  ensure_debug_information_for_library(process, module);
+
+  switch (module->DebugType) {
+  case CODEVIEW_IMAGE:
+    context.lookups = *lookups;
+    context.count = 0;
+    context.match = extended_name;
+    static_symbols_from_debug_map
+      (process, module, debug_map_enumerate_symbols_callback, &context);
+#if 0
+    global_symbols_from_debug_map
+      (process, module, debug_map_enumerate_symbols_callback, &context);
+    exported_symbols_from_debug_map
+      (process, module, debug_map_enumerate_symbols_callback, &context);
+#endif
+    *last = context.count;
+    break;
+
+  case CODEVIEW_PDB:
+    context.lookups = *lookups;
+    context.count = 0;
+
+    status = SymEnumSymbols(process->ProcessHandle,
+                            module->ImageInformation.ImageBase,
+                            extended_name,
+                            dbghelp_enumerate_symbols_callback,
+                            &context);
+    if (status) {
+      *last = context.count;
+    }
+    else {
+      debug_me("nub_do_symbols: failed", 0);
+    }
+    break;
+
+  default:
+    break;
   }
 }
 
