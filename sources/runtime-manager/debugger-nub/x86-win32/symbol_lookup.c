@@ -574,9 +574,12 @@ NUBINT nub_lookup_symbol_name_length
   switch (sym->LookupType) {
 
   case MAPPED_CODEVIEW_SYMBOL:
-    // This is the only one we deal with for now!
     return ((NUBINT) symbol_name_length_from_debug_map 
                        ((LOOKUP_TABLE*) table, sym));
+    break;
+
+  case PTR_SYMBOL_INFO:
+    return ((PSYMBOL_INFO) sym->Pointer)->NameLen;
     break;
 
   case MAPPED_COFF_SYMBOL:
@@ -664,13 +667,28 @@ void nub_lookup_symbol_name
 {
   SYMBOL_LOOKUP_ENTRY *sym = find_entry ((LOOKUP_TABLE*) table,
                                          (DWORD) index);
+  PSYMBOL_INFO info;
+  NUBINT i;
+  char *dst, *src;
+
   debug_me("nub_lookup_symbol_name",0);
 
   switch (sym->LookupType) {
 
   case MAPPED_CODEVIEW_SYMBOL:
-    // This is the only one we deal with for now!
     symbol_name_from_debug_map (table, sym, (DWORD) buf_size, buf);
+    break;
+
+  case PTR_SYMBOL_INFO:
+    info = (PSYMBOL_INFO) sym->Pointer;
+    dst = buf;
+    src = info->Name;
+    for (i = 0; i < buf_size && i < (NUBINT) info->NameLen; ++i) {
+      *dst++ = *src++;
+    }
+    if (dst < buf + buf_size) {
+      *dst++ = '\0';
+    }
     break;
 
   default:
@@ -752,15 +770,18 @@ TARGET_ADDRESS nub_lookup_symbol_address
 {
   SYMBOL_LOOKUP_ENTRY *sym = find_entry ((LOOKUP_TABLE*) table,
                                          (DWORD) index);
+  PSYMBOL_INFO info;
 
   debug_me("nub_lookup_symbol_address",0);
-
 
   switch (sym->LookupType) {
 
   case MAPPED_CODEVIEW_SYMBOL:
     return ((TARGET_ADDRESS) symbol_address_from_debug_map (table, sym));
-    break;
+
+  case PTR_SYMBOL_INFO:
+    info = (PSYMBOL_INFO) sym->Pointer;
+    return (TARGET_ADDRESS) info->Address;
 
   default:
     return ((TARGET_ADDRESS) NULL);
@@ -773,17 +794,28 @@ TARGET_ADDRESS nub_lookup_function_debug_start
    NUBHANDLE table, 
    NUB_INDEX index)
 {
+  LPDBGPROCESS      process = (LPDBGPROCESS) nub;
   SYMBOL_LOOKUP_ENTRY *sym = find_entry ((LOOKUP_TABLE*) table,
                                          (DWORD) index);
 
-  debug_me("nub_lookup_function_debug_start",0);
+  PSYMBOL_INFO info;
+  FPO_DATA *fpo;
 
+  debug_me("nub_lookup_function_debug_start",0);
 
   switch (sym->LookupType) {
 
   case MAPPED_CODEVIEW_SYMBOL:
     return ((TARGET_ADDRESS) function_debug_start_from_debug_map (table, sym));
-    break;
+
+  case PTR_SYMBOL_INFO:
+    info = (PSYMBOL_INFO) sym->Pointer;
+    fpo = SymFunctionTableAccess64(process->ProcessHandle, info->Address);
+    if (fpo == NULL) {
+      return (TARGET_ADDRESS) info->Address;
+    } else {
+      return (TARGET_ADDRESS) (info->Address + fpo->ulOffStart);
+    }
 
   default:
     return ((TARGET_ADDRESS) NULL);
@@ -798,6 +830,7 @@ TARGET_ADDRESS nub_lookup_function_debug_end
 {
   SYMBOL_LOOKUP_ENTRY *sym = find_entry ((LOOKUP_TABLE*) table,
                                          (DWORD) index);
+  PSYMBOL_INFO info;
 
   debug_me("nub_lookup_function_debug_end",0);
 
@@ -806,11 +839,14 @@ TARGET_ADDRESS nub_lookup_function_debug_end
 
   case MAPPED_CODEVIEW_SYMBOL:
     return ((TARGET_ADDRESS) function_debug_end_from_debug_map (table, sym));
-    break;
+
+  case PTR_SYMBOL_INFO:
+    // FIXME there ought to be something more specific
+    info = (PSYMBOL_INFO) sym->Pointer;
+    return (TARGET_ADDRESS) (info->Address + info->Size - 1);
 
   case MAPPED_COFF_SYMBOL:
     return ((TARGET_ADDRESS) NULL);
-    break;
 
   default:
     return ((TARGET_ADDRESS) NULL);
@@ -825,15 +861,18 @@ TARGET_ADDRESS nub_lookup_function_end
 {
   SYMBOL_LOOKUP_ENTRY *sym = find_entry ((LOOKUP_TABLE*) table,
                                          (DWORD) index);
+  PSYMBOL_INFO info;
 
   debug_me("nub_lookup_function_end",0);
-
 
   switch (sym->LookupType) {
 
   case MAPPED_CODEVIEW_SYMBOL:
     return ((TARGET_ADDRESS) function_end_from_debug_map (table, sym));
-    break;
+
+  case PTR_SYMBOL_INFO:
+    info = (PSYMBOL_INFO) sym->Pointer;
+    return (TARGET_ADDRESS) (info->Address + info->Size - 1);
 
   case MAPPED_COFF_SYMBOL:
     return ((TARGET_ADDRESS) NULL);
@@ -849,15 +888,18 @@ NUBINT nub_symbol_is_function (NUB nub, NUBHANDLE table, NUB_INDEX index)
 {
   SYMBOL_LOOKUP_ENTRY *sym = find_entry ((LOOKUP_TABLE*) table,
                                          (DWORD) index);
+  PSYMBOL_INFO info;
 
   debug_me("nub_symbol_is_function",0);
-
 
   switch (sym->LookupType) {
 
   case MAPPED_CODEVIEW_SYMBOL:
     return ((NUBINT) symbol_is_function_from_debug_map (table, sym));
-    break;
+
+  case PTR_SYMBOL_INFO:
+    info = (PSYMBOL_INFO) sym->Pointer;
+    return (NUBINT) (info->Tag == SymTagFunction);
 
   default:
     return ((NUBINT) 0);
@@ -876,9 +918,19 @@ void nub_dispose_lookups (NUB nub, NUBHANDLE table)
                                // so nothing to dispose.
 
   segment = lookups->FirstSegment;
-  old_segment = segment;
 
   while (segment != NULL) {
+    DWORD entry_count
+      = (segment == lookups->LastSegment)
+      ? lookups->LastEntry
+      : LOOKUP_TABLE_SEGMENT_SIZE;
+    DWORD i;
+    for (i = 0; i < entry_count; ++i) {
+      if (segment->SegmentEntries[i].LookupType == PTR_SYMBOL_INFO) {
+        free(segment->SegmentEntries[i].Pointer);
+      }
+    }
+
     old_segment = segment;
     segment = segment->NextSegment;
     free(old_segment);
