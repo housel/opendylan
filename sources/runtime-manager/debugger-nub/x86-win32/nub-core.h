@@ -683,6 +683,9 @@ typedef struct _LOOKUP_TABLE {
 
 } LOOKUP_TABLE;
 
+LOOKUP_TABLE *new_lookup_table(LPDBGPROCESS process, LPDBGLIBRARY module);
+void add_lookup_table_entry (LOOKUP_TABLE *table, BYTE lookup_type, void *pointer, BYTE lang);
+
 typedef struct _LOWLEVEL_SOURCE_LOCATION {
 
   DWORD                        Offset;
