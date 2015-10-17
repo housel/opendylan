@@ -146,18 +146,7 @@ NUBINT
       (*actual_address) = (TARGET_ADDRESS) process->SymbolBuffer.Info.Address;
       (*offset)
 	= (NUBINT) dw_disp;
-      // TODO: Something better here.
-      // When using DbgHelp's symbol handler, we have no real way to
-      // identify the programming language that defined the symbol.
-      // This is a slight hack.
-      // In fact, there's a corresponding function in the high-level code...
-      i = strlen(process->SymbolBuffer.Info.Name);
-      if ((i > 0) &&
-          (process->SymbolBuffer.Info.Name[0] == 'K') &&
-          (process->SymbolBuffer.Info.Name[i - 1] == 'I'))
-        (*language) = DYLAN_LANGUAGE;
-      else
-        (*language) = C_LANGUAGE;
+      (*language) = 0; // nothing uses this
       (*debug_start) = (*actual_address);
       (*debug_end) = 
         (TARGET_ADDRESS) 
@@ -283,14 +272,7 @@ NUBINT nub_find_symbol_in_library
 		     process);
     if (status && process->SymbolBufferValid) {
       (*address) = (TARGET_ADDRESS) process->SymbolBuffer.Info.Address;
-      // TODO: Something better here.
-      // When using DbgHelp's symbol handler, we have no real way to
-      // identify the programming language that defined the symbol.
-      // This is a slight hack.
-      if ((name[0] == 'K')  && (name[name_length - 1] == 'I'))
-        (*language) = DYLAN_LANGUAGE;
-      else
-        (*language) = C_LANGUAGE;
+      (*language) = 0; // nothing uses this
       (*debug_start) = (*address);
       (*debug_end) = 
         (TARGET_ADDRESS) 
