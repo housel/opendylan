@@ -52,4 +52,5 @@ end function;
 
 define suite access-path-test-suite (cleanup-function: access-path-cleanup)
   test simple-breakpoint-test;
+  test do-symbols-test;
 end suite;

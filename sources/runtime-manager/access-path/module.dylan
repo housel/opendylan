@@ -508,6 +508,7 @@ define module access-path-nub
     remote-call-result-on-connection,
     remote-restore-context-on-connection,
     remote-call-spy-on-connection,
+    do-symbols-in-library,
     nearest-symbols-from-nub,
     collect-nearest-symbols,
     find-symbol-in-library,

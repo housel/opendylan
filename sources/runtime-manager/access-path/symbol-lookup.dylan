@@ -146,33 +146,31 @@ define generic find-symbol
 
 
 ///// DO-SYMBOLS
-//    This function is currently unsupported. In order to make
-//    nearest-symbols and find-symbol work with acceptable performance,
-//    the lookup algorithms were put (back) into the debugger nub
-//    implementation. The debugger manager doesn't even use do-symbols,
-//    so this isn't a problem, but we should probably re-think this and
-//    get it back on line.
 
-define method do-symbols 
+define method do-symbols
     (function :: <function>, ap :: <access-path>,
      #key library = #f, matching = #f, type = #f) => ()
 
   // If the keyword library is supplied, we want to work on that
   // library only, otherwise iterate over all libraries...
-/*
   if (library)
-    do-symbols-in-library (function, ap, library,
+    do-symbols-in-library (function, ap.connection, library,
                            matching: matching, type: type);
   else
-    // update-access-path-libraries (ap);
     for (this-library in ap.libraries)
-      do-symbols-in-library (function, ap, this-library,
+      do-symbols-in-library (function, ap.connection, this-library,
                              matching: matching, type: type);
     end for;
   end if;
-*/
 end method;
 
+///// DO-SYMBOLS-IN-LIBRARY
+
+define open generic do-symbols-in-library
+    (function :: <function>, conn :: <access-connection>,
+     library :: <remote-library>,
+     #key matching, type)
+ => ();
 
 ///// NEAREST-SYMBOLS-FROM-NUB
 
