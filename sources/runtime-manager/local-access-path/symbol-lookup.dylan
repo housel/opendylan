@@ -6,6 +6,56 @@ Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
 License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
+///// DO-SYMBOLS-IN-LIBRARY
+
+define method do-symbols-in-library
+    (function :: <function>, conn :: <local-access-connection>,
+     library :: <remote-library>,
+     #key matching = "*", type = #f)
+ => ();
+  let (first :: <integer>, last :: <integer> , lookups :: <NUBHANDLE>)
+    = nub-do-symbols(conn.connection-process,
+                     library.nub-descriptor,
+                     matching.size, matching);
+  for (i from first to last)
+    let name-length
+      = nub-lookup-symbol-name-length(conn.connection-process, lookups, i);
+    let name = make(<byte-string>, size: name-length);
+    let addr = nub-lookup-symbol-address(conn.connection-process, lookups, i);
+    let is-func = nub-symbol-is-function (conn.connection-process, lookups, i);
+    nub-lookup-symbol-name(conn.connection-process, lookups, i,
+                           name-length, name);
+    let lang = classify-symbolic-name(conn, name);
+    if (is-func = 1)
+      let debug-start
+        = nub-lookup-function-debug-start(conn.connection-process, lookups, i);
+      let debug-end
+        = nub-lookup-function-debug-end(conn.connection-process, lookups, i);
+      let last-addr
+        = nub-lookup-function-end(conn.connection-process, lookups, i);
+      let sym
+        = make (<remote-function>,
+                name: name,
+                address: addr,
+                language: lang,
+                library: library,
+                debug-start: debug-start,
+                debug-end: debug-end,
+                absolute-end: last-addr);
+      function(sym);
+    else
+      let sym
+        = make (<remote-symbol>,
+                name: name,
+                address: addr,
+                language: lang,
+                library: library);
+      function(sym);
+    end if;
+  end for;
+  nub-dispose-lookups(conn.connection-process, lookups);
+end method;
+
 ///// NEAREST-SYMBOLS-FROM-NUB
 
 define method nearest-symbols-from-nub 
