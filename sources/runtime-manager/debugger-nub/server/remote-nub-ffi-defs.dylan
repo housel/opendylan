@@ -1066,6 +1066,17 @@ define debugger-nub-interface nub-find-symbol-in-library
        c-name: "nub_find_symbol_in_library";
 end debugger-nub-interface;
 
+define debugger-nub-interface nub-do-symbols
+       parameter nub              :: <NUB>;
+       parameter library          :: <NUBLIBRARY>;
+       parameter match-length     :: <NUBINT>;
+       parameter match            :: <C-string>;
+       output parameter first     :: <NUB-INDEX-POINTER>;
+       output parameter last      :: <NUB-INDEX-POINTER>;
+       output parameter lookups   :: <NUBHANDLE-POINTER>;
+       c-name: "nub_do_symbols";
+end debugger-nub-interface;
+
 define debugger-nub-interface nub-dispose-lookups
        parameter nub              :: <NUB>;
        parameter lookups          :: <NUBHANDLE>;
