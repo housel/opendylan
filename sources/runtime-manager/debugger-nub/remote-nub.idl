@@ -511,6 +511,13 @@ NUBINT find_symbol_in_library
    out NUBINT symbol_language,
    out RTARGET_ADDRESS final_address_of_definition);
 
+void do_symbols
+  (in RNUBLIBRARY nublibrary,
+   in string match,
+   out NUBINT first,
+   out NUBINT last,
+   out RNUBHANDLE lookups);
+
 void dispose_lookups
   (in RNUBHANDLE lookups);
 

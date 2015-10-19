@@ -7,6 +7,55 @@ License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 
+///// DO-SYMBOLS-IN-LIBRARY
+
+define method do-symbols-in-library
+    (function :: <function>, conn :: <remote-access-connection>,
+     library :: <remote-library>,
+     #key matching = "*", type = #f)
+ => ();
+  let (first, last, lookups)
+    = Rtmgr/RemoteNub/do-symbols(conn.nub,
+                                 library.rnub-descriptor,
+                                 matching);
+  block ()
+    for (i from first to last)
+      let name = Rtmgr/RemoteNub/lookup-symbol-name(conn.nub, lookups, i);
+      let addr = Rtmgr/RemoteNub/lookup-symbol-address (conn.nub, lookups, i);
+      let is-func = Rtmgr/RemoteNub/symbol-is-function (conn.nub, lookups, i);
+      let lang = classify-symbolic-name(conn, name);
+      if (is-func = 1)
+        let debug-start
+          = Rtmgr/RemoteNub/lookup-function-debug-start(conn.nub, lookups, i);
+        let debug-end
+          = Rtmgr/RemoteNub/lookup-function-debug-end(conn.nub, lookups, i);
+        let last-addr
+          = Rtmgr/RemoteNub/lookup-function-end(conn.nub, lookups, i);
+        let sym
+          = make(<remote-function>,
+                 name: name,
+                 address: as-remote-value(addr),
+                 language: lang,
+                 library: library,
+                 debug-start: as-remote-value(debug-start),
+                 debug-end: as-remote-value(debug-end),
+                 absolute-end: as-remote-value(last-addr));
+        function(sym);
+      else
+        let sym
+          = make(<remote-symbol>,
+                 name: name,
+                 address: as-remote-value(addr),
+                 language: lang,
+                 library: library);
+        function(sym);
+      end if;
+    end for;
+  cleanup
+    Rtmgr/RemoteNub/dispose-lookups(conn.nub, lookups);
+  end block;
+end method;
+
 
 ///// NEAREST-SYMBOLS-FROM-NUB
 

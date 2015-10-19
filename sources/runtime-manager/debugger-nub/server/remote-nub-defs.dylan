@@ -1087,6 +1087,17 @@ define corba-method Rtmgr/RemoteNub/find-symbol-in-library
     (process, nublibrary, sz, name);
 end corba-method;
 
+define corba-method Rtmgr/RemoteNub/do-symbols
+  (rnub :: <RemoteNub-implementation>,
+   nublibrary :: Rtmgr/RemoteNub/<RNUBLIBRARY>,
+   match :: CORBA/<string>)
+  => (first :: Rtmgr/RemoteNub/<NUBINT>,
+      last :: Rtmgr/RemoteNub/<NUBINT>,
+      lookups :: Rtmgr/RemoteNub/<RNUBHANDLE>)
+  let process = remote-process(rnub);
+  nub-do-symbols(process, nublibrary, match.size, match)
+end corba-method;
+
 define corba-method Rtmgr/RemoteNub/dispose-lookups
     (rnub :: <RemoteNub-implementation>, lookups :: Rtmgr/RemoteNub/<RNUBHANDLE>)
  => ()
