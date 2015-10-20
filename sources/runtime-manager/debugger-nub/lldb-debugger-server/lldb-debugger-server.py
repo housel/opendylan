@@ -3,6 +3,8 @@
 import sys
 import os.path
 import socket
+import re
+import fnmatch
 import inspect
 import psutil
 import threading
@@ -157,6 +159,7 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
         self._process = None
         self._unstarted = True
         self._breakpoints = {}
+        self._lookups = []
 
         # Create the debugging event dispatcher thread
         self._condition = threading.Condition()
@@ -576,25 +579,46 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
         oops()
 
     def lookup_symbol_name(self, table, sym):
-        oops()
+        symbol = self._lookups[table][sym - 1]
+        return symbol.name
 
     def lookup_symbol_address(self, table, sym):
-        oops()
+        symbol = self._lookups[table][sym - 1]
+        start = symbol.addr
+        address = start.GetLoadAddress(self._target)
+        return address;
 
     def lookup_function_debug_start(self, table, sym):
-        oops()
+        symbol = self._lookups[table][sym - 1]
+        start = symbol.addr
+        address = start.GetLoadAddress(self._target)
+        if address != lldb.LLDB_INVALID_ADDRESS:
+            debug_start = address + symbol.prologue_size
+        else:
+            debug_start = lldb.LLDB_INVALID_ADDRESS
+        return debug_start
 
     def lookup_function_debug_end(self, table, sym):
-        oops()
+        symbol = self._lookups[table][sym - 1]
+        end = symbol.end_addr
+        debug_end_address = end.GetLoadAddress(self._target)
+        return debug_end_address
 
     def lookup_symbol_language(self, table, sym):
         oops()
 
     def lookup_function_end(self, table, sym):
-        oops()
+        symbol = self._lookups[table][sym - 1]
+        end = symbol.end_addr
+        end_address = end.GetLoadAddress(self._target)
+        return end_address
 
     def symbol_is_function(self, table, sym):
-        oops()
+        symbol = self._lookups[table][sym - 1]
+        if symbol.type == lldb.eSymbolTypeCode:
+            return 1
+        else:
+            return 0
 
     def nearest_symbols(self, address):
         oops()
@@ -641,8 +665,23 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
                 debug_start, debug_end,
                 symbol_language, final_address_of_definition)
 
+    def do_symbols(self, nublibrary, match):
+        self._trace("do_symbols library:%d match: %s\n" % (nublibrary, match))
+        module = self._target.modules[nublibrary]
+        match_re = fnmatch.translate(match)
+        symbols = module.symbol[re.compile(match_re)]
+
+        first = 1;
+        last = len(symbols)
+        lookups = len(self._lookups)
+        self._lookups.append(symbols)
+        return (first, last, lookups)
+
     def dispose_lookups(self, lookups):
-        oops()
+        self._trace("dispose_lookups %d\n" % lookups)
+        self._lookups[lookups] = None
+        while len(self._lookups) > 0 and self._lookups[-1] is None:
+            del self._lookups[-1]
 
     def resolve_source_location(self, nublibrary, filename, \
                                 line_number, column_number):
