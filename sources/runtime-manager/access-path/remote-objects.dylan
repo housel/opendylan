@@ -113,12 +113,8 @@ define abstract class <remote-library> (<object>)
     init-keyword: version-minor:,
     init-value: 0;
 
-  constant slot library-image-name :: <string>,
+  constant slot library-image-name :: <file-locator>,
     init-keyword: locator:;
-
-  constant slot library-core-name :: <string>,
-    init-keyword: core-name:,
-    init-value: "unknown";
 
   constant slot library-base-address :: <remote-value>,
     init-keyword: base-address:,
@@ -142,6 +138,11 @@ end class;
 
 define generic library-version (lib :: <remote-library>)
  => (major-version-number :: <integer>, minor-version-number :: <integer>);
+
+define method library-core-name (lib :: <remote-library>)
+ => (core-name :: <string>)
+  lib.library-image-name.locator-base | "unknown"
+end method;
 
 define class <simple-remote-library> (<remote-library>)
 end class;

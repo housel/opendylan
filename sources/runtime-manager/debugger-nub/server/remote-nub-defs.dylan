@@ -256,18 +256,6 @@ define corba-method Rtmgr/RemoteNub/get-library-filename
   C-filename
 end corba-method;
 
-define corba-method Rtmgr/RemoteNub/get-library-undecorated-name
-    (rnub :: <RemoteNub-implementation>, dll :: Rtmgr/RemoteNub/<RNUBLIBRARY>)
- => (result :: CORBA/<string>)
-  let process = remote-process(rnub);
-  let name-length =
-    nub-get-library-undecorated-name-length(process, dll);
-  let basic-name = make(<byte-string>, size: name-length);
-  nub-get-library-undecorated-name
-  (process, dll, name-length, basic-name);
-  basic-name
-end corba-method;
-
 define corba-method Rtmgr/RemoteNub/get-register-name
     (rnub :: <RemoteNub-implementation>, reg :: Rtmgr/RemoteNub/<NUB-INDEX>)
  => (result :: CORBA/<string>)

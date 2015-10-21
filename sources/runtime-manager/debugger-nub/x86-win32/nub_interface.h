@@ -50,11 +50,6 @@ NUBINT nub_get_library_filename_length
 void nub_get_library_filename
   (NUB nub,  NUBLIBRARY dll,  NUBINT sz,
     char *buf);
-NUBINT nub_get_library_undecorated_name_length
-  (NUB nub,  NUBLIBRARY dll);
-void nub_get_library_undecorated_name
-  (NUB nub,  NUBLIBRARY dll,  NUBINT sz,
-    char *buf);
 
 NUBINT nub_get_register_name_length
   (NUB nub,  NUB_INDEX reg);

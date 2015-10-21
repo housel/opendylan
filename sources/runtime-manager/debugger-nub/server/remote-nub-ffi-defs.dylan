@@ -147,21 +147,6 @@ define debugger-nub-interface nub-get-library-filename
        c-name: "nub_get_library_filename";
 end debugger-nub-interface;
 
-define debugger-nub-interface nub-get-library-undecorated-name-length
-       parameter nub              :: <NUB>;
-       parameter library          :: <NUBLIBRARY>;
-       result length              :: <NUBINT>;
-       c-name: "nub_get_library_undecorated_name_length";
-end debugger-nub-interface;
-
-define debugger-nub-interface nub-get-library-undecorated-name
-       parameter nub              :: <NUB>;
-       parameter library          :: <NUBLIBRARY>;
-       parameter buf-size         :: <NUBINT>;
-       parameter buf              :: <C-string>;
-       c-name: "nub_get_library_undecorated_name";
-end debugger-nub-interface;
-                                           
 define debugger-nub-interface nub-get-register-name-length
        parameter nub              :: <NUB>;
        parameter register         :: <NUB-INDEX>;

@@ -124,10 +124,8 @@ void print_stop_reason_description (NUB nub, NUBINT stopcode)
 
   case LOAD_DLL_DBG_EVENT:
     nublibrary = nub_stop_reason_library(nub);
-    nub_get_library_undecorated_name(nub, nublibrary, sizeof name, name);
-    printf("Event: The process loaded a DLL: %s", name);
     nub_get_library_filename(nub, nublibrary, sizeof name, name);
-    printf(" (%s)\n", name);
+    printf("Event: The process loaded a DLL: %s\n", name);
     break;
 
   case UNLOAD_DLL_DBG_EVENT:

@@ -102,19 +102,14 @@ define method construct-library-object
   let name-length :: <integer>
     = nub-get-library-filename-length (conn.connection-process, lib);
   let C-filename = make (<byte-string>, size: name-length);
-  let basic-name-length =
-    nub-get-library-undecorated-name-length(conn.connection-process, lib);
-  let basic-name = make(<byte-string>, size: basic-name-length);
   let (major-v, minor-v) =
     nub-get-library-version(conn.connection-process, lib);
   let base-addr =
     nub-get-library-base-address(conn.connection-process, lib);
   nub-get-library-filename (conn.connection-process, lib, name-length, C-filename);
-  nub-get-library-undecorated-name(conn.connection-process, lib, name-length, basic-name);
   make (<remote-library>,
         nub-descriptor: lib,
-        locator: as-uppercase(C-filename),
-        core-name: as-uppercase(basic-name),
+        locator: as(<file-locator>, C-filename),
         version-major: major-v,
         version-minor: minor-v,
         base-address: base-addr);

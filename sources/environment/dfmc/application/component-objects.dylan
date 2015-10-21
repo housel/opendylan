@@ -11,7 +11,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 define method component-image-filename
     (application :: <dfmc-application>, component :: <component-object>)
  => (name :: <file-locator>)
-  as(<file-locator>, component.application-object-proxy.library-image-name)
+  component.application-object-proxy.library-image-name
 end method;
 
 

@@ -50,6 +50,7 @@ define module devel-dbg-ui
   use c-ffi;
   use streams;
   use file-system;
+  use locators;
   use standard-io;
   use format;
   use print;

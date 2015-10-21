@@ -892,8 +892,8 @@ define method compute-dll-sets () => (res :: <sequence>)
     let dll-sets = 
       collecting ()
 	local method collect-dll (library :: <remote-library>)
-                let leaf = filename-strip-to-leaf(library-image-name(library));
-                let name = as(<symbol>, as-lowercase(filename-strip-suffix(leaf)));
+                let leaf = library.library-image-name.locator-base;
+                let name = as(<symbol>, as-lowercase(leaf));
 		collect(make(<profile-set-dll>, dll: name));
 	      end method;
 	do-libraries(collect-dll, *open-application*.debug-target-access-path);
@@ -1324,38 +1324,10 @@ define method execute-debugger-command
 
   let library-table = make(<string-table>);
 
-  local method index-of-final-split (s :: <string>) =>
-             (index :: <integer>)
-          let i = s.size - 1;
-          block (return)
-            while (i >= 0)
-              if ((s[i] == '/') | (s[i] == '\\'))
-                return(i)
-              else
-                i := i - 1
-              end if;
-            end while;
-            i;
-          end block
-        end method;
-
-  local method split-string-at (s :: <string>, split-index :: <integer>)
-                           => (s1 :: <string>, s2 :: <string>)
-          let s1 = make(<string>, size: (split-index + 1));
-          let s2 = make(<string>, size: (s.size - split-index - 1));
-          for (i from 0 to split-index)
-            s1[i] := s[i]
-          end for;
-          for (i from (split-index + 1) below s.size)
-            s2[i - split-index - 1] := s[i]
-          end for;
-          values(s1, s2)
-        end method;
-
-  local method sort-into-table(lib :: <remote-library>) => ()
+  local method sort-into-table(lib :: <remote-library>) => ();
     let fullname = lib.library-image-name;
-    let final-split = index-of-final-split(fullname);
-    let (path, filename) = split-string-at(fullname, final-split);
+    let path = as(<string>, fullname.locator-directory);
+    let filename = fullname.locator-base;
     let libraries-on-this-path =
       element(library-table, path, default: #f);
     if (libraries-on-this-path)

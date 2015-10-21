@@ -92,7 +92,6 @@ define sealed method initialize
   let lib = entry-init.tracker-remote-library;
   let target = entry-init.tracker-debug-target;
   let path = target.debug-target-access-path;
-  let core = lib.library-core-name;
   let init-fun = entry-init.tracker-initialization-symbol;
   let tracer = make(<starting-dynamic-initialization>,
                     address: init-fun.remote-symbol-address,
