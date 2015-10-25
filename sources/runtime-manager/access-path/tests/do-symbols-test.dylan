@@ -47,9 +47,10 @@ define test do-symbols-test ()
     let init-name
       = concatenate("_Init_",
                     mangle-name-locally($library-mangler, library-name));
-    check-true(format-to-string("Found symbol %s in %s",
+    check-equal(format-to-string("Found symbol %s once in %s",
                                 init-name, library-name),
-               member?(init-name, collected, test: \=));
+                1,
+                size(choose(curry(\=, init-name), collected)));
   end for;
 
   check-no-errors("Close access path", close-application(access-path));

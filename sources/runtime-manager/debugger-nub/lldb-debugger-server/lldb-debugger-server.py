@@ -669,7 +669,9 @@ class RemoteNub_i (Rtmgr__POA.RemoteNub):
         self._trace("do_symbols library:%d match: %s\n" % (nublibrary, match))
         module = self._target.modules[nublibrary]
         match_re = fnmatch.translate(match)
-        symbols = module.symbol[re.compile(match_re)]
+        symbols = [sym for sym in module.symbol[re.compile(match_re)]
+                   if sym.type != lldb.eSymbolTypeTrampoline
+                   and sym.type != lldb.eSymbolTypeUndefined]
 
         first = 1;
         last = len(symbols)
