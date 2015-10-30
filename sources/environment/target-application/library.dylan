@@ -12,8 +12,6 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 define library target-application
   use common-dylan;
 
-  use release-info;
-
   use access-path;
   use debugger-manager;
 
@@ -38,8 +36,6 @@ end module target-application;
 define module target-application-internals
   use common-dylan;
   use threads;
-
-  use release-info;
 
   use access-path,
     rename: { thread-name => ap-thread-name};
