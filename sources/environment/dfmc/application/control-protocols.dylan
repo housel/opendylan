@@ -381,10 +381,7 @@ define method close-application
 
     if (wait-for-termination?)
       // synchronize with the Debugger Manager thread
-      with-lock (target.application-shut-down-lock, timeout: 20)
-        failure
-          error("Timeout expired in terminating application");
-      end;
+      wait-for-target-application-closed(target, 20);
     end
   end
 end method close-application;

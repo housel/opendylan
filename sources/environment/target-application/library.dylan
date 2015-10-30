@@ -29,8 +29,7 @@ define module target-application
       \with-debugger-transaction,
       perform-debugger-transaction,
       perform-requiring-debugger-transaction,
-      application-continuation-pending,
-      application-shut-down-lock;
+      wait-for-target-application-closed;
 end module target-application;
 
 define module target-application-internals
