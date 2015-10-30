@@ -125,23 +125,6 @@ define method null-application-state-callback
 end method;
 
 
-/// OBTAIN-COMPONENT-NAME
-///
-/// Get the DLL name for a given library
-/// XXX does not work with library packs! find-library-info is broken
-/// we hope nobody calls it (it wasn't called during our debugging sessions)
-
-define method obtain-component-name
-    (application :: <target-application>, library-name :: <string>)
- => (component-name :: <string>)
-  let info = find-library-info(as(<symbol>, library-name));
-  case
-    info      => info.info-binary-name;
-    otherwise => library-name;
-  end
-end method obtain-component-name;
-
-
 ///// HANDLE-LIBRARY-INITIALIZATION-PHASE
 //    The method for an environment <target-application>.
 
