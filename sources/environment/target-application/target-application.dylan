@@ -136,23 +136,6 @@ define method null-application-state-callback
 end method;
 
 
-/// OBTAIN-COMPONENT-NAME
-///
-/// Get the DLL name for a given library
-/// XXX does not work with library packs! find-library-info is broken
-/// we hope nobody calls it (it wasn't called during our debugging sessions)
-
-define method obtain-component-name
-    (application :: <target-application>, library-name :: <string>)
- => (component-name :: <string>)
-  let info = find-library-info(as(<symbol>, library-name));
-  case
-    info      => info.info-binary-name;
-    otherwise => library-name;
-  end
-end method obtain-component-name;
-
-
 ///// HANDLE-LIBRARY-INITIALIZATION-PHASE
 //    The method for an environment <target-application>.
 
@@ -208,8 +191,8 @@ end class;
 define method run-target-application
     (application :: <target-application>,
      #key stop-reason-callback = null-stop-reason-callback,
-          dt-prolog = #f,
-          dt-epilog = #f,
+          debugger-transaction-prolog = #f,
+          debugger-transaction-epilog = #f,
           interactor-callback = null-interactor-callback,
           library-init-callback =
             null-library-initialization-phase-callback,
@@ -243,10 +226,10 @@ define method run-target-application
           unless (instance?(sr, <temporary-internal-debugger-transaction-stop>))
             application-state-callback(app, #"stopped");
 
-            if (dt-prolog)
+            if (debugger-transaction-prolog)
               thread-debug-message("Running debugger transaction prolog");
               block()
-                dt-prolog(app, sr)
+                debugger-transaction-prolog(app, sr)
               exception(<abort>)
                 values()
               end block
@@ -257,10 +240,10 @@ define method run-target-application
           manage-debugger-transaction(app);
 
           unless (instance?(sr, <temporary-internal-debugger-transaction-stop>))
-            if (dt-epilog)
+            if (debugger-transaction-epilog)
               thread-debug-message("Running debugger transaction epilog");
               block()
-                dt-epilog(app, sr)
+                debugger-transaction-epilog(app, sr)
               exception(<abort>)
                 values()
               end block

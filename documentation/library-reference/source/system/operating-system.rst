@@ -25,7 +25,7 @@ environment variable in the system.
 
 The following constants contain machine-specific information:
 
-- :const:`$architecture-little-endian`
+- :const:`$architecture-little-endian?`
 - :const:`$machine-name`
 - :const:`$os-name`
 - :const:`$os-variant`
@@ -50,6 +50,11 @@ the current machine, where available.
 - :func:`owner-name`
 - :func:`owner-organization`
 
+Running Applications
+--------------------
+
+- :func:`run-application`
+
 Manipulating application information
 ------------------------------------
 
@@ -59,18 +64,25 @@ the environment as a whole. You can run or quit any application, and
 interrogate the running application for application-specific
 information.
 
-- :func:`run-application`
 - :func:`exit-application`
+- :func:`register-application-exit-function`
 - :func:`application-arguments`
 - :func:`application-name`
 - :func:`application-filename`
 - :func:`tokenize-command-string`
+- :func:`current-process-id`
+- :func:`parent-process-id`
+
+Working with shared libraries
+-----------------------------
+
+- :func:`load-library`
 
 The operating-system module
 ---------------------------
 
 This section contains a reference entry for each item exported from the
-operating-system library's operating-system module.
+System library's operating-system module.
 
 .. function:: application-arguments
 
@@ -145,7 +157,7 @@ operating-system library's operating-system module.
      - :func:`application-filename`
      - :func:`tokenize-command-string`
 
-.. constant:: $architecture-little-endian
+.. constant:: $architecture-little-endian?
 
    Constant specifying whether the processor architecture is little-endian.
 
@@ -166,6 +178,22 @@ operating-system library's operating-system module.
      - :const:`$os-variant`
      - :const:`$os-version`
      - :const:`$platform-name`
+
+.. function:: current-process-id
+
+   Returns the integer value for the current process ID.
+
+   :signature: current-process-id => *pid*
+
+   :value pid: An instance of :drm:`<integer>`.
+
+   :description:
+
+     Returns the integer value of the current process ID.
+
+   :seealso:
+
+     - :func:`parent-process-id`
 
 .. function:: environment-variable
 
@@ -227,9 +255,32 @@ operating-system library's operating-system module.
      value of *status* to whatever launched the application, for example
      an MS-DOS window or Windows 95/NT shell.
 
+     .. note:: This function is also available from the ``dylan-extensions``
+        module in the ``dylan`` library and the ``common-extensions`` module
+        of the ``common-dylan`` library.
+
    :seealso:
 
-     - :func:`run-application`
+     - :func:`register-application-exit-function`
+
+.. function:: load-library
+
+   Loads a shared library into the current process.
+
+   :signature: load-library *name* => *module*
+
+   :parameter name: An instance of :drm:`<string>`.
+   :value module: An instance of :class:`<machine-word>`.
+
+   :description:
+
+     Loads the library specified by *name* into the current process. The
+     library must be a shared library.
+
+     If the library is a library written in Dylan, then when it loaded,
+     constructor functions will run which set up the various methods and other
+     Dylan objects within the shared library. Top level code within the library
+     will be executed.
 
 .. function:: login-name
 
@@ -279,7 +330,7 @@ operating-system library's operating-system module.
 
    :seealso:
 
-     - :const:`$architecture-little-endian`
+     - :const:`$architecture-little-endian?`
      - :const:`$os-name`
      - :const:`$os-variant`
      - :const:`$os-version`
@@ -299,7 +350,7 @@ operating-system library's operating-system module.
 
    :seealso:
 
-     - :const:`$architecture-little-endian`
+     - :const:`$architecture-little-endian?`
      - :const:`$machine-name`
      - :const:`$os-variant`
      - :const:`$os-version`
@@ -322,7 +373,7 @@ operating-system library's operating-system module.
 
    :seealso:
 
-     - :const:`$architecture-little-endian`
+     - :const:`$architecture-little-endian?`
      - :const:`$machine-name`
      - :const:`$os-name`
      - :const:`$os-version`
@@ -344,7 +395,7 @@ operating-system library's operating-system module.
 
    :seealso:
 
-     - :const:`$architecture-little-endian`
+     - :const:`$architecture-little-endian?`
      - :const:`$machine-name`
      - :const:`$os-name`
      - :const:`$os-variant`
@@ -379,13 +430,31 @@ operating-system library's operating-system module.
      the user who owns the current machine belongs, or ``#f`` if the
      name is unavailable.
 
+.. function:: parent-process-id
+
+   Returns the integer value for the parent process ID.
+
+   :signature: parent-process-id => *pid*
+
+   :value pid: An instance of :drm:`<integer>`.
+
+   :description:
+
+     Returns the integer value of the parent process ID.
+
+     .. note:: This is not yet implemented on Windows.
+
+   :seealso:
+
+     - :func:`current-process-id`
+
 .. constant:: $platform-name
 
    Constant specifying the operating system running on and the type of
    hardware installed in the host machine.
 
    :type: <symbol>
-   :value: #"x86-win32", #"x86-linux", etc.
+   :value: ``#"x86-win32"``, ``#"x86-linux"``, etc.
 
    :description:
 
@@ -396,12 +465,42 @@ operating-system library's operating-system module.
 
    :example:
 
-     ``#"x86-win32"``, ``#"alpha-osf3"``
+     ``#"x86-win32"``, ``#"x86_64-linux"``
 
    :seealso:
 
-     - `$machine-name`
-     - `$os-name`
+     - :const:`$machine-name`
+     - :const:`$os-name`
+
+.. function:: register-application-exit-function
+
+   Register a function to be executed when the application is about to exit.
+
+   :signature: register-application-exit-function *function* => ()
+
+   :parameter function: An instance of :drm:`<function>`.
+
+   :description:
+
+     Register a function to be executed when the application is about to
+     exit. The Dylan runtime will make sure that these functions are executed.
+
+     The *function* should not expect any arguments, nor expect that any return
+     values be used.
+
+     .. note:: Currently, the registered functions will be invoked in the reverse
+        order in which they were added. This is **not** currently a contractual
+        guarantee and may be subject to change.
+
+     .. note:: This function is also available from the ``dylan-extensions``
+        module in the ``dylan`` library and the ``common-extensions`` module
+        of the ``common-dylan`` library.
+
+   :example:
+
+   :seealso:
+
+     - :func:`exit-application`
 
 .. function:: run-application
 

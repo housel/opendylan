@@ -80,6 +80,11 @@ Coloring-Stream
   supports ANSI codes on Unix terminals. It has been
   `documented in the library reference`_.
 
+Common Dylan
+============
+
+* The ``transcendentals`` module now has a ``sincos`` generic function.
+
 Compiler
 ========
 
@@ -112,6 +117,13 @@ Compiler
   used have been fixed. These are typically edge cases like ``+.5``
   or ``-3d3`` rather than commonly used literal notations.
 
+* The C back-end correctly handles indirect C-functions (where a
+  function pointer is given to be invoked rather than a direct
+  function call).
+
+* Warnings and errors are now colorized when printing on supporting
+  output devices.
+
 Debugging
 =========
 
@@ -140,6 +152,9 @@ IO
 * An implementation of indenting streams for handling indented text
   output has been added. See ``<indented-stream>``, ``indent``, and
   ``with-indentation`` in the ``streams`` module.
+
+* Some generic functions that apply to ``<buffered-stream>`` have had
+  their signatures tightened.
 
 Runtime
 =======
