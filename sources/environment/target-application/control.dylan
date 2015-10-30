@@ -102,3 +102,13 @@ end method;
 define method kill-target-application(application :: <target-application>)
   dm-kill-application(application);
 end method;
+
+///// WAIT-FOR-TARGET-APPLICATION-CLOSED
+
+define method wait-for-target-application-closed
+    (application :: <target-application>, timeout :: <real>)
+  with-lock (application.application-shut-down-lock, timeout: timeout)
+  failure
+    error("Timeout expired in terminating application");
+  end;
+end method;
