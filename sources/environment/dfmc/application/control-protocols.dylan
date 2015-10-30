@@ -77,9 +77,9 @@ define method run-application
       end if
     end method,
 
-    ///// WRAPPED-DT-PROLOG
+    ///// WRAPPED-DEBUGGER-TRANSACTION-PROLOG
     //    Another adapter.
-    method wrapped-DT-prolog
+    method wrapped-debugger-transaction-prolog
         (target :: <target-application>, sr :: <stop-reason>) => ()
       reset-breakpoint-failure-recording(application);
       if (application.registered-debugger-transaction-prolog)
@@ -87,9 +87,9 @@ define method run-application
       end if;
     end method,
 
-    ///// WRAPPED-DT-EPILOG
+    ///// WRAPPED-DEBUGGER-TRANSACTION-EPILOG
     //    Another adapter.
-    method wrapped-DT-epilog
+    method wrapped-debugger-transaction-epilog
         (target :: <target-application>, sr :: <stop-reason>) => ()
       note-all-recorded-breakpoint-failures(application);
       if (application.registered-debugger-transaction-epilog)
@@ -292,8 +292,10 @@ define method run-application
               run-target-application
                 (target-app,
                  stop-reason-callback: wrapped-sr-callback,
-                 dt-prolog: wrapped-dt-prolog,
-                 dt-epilog: wrapped-dt-epilog,
+                 debugger-transaction-prolog:
+                   wrapped-debugger-transaction-prolog,
+                 debugger-transaction-epilog:
+                   wrapped-debugger-transaction-epilog,
                  interactor-callback: wrapped-interactor-handler,
                  library-init-callback: wrapped-library-init-handler,
                  application-state-callback: wrapped-application-state-setter);
