@@ -315,8 +315,8 @@ define open generic local-variable-location
 
 define defaulted-generic compiled-lambda-local-variables
     (compiled-lambda :: <compiled-lambda>, code-offset :: <integer>)
-    => (local-variables :: <sequence>)
- #[];
+ => (local-variables :: false-or(<sequence>))
+  #f
 end defaulted-generic;
 
 

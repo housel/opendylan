@@ -377,7 +377,7 @@ end method;
 
 define sideways method compiled-lambda-local-variables
     (compiled-lambda :: <harp-compiled-lambda>, code-offset :: <integer>)
-    => (local-variables :: <sequence>)
+    => (local-variables :: false-or(<sequence>))
   block (return)
     let all-scopes :: <simple-object-vector> = compiled-lambda.lambda-all-variable-scopes;
     let all-vars :: <simple-object-vector> = compiled-lambda.lambda-all-variable-names;
