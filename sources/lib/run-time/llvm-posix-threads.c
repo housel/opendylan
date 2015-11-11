@@ -236,7 +236,7 @@ void *get_current_thread_handle(void)
   return (void *) Pteb.teb_current_thread_handle;
 }
 
-static void *trampoline(void *arg)
+void *dylan_thread_trampoline(void *arg)
 {
   struct KLthreadGYthreadsVdylan *thread
     = (struct KLthreadGYthreadsVdylan *) arg;
@@ -285,7 +285,8 @@ dylan_value primitive_make_thread(dylan_value t, dylan_value f, DBOOL s)
   RETURN_IF_ERROR(pthread_attr_init(&attr), CREATE_ERROR);
   RETURN_IF_ERROR(pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED),
                   CREATE_ERROR);
-  RETURN_IF_ERROR(pthread_create(&rthread->tid, &attr, trampoline, thread),
+  RETURN_IF_ERROR(pthread_create(&rthread->tid, &attr,
+                                 dylan_thread_trampoline, thread),
                   CREATE_ERROR);
   RETURN_IF_ERROR(pthread_attr_destroy(&attr), CREATE_ERROR);
 
