@@ -32,33 +32,38 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 // Nosa   Mar 31, 1999
 
 define macro with-debugger-transaction
-  { with-debugger-transaction (?application:name)
-      ?body:body
-    end }
- => { perform-debugger-transaction(?application, method () ?body end) }
   { with-debugger-transaction (?application:name, ?options:*)
       ?body:body
+      ?failure
     end }
  => { perform-debugger-transaction
-        (?application, method () ?body end, ?options) }
+        (?application, method () ?body end, on-failure: method () ?failure end,
+         ?options) }
+failure:
+  { failure ?:body }
+    => { ?body }
+  { }
+    => { values() }
 end macro with-debugger-transaction;
 
 define method perform-debugger-transaction
     (application :: <target-application>, transaction :: <function>,
-     #key continue)
+     #key continue, on-failure = method () values() end)
  => (#rest results)
-  if (application.performing-debugger-transaction?)
-    assert(~continue,
-           "Cannot continue from inside another debugger transaction");
-    transaction()
-  else
   local method do-transaction () => (#rest results)
           block()
             transaction();
           exception(<abort>)
-            values(); // No action.
+            thread-debug-message("Aborted transaction");
+            on-failure()
           end block;
         end method;
+
+  if (application.performing-debugger-transaction?)
+    assert(~continue,
+           "Cannot continue from inside another debugger transaction");
+    do-transaction()
+  else
 
   let transaction-thread = current-thread();
 
