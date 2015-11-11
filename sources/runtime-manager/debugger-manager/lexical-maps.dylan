@@ -197,27 +197,31 @@ define method active-dylan-lexical-variables
       if (lambda & context)
         let local-variables-from-compiler
           = compiled-lambda-local-variables(lambda, offset);
-        let count = size(local-variables-from-compiler);
-        let i = 0;
-        names := make(<vector>, size: count);
-        models := make(<vector>, size: count);
-        vals := make(<vector>, size: count);
-        types := make(<vector>, size: count);
-        locs := make(<vector>, size: count);
-        for (local-variable in local-variables-from-compiler)
-          let debug-name = local-variable-debug-name(context, local-variable);
-          let real-name = 
-            local-variable-debug-name-dylan-name(context, debug-name);
-          let (base-register, indirections) =
-            local-variable-location(context, local-variable);
-          names[i] := real-name;
-          models[i] := local-variable;
-          types[i] := #"local-variable";
-          let (val, loc) =
-            read-value-from-local-location (base-register, indirections);
-          vals[i] := val; locs[i] := loc;
-          i := i + 1;
-	end for;
+        if (local-variables-from-compiler)
+          let count = size(local-variables-from-compiler);
+          let i = 0;
+          names := make(<vector>, size: count);
+          models := make(<vector>, size: count);
+          vals := make(<vector>, size: count);
+          types := make(<vector>, size: count);
+          locs := make(<vector>, size: count);
+          for (local-variable in local-variables-from-compiler)
+            let debug-name = local-variable-debug-name(context, local-variable);
+            let real-name = 
+              local-variable-debug-name-dylan-name(context, debug-name);
+            let (base-register, indirections) =
+              local-variable-location(context, local-variable);
+            names[i] := real-name;
+            models[i] := local-variable;
+            types[i] := #"local-variable";
+            let (val, loc) =
+              read-value-from-local-location (base-register, indirections);
+            vals[i] := val; locs[i] := loc;
+            i := i + 1;
+          end for;
+        else
+          defer-to-runtime-information();
+        end if
       else
         defer-to-runtime-information();
       end if
@@ -256,7 +260,11 @@ define method number-of-active-dylan-variables
       if (lambda & context)
         let local-variables-from-compiler
           = compiled-lambda-local-variables(lambda, offset);
-        count := size(local-variables-from-compiler);
+        if (local-variables-from-compiler)
+          count := size(local-variables-from-compiler);
+        else
+          defer-to-runtime-information();
+        end if;
       else
         defer-to-runtime-information();
       end if
