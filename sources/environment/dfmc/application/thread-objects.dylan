@@ -216,6 +216,8 @@ define method application-threads
                  end,
                  path);
       thread-sequence
+    failure
+      #[]
     end
   else
     #[]
@@ -251,6 +253,8 @@ define method thread-complete-stack-trace
       this-frame := previous-stack-frame(target, this-frame);
     end;
     all-frames
+  failure
+    #[]
   end
 end method;
 
