@@ -52,23 +52,6 @@ define generic function-source-location-map
        => (maybe-slm :: false-or(<source-location-map>));
 
 
-/*
-///// EXTRACT-PATHNAME-LEAF
-//    We are only interested in actual filenames. Any pathname information
-//    should be stripped. Work backwards from the right until encountering
-//    a slash (in either direction), or the start of the string.
-
-define method extract-pathname-leaf (s :: <string>) => (l :: <string>)
-  let l = "";
-  let i = size(s) - 1;
-  while ((i >= 0) & (s[i] ~== '/') & (s[i] ~== '\\'))
-    l := concatenate(add!("", s[i]), l);
-    i := i - 1;
-  end while;
-  l;
-end method;
-*/
-
 ///// CONSTRUCT-SOURCE-LOCATION-MAP
 //    Call the nub to read in the runtime's view of source locations.
 
@@ -209,12 +192,12 @@ end method;
 ///// RESOLVE-SOURCE-LOCATION
 //    Using runtime information only, convert the given location in source
 //    code to an instruction address in memory, if possible.
-//    Paths should be a sequence of <string> objects describing pathnames.
+//    Paths should be a sequence of <pathname> objects describing pathnames.
 //    Library should be a <remote-library> (if supplied), and searching will
 //    be restricted to information stored for that library.
 
 define method resolve-source-location
-    (ap :: <access-path>, filename :: <string>,
+    (ap :: <access-path>, filename :: <pathname>,
      #key line = 0, column = 0, library = #f, paths = #())
        => (code-location :: false-or(<remote-value>), exact? :: <boolean>)
   if (library)
@@ -242,7 +225,7 @@ end method;
 
 define method resolve-source-location-from-library
     (ap :: <access-path>, lib :: <remote-library>,
-     filename :: <string>, line :: <integer>, col :: <integer>,
+     filename :: <pathname>, line :: <integer>, col :: <integer>,
      paths :: <sequence>)
        => (code-location :: false-or(<remote-value>), exact? :: <boolean>)
   resolve-source-location-on-connection
@@ -252,6 +235,6 @@ end method;
 
 define open generic resolve-source-location-on-connection
     (conn :: <access-connection>, lib :: <remote-library>,
-     filename :: <string>, line :: <integer>, col :: <integer>,
+     filename :: <pathname>, line :: <integer>, col :: <integer>,
      paths :: <sequence>)
  => (code-location :: false-or(<remote-value>), exact? :: <boolean>);

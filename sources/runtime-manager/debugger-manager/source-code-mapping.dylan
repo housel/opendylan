@@ -39,7 +39,7 @@ define method resolve-source-code-position
           let (addr, exact) =
             resolve-source-location
               (path, 
-               sr.source-record-name | "unnamed-source-record.dylan", 
+               sr.source-record-location | "unnamed-source-record.dylan", 
                line: line-number, 
                column: column-number,
                library: lib);

@@ -67,7 +67,7 @@ end method;
 
 define method resolve-source-location-on-connection
     (conn :: <remote-access-connection>, lib :: <remote-library>,
-     filename :: <string>, line :: <integer>, col :: <integer>,
+     filename :: <pathname>, line :: <integer>, col :: <integer>,
      paths :: <sequence>)
        => (code-location :: false-or(<remote-value>), exact? :: <boolean>)
   let (code-location :: <RTARGET-ADDRESS>,
@@ -78,7 +78,7 @@ define method resolve-source-location-on-connection
     = Rtmgr/RemoteNub/resolve-source-location
          (conn.nub, 
           lib.rnub-descriptor, 
-          filename, 
+          as(<string>, filename),
           line, 
           col);
   if (valid? == 1)

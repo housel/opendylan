@@ -74,13 +74,13 @@ end method;
 ///// RESOLVE-SOURCE-LOCATION
 //    Using runtime information only, convert the given location in source
 //    code to an instruction address in memory, if possible.
-//    Paths should be a sequence of <string> objects describing pathnames.
+//    Paths should be a sequence of <pathname> objects describing pathnames.
 //    Library should be a <remote-library> (if supplied), and searching will
 //    be restricted to information stored for that library.
 
 define method resolve-source-location-on-connection
     (conn :: <local-access-connection>, lib :: <remote-library>,
-     filename :: <string>, line :: <integer>, col :: <integer>,
+     filename :: <pathname>, line :: <integer>, col :: <integer>,
      paths :: <sequence>)
        => (code-location :: false-or(<remote-value>), exact? :: <boolean>)
   let (code-location :: <remote-value>,
@@ -91,7 +91,7 @@ define method resolve-source-location-on-connection
     = nub-resolve-source-location
          (conn.connection-process, 
           lib.nub-descriptor, 
-          filename, 
+          as(<file-locator>, filename).locator-base,
           line, 
           col);
   if (valid? == 1)

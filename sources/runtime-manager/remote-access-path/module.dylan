@@ -21,6 +21,7 @@ define module remote-access-path
   use standard-io;
   use print;
   use streams, import: {<file-stream>, <stream>, force-output, close};
+  use file-system, import: {<pathname>};
   use locators;
   use byte-vector;
   use table-extensions, import: {<string-table>};

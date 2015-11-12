@@ -1099,7 +1099,9 @@ define corba-method Rtmgr/RemoteNub/resolve-source-location
  => (result :: Rtmgr/RemoteNub/<RTARGET-ADDRESS>, valid :: Rtmgr/RemoteNub/<NUBINT>, path :: Rtmgr/RemoteNub/<NUBINT>, search :: Rtmgr/RemoteNub/<RNUBHANDLE>, exact :: Rtmgr/RemoteNub/<NUBINT>)
   let process = remote-process(rnub);
   nub-resolve-source-location
-  (process, nublibrary, filename, line-number, column-number);
+  (process, nublibrary,
+   as(<file-locator>, filename).locator-base,
+   line-number, column-number);
 end corba-method;
 
 define corba-method Rtmgr/RemoteNub/fetch-source-locations
