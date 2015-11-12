@@ -11,6 +11,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library target-application
   use common-dylan;
+  use collections;
 
   use access-path;
   use debugger-manager;
@@ -20,20 +21,21 @@ end library target-application;
 
 define module target-application
   create
-      <target-application>,
-      target-application-state,
-      run-target-application,
-      stop-target-application,
-      continue-target-application,
-      kill-target-application,
-      \with-debugger-transaction,
-      perform-debugger-transaction,
-      perform-requiring-debugger-transaction,
-      wait-for-target-application-closed;
+    <target-application>,
+    target-application-state,
+    run-target-application,
+    stop-target-application,
+    continue-target-application,
+    kill-target-application,
+    \with-debugger-transaction,
+    perform-debugger-transaction,
+    perform-requiring-debugger-transaction,
+    wait-for-target-application-closed;
 end module target-application;
 
 define module target-application-internals
   use common-dylan;
+  use set;
   use threads;
 
   use access-path,
