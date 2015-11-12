@@ -1,26 +1,11 @@
 Module:    target-application-internals
 Synopsis:  Defining a <debug-target> class that has special functionality
            for multi-threaded access.
-Author:    Paul Howard, Andy Armstrong
+Author:    Paul Howard, Andy Armstrong, Peter S. Housel
 Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
               All rights reserved.
 License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
-
-
-define function thread-debug-message
-    (string :: <string>, #rest pants) => ()
-  if (*debugging-debugger?*)
-    let control =
-      concatenate(current-thread().thread-name | "???", " : ", string);
-    apply(debugger-message, control, pants)
-  end if
-end function;
-
-define constant <interruption-type>
-  = type-union(<function>, <thread>, singleton(#f));
-
-
 
 ///// <TARGET-APPLICATION>
 //    A <debug-target> that contains synchronization functionality. This
@@ -28,128 +13,440 @@ define constant <interruption-type>
 //    for environment objects.
 
 define class <target-application> (<debug-target>)
+  // Callbacks invoked via GF methods
+  slot stored-library-initialization-phase-handler :: <function> = ignore;
+  slot stored-interactor-handler :: <function> = ignore;
 
-  // Lock and serialize all calls into the DM.
-
-
-  // Use a single-exclusive/multiple-inclusive lock over the entire
-  // debugger session, to lock all threads out until the Debugger
-  // Manager thread itself effortlessly releases its exclusive rights
-  // to the session lock.
-
-  constant slot debugger-session :: <read-write-lock> = make(<read-write-lock>);
-
-  // A lock on the current debugger transaction to synchronize threads
-  // requesting spy calls on DM or requesting DM to continue the application
-
-  constant slot debugger-transaction :: <simple-lock> = make(<simple-lock>);
-
-  slot debugger-transaction-timeout = #f;
-
-  // A lock for client threads when requesting debugger transactions to
-  // lock out other requesting threads until DM has served our request
-
-  constant slot debugger-transaction-request :: <simple-lock> = make(<simple-lock>);
-
-  // A lock for enabling client threads to optionally synchronize
-  // with the Debugger Manager on application termination
-
-  constant slot application-shut-down-lock :: <simple-lock> = make(<simple-lock>);
-
-  // Record the current stop reason for the application
-
-  slot current-stop-reason :: <stop-reason>;
-
-  // Store the thread that runs the DM loop, as well as any thread
-  // that gains exclusive debug access.
-
+  // Application manager thread
   slot manager-thread :: <thread>;
-  slot thread-being-served :: false-or(<thread>) = #f;
 
-  // Two notifications that can be used anywhere in the UI. These
-  // get notified when debugger transactions start and finish.
+  // Application state
+  constant slot target-application-state-lock :: <simple-lock> 
+    = make(<simple-lock>);
+  slot target-application-state-notification :: <notification>;
+  slot target-application-state :: <symbol>,
+    init-value: #"closed";
 
-  slot debugger-transaction-notification :: <notification>;
-  slot debugger-transaction-complete :: <notification>;
+  // Application control
+  slot target-application-wanted-state :: <symbol>,
+    init-value: #"closed";
 
-  // A boolean flag to indicate whether a debugger transaction is
-  // currently in effect.
+  // Transaction queue
+  constant slot transaction-lock :: <simple-lock> = make(<simple-lock>);
+  slot transaction-request-notification :: <notification>;
+  constant slot transaction-request-queue :: <deque> = make(<deque>);
+  slot transaction-complete-notification :: <notification>;
+  constant slot transaction-complete-set :: <object-set> = make(<object-set>);
+end class;
 
-  slot in-debugger-transaction? :: <boolean>,
-    init-value: #f;
+///// INITIALIZE (<TARGET-APPLICATION>)
+//    Sets up the notification fields, and associates them with the
+//    debugger transaction lock.
 
-  // Internal Slots.
+define method initialize
+    (application :: <target-application>, #rest keys, #key, #all-keys)
+ => ()
+  next-method();
 
-  slot under-management? :: <boolean>,
-    init-value: #f;
+  // Application state
+  application.target-application-state-notification
+    := make(<notification>, lock: application.target-application-state-lock);
 
-  slot been-managed? :: <boolean>,
-    init-value: #f;
+  // Transaction queue
+  application.transaction-request-notification
+    := make(<notification>, lock: application.transaction-lock);
+  application.transaction-complete-notification
+    := make(<notification>, lock: application.transaction-lock);
+end method;
 
-  slot stored-interactor-handler :: <function>;
+///// <TEMPORARY-INTERNAL-DEBUGGER-TRANSACTION-STOP>
+//    A stop reason that is not propagated to the environment.
 
-  // Support for "interrupting" transactions (to perform spy calls
-  // without officially ending the transaction)
-
-  slot interruption-evaluated :: <notification>;
-
-  slot interruption-function :: <interruption-type> = #f;
-
-  slot interruption-results :: <sequence> = #[];
-
-  slot stored-library-initialization-phase-handler :: <function>;
-
+define class <temporary-internal-debugger-transaction-stop>
+    (<debugger-generated-stop-reason>)
 end class;
 
 
-
-///// NULL-STOP-REASON-CALLBACK
-//    Should never get called
-
-define method null-stop-reason-callback
-    (application :: <target-application>, sr :: <stop-reason>)
-        => (bool :: <boolean>)
-  #f
+define method stop-application-request
+    (application :: <target-application>) => ()
+  debugger-message("Stopping target application temporarily");
+  stop-application
+    (application,
+     stop-reason: make(<temporary-internal-debugger-transaction-stop>));
 end method;
 
 
-///// NULL-INTERACTOR-CALLBACK
-//    We don't care about the return values of interactive evaluations?
+define inline function temporary-stop-reason?
+    (stop-reason :: <stop-reason>) => (temporary? :: <boolean>)
+  instance?(stop-reason, <temporary-internal-debugger-transaction-stop>)
+end function;
 
-define method null-interactor-callback
-    (application :: <target-application>, thread :: <remote-thread>,
-     transaction-id :: <object>, #rest return-values)
-        => (answer :: <boolean>)
-  #f
+
+///// <TRANSACTION-REQUEST>
+//
+define class <transaction-request> (<object>)
+  constant slot transaction-request-function :: <function>,
+    required-init-keyword: function:;
+  constant slot transaction-request-continue :: false-or(<function>),
+    required-init-keyword: continue:;
+  slot transaction-request-failed? :: <boolean>,
+    init-value: #f;
+  slot transaction-request-results :: <sequence>,
+    init-value: #[];
+end class;
+
+
+///// RUN-TARGET-APPLICATION
+//    This is basically like MANAGE-RUNNING-APPLICATION, except that
+//    it handles thread coordination issues. This function runs on the
+//    calling thread, and does not return until the application quits.
+
+define method run-target-application
+    (application :: <target-application>,
+     #key stop-reason-callback :: <function>,
+          debugger-transaction-prolog :: <function>,
+          debugger-transaction-epilog :: <function>,
+          interactor-callback :: <function>,
+          library-init-callback :: <function>,
+          application-state-callback :: <function>)
+ => ();
+  // Callbacks invoked via generic function methods
+  application.stored-library-initialization-phase-handler
+    := library-init-callback;
+  application.stored-interactor-handler
+    := interactor-callback;
+
+  application.manager-thread := current-thread();
+
+  // Callback methods passed to manage-running-application()
+  local
+    method transition-application-state
+        (application :: <target-application>, state :: <symbol>)
+      debugger-message("transition-application-state: %s", state);
+      with-lock (application.target-application-state-lock)
+        application.target-application-state := state;
+        if (state == #"closed")
+          release-all(application.target-application-state-notification);
+        end if;
+      end;
+      application-state-callback(application, state);
+    end method,
+    method handle-stop-reason
+        (application :: <target-application>,
+         stop-reason :: <stop-reason>)
+     => (keep-stopped? :: <boolean>)
+      temporary-stop-reason?(stop-reason)
+        | block ()
+            debugger-message("Calling stop-reason callback on %=",
+                             stop-reason);
+            let keep-stopped?
+              = stop-reason-callback(application, stop-reason);
+            debugger-message("The stop-reason callback on %= yielded %=",
+                             stop-reason, keep-stopped?);
+            if (keep-stopped?)
+              application.target-application-wanted-state := #"stopped";
+            end if;
+            keep-stopped?
+          exception (e :: <abort>)
+            debugger-message("Stop reason callback failure: %=", e);
+            #f
+          end block
+        | begin
+            sequence-point();
+            application.target-application-wanted-state ~== #"running"
+          end
+    end method,
+    method handle-ready-to-continue
+        (application :: <target-application>,
+         stop-reason :: <stop-reason>)
+     => ();
+      // Pre-transaction
+      transition-application-state(application, #"stopped");
+      unless (temporary-stop-reason?(stop-reason))
+        block ()
+          debugger-message("Running debugger transaction prolog on %=",
+                           stop-reason);
+          debugger-transaction-prolog(application, stop-reason)
+        exception (e :: <abort>)
+          // Do nothing
+          debugger-message("Transaction prolog failure: %=", e);
+        end block;
+      end unless;
+
+      // Handle transaction requests until the client doesn't want the
+      // target stopped anymore
+      with-lock (application.transaction-lock)
+        iterate loop()
+          debugger-message("transaction loop: wanted-state=%s queue-size=%d",
+                           application.target-application-wanted-state,
+                           application.transaction-request-queue.size);
+          if (empty?(application.transaction-request-queue))
+            sequence-point();
+            if (application.target-application-wanted-state == #"stopped")
+              debugger-message("Waiting for transactions to be submitted");
+              wait-for(application.transaction-request-notification);
+
+              // Try again
+              loop();
+            end if;
+          else
+            // Get a request from the queue and execute it
+            let request = pop(application.transaction-request-queue);
+            debugger-message("Processing request %=", request);
+            block ()
+              let (#rest results) = request.transaction-request-function();
+              request.transaction-request-results := results;
+            exception (e :: <abort>)
+              debugger-message("Transaction abort %=: %s", request, e);
+              request.transaction-request-failed? := #t;
+            end block;
+
+            // Post it onto the completed queue
+            add!(application.transaction-complete-set, request);
+            release-all(application.transaction-complete-notification);
+            debugger-message("Completed request %=", request);
+
+            // Continue if this transaction wanted it
+            if (request.transaction-request-continue)
+              debugger-message("Requesting continue from request %=", request);
+              request.transaction-request-continue();
+            end if;
+
+            loop();
+          end if;
+        end iterate;
+      end with-lock;
+
+      // Post-transaction
+      unless (temporary-stop-reason?(stop-reason))
+        block ()
+          debugger-message("Running debugger transaction epilog on %=",
+                           stop-reason);
+          debugger-transaction-epilog(application, stop-reason);
+        exception (e :: <abort>)
+          // Do nothing
+          debugger-message("Transaction epilog failure: %=", e);
+        end block;
+      end unless;
+
+      transition-application-state(application, #"running");
+    end method;
+
+  // Run the application until it exits
+  application.target-application-wanted-state := #"running";
+  transition-application-state(application, #"uninitialized");
+  manage-running-application
+    (application,
+     stop-reason-callback: handle-stop-reason,
+     ready-to-continue-callback: handle-ready-to-continue);
+
+  // Cancel any leftover transactions without running them
+  debugger-message("Cancelling leftover requests");
+  with-lock (application.transaction-lock)
+    transition-application-state(application, #"closed");
+    for (request in application.transaction-request-queue)
+      request.transaction-request-failed? := #t;
+      add!(application.transaction-complete-set, request);
+      debugger-message("Cancelled request %=", request);
+    end for;
+    release-all(application.transaction-complete-notification);
+  end with-lock;
 end method;
 
-define method null-library-initialization-phase-callback
-    (application :: <target-application>, thread :: <remote-thread>,
-     remote-library :: <remote-library>,
-     phase :: <library-initialization-phase>, top-level? :: <boolean>)
- => (interested? :: <boolean>)
-  #f
+///// STOP-TARGET-APPLICATION
+//    This can be hooked up to a STOP button,
+//    asynchronously pausing running applications
+
+define method stop-target-application
+    (application :: <target-application>, #key client-data = #f)
+ => ()
+  debugger-message("stop-target-application");
+  application.target-application-wanted-state := #"stopped";
+  synchronize-side-effects();
 end method;
 
-define method null-application-state-callback
-    (application :: <target-application>, new-state :: <symbol>) => ()
+
+///// CONTINUE-TARGET-APPLICATION
+//    This can be hooked up to a CONTINUE button
+//    It is a requirement that this continues the current
+//    application; clients will await confirmation of this.
+
+define method continue-target-application
+    (application :: <target-application>, remote-thread)
+ => ()
+  debugger-message("continue-target-application");
+  ignore(remote-thread);
+  application.target-application-wanted-state := #"running";
+  synchronize-side-effects();
+
+  // Notify the manager thread
+  if (current-thread() ~== application.manager-thread)
+    with-lock (application.transaction-lock)
+      release(application.transaction-request-notification);
+    end with-lock;
+  end if;
+end method;
+
+
+///// KILL-TARGET-APPLICATION
+
+define method kill-target-application(application :: <target-application>)
+  debugger-message("kill-target-application");
+  dm-kill-application(application);
+  application.target-application-wanted-state := #"closed";
+  synchronize-side-effects();
+
+  // Notify the manager thread
+  if (current-thread() ~== application.manager-thread)
+    with-lock (application.transaction-lock)
+      release(application.transaction-request-notification);
+    end with-lock;
+  end if;
+end method;
+
+
+///// WITH-DEBUGGER-TRANSACTION
+
+define macro with-debugger-transaction
+  { with-debugger-transaction (?application:name, ?options:*)
+      ?body:body
+      ?failure
+    end }
+ => { perform-debugger-transaction
+        (?application, method () ?body end,
+         on-failure: method () ?failure end,
+         ?options) }
+failure:
+  { failure ?:body }
+    => { ?body }
+  { }
+    => { values() }
+end macro with-debugger-transaction;
+
+
+///// PERFORM-DEBUGGER-TRANSACTION
+//    Takes a <target-application> and a <function>.
+//    With a claim on debugger access to the application, ensures that a
+//    debugger transaction is in effect. (It will force one to begin, if
+//    one is not in effect already). Calls back to the supplied function,
+//    and then ends the debugger transaction if it had to start one
+//    specifically.
+//    (All environment protocol queries can take place inside a call to
+//    this function).
+
+define method perform-debugger-transaction
+    (application :: <target-application>, transaction :: <function>,
+     #key continue,
+          temporary-stop? = #t,
+          on-failure = method () values() end)
+ => (#rest results)
+  if (current-thread() == application.manager-thread)
+    assert(~continue,
+           "Cannot continue from inside another debugger transaction");
+    block ()
+      transaction()
+    exception (<abort>)
+      debugger-message("Aborted transaction");
+      on-failure()
+    end block
+  else
+    let request
+      = make(<transaction-request>, function: transaction, continue: continue);
+    with-lock (application.transaction-lock)
+      if (temporary-stop?)
+        stop-application-request(application);
+      end if;
+
+      if (application.target-application-state == #"uninitialized"
+            | application.target-application-state == #"closed")
+        debugger-message("Application is not active, failing transaction");
+        request.transaction-request-failed? := #t;
+      else
+        // Put this request on the request queue
+        push-last(application.transaction-request-queue, request);
+        release(application.transaction-request-notification);
+        debugger-message("%s: Submitted request %=",
+                         current-thread().thread-name, request);
+
+        // Wait for it to appear in the completion set
+        while (~member?(request, application.transaction-complete-set))
+          debugger-message("%s: Wait for request %=",
+                           current-thread().thread-name, request);
+          wait-for(application.transaction-complete-notification);
+        end while;
+        remove!(application.transaction-complete-set, request);
+        debugger-message("%s: Received completed request %=",
+                         current-thread().thread-name, request);
+      end if;
+    end with-lock;
+
+    // Return the results
+    if (request.transaction-request-failed?)
+      on-failure()
+    else
+      apply(values, request.transaction-request-results)
+    end if
+  end if
+end method;
+
+
+///// PERFORM-REQUIRING-DEBUGGER-TRANSACTION
+//    Takes a <target-application> and a <function>.
+//    With a claim on debugger access to the application, checks to see
+//    that a debugger transaction is in effect. If so, the client's
+//    callback is performed, otherwise just return to caller.
+
+define method perform-requiring-debugger-transaction
+    (application :: <target-application>, transaction :: <function>) => ()
+  if (current-thread() == application.manager-thread)
+    transaction()
+  else
+    error("perform-requiring-debugger-transaction isn't within a transaction");
+  end if
+end method;
+
+
+///// WAIT-FOR-TARGET-APPLICATION-CLOSED
+//    Waits until the application enters the #"closed" state, or
+//    signals an error if does not do so before the timeout.
+
+define method wait-for-target-application-closed
+    (application :: <target-application>, timeout :: <real>) => ()
+  with-lock (application.target-application-state-lock)
+    while (application.target-application-state ~== #"closed")
+      if (wait-for(application.target-application-state-notification,
+                   timeout: timeout) == #f)
+        error("Timeout expired in terminating application");
+      end if;
+    end while;
+  end;
+end method;
+
+
+///// CALL-DEBUGGER-FUNCTION
+//
+
+define method call-debugger-function
+    (application :: <target-application>, function :: <function>,
+     #rest arguments)
+ => (#rest vals :: <object>)
+  debugger-message("call-debugger-function");
+  let thunk = method() apply(function, arguments) end;
+  perform-debugger-transaction(application, thunk, temporary-stop?: #f)
 end method;
 
 
 ///// HANDLE-LIBRARY-INITIALIZATION-PHASE
-//    The method for an environment <target-application>.
+//    Called from within manage-running-application when
+//    initialization of a library reaches the given phase.
 
 define method handle-library-initialization-phase
     (application :: <target-application>, thread :: <remote-thread>,
      remote-library :: <remote-library>,
      phase :: <library-initialization-phase>, top-level? :: <boolean>)
- => (interested? :: <boolean>)
-
-  let interested? =
-    application.stored-library-initialization-phase-handler
-      (application, thread, remote-library, phase, top-level?);
-
-  interested?
+ => (interested? :: <boolean>);
+  application.stored-library-initialization-phase-handler
+    (application, thread, remote-library, phase, top-level?)
 end method;
 
 
@@ -159,152 +456,9 @@ end method;
 define method handle-interactor-return
     (application :: <target-application>, thread :: <remote-thread>,
      transaction-id :: <object>, #rest return-values)
-       => (answer :: <boolean>)
-
+ => (answer :: <boolean>)
   next-method();
-  let answer =
-    apply(application.stored-interactor-handler,
-          application,
-          thread,
-          transaction-id,
-          return-values);
-
-  answer
+  apply(application.stored-interactor-handler,
+        application, thread, transaction-id,
+        return-values)
 end method;
-
-
-///// <TEMPORARY-INTERNAL-DEBUGGER-TRANSACTION-STOP>
-//    A stop reason that is not propagated to the environment.
-
-define class <temporary-internal-debugger-transaction-stop>
-                 (<debugger-generated-stop-reason>)
-end class;
-
-
-///// RUN-TARGET-APPLICATION
-//    This is basically like MANAGE-RUNNING-APPLICATION, except that it
-//    does not require callback parameters. This library exports open
-//    generic functions that are used as the callbacks.
-//    This function runs on the calling thread, and does not return until
-//    the application quits.
-
-define method run-target-application
-    (application :: <target-application>,
-     #key stop-reason-callback = null-stop-reason-callback,
-          debugger-transaction-prolog = #f,
-          debugger-transaction-epilog = #f,
-          interactor-callback = null-interactor-callback,
-          library-init-callback =
-            null-library-initialization-phase-callback,
-          application-state-callback =
-            null-application-state-callback)
-      => ()
-
-  local method manage-stop-reason
-            (app :: <target-application>, sr :: <stop-reason>)
-         => (interested? :: <boolean>)
-
-           thread-debug-message
-             ("Entering stop-reason callback for %=", sr);
-           let stopping? :: <boolean> =
-             if (instance?(sr, <temporary-internal-debugger-transaction-stop>))
-               #t
-             else
-               block()
-                 stop-reason-callback(app, sr)
-               exception(<abort>)
-                 #f
-               end block;
-             end if;
-           thread-debug-message("Returning %= from sr callback", stopping?);
-           stopping?
-        end method;
-
-  local method manage-debugger-transaction-for-stop-reason
-            (app :: <target-application>, sr :: <stop-reason>) => ()
-
-          unless (instance?(sr, <temporary-internal-debugger-transaction-stop>))
-            application-state-callback(app, #"stopped");
-
-            if (debugger-transaction-prolog)
-              thread-debug-message("Running debugger transaction prolog");
-              block()
-                debugger-transaction-prolog(app, sr)
-              exception(<abort>)
-                values()
-              end block
-            end if;
-          end unless;
-
-          app.current-stop-reason := sr;
-          manage-debugger-transaction(app);
-
-          unless (instance?(sr, <temporary-internal-debugger-transaction-stop>))
-            if (debugger-transaction-epilog)
-              thread-debug-message("Running debugger transaction epilog");
-              block()
-                debugger-transaction-epilog(app, sr)
-              exception(<abort>)
-                values()
-              end block
-            end if;
-
-            application-state-callback(app, #"running");
-          end unless;
-
-        end method;
-
-
-  if (application.been-managed?)
-    error("This application has run and terminated already");
-  elseif (application.under-management?)
-    error("This application is already running");
-  else
-
-    with-lock (application.application-shut-down-lock)
-
-    application.under-management? := #t;
-    application.manager-thread := current-thread();
-    application.stored-interactor-handler := interactor-callback;
-    application.stored-library-initialization-phase-handler :=
-       library-init-callback;
-    application-state-callback(application, #"uninitialized");
-
-    with-lock (application.debugger-session, mode: #"write")
-      manage-running-application
-        (application,
-         stop-reason-callback: manage-stop-reason,
-         ready-to-continue-callback: manage-debugger-transaction-for-stop-reason);
-      application-state-callback(application, #"closed");
-      application.under-management? := #f;
-      application.been-managed? := #t;
-    end with-lock;
-
-    end with-lock;
-
-  end if;
-end method;
-
-
-///// INITIALIZE (<TARGET-APPLICATION>)
-//    Sets up the notification fields, and associates them with the
-//    debugger transaction lock.
-
-define method initialize
-    (application :: <target-application>, #rest keys, #key, #all-keys) => ()
-  next-method();
-
-  application.debugger-transaction-notification :=
-    make(<notification>,
-         lock: application.debugger-transaction);
-
-  application.debugger-transaction-complete :=
-    make(<notification>,
-         lock: application.debugger-transaction);
-
-  application.interruption-evaluated :=
-    make(<notification>,
-         lock: application.debugger-transaction);
-
-end method;
-
