@@ -340,6 +340,7 @@ end module debugger-manager;
 
 define module dm-internals
   use common-dylan;
+  use plists;
   use simple-format;
   use simple-debugging, import: { debug-out };
   use threads, rename: {thread-name => thread-name-internal};
@@ -352,6 +353,7 @@ define module dm-internals
   use interactive-symbol-table;
   use dfmc-derived-information, 
     rename: {<source-locator> => <dfmc-source-locator>};
+  use dfmc-project-compilation;
   use dfmc-namespace;
   use dfmc-mangling;
   use source-records;

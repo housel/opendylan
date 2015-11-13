@@ -68,23 +68,10 @@ define method interpret-stop-reason
          dm-thread.thread-pause-state-description := #"interactive-location";
 
          block ()
-           let control-string-address =
-             calculate-stack-address(path, thread, 0);
-           let format-arg-count-address =
-             calculate-stack-address(path, thread, 1);
-           let control-string :: <remote-value>
-             = read-value(path, control-string-address);
-           let counter-value :: <remote-value>
-             = read-value(path, format-arg-count-address);  
-           let actual-counter = as-integer(counter-value);
-
-           // Now build a vector of the right size to hold the format
-           // arguments. Pull each one off the stack in turn.
-           let arg-vector = make(<vector>, size: actual-counter);
-           for (i from 0 below actual-counter)
-             let arg-address = calculate-stack-address(path, thread, i + 2);
-             arg-vector[i] := read-value(path, arg-address);
-           end for;
+           let platform-name = application.debug-target-platform-name;
+           let (control-string, arg-vector)
+             = debug-primitive-format-arguments(application, thread,
+                                                top-stack-frame);
 
            // Construct our language-level stop reason for the dylan
            // debugging message. Note we are not formatting the string and
@@ -104,10 +91,6 @@ define method interpret-stop-reason
                 (application, code-location,
                  application.invoke-debugger-primitive))
          // This is a hard-coded breakpoint within primitive-invoke-debugger.
-         // We know that the control string for the error msg is at top of
-         // stack, followed by a (raw) integer counting the format arguments,
-         // followed in turn by each format argument. We calculate the
-         // stack relative addresses and read the relevant values.
          use-thread-for-spy-functions(application, thread);
          dm-thread.thread-pause-state-description := #"unhandled-condition";
 
@@ -122,23 +105,9 @@ define method interpret-stop-reason
          end unless;
 
          block ()
-           let control-string-address =
-             calculate-stack-address(path, thread, 0);
-           let format-arg-count-address =
-             calculate-stack-address(path, thread, 1);
-           let control-string :: <remote-value>
-             = read-value(path, control-string-address);
-           let counter-value :: <remote-value>
-             = read-value(path, format-arg-count-address);
-           let actual-counter = as-integer(counter-value);
-
-           // Now build a vector of the right size to hold the format
-           // arguments. Pull each one off the stack in turn.
-           let arg-vector = make(<vector>, size: actual-counter);
-           for (i from 0 below actual-counter)
-             let arg-address = calculate-stack-address(path, thread, i + 2);
-             arg-vector[i] := read-value(path, arg-address);
-           end for;
+           let (control-string, arg-vector)
+             = debug-primitive-format-arguments(application, thread,
+                                                top-stack-frame);
 
            // Construct our language-level stop reason for the dylan
            // error. Note we are not formatting the string and
@@ -363,6 +332,65 @@ define method interpret-stop-reason
   end select;
   values(maybe-modified-stop-reason, interesting-debug-points?, stop-reason);
 end method;
+
+define function debug-primitive-format-arguments
+    (application :: <debug-target>, thread :: <remote-thread>,
+     top-frame :: <function-frame>)
+ => (control-string :: <remote-value>, arg-vector :: <vector>);
+  let path = application.debug-target-access-path;
+  let platform-name = application.debug-target-platform-name;
+  if (platform-name == #"x86-win32")
+    // We know that the control string for the error msg is at top of
+    // stack, followed by a (raw) integer counting the format arguments,
+    // followed in turn by each format argument. We calculate the
+    // stack relative addresses and read the relevant values.
+    let control-string-address
+      = calculate-stack-address(path, thread, 0);
+    let format-arg-count-address
+      = calculate-stack-address(path, thread, 1);
+    let control-string :: <remote-value>
+      = read-value(path, control-string-address);
+    let counter-value :: <remote-value>
+      = read-value(path, format-arg-count-address);
+    let actual-counter = as-integer(counter-value);
+
+    // Now build a vector of the right size to hold the format
+    // arguments. Pull each one off the stack in turn.
+
+    let arg-vector = make(<vector>, size: actual-counter);
+    for (i from 0 below actual-counter)
+      let arg-address
+        = calculate-stack-address(path, thread, i + 2);
+      arg-vector[i] := read-value(path, arg-address);
+    end for;
+    values (control-string, arg-vector)
+  else
+    // For other platforms, we make use of lexical variable debug
+    // information to obtain the format-string and argument vector
+    // from the debug primitive's argument list.
+    let format-string = #f;
+    let arguments = #f;
+    do-frame-arguments(method (lexical :: <lexical-variable>)
+                         let name = lexical.lexical-variable-name;
+                         let value
+                           = read-value(path, lexical.lexical-variable-address);
+                         if (name = "format-string")
+                           format-string := value;
+                           debugger-message("format-string = %=", value);
+                         elseif (name = "arguments")
+                           arguments := value;
+                           debugger-message("arguments = %=", value);
+                         end if;
+                       end,
+                       path, top-frame);
+    let count = dylan-vector-size(application, arguments);
+    let arg-vector = make(<vector>, size: count);
+    for (i :: <integer> from 0 below count)
+      arg-vector[i] := dylan-vector-element(application, arguments, i);
+    end for;
+    values (format-string, arg-vector)
+  end if
+end function;
 
 
 // Callback functions for the Debugger NUB to do explicit
