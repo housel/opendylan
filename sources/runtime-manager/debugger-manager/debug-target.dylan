@@ -16,6 +16,10 @@ define class <runtime-primitive> (<interpreted-runtime-entry-point>)
   slot last-matched-address :: false-or(<remote-value>),
     init-value: #f;
 
+  constant slot runtime-name-mangling :: false-or(<symbol>),
+    init-value: #f,
+    init-keyword: runtime-name-mangling:;
+
 end class;
 
 
@@ -161,11 +165,13 @@ define open abstract class <debug-target> (<object>)
 
   constant slot exit-application-primitive :: <runtime-primitive>
     = make(<runtime-primitive>, 
-	   runtime-name: "_spy_exit_application");
+	   runtime-name: "spy_exit_application",
+           runtime-name-mangling: #"c");
 
   constant slot class-breakpoint-primitive :: <runtime-primitive>
     = make(<runtime-primitive>, 
-	   runtime-name: "_class_allocation_break");
+	   runtime-name: "class_allocation_break",
+           runtime-name-mangling: #"c");
 
   constant slot wrapper-wrapper-primitive :: <runtime-primitive>
     = make(<runtime-primitive>,
@@ -307,9 +313,16 @@ end method;
 define method locate-runtime-primitives (application :: <debug-target>) => ()
   let path = application.debug-target-access-path;
   let lib = application.application-dylan-runtime-library;
+  let platform-name = application.debug-target-platform-name;
 
-  local method locate-this-one (primitive :: <runtime-primitive>) => ()
-          let name = primitive.runtime-name;
+  local method locate-this-one (primitive :: <runtime-primitive>) => ();
+          let name
+            = if (primitive.runtime-name-mangling == #"c"
+                    & platform-name == #"x86-win32")
+                concatenate("_", primitive.runtime-name)
+              else
+                primitive.runtime-name
+              end if;
           let sym = find-symbol(path, name, library: lib);
           if (sym)
             primitive.runtime-symbol := sym;
