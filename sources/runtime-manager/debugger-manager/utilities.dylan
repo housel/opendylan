@@ -8,6 +8,18 @@ License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 
+///// DEBUG-TARGET-PLATFORM-NAME
+//    Given a debug target, return the name of the compilation
+//    platform from its compilation context.
+
+define method debug-target-platform-name
+    (application :: <debug-target>)
+ => (platform-name :: false-or(<symbol>))
+  let context = application.debug-target-compilation-context;
+  get-property(context.compilation-context-compiler-settings,
+               #"platform-name", default: #f)
+end method;
+
 
 ///// COMPILATION-CONTEXT-COMPONENT
 //    Given a compilation context, try to obtain a <REMOTE-LIBRARY> into
@@ -87,6 +99,7 @@ define method compiled-lambda-in-context-from-symbol
 	end method;
 
   let context = compilation-context-from-symbol(application, symbol);
+  
 
   let object-filename =
      if (symbol.remote-symbol-object-file)
@@ -94,6 +107,9 @@ define method compiled-lambda-in-context-from-symbol
      else
        #f
      end if;
+
+  debugger-message("compiled-lambda-in-context-from-symbol %s, context=%=, object-filename=%=",
+                   symbol.remote-symbol-name, context, object-filename);
 
   if (context)
     values(context,
