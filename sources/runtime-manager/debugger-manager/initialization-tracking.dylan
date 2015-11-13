@@ -343,7 +343,8 @@ end method;
 //    determine this. At time of writing, it is HQN-DYLAN.DLL, ie. the same
 //    as the Dylan library.
 
-define constant $running-under-dylan-debugger? = "_Prunning_under_dylan_debuggerQ";
+define constant $running-under-dylan-debugger?
+  = "%running-under-dylan-debugger?";
 
 define method register-dylan-runtime-library
     (application :: <debug-target>, runtime-library :: <remote-library>)
@@ -353,12 +354,20 @@ define method register-dylan-runtime-library
   application.application-dylan-runtime-library := runtime-library;
   application.C-spy := make(<C-spy-catalogue>);
   locate-runtime-primitives(application);
+  let platform-name = application.debug-target-platform-name;
+  let debug-variable-name
+    = mangle-name-raw($basic-mangler, $running-under-dylan-debugger?);
+  let mangled-variable-name
+    = if (platform-name == #"x86-win32")
+        concatenate("_", debug-variable-name)
+      else
+        debug-variable-name
+      end if;
   let debug-variable-sym =
-    find-symbol(path,
-                $running-under-dylan-debugger?,
+    find-symbol(path, mangled-variable-name,
                 library: runtime-library);
   if (debug-variable-sym)
-    write-value(path, debug-variable-sym.remote-symbol-address, one)
+    write-value(path, debug-variable-sym.remote-symbol-address, one);
   end if;
 end method;
 
