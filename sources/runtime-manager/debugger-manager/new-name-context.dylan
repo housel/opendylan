@@ -25,6 +25,8 @@ define constant $iep-mangler
 ///// $DEMANGLER
 define constant $demangler = make(<demangler>);
 
+///// Library startup glue function name prefix
+define constant $glue-init-name-prefix = "_Init_";
 
 ///// <DYLAN-NAME-CONTEXT> (Place holder, maybe, for <&module>)
 //    As currently described in the DM document.
@@ -113,6 +115,19 @@ define method mangle-in-context
   else
     mangle-binding-spread($basic-mangler, s, mod, lib);
   end if;
+end method;
+
+define method demangle-glue-init-name
+    (full-name :: <byte-string>) => (demang :: <byte-string>);
+  let mangled-name
+    = if (copy-sequence(full-name, start: full-name.size - 2) = "_X")
+        copy-sequence(full-name,
+                      start: $glue-init-name-prefix.size,
+                      end: full-name.size - 2)
+      else
+        copy-sequence(full-name, start: $glue-init-name-prefix.size)
+      end if;
+  demangle-name-locally($demangler, mangled-name)
 end method;
 
 
