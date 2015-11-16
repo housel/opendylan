@@ -142,6 +142,41 @@ define method remote-address-source-location
   let (sym, offset) = 
     symbol-table-symbol-relative-address(interactive-table, address);
 
+  local
+    method defer-to-runtime-information (context) => ()
+      let path = application.debug-target-access-path;
+      let slm = function-source-location-map(path, sym);
+      if (slm)
+        let (exact, ahead, behind)
+          = nearest-source-locations(path, slm, address);
+        if (exact)
+          let (linenumber, address)
+            = source-location-description(slm, exact);
+          source-location
+            := compilation-context-source-location
+                (context, slm.source-filename,
+                 slm.base-linenumber + linenumber);
+          exact? := #t;
+        elseif (behind)
+          let (linenumber, address)
+            = source-location-description(slm, behind);
+          source-location
+            := compilation-context-source-location
+                (context, slm.source-filename,
+                 slm.base-linenumber + linenumber);
+          exact? := #f;
+        elseif (ahead)
+          let (linenumber, address)
+            = source-location-description(slm, ahead);
+          source-location
+            := compilation-context-source-location
+                (context, slm.source-filename,
+                 slm.base-linenumber + linenumber);
+          exact? := #f;
+        end if;
+      end if;
+    end method;
+
   if (sym)
     // Our only possible route to the source location is via the
     // <compiled-lambda> object whose definition encloses this address.
@@ -163,6 +198,11 @@ define method remote-address-source-location
            interactive-only?: interactive-only?);
       source-location := location;
       exact? := ex;
+      if (~source-location)
+        defer-to-runtime-information(context);
+      end if;
+    else
+      defer-to-runtime-information(context);
     end if;
   end if;
 
