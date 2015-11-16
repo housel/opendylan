@@ -9,6 +9,7 @@ define library dfmc-browser-support
   use dylan;
   use dood;
   use source-records;
+  use file-source-records;
   use dfmc-core;
   use dfmc-reader;
   use dfmc-conversion;
@@ -259,6 +260,7 @@ define interface-module dfmc-project-compilation (browser-used-modules)
     compilation-context-version,
     compilation-context-compiler-settings,
     compilation-context-compiler-settings-setter,
+    compilation-context-source-location,
     compilation-context-project,
     compilation-context-database-location,
     // unsafe option, for internal use.
@@ -330,4 +332,5 @@ define module dfmc-browser-support
   use dfmc-back-end-protocol;
   // Use prefix to avoid conflicts with interface names.
   use browser-used-modules, prefix: "dfmc-";
+  use file-source-records;
 end module;
