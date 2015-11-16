@@ -116,6 +116,21 @@ define function compilation-context-compiler-settings-setter
   apply(setter, ld, settings)
 end function;
 
+define function compilation-context-source-location
+    (ld :: dfmc-<library-description>, filename, linenumber)
+ => (location :: false-or(<source-location>));
+  let locator = as(<file-locator>, filename);
+  let ids
+    = file-source-record-ids(<file-source-record>,
+                             locator.locator-directory, locator);
+  let project
+    = ld & ld.dfmc-library-description-project;
+  project
+    & begin
+        let sr = project-record-id-source-record(project, ids.first);
+        make-line-location(sr, linenumber)
+      end
+end function;
 
 define class <unresolved-variable> (<variable>)
   constant slot unresolved-variable-name :: <symbol>,
