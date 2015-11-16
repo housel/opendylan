@@ -223,7 +223,8 @@ end method;
 
 define method thread-dynamic-environment
     (application :: <debug-target>, thread :: <remote-thread>)
-       => (upf-top :: <remote-value>)
+ => (upf-top :: <remote-value>)
+  debugger-message("thread-dynamic-environment %=", thread);
   let path = application.debug-target-access-path;
   let teb-base = dylan-thread-environment-block-address(path, thread);
   let dynamic-env-address

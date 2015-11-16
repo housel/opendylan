@@ -13,13 +13,15 @@ define method llvm-compilation-record-dbg-compile-unit
  => ();
   let sr = cr.compilation-record-source-record;
   let location = sr.source-record-location;
-  let functions = copy-sequence(back-end.llvm-back-end-dbg-functions);
-  llvm-make-dbg-compile-unit($DW-LANG-Dylan,
-                             location.locator-name,
-                             location.locator-directory,
-                             $debug-producer,
-                             functions: functions,
-                             module: back-end.llvm-builder-module);
+  if (location)
+    let functions = copy-sequence(back-end.llvm-back-end-dbg-functions);
+    llvm-make-dbg-compile-unit($DW-LANG-Dylan,
+                               location.locator-name,
+                               location.locator-directory,
+                               $debug-producer,
+                               functions: functions,
+                               module: back-end.llvm-builder-module);
+  end if;
 end method;
 
 define method llvm-source-record-dbg-file

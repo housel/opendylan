@@ -8,6 +8,8 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define library debugger-manager
   use dylan;
+  use io;
+  use system;
   use common-dylan;
   use big-integers;
   use collections;
@@ -18,6 +20,7 @@ define library debugger-manager
   use dfmc-namespace;		// To extend ACTIVE-LEXICAL-VARIABLES GF.
   use dfmc-mangling;
   use source-records;
+  use file-source-records;
   export debugger-manager;
 end library debugger-manager;
 
@@ -363,7 +366,6 @@ end module debugger-manager;
 define module dm-internals
   use common-dylan;
   use plists;
-  use simple-format;
   use simple-debugging, import: { debug-out };
   use threads, rename: {thread-name => thread-name-internal};
   use dylan-extensions, import: {<double-integer>, <set>};
@@ -379,5 +381,11 @@ define module dm-internals
   use dfmc-namespace;
   use dfmc-mangling;
   use source-records;
+  use file-source-records;
+  use file-system;
+  use locators;
+  use format;
+  use standard-io;
+  use streams;
 end module dm-internals;
 

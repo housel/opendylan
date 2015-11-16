@@ -40,6 +40,8 @@ define method interpret-stop-reason
   let path = application.debug-target-access-path;
   let interesting-debug-points? = #f;
 
+  debugger-message("interpret-stop-reason %s", stop-reason);
+
   select (stop-reason by instance?)
 
     <invoke-debugger-stop-reason> =>

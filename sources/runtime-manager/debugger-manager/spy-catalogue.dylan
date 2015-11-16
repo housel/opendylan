@@ -115,7 +115,9 @@ end method;
 define method use-thread-for-spy-functions
     (application :: <debug-target>, thread :: false-or(<remote-thread>),
      #key reserve?)
-       => ()
+ => ()
+  debugger-message("use-thread-for-spy-functions %=, reserve=%=",
+                   thread, reserve?);
   case
     reserve? =>
       application.reserved-spy-thread? := #t;
@@ -186,6 +188,7 @@ define method run-spy-on-thread
   // We now know the function's entry-point, if it exists. Check that
   // we found it.
 
+  debugger-message("Calling C spy routine %s", descriptor.runtime-name);
   if (thread & descriptor.runtime-entry-point)
     let (spy-result, aborted?) =
       call-debugger-function(application,
@@ -217,6 +220,7 @@ define method run-spy-on-thread
   // If this spy function has not been called yet, we need to locate its
   // entry point.
 
+  debugger-message("Calling Dylan spy routine %s", descriptor.runtime-name);
   if (~descriptor.attempted-to-locate?)
     let remote-fun =
       resolve-dylan-name
@@ -437,6 +441,8 @@ define method allocate-temporary-download-block-in
            allocator.remote-symbol-address,
            byte-granularity: 256,
            thread-for-spy: spy-thread);
+      debugger-message("application.temporary-download-block %=",
+                       application.temporary-download-block);
       application.interactive-thread-download-block := 
         call-debugger-function
           (application,
@@ -445,6 +451,8 @@ define method allocate-temporary-download-block-in
            allocator.remote-symbol-address,
            page-granularity: 2,
            thread-for-spy: spy-thread);
+      debugger-message("interactive-thread-download-block %=",
+                       application.interactive-thread-download-block);
     end if
   end if
 end method;

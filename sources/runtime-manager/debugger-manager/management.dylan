@@ -303,6 +303,7 @@ end method;
 define method dm-continue
   (application :: <debug-target>, stop-reason :: <internal-stop-reason>,
    #key resume)
+  debugger-message("dm-continue, internal-stop-reason: %=, resume: %=", stop-reason, resume);
   let access-path = application.debug-target-access-path;
   if (first-chance-exception?(access-path, stop-reason.stop-reason-thread))
     continue-unhandled(access-path, resume: resume);
@@ -314,6 +315,7 @@ end method;
 define method dm-continue
   (application :: <debug-target>, stop-reason :: <stop-reason>,
    #key resume)
+  debugger-message("dm-continue, stop-reason: %=, resume: %=", stop-reason, resume);
   let access-path = application.debug-target-access-path;
   continue(access-path, resume: resume);
 end method;
@@ -321,6 +323,7 @@ end method;
 define method dm-continue
   (application :: <debug-target>, stop-reason :: <unhandled-stop-reason>,
    #key resume)
+  debugger-message("dm-continue, unhandled-stop-reason: %=, resume: %=", stop-reason, resume);
   let access-path = application.debug-target-access-path;
   continue-unhandled(access-path, resume: resume);
 end method;

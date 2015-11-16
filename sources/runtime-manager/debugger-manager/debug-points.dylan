@@ -118,6 +118,8 @@ define method register-debug-point
   addr-list.debug-point-sequence :=
     add! (addr-list.debug-point-sequence, debug-point);
   if (new?)
+    debugger-message("Register debug point at %=",
+                     debug-point.debug-point-address);
     let worked =
       enable-breakpoint (application.debug-target-access-path,
                          debug-point.debug-point-address);
@@ -162,6 +164,8 @@ define method clear-deregistered-debug-points
       per-address-list.debug-point-sequence :=
         dm-tidy-sequence (per-address-list.debug-point-sequence);
       if (per-address-list.debug-point-sequence = #[])
+        debugger-message("Disabling breakpoint at %=",
+                         per-address-list.registered-address);
         let worked? = 
           disable-breakpoint (application.debug-target-access-path,
                               per-address-list.registered-address);

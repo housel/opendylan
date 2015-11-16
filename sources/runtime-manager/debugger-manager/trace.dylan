@@ -125,6 +125,14 @@ define method handle-debug-point-event
     = frame-pointer (app.debug-target-access-path, trace-caller-frame);
   let ret-addr 
     = frame-return-address (app.debug-target-access-path, trace-callee-frame);
+
+  let (closest, offset)
+    = symbol-relative-address(app.debug-target-access-path, ret-addr);
+  if (closest)
+    debugger-message("Placing return tracepoint at %s+%d",
+                     closest.remote-symbol-name, offset);
+  end if;
+
   let return-point = 
     make-return-tracepoint (app, bp, thr,
                             address: ret-addr,

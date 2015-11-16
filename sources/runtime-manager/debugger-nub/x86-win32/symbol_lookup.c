@@ -308,7 +308,7 @@ void debug_map_enumerate_symbols_callback
   if (context->match[0] != '\0' && !PathMatchSpec(name, context->match))
     return;
 
-  debug_me("Found symbol: %s", pSymInfo->Name);
+  debug_me("Found symbol: %s", name);
 
   add_lookup_table_entry(context->lookups, MAPPED_CODEVIEW_SYMBOL, record, 0);
   context->count++;

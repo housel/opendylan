@@ -89,8 +89,8 @@ end method;
 
 define method print-object
   (t :: <remote-thread>, stream :: <stream>) => ()
-  format(stream, "{Remote Thread [%=, %=, %=, %=, %=, %=]}",
-	 t.thread-name, t.nub-descriptor, t.thread-state,
+  format(stream, "{Remote Thread [%=, %=, #x%x, %=, %=, %=, %=]}",
+	 t.thread-name, t.nub-descriptor, t.rnub-descriptor, t.thread-state,
 	 t.os-thread-priority, t.thread-stack, t.thread-suspended?);
 end;
 

@@ -126,7 +126,9 @@ define method locate-call-frame-function
     let (entry-point, offset) =
       symbol-table-symbol-relative-address
          (table, f.call-frame-instruction-pointer-cache);
+    debugger-message("Call frame %=: entry-point=%=, offset=%=", f, entry-point, offset);
     if (entry-point)
+      debugger-message("language=%=", entry-point.remote-symbol-language);
       f.called-function-symbol := entry-point;
       f.called-function-offset := offset;
       f.call-frame-calling-dylan? := 
@@ -255,9 +257,11 @@ end method;
 
 define method call-frame-nearest-source-locator
     (application :: <debug-target>, call-frame :: <call-frame>)
-      => (maybe-locator :: false-or(<source-locator>))
+ => (maybe-locator :: false-or(<source-locator>))
   locate-call-frame-function(application, call-frame);
   let func-sym = call-frame.called-function-symbol;
+  debugger-message("call-frame-nearest-source-locator %=, func-sym=%=",
+                   call-frame, func-sym);
   if (~func-sym)
     #f
   else

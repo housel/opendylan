@@ -2,6 +2,7 @@ Library:      access-path-test-suite
 Author:       Peter S. Housel
 Files:	      access-path-test-suite-library
               simple-breakpoint-test
+              tracking-breakpoint-test
               do-symbols-test
 	      specification
 Target-Type:  dll

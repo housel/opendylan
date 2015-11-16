@@ -32,10 +32,26 @@ define side-effecting stateful dynamic-extent &runtime-primitive-descriptor prim
 end;
 */
 
+// Dummy globals stored to ensure that the argument values remain live
+// across the llvm.debugtrap() call
+define runtime-variable %dummy-format-string :: <object>
+  = #f;
+define runtime-variable %dummy-arguments :: <object>
+  = #f;
+
 define side-effecting stateful dynamic-extent &runtime-primitive-descriptor primitive-invoke-debugger
     (format-string :: <byte-string>, arguments :: <simple-object-vector>)
  => ();
-  ins--call-intrinsic(be, "llvm.debugtrap", vector())
+  ins--call-intrinsic(be, "llvm.debugtrap", vector());
+
+  let m = be.llvm-builder-module;
+  let word-size = back-end-word-size(be);
+  let format-string-global
+    = llvm-runtime-variable(be, m, %dummy-format-string-descriptor);
+  ins--store(be, format-string, format-string-global, alignment: word-size);
+  let arguments-global
+    = llvm-runtime-variable(be, m, %dummy-arguments-descriptor);
+  ins--store(be, arguments, arguments-global, alignment: word-size);
 end;
 
 define side-effecting stateless dynamic-extent &runtime-primitive-descriptor primitive-debug-message
@@ -44,6 +60,15 @@ define side-effecting stateless dynamic-extent &runtime-primitive-descriptor pri
   let inside-cmp = op--inside-debugger?(be);
   ins--if (be, inside-cmp)
     ins--call-intrinsic(be, "llvm.debugtrap", #[]);
+
+    let m = be.llvm-builder-module;
+    let word-size = back-end-word-size(be);
+    let format-string-global
+      = llvm-runtime-variable(be, m, %dummy-format-string-descriptor);
+    ins--store(be, format-string, format-string-global, alignment: word-size);
+    let arguments-global
+      = llvm-runtime-variable(be, m, %dummy-arguments-descriptor);
+    ins--store(be, arguments, arguments-global, alignment: word-size);
   end ins--if
 end;
 

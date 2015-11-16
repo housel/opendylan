@@ -8,3 +8,4 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 Files: debugger-test-target-app-lib
        simple-breakpoint
        debugger-test-target-app
+Start-function: main

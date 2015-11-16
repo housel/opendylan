@@ -129,7 +129,7 @@ end method;
 define method remote-address-source-location
     (application :: <debug-target>, address :: <remote-value>,
      #key line-only? = #t, interactive-only? = #f, exact-only? = #f)
-  => (source-location :: false-or(<source-location>), exact? :: <boolean>)
+ => (source-location :: false-or(<source-location>), exact? :: <boolean>);
 
   // Initialize the return value pessimistically.
   let source-location = #f;

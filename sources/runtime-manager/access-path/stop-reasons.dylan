@@ -719,6 +719,13 @@ define method construct-stop-reason
                             thread: source-thread);
 
     $breakpoint-exception =>
+      let (closest, offset)
+        = symbol-relative-address(ap, get-exception-address(ap.connection));
+      if (closest)
+        debugger-message("Stopped at %s+%d",
+                         closest.remote-symbol-name, offset);
+      end if;
+
       stop-reason := make (<breakpoint-stop-reason>,
                             process: source-process,
                             thread: source-thread,

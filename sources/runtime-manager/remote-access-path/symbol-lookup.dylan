@@ -261,6 +261,8 @@ define method symbol-relative-address-on-connection
     let sym-name =
       Rtmgr/RemoteNub/closest-symbol-name(conn.nub, name-length);
     let language-classification = classify-symbolic-name(conn, sym-name);
+    debugger-message("symbol-relative-address-on-connection %= => %s, lang=%d",
+                     address, sym-name, language-classification);
     if (is-function == 1)
       sym := make(<remote-function>,
                   name: sym-name,

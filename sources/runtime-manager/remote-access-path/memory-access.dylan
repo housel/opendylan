@@ -30,17 +30,26 @@ define method register-vector-on-connection
     = Rtmgr/RemoteNub/general-registers (conn.nub);
   let (first-special, last-special)
     = Rtmgr/RemoteNub/special-registers (conn.nub);
+  let (first-floating, last-floating)
+    = Rtmgr/RemoteNub/floating-registers (conn.nub);
   let (first-register, last-register)
     = Rtmgr/RemoteNub/all-registers (conn.nub);
   let register-vector =
     make (<vector>, size: (last-register - first-register + 1));
-  for (i from first-general to last-general)
-    register-vector[i - 1] := 
-      nub-register-descriptor (#"general", i);
-  end for;
-  for (i from first-special to last-special)
-    register-vector[i - 1] := 
-      nub-register-descriptor (#"special", i);
+  for (i from first-register to last-register)
+    if (first-general <= i & i <= last-general)
+      register-vector[i - 1]
+        := nub-register-descriptor (#"general", i);
+    elseif (first-special <= i & i <= last-special)
+      register-vector[i - 1]
+        := nub-register-descriptor (#"special", i);
+    elseif (first-floating <= i & i <= last-floating)
+      register-vector[i - 1]
+        := nub-register-descriptor (#"floating", i);
+    else
+      register-vector[i - 1]
+        := nub-register-descriptor (#"unknown", i);
+    end if;
   end for;
   register-vector;
 end method;

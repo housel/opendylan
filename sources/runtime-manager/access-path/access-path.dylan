@@ -286,10 +286,17 @@ define function close-debugger-stream()
   end;
 end function;
 
+define constant $debugger-message-lock = make(<simple-lock>);
+
 define function debugger-message
     (string :: <string>, #rest args) => ()
-
   if (*debugging-debugger?*)
+    with-lock ($debugger-message-lock)
+      apply(format, *standard-error*, string, args);
+      new-line(*standard-error*);
+      force-output(*standard-error*);
+    end with-lock;
+/*
     let string :: <byte-string> = as(<byte-string>, string);
     if (*debugger-stream*)
       apply(format, *debugger-stream*, concatenate("\n### ", string, "\n"), args);
@@ -298,8 +305,8 @@ define function debugger-message
       // apply(format-out, concatenate("\n### ", string, "\n"), args);
       apply(nub-debug-message, string, args)
     end if;
+*/
   end if;
-
 end function;
 
 define function nub-debug-message

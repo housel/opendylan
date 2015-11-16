@@ -540,12 +540,13 @@ define module access-path-implementation
   use format;
   use format-out;
   use print;
-  use streams, import: {<file-stream>, <stream>, force-output, close};
+  use streams, import: {<file-stream>, <stream>, force-output, close, new-line};
   use locators;
   use file-system;
   use byte-vector;
   use table-extensions, import: {<string-table>};
   use c-ffi;
+  use standard-io;
 
   use access-path;
   use access-path-nub;

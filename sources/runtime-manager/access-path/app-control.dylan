@@ -209,7 +209,7 @@ define open generic unhandled-continue-application
 define method suspend-thread
     (ap :: <access-path>, thread :: <remote-thread>) => ()
   if (~thread-suspended? (thread))
-    debugger-message("suspend-thread %=", thread);
+    debugger-message("(AP app-control) suspend-thread %=", thread);
     thread-suspended?(thread) := #t;
     thread-state(thread) := "Suspended by debugger";
     suspend-application-thread (ap.connection, thread);
@@ -264,6 +264,7 @@ define open generic application-thread-permanently-suspended?
 define method thread-permanently-suspended?-setter
     (suspend? :: <boolean>, ap :: <access-path>, thread :: <remote-thread>)
  => (suspend? :: <boolean>)
+  debugger-message("thread-permanently-suspended?-setter %= %=", suspend?, thread);
   application-thread-permanently-suspended?(ap.connection, thread) := suspend?;
 end method;
 

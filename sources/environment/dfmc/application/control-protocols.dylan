@@ -174,6 +174,7 @@ define method run-application
 
     method wrapped-application-state-setter
         (target :: <target-application>, new-state :: <symbol>) => ()
+      debugger-message("wrapped-application-state-setter %=", new-state);
       if (new-state == #"closed")
         let project = application.server-project;
         disconnect-tether-from-all-projects(application);
@@ -309,12 +310,14 @@ define method run-application
                  interactor-callback: wrapped-interactor-handler,
                  library-init-callback: wrapped-library-init-handler,
                  application-state-callback: wrapped-application-state-setter);
-            exception (type-union(<access-path-creation-error>, <abort>))
+            exception (e :: type-union(<access-path-creation-error>, <abort>))
+              debugger-message("DEBUGGER FAIL: %=", e);
               application.application-target-app := #f;
               application.application-state := #"closed";
               note-run-application-failed(application);
             end block;
             note-application-threads-changed(application);
+            debugger-message("DM THREAD EXITING");
           end method,
           name: "DM Thread");
 
@@ -558,6 +561,7 @@ define method register-thread-in-state-model
     (application :: <dfmc-application>, stop-reason :: <stop-reason>)
  => ()
   let thread = stop-reason.stop-reason-thread;
+  debugger-message("register-thread-in-state-model %=", thread);
   let thread-state
     = make(<application-thread-state>,
            thread-index: application.application-thread-counter);

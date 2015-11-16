@@ -117,6 +117,7 @@ define method thread-current-active-handlers
   => (handlers :: <sequence>)
   let thread = find-thread(application, ap-thread);
   unless (thread.cached-handlers)
+    debugger-message("thread-current-active-handlers %=", ap-thread);
     let path = application.debug-target-access-path;
     let teb = dylan-thread-environment-block-address(path, ap-thread);
     let addr = indexed-remote-value(teb, $TEB-current-handlers-offset);
@@ -138,6 +139,7 @@ define method thread-current-local-variables
   => (location-value-pairs :: <sequence>)
   let thread = find-thread(application, ap-thread);
   unless (thread.cached-tlv)
+    debugger-message("thread-current-local-variables %=", ap-thread);
     let path = application.debug-target-access-path;
     let teb = dylan-thread-environment-block-address(path, ap-thread);
     let addr = 
@@ -250,6 +252,7 @@ define method thread-current-mv-vector
   if (dm-thread.cached-mv)
     dm-thread.cached-mv
   else
+    debugger-message("thread-current-mv-vector %=", thread);
     // First, get a pointer into the thread environment block.
 
     let path = application.debug-target-access-path;
@@ -300,6 +303,7 @@ end method;
 define method thread-set-mv-vector
     (application :: <debug-target>, thread :: <remote-thread>,
      vals :: <sequence>) => ()
+  debugger-message("thread-set-mv-vector %= => %=", thread, vals);
   let dm-thread = find-thread(application, thread);
   let path = application.debug-target-access-path;
   let teb = dylan-thread-environment-block-address(path, thread);
@@ -569,6 +573,8 @@ define method spawn-interactive-thread
 
   let success? = #f;
 
+  debugger-message("spawn-interactive-thread spy-thread=%=, static-block=%=",
+                   spy-thread, static-block);
   if (spy-thread & static-block)
 
     let running-dylan-spy-function? =
@@ -594,7 +600,8 @@ define method spawn-interactive-thread
       write-value(path, running-dylan-spy-function?, as-remote-value(0));
     end;
   end if;
-  success?;
+  debugger-message("spawn-interactive-thread success?=%=", success?);
+  success?
 end method;
 
 

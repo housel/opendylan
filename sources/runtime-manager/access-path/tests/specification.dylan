@@ -52,5 +52,6 @@ end function;
 
 define library-spec access-path (cleanup-function: access-path-cleanup)
   test simple-breakpoint-test;
+  test tracking-breakpoint-test;
   test do-symbols-test;
 end library-spec access-path;

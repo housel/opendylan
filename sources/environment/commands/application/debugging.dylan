@@ -858,10 +858,10 @@ define method synchronize-application-call
   let notification = context.context-notification;
   with-lock (associated-lock(notification))
     context.context-call-active? := #t;
-    message(context, "Debugger invocation is active");
+    //message(context, "Debugger invocation is active");
     apply(function, args);
     while (context.context-call-active?)
-      message(context, "Debugger invocation waiting");
+      //message(context, "Debugger invocation waiting");
       wait-for(notification);
     end while;
     refresh-application-context(context)
