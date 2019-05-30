@@ -36,8 +36,6 @@ define sideways method emit-all
                       = dylan-value(#"<integer>"),
 		    $dylan-byte-character
                       = dylan-value(#"<byte-character>"),
-		    $dylan-unicode-character
-                      = dylan-value(#"<unicode-character>"),
                     $current-handlers
                       = op--constant-ref(back-end,
                                          dylan-binding(#"*current-handlers*"),

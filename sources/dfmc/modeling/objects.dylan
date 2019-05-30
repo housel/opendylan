@@ -60,7 +60,6 @@ define sealed abstract &class <value-object> (<object>) end;
 
 define sealed abstract &class <character> (<object>) end;
 define sealed concrete &class <byte-character> (<character>) end;
-define sealed concrete &class <unicode-character> (<character>) end;
 
 define open   abstract &class <number> (<object>) end;
 define sealed abstract &class <complex> (<number>) end;

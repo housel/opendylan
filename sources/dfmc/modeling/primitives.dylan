@@ -338,14 +338,6 @@ define side-effecting &primitive primitive-keyboard-interrupt-polling-thread-set
   (interrupt-polling? :: <raw-boolean>, hThread :: <raw-pointer>) => ();
 
 
-/// UNICODE CHARACTER
-
-// TODO: NEED UNICODE SUPPORT IN COMPILER's RUNTIME
-define side-effect-free stateless dynamic-extent &primitive primitive-unicode-character-as-raw
-    (x :: <unicode-character>) => (r :: <raw-integer>);
-define side-effect-free stateless dynamic-extent &primitive primitive-raw-as-unicode-character
-     (r :: <raw-integer>) => (x :: <unicode-character>);
-
 /// BYTE-CHARACTER
 
 define side-effect-free stateless dynamic-extent &primitive-and-override primitive-byte-character-as-raw

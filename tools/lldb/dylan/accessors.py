@@ -10,7 +10,7 @@ from dylan.mangling import dylan_mangle_wrapper
 OBJECT_TAG = 0
 INTEGER_TAG = 1
 BYTE_CHARACTER_TAG = 2
-UNICODE_CHARACTER_TAG = 3
+#RESERVED_TAG = 3
 
 BYTE_STRING_SIZE = 0
 BYTE_STRING_DATA = 1
@@ -435,12 +435,6 @@ def dylan_symbol_name(value):
   ensure_value_class(value, '<symbol>', 'dylan', 'dylan')
   name = dylan_slot_element(value, SYMBOL_NAME)
   return dylan_string(name)
-
-def dylan_unicode_character_value(value):
-  """Return a value as a chr"""
-  codepoint = value.GetValueAsUnsigned() >> 2
-  # May raise here if not valid unicode, will handle it later
-  return unichr(codepoint)
 
 def dylan_unicode_string_data(value):
   """Return a value as a bytes object"""
