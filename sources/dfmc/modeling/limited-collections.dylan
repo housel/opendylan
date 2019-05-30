@@ -140,7 +140,6 @@ end method;
 
 define limited-element-type-mappings (<string>)
   <byte-character>    => <byte-string>;
-  <unicode-character> => <unicode-string>;
   otherwise           => <byte-string>;
 end limited-element-type-mappings;
 

@@ -24,7 +24,6 @@ define constant <address-display-format> =
 
 define constant <non-address-display-format> =
   one-of(#"byte-character",
-         #"unicode-character",
          #"single-float",
          #"double-float");
 

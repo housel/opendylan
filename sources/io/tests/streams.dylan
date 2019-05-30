@@ -457,12 +457,6 @@ define test test-<byte-character> ()
   // ---*** Fill this in.
 end;
 
-/*
-define test test-<unicode-character> ()
-  // ---*** Fill this in.
-end;
-*/
-
 define test test-<buffer> ()
   // ---*** Fill this in.
 end;

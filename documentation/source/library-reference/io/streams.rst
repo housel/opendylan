@@ -549,10 +549,6 @@ The following types are used in operations that involve buffers.
    A type representing 8-bit characters that instances of
    :drm:`<byte-string>` can contain.
 
-:type:`<unicode-character>`
-   A type representing Unicode characters that instances of
-   :drm:`<unicode-string>` can contain.
-
 :type:`<byte-vector>`
    A subtype of :drm:`<vector>` whose element-type is :type:`<byte>`.
 
@@ -601,7 +597,7 @@ Unicode character stream wrapping an 8-bit character stream.
 
     define method read-element (s :: <unicode-stream>,
       #key on-end-of-stream)
-     => (ch :: <unicode-character>)
+     => (ch :: <character>)
       let first-char = read-element(s.inner-stream,
                                     on-end-of-stream);
       let second-char = read-element(s.inner-stream,
@@ -2621,7 +2617,7 @@ are exported from the *streams* module.
 
    :parameter filename: An instance of :drm:`<object>`.
    :parameter element-type: One of :type:`<byte-character>`,
-     :type:`<unicode-character>`, or :type:`<byte>`, or :drm:`#f`.
+     or :type:`<byte>`, or :drm:`#f`.
    :value file-stream-type: An instance of :drm:`<type>`.
 
    :description:
@@ -2664,21 +2660,6 @@ are exported from the *streams* module.
      - :class:`<string-stream>`
      - :class:`<byte-string-stream>`
      - :class:`<unicode-string-stream>`
-
-.. type:: <unicode-character>
-
-   :type:    The type that represents Unicode characters.
-
-   :supertypes: :drm:`<character>`
-
-   :description:
-
-      A type representing Unicode characters that instances of
-      :drm:`<unicode-string>` can contain.
-
-   :operations:
-
-     - :gf:`type-for-file-stream`
 
 .. class:: <unicode-string-stream>
    :open:
@@ -3009,7 +2990,7 @@ are exported from the *streams* module.
 
        define method read-element (s :: <unicode-stream>,
          #key on-end-of-stream)
-        => (ch :: <unicode-character>)
+        => (ch :: <character>)
          let first-char = read-element(s.inner-stream,
                                        on-end-of-stream);
          let second-char = read-element(s.inner-stream,

@@ -5,7 +5,6 @@ Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
 License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-ignore(<raw-unicode-character>);
 ignore(<raw-extended-float>);
 ignore(environment-element);
 ignore(%machine-word-data);
@@ -106,18 +105,6 @@ define function <byte-character>-instance? (x, c == <byte-character>) => (well? 
 end function;
 
 ignore(<byte-character>-instance?);
-
-////
-//// <UNICODE-CHARACTER> | ascii code | 11 |
-////
-
-install-direct-object-class(3, <unicode-character>);
-
-define function <unicode-character>-instance? (x, c == <unicode-character>) => (well? :: <boolean>);
-  primitive-machine-word-equal?(tag-bits(x), integer-as-raw(3))
-end function;
-
-ignore(<unicode-character>-instance?);
 
 // BOOTED: define ... class <mm-wrapper> ... end;
 
@@ -484,8 +471,6 @@ define repeated-instance-allocator
   (object, object, <object>, identity);
 define leaf repeated-instance-allocator
   (byte-character, byte, <byte-character>, primitive-byte-character-as-raw);
-define repeated-instance-allocator
-  (unicode-character, word, <unicode-character>, primitive-unicode-character-as-raw);
 define leaf repeated-instance-allocator
   (byte, byte, <byte>, integer-as-raw);
 define repeated-instance-allocator
