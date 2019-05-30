@@ -48,18 +48,18 @@ define macro shared-string-definer
   { define shared-string ?:name (#key ?fill:expression) }
     => { define method make
              (class == "<" ## ?name ## "-string>",
-              #key fill :: "<" ## ?name ## "-character>" = ?fill, size :: <integer> = 0)
+              #key fill :: <byte-character> = ?fill, size :: <integer> = 0)
           => (res :: "<" ## ?name ## "-string>")
            if (size = 0)
              empty(class)
            else
              system-allocate-repeated-instance
-               ("<" ## ?name ## "-string>", "<" ## ?name ## "-character>", unbound(), size, fill);
+               ("<" ## ?name ## "-string>", <byte-character>, unbound(), size, fill);
            end if
          end method;
 
          define sealed inline method concrete-limited-string-class
-             (of == "<" ## ?name ## "-character>")
+             (of == <byte-character>)
           => (type :: singleton("<" ## ?name ## "-string>"))
            "<" ## ?name ## "-string>"
          end method;
@@ -67,7 +67,7 @@ define macro shared-string-definer
          define inline sealed method element
              (string :: "<" ## ?name ## "-string>", index :: <integer>,
               #key default = unsupplied())
-          => (character :: "<" ## ?name ## "-character>")
+          => (character :: <byte-character>)
            if (element-range-check(index, size(string)))
              string-element(string, index)
            else
@@ -82,14 +82,14 @@ define macro shared-string-definer
 
          define inline sealed method element-no-bounds-check
              (string :: "<" ## ?name ## "-string>", index :: <integer>, #key default)
-          => (character :: "<" ## ?name ## "-character>")
+          => (character :: <byte-character>)
            string-element(string, index)
          end method element-no-bounds-check;
 
          define inline sealed method element-setter
-             (new-value :: "<" ## ?name ## "-character>",
+             (new-value :: <byte-character>,
               string :: "<" ## ?name ## "-string>", index :: <integer>)
-          => (character :: "<" ## ?name ## "-character>")
+          => (character :: <byte-character>)
            if (element-range-check(index, size(string)))
              string-element(string, index) := new-value
            else
@@ -100,23 +100,15 @@ define macro shared-string-definer
          define inline sealed method element-setter
              (new-value :: <character>,
               string :: "<" ## ?name ## "-string>", index :: <integer>)
-          => (character :: "<" ## ?name ## "-character>")
-           string[index] := as("<" ## ?name ## "-character>", new-value);
+          => (character :: <byte-character>)
+           string[index] := new-value;
          end method element-setter;
 
          define inline sealed method element-no-bounds-check-setter
-             (new-value :: "<" ## ?name ## "-character>",
+             (new-value :: <byte-character>,
               string :: "<" ## ?name ## "-string>", index :: <integer>)
-          => (character :: "<" ## ?name ## "-character>")
+          => (character :: <byte-character>)
            string-element(string, index) := new-value
-         end method element-no-bounds-check-setter;
-
-         define inline sealed method element-no-bounds-check-setter
-             (new-value :: <character>,
-              string :: "<" ## ?name ## "-string>", index :: <integer>)
-          => (character :: "<" ## ?name ## "-character>")
-           string-element(string, index)
-             := as("<" ## ?name ## "-character>", new-value);
          end method element-no-bounds-check-setter;
 
          define sealed inline method type-for-copy
@@ -126,7 +118,7 @@ define macro shared-string-definer
 
          define sealed inline method element-type
              (t :: "<" ## ?name ## "-string>") => (type :: <type>)
-           "<" ## ?name ## "-character>"
+           <character>
          end method;
 
          define sealed inline method as
@@ -152,7 +144,7 @@ define macro shared-string-definer
          define inline function ?name ## "-string-current-element-setter"
              (new-value :: <character>, string :: "<" ## ?name ## "-string>",
               state :: <integer>)
-           string-element(string, state) := as("<" ## ?name ## "-character>", new-value);
+           string-element(string, state) := as(<byte-character>, new-value);
          end function;
 
          define sealed inline method forward-iteration-protocol
@@ -224,8 +216,8 @@ define macro shared-string-definer
              (string-1 :: "<" ## ?name ## "-string>", string-2 :: "<" ## ?name ## "-string>")
           => (eq :: <boolean>)
            unless (string-1.size ~= string-2.size)
-             for (c1 :: "<" ## ?name ## "-character>" in string-1,
-                  c2 :: "<" ## ?name ## "-character>" in string-2,
+             for (c1 :: <byte-character> in string-1,
+                  c2 :: <byte-character> in string-2,
                   eq = #t then c1 == c2,
                   while: eq)
              finally
@@ -238,8 +230,8 @@ define macro shared-string-definer
              (string-1 :: "<" ## ?name ## "-string>", string-2 :: "<" ## ?name ## "-string>")
           => (eq :: <boolean>)
            unless (string-1.size ~= string-2.size)
-             for (c1 :: "<" ## ?name ## "-character>" in string-1,
-                  c2 :: "<" ## ?name ## "-character>" in string-2,
+             for (c1 :: <byte-character> in string-1,
+                  c2 :: <byte-character> in string-2,
                   eq = #t then c1 == c2 | as-lowercase(c1) == as-lowercase(c2),
                   while: eq)
              finally
@@ -294,7 +286,7 @@ define macro string-definer
   { define string ?:name (#key ?fill:expression) }
     => { define shared-string ?name (fill: ?fill);
          define sealed concrete primary class "<" ## ?name ## "-string>" (<string>, <vector>)
-           repeated sealed inline slot string-element :: "<" ## ?name ## "-character>",
+           repeated sealed inline slot string-element :: <byte-character>,
              init-value: ?fill,
              init-keyword: fill:,
              size-getter: size,
@@ -304,7 +296,7 @@ define macro string-definer
 
          define constant "$empty-<" ## ?name ## "-string>"
            = system-allocate-repeated-instance
-               ("<" ## ?name ## "-string>", "<" ## ?name ## "-character>", unbound(), 0, ?fill);
+               ("<" ## ?name ## "-string>", <byte-character>, unbound(), 0, ?fill);
 
          define sealed method empty
              (class == "<" ## ?name ## "-string>") => (res :: "<" ## ?name ## "-string>")

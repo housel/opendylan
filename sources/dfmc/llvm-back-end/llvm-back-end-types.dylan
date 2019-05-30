@@ -89,8 +89,6 @@ define method initialize-type-table
                     #"boolean");
   register-raw-type(#"<raw-byte-character>",       $llvm-i8-type,
                     #"unsigned-char");
-  register-raw-type(#"<raw-unicode-character>",    $llvm-i32-type,
-                    #"unsigned-char");
   register-raw-type(#"<raw-byte>",                 $llvm-i8-type,
                     #"unsigned");
   register-raw-type(#"<raw-double-byte>",          $llvm-i16-type,
@@ -284,7 +282,7 @@ define method llvm-repeated-type
   select (o)
     dylan-value(#"<byte-character>") =>
       $llvm-i8-type;
-    dylan-value(#"<unicode-character>"), dylan-value(#"<machine-word>") =>
+    dylan-value(#"<character>"), dylan-value(#"<machine-word>") =>
       llvm-reference-type(back-end, dylan-value(#"<raw-machine-word>"));
     dylan-value(#"<single-float>") =>
       $llvm-float-type;

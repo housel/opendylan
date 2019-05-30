@@ -152,11 +152,6 @@ define &module dylan-primitives
   create
     primitive-runtime-module-handle;
 
-  // Unicode Character.
-  create
-    primitive-unicode-character-as-raw,
-    primitive-raw-as-unicode-character;
-
   // Byte Character.
   create
     primitive-byte-character-as-raw,
@@ -664,7 +659,6 @@ define &module dylan-extensions
   create
     address-of,
     as-object,
-    <unicode-character>,
     <byte-character>;
 
   // Integers
@@ -784,7 +778,6 @@ define &module dylan-extensions
     <stretchy-mutable-sequence>,
     <stretchy-element-type-vector>,
     <stretchy-byte-character-vector>;
-    // <stretchy-unicode-character-vector>,
     // <stretchy-integer-vector>;
 
   create

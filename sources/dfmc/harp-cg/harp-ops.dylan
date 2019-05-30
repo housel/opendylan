@@ -148,17 +148,6 @@ define method op--character(back-end :: <harp-back-end>, result, object) => (res
 
 end method op--character;
 
-define method op--unicode-character(back-end :: <harp-back-end>, result, object) => (result)
-
-  let result = result | make-g-register(back-end);
-
-  ins--asl(back-end, result, object, 2);
-  ins--or(back-end, result, result, 3);
-
-  result;
-
-end method op--unicode-character;
-
 
 define method op--integer(back-end :: <harp-back-end>, result, object) => (result)
 

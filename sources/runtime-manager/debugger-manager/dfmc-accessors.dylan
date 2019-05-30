@@ -156,7 +156,7 @@ end method;
 define constant $dylan-tag-pointer = 0;
 define constant $dylan-tag-integer = 1;
 define constant $dylan-tag-character = 2;
-define constant $dylan-tag-unichar = 3;
+define constant $dylan-tag-FIXME = 3;
 
 define method inspect-instance-tag
     (application :: <debug-target>, instance :: <remote-value>)
@@ -1149,8 +1149,8 @@ define method dylan-object?
       ~address?;
     $dylan-tag-character =>
       ~address?;
-    $dylan-tag-unichar =>
-      ~address?;
+    $dylan-tag-FIXME =>
+      #f;
     $dylan-tag-pointer =>
       let (w, w-ok) = read-instance-header(ap, instance);
       if (w-ok)

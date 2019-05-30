@@ -297,25 +297,6 @@ define side-effecting stateless dynamic-extent &primitive-descriptor primitive-r
 end;
 
 
-/// Unicode Characters
-
-// TODO: NEED UNICODE SUPPORT IN COMPILER's RUNTIME
-define side-effect-free stateless dynamic-extent &primitive-descriptor primitive-unicode-character-as-raw
-    (x :: <unicode-character>) => (r :: <raw-integer>);
-  let raw-integer-type
-    = llvm-reference-type(be, dylan-value(#"<raw-integer>"));
-  let bits = ins--ptrtoint(be, x, raw-integer-type);
-  ins--lshr(be, bits, $dylan-tag-bits)
-end;
-
-define side-effect-free stateless dynamic-extent &primitive-descriptor primitive-raw-as-unicode-character
-     (r :: <raw-integer>) => (x :: <unicode-character>);
-  let shifted = ins--shl(be, r, $dylan-tag-bits);
-  let tagged = ins--or(be, shifted, $dylan-tag-unichar);
-  ins--inttoptr(be, tagged, $llvm-object-pointer-type);
-end;
-
-
 /// Byte Characters
 
 define side-effect-free stateless dynamic-extent &primitive-descriptor primitive-byte-character-as-raw

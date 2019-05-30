@@ -1872,8 +1872,6 @@ define &primitive-descriptor primitive-runtime-module-handle, reference: $primit
 // Byte Character.
 define &primitive-descriptor primitive-byte-character-as-raw, emitter: op--raw;
 define &primitive-descriptor primitive-raw-as-byte-character, emitter: op--character;
-define &primitive-descriptor primitive-unicode-character-as-raw, emitter: op--raw;
-define &primitive-descriptor primitive-raw-as-unicode-character, emitter: op--unicode-character;
 
 // Small integer.
     

@@ -1536,13 +1536,6 @@ extern int primitive_mps_ld_isstale(void *hs);
 #define primitive_raw_as_byte_character(x) \
    (C(x))
 
-/* UNICODE CHARACTER PRIMITIVES */
-
-#define primitive_unicode_character_as_raw(x) \
-   (R(x))
-#define primitive_raw_as_unicode_character(x) \
-   (U(x))
-
 /* INTEGER PRIMITIVES */
 
 /* SMALL-INTEGER PRIMITIVES */

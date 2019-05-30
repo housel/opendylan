@@ -13,7 +13,6 @@ define module-spec streams ()
   constant <buffer-index> :: <type>;
   constant <byte> :: <type>;
   constant <byte-character> :: <type>;
-  // constant <unicode-character> :: <type>;
 
   // Classes
 

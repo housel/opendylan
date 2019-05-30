@@ -137,9 +137,6 @@ define method do-emit-instance-cmp
     type == dylan-value(#"<byte-character>") =>
       emit-tag-cmp(back-end, object, $dylan-tag-character);
 
-    type == dylan-value(#"<unicode-character>") =>
-      emit-tag-cmp(back-end, object, $dylan-tag-unichar);
-
     type == dylan-value(#"<boolean>") =>
       // Compare against #f
       let false-cmp
@@ -196,7 +193,6 @@ define method do-emit-instance-cmp
         end method;
       tag-supertype(#"<integer>", $dylan-tag-integer);
       tag-supertype(#"<byte-character>", $dylan-tag-character);
-      tag-supertype(#"<unicode-character>", $dylan-tag-unichar);
 
       // Check tag to determine if this is a heap object
       let object-word

@@ -426,14 +426,11 @@ then an :class:`<invalid-file-permissions-error>`
 condition is signalled at the time the file stream is created.
 
 The *element-type:* init-keyword controls how the elements of the
-underlying file are accessed. The three possible element types
+underlying file are accessed. The possible element types
 are:
 
 - :type:`<byte-character>`
   The file is accessed as a sequence of 8-bit characters.
-
-- :type:`<unicode-character>`
-  The file is accessed as a sequence of 16-bit Unicode characters.
 
 - :type:`<byte>`
   The file is accessed as a sequence of unsigned 8-bit integers.
@@ -657,10 +654,6 @@ The following types are used in operations that involve buffers.
    A type representing 8-bit characters that instances of
    :drm:`<byte-string>` can contain.
 
-:type:`<unicode-character>`
-   A type representing Unicode characters that instances of
-   :drm:`<unicode-string>` can contain.
-
 :type:`<byte-vector>`
    A subtype of :drm:`<vector>` whose element-type is :type:`<byte>`.
 
@@ -710,7 +703,7 @@ Unicode character stream wrapping an 8-bit character stream.
 
     define method read-element (s :: <unicode-stream>,
       #key on-end-of-stream)
-     => (ch :: <unicode-character>)
+     => (ch :: <character>)
       let first-char = read-element(s.inner-stream,
                                     on-end-of-stream);
       let second-char = read-element(s.inner-stream,
@@ -1619,7 +1612,7 @@ are exported from the *streams* module.
      ``#"create"``. Default value: depends on the value of *direction*.
    :parameter #key buffer-size: An instance of :drm:`<integer>`.
    :parameter #key element-type: One of :type:`<byte-character>`,
-     :type:`<unicode-character>`, or :type:`<byte>`, or ``#f``.
+     or :type:`<byte>`, or ``#f``.
    :value file-stream-instance: An instance of :class:`<file-stream>`.
 
    :description:
@@ -1651,7 +1644,7 @@ are exported from the *streams* module.
      represented abstractly; for instance, contiguous elements could be
      treated as a single database record. This init-keyword defaults to
      something useful, potentially based on the properties of the file;
-     `<byte-character>`_ and `<unicode-character>`_ are likely choices.
+     `<byte-character>`_ is a likely choice.
      See `Options when creating file streams`_.
 
    :seealso:
@@ -2787,7 +2780,7 @@ are exported from the *streams* module.
 
    :parameter filename: An instance of :drm:`<object>`.
    :parameter element-type: One of :type:`<byte-character>`,
-     :type:`<unicode-character>`, or :type:`<byte>`, or ``#f``.
+     or :type:`<byte>`, or ``#f``.
    :value file-stream-type: An instance of :drm:`<type>`.
 
    :description:
@@ -2827,21 +2820,6 @@ are exported from the *streams* module.
 
      - :meth:`make(<sequence-stream>)`
      - :class:`<sequence-stream>`
-
-.. type:: <unicode-character>
-
-   :type:    The type that represents Unicode characters.
-
-   :supertypes: :drm:`<character>`
-
-   :description:
-
-      A type representing Unicode characters that instances of
-      :drm:`<unicode-string>` can contain.
-
-   :operations:
-
-     - :gf:`type-for-file-stream`
 
 .. class:: <unicode-string-stream>
    :open:
@@ -3155,7 +3133,7 @@ are exported from the *streams* module.
 
        define method read-element (s :: <unicode-stream>,
          #key on-end-of-stream)
-        => (ch :: <unicode-character>)
+        => (ch :: <character>)
          let first-char = read-element(s.inner-stream,
                                        on-end-of-stream);
          let second-char = read-element(s.inner-stream,
