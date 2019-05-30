@@ -31,8 +31,6 @@ define sideways method ^instance?-function (c :: <&class>)
     #"<object>-class-instance?"
   elseif (c == dylan-value(#"<byte-character>"))
     #"<byte-character>-instance?"
-  elseif (c == dylan-value(#"<unicode-character>"))
-    #"<unicode-character>-instance?"
   elseif (c == dylan-value(#"<integer>"))
     #"<integer>-instance?"
   elseif (^sealed-with-no-subclasses?(c))

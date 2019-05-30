@@ -10,8 +10,6 @@ def dylan_value_summary(value, internal_dict):
     return dylan_integer_summary(value, internal_dict)
   elif tag == BYTE_CHARACTER_TAG:
     return dylan_byte_character_summary(value, internal_dict)
-  elif tag == UNICODE_CHARACTER_TAG:
-    return dylan_unicode_character_summary(value, internal_dict)
   else:
     return 'Invalid tag'
 
@@ -64,16 +62,6 @@ def dylan_byte_character_summary(value, internal_dict):
 
 def dylan_integer_summary(value, internal_dict):
   return '{<integer>: %s}' % (dylan_integer_value(value),)
-
-def dylan_unicode_character_summary(value, internal_dict):
-  try:
-    unicode_character = dylan_unicode_character_value(value)
-    if unicode_character.isprintable():
-      return '{<unicode-character>: %s (0x%x)}' % (unicode_character, ord(unicode_character))
-    else:
-      return '{<unicode-character>: (0x%x)}' % (ord(unicode_character), )
-  except ValueError:
-    return '{<unicode-character> (invalid)}'
 
 def register(binding, module, library):
   def _register(function):

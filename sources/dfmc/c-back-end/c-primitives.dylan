@@ -73,10 +73,6 @@ define generic emit-primitive-call
 // define &primitive-descriptor primitive-byte-character-as-raw;
 // define &primitive-descriptor primitive-raw-as-byte-character;
 //
-// // Byte Character.
-// define &primitive-descriptor primitive-unicode-character-as-raw;
-// define &primitive-descriptor primitive-raw-as-unicode-character;
-//
 // // Integer.
 //
 // // Small integer.
