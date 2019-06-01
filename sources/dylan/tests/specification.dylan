@@ -99,9 +99,6 @@ define interface-specification-suite dylan-collections-specification-suite ()
       <string> (<mutable-sequence>);
   sealed instantiable class
       <byte-string> (<string>, <vector>);
-  //--- <unicode-string> isn't part of our implementation
-  // sealed instantiable class
-  //    <unicode-string> (<string>, <vector>);
   open abstract instantiable primary class
       <table> (<mutable-explicit-key-collection>, <stretchy-collection>);
   open abstract instantiable class

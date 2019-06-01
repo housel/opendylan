@@ -34,12 +34,6 @@ define method stretchy-vector-instance (#rest contents)
   v
 end method stretchy-vector-instance;
 
-define method unicode-string-instance (#rest contents)
-  let s = make(<unicode-string>, size: contents.size);
-  replace-subsequence!(s, contents);
-  s
-end method unicode-string-instance;
-
 define method byte-string-instance (#rest contents)
   let s = make(<byte-string>, size: contents.size);
   replace-subsequence!(s, contents);

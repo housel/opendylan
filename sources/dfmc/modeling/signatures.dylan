@@ -117,7 +117,6 @@ define signature-type-vector-table $signature-type-vectors = {
   <deque> =>                           $max-mini-default-signature-size,
   <range> =>                           $max-mini-default-signature-size,
   <string> =>                          $max-mini-default-signature-size,
-  <unicode-string> =>                  $max-mini-default-signature-size,
   <table> =>                           $max-mini-default-signature-size,
   <object-table> =>                    $max-mini-default-signature-size,
   <vector> =>                          $max-mini-default-signature-size,

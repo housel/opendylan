@@ -32,8 +32,6 @@ SLOT_DESCRIPTOR_GETTER = 4
 SIMPLE_OBJECT_VECTOR_SIZE = 0
 SIMPLE_OBJECT_VECTOR_DATA = 1
 SYMBOL_NAME = 0
-UNICODE_STRING_SIZE = 0
-UNICODE_STRING_DATA = 1
 
 CLASS_SLOT_NAMES_CACHE = {}
 """Map of wrapper address to list of slot names"""
@@ -179,15 +177,11 @@ def dylan_is_stretchy_vector(value):
 
 def dylan_is_string(value):
   """Return True if this value is a <string>"""
-  return dylan_is_byte_string(value) or dylan_is_unicode_string(value)
+  return dylan_is_byte_string(value)
 
 def dylan_is_byte_string(value):
   """Return True if this value is a <byte-string>"""
   return check_value_class(value, '<byte-string>', 'dylan', 'dylan')
-
-def dylan_is_unicode_string(value):
-  """Return True if this value is a <unicode-string>"""
-  return check_value_class(value, '<unicode-string>', 'dylan', 'dylan')
 
 def dylan_list_empty(value):
   """Return True if this value is the empty list"""
@@ -384,8 +378,6 @@ def dylan_string_data(value):
   """If it is a string, return contents of value as a bytes object"""
   if dylan_is_byte_string(value):
     return dylan_byte_string_data(value)
-  elif dylan_is_unicode_string(value):
-    return dylan_unicode_string_data(value)
   else:
     class_name = dylan_object_class_name(value)
     raise Exception("%s is a new type of string? %s" % (value, class_name))
@@ -412,20 +404,6 @@ def dylan_string(value):
   """Assuming value is a Dylan string, return it as a Python str"""
   if dylan_is_byte_string(value):
     return dylan_byte_string_data(value).decode('utf-8')
-  elif dylan_is_unicode_string(value):
-    data = dylan_unicode_string_data(value)
-    (int_size, data_format) = target_address_format(value.GetTarget())
-    s = u''
-    i = 0
-    while i < len(data):
-      c = struct.unpack_from(data_format, data, i)
-      c = c[0] >> 2
-      if 0 <= c <= 0x10FFFF:
-        s += unichr(c)
-      else:
-        s += '?'
-      i += int_size
-    return s
   else:
     class_name = dylan_object_class_name(value)
     raise Exception("%s is a new type of string? %s" % (value, class_name))
@@ -435,14 +413,6 @@ def dylan_symbol_name(value):
   ensure_value_class(value, '<symbol>', 'dylan', 'dylan')
   name = dylan_slot_element(value, SYMBOL_NAME)
   return dylan_string(name)
-
-def dylan_unicode_string_data(value):
-  """Return a value as a bytes object"""
-  ensure_value_class(value, '<unicode-string>', 'dylan', 'dylan')
-  size = dylan_integer_value(dylan_slot_element(value, UNICODE_STRING_SIZE))
-  # Dylan's <unicode-character> is the same as <integer> hence is pointer-sized
-  int_size = value.GetTarget().GetAddressByteSize()
-  return dylan_read_raw_data(value, UNICODE_STRING_DATA, size * int_size)
 
 def dylan_sequence_empty(sequence):
   """Return True if sequence is empty"""
