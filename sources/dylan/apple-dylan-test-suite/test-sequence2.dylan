@@ -50,11 +50,6 @@ define test add-new!-4 ()
                    list('Y', 'o', 'w'),
                    'O',
                    #f,
-                   caseless=?),
-              list(unicode-string-instance('Y', 'o', 'w'),
-                   list('Y', 'o', 'w'),
-                   'O',
-                   #f,
                    caseless=?)));
 end test add-new!-4;
 

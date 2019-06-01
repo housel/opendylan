@@ -18,7 +18,6 @@ define interface-specification-suite streams-specification-suite ()
   open instantiable class <sequence-stream> (<positionable-stream>);
   open instantiable class <string-stream> (<sequence-stream>);
   open instantiable class <byte-string-stream> (<string-stream>);
-  // open instantiable class <unicode-string-stream> (<string-stream>);
 
   abstract class <stream-position> (<object>);
 

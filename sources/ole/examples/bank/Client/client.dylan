@@ -23,7 +23,6 @@ end;
 define method account-name (account :: <IBankAccount>) => (name :: <string>)
   let (status :: <HRESULT>, name :: <string>) = IBankAccount/name(account);
   com-check(status, "IBankAccount/name", account);
-  // should be <unicode-string> when that is supported
   as(<byte-string>, name)
 end method;
 

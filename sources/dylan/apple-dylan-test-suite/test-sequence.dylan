@@ -38,10 +38,7 @@ define test add-1 ()
           list(deque-instance(7, 8, 9), list(7, 8, 9), 99),
           list(stretchy-vector-instance(7, 8, 9), list(7, 8, 9), 99),
           list(vector(7, 8, 9), list(7, 8, 9), 99),
-          list(byte-string-instance('Y', 'o', 'w'), list('Y', 'o', 'w'), '!'),
-          list(unicode-string-instance('Y', 'o', 'w'),
-               list('Y', 'o', 'w'),
-               '!')))
+          list(byte-string-instance('Y', 'o', 'w'), list('Y', 'o', 'w'), '!')))
 end test add-1;
 
 // new sequence shares no structure with sequence
@@ -84,10 +81,6 @@ define test add!-1 ()
           list(byte-string-instance('Y', 'o', 'w'),
                list('Y', 'o', 'w'),
                '!',
-               #f),
-          list(unicode-string-instance('Y', 'o', 'w'),
-               list('Y', 'o', 'w'),
-               '!',
                #f)))
 end test add!-1;
 
@@ -124,10 +117,7 @@ define test add-new-1 ()
           list(deque-instance(7, 8, 9), list(7, 8, 9), 99),
           list(stretchy-vector-instance(7, 8, 9), list(7, 8, 9), 99),
           list(vector(7, 8, 9), list(7, 8, 9), 99),
-          list(byte-string-instance('Y', 'o', 'w'), list('Y', 'o', 'w'), '!'),
-          list(unicode-string-instance('Y', 'o', 'w'),
-               list('Y', 'o', 'w'),
-               '!')))
+          list(byte-string-instance('Y', 'o', 'w'), list('Y', 'o', 'w'), '!')))
 end test add-new-1;
 
 // add old element
@@ -151,10 +141,7 @@ define test add-new-2 ()
           list(deque-instance(7, 8, 9), list(7, 8, 9), 8),
           list(stretchy-vector-instance(7, 8, 9), list(7, 8, 9), 8),
           list(vector(7, 8, 9), list(7, 8, 9), 8),
-          list(byte-string-instance('Y', 'o', 'w'), list('Y', 'o', 'w'), 'o'),
-          list(unicode-string-instance('Y', 'o', 'w'),
-               list('Y', 'o', 'w'),
-               'o')))
+          list(byte-string-instance('Y', 'o', 'w'), list('Y', 'o', 'w'), 'o')))
 end test add-new-2;
 
 // These tests are used in membership tests on collections later on.
@@ -201,10 +188,6 @@ define test add-new-3 ()
           list(byte-string-instance('Y', 'o', 'w'),
                list('Y', 'o', 'w'),
                '!',
-               caseless=?),
-          list(unicode-string-instance('Y', 'o', 'w'),
-               list('Y', 'o', 'w'),
-               '!',
                caseless=?)))
 end test add-new-3;
 
@@ -234,10 +217,6 @@ define test add-new-4 ()
                64,
                divides?),
           list(byte-string-instance('Y', 'o', 'w'),
-               list('Y', 'o', 'w'),
-               'O',
-               caseless=?),
-          list(unicode-string-instance('Y', 'o', 'w'),
                list('Y', 'o', 'w'),
                'O',
                caseless=?)))
@@ -277,10 +256,6 @@ define test add-new!-1 ()
           list(byte-string-instance('Y', 'o', 'w'),
                list('Y', 'o', 'w'),
                '!',
-               #f),
-          list(unicode-string-instance('Y', 'o', 'w'),
-               list('Y', 'o', 'w'),
-               '!',
                #f)))
 end test add-new!-1;
 
@@ -303,10 +278,7 @@ define test add-new!-2 ()
           list(deque-instance(7, 8, 9), list(7, 8, 9), 8),
           list(stretchy-vector-instance(7, 8, 9), list(7, 8, 9), 8),
           list(vector(7, 8, 9), list(7, 8, 9), 8),
-          list(byte-string-instance('Y', 'o', 'w'), list('Y', 'o', 'w'), 'o'),
-          list(unicode-string-instance('Y', 'o', 'w'),
-               list('Y', 'o', 'w'),
-               'o')))
+          list(byte-string-instance('Y', 'o', 'w'), list('Y', 'o', 'w'), 'o')))
 end test add-new!-2;
 
 // add new element, using test: argument
@@ -344,11 +316,6 @@ define test add-new!-3 ()
                #f,
                divides?),
           list(byte-string-instance('Y', 'o', 'w'),
-               list('Y', 'o', 'w'),
-               '!',
-               #f,
-               caseless=?),
-          list(unicode-string-instance('Y', 'o', 'w'),
                list('Y', 'o', 'w'),
                '!',
                #f,
