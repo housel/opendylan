@@ -164,7 +164,6 @@ define suite test-class-suite ()
   test instance?-6;
   test instance?-7;
   test instance?-8;
-  test instance?-9;
   test instance?-10;
   test instance?-11;
   test instance?-12;

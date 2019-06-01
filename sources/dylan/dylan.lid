@@ -49,7 +49,6 @@ Files:     dfmc-boot
            symbol
            string
            string-speed
-           unicode-string
            list
            list-speed
            deque

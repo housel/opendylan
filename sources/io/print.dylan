@@ -415,8 +415,8 @@ define method print-object-slots
 end method print-object;
 */
 
-
-/// Print-object <byte-string>, <unicode-string> and <character> methods.
+
+/// Print-object <byte-string> and <character> methods.
 ///
 
 /// Characters.
@@ -482,7 +482,7 @@ end method print-object;
 
 /// write-string-escaped -- Internal Interface.
 ///
-/// Utility used by <byte-string>, <unicode-string>, and <symbol> print-object
+/// Utility used by <byte-string> and <symbol> print-object
 /// methods to print the string with appropriate characters escaped.
 ///
 define generic write-string-escaped (stream :: <stream>, object :: <string>)

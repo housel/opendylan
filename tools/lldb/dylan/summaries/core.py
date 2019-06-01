@@ -100,7 +100,6 @@ def dylan_thread_summary(value, internal_dict):
   return None
 
 @summaries.register('<byte-string>', 'dylan', 'dylan')
-@summaries.register('<unicode-string>', 'dylan', 'dylan')
 def dylan_string_summary(value, internal_dict):
   string_data = dylan_string(value)
   if len(string_data) == 0:

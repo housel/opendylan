@@ -174,7 +174,6 @@ define method IBank/open-account (bank :: <bank>,
     values($IBANK-E-DUPLICATE-ACCOUNT, $null-interface)
   else
     // Arguments are dynamic extent, so have to copy.
-    // Should make it be <unicode-string> once that's fully supported.
     let account-name = as(<byte-string>, account-name);
     bank-update(bank,
 		"insert into Accounts(Name, Balance, Limit) values(?, ?, ?)",
@@ -190,7 +189,6 @@ define method IBank/open-checking-account (bank :: <bank>,
                                            limit :: <integer>)
  => (status :: <HRESULT>, account :: <checking-account-or-null>)
   // Arguments are dynamic extent, so have to copy.
-  // Should make it be <unicode-string> once that's fully supported.
   let account-name = as(<byte-string>, account-name);
   bank-log(bank, "Open checking account on %s for %s with limit %d.",
 	   bank.name, account-name, limit);
@@ -212,7 +210,6 @@ define method IBank/retrieve-account (bank :: <bank>,
                                       account-name :: <string>)
  => (status :: <HRESULT>, account :: <account-or-null>)
   // Arguments are dynamic extent, so have to copy.
-  // Should make it be <unicode-string> once that's fully supported.
   let account-name = as(<byte-string>, account-name);
   bank-log(bank, "Retrieve account on %s for %s.", bank.name, account-name);
   let value = bank-value(bank,

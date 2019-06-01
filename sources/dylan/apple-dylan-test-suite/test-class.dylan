@@ -14,7 +14,7 @@ Copyright: (c) 1996 Functional Objects, Inc.
 ----------------------------------------------*/
 
 /// <byte-string>, <deque>, <list>, <simple-object-vector>, <stretchy-vector>,
-/// <string>, <unicode-string>, and a bit of <range>.
+/// <string>, and a bit of <range>.
 
 define test as-sequence-permutations ()
   check-true("", for (stuff
@@ -24,14 +24,12 @@ define test as-sequence-permutations ()
                  list("Direct Assignment", <stretchy-vector>, <vector>),
                  list("Direct Assignment", <simple-object-vector>, <vector>),
                  list("Direct Assignment", <deque>, <mutable-sequence>),
-                 list("Direct Assignment", <unicode-string>, <string>),
                  list("", <list>),
                  list("", <byte-string>, <string>),
                  list("", <vector>),
                  list("", <stretchy-vector>, <vector>),
                  list("", <simple-object-vector>, <vector>),
                  list("", <deque>, <mutable-sequence>),
-                 list("", <unicode-string>, <string>),
                  list(#(#"a", #"b", #"c", #"d"), <list>),
                  list(#(#"a", #"b", #"c", #"d"), <vector>),
                  list(#(#"a", #"b", #"c", #"d"), <stretchy-vector>, <vector>),
@@ -52,16 +50,12 @@ define test as-sequence-permutations ()
                  list(#['F', 'o', 'o', 'B', 'a', 'r'],
                       <byte-string>,
                       <string>),
-                 list(#['F', 'o', 'o', 'B', 'a', 'r'],
-                      <unicode-string>,
-                      <string>),
                  list(#[], <list>),
                  list(#[], <vector>),
                  list(#[], <stretchy-vector>, <vector>),
                  list(#[], <simple-object-vector>, <vector>),
                  list(#[], <deque>, <mutable-sequence>),
                  list(#[], <byte-string>, <string>),
-                 list(#[], <unicode-string>, <string>),
                  list(deque-instance(#"a", #"b", #"c"), <list>),
                  list(deque-instance(#"a", #"b", #"c"), <vector>),
                  list(deque-instance(#"a", #"b", #"c"),
@@ -73,9 +67,6 @@ define test as-sequence-permutations ()
                  list(deque-instance(#"a", #"b", #"c"), <deque>),
                  list(deque-instance('x', 'y', 'z'), <string>),
                  list(deque-instance('x', 'y', 'z'), <byte-string>, <string>),
-                 list(deque-instance('x', 'y', 'z'),
-                      <unicode-string>,
-                      <string>),
                  list(stretchy-vector-instance('A', 'B', 'C'), <list>),
                  list(stretchy-vector-instance('A', 'B', 'C'), <vector>),
                  list(stretchy-vector-instance('A', 'B', 'C'),
@@ -88,9 +79,6 @@ define test as-sequence-permutations ()
                  list(stretchy-vector-instance('A', 'B', 'C'), <string>),
                  list(stretchy-vector-instance('A', 'B', 'C'),
                       <byte-string>,
-                      <string>),
-                 list(stretchy-vector-instance('A', 'B', 'C'),
-                      <unicode-string>,
                       <string>),
                  list(range(from: 3, below: 10), <list>),
                  list(range(from: 9, above: 3), <vector>),
@@ -240,7 +228,6 @@ define test type-for-copy-class-1 ()
                                  <deque>,
                                  <range>,
                                  <simple-object-vector>,
-                                 <unicode-string>,
                                  <byte-string>,
                                  <list>,
                                  <pair>,
@@ -276,7 +263,6 @@ define test type-for-copy-class-3 ()
                              <deque>,
                              <string>,
                              <byte-string>,
-                             <unicode-string>,
                              <range>))));
   check-true("", subtype?(type-for-copy(make(<array>, dimensions: #(0))),
                           <mutable-collection>));

@@ -108,7 +108,6 @@ define module streams
          <sequence-stream>,
          <string-stream>,
          <byte-string-stream>,
-         <unicode-string-stream>,
          type-for-sequence-stream,
          stream-limit;
 

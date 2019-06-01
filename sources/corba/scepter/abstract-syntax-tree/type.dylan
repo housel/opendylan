@@ -187,7 +187,7 @@ end class;
 define constant $wstring-idl-type =
   make(<wstring-idl-type>,
        name: "wstring",
-       dylan-type: <unicode-string>);
+       dylan-type: <string>);
 
 define class <any-idl-type> (<idl-type>)
 end class;
