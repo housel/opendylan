@@ -200,24 +200,6 @@ define test instance?-8 ()
                          <object>)));
 end test;
 
-define test instance?-9 ()
-  let i = unicode-string-instance();
-  check-true("",
-             every?(method (c)
-                      instance?(i, c)
-                    end method,
-                    list(<mutable-explicit-key-collection>,
-                         <explicit-key-collection>,
-                         <mutable-sequence>,
-                         <mutable-collection>,
-                         <sequence>,
-                         <collection>,
-                         <array>,
-                         <vector>,
-                         <string>,
-                         <unicode-string>)))
-end test;
-
 define test instance?-10 ()
   let i = byte-string-instance();
   check-true("", every?(method (c)
@@ -352,7 +334,6 @@ define test instance?-23 ()
                         <stretchy-vector>,
                         <simple-object-vector>,
                         <string>,
-                        <unicode-string>,
                         <byte-string>,
                         <deque>,
                         <range>)));

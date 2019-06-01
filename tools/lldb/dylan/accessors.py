@@ -28,8 +28,6 @@ SLOT_DESCRIPTOR_GETTER = 4
 SIMPLE_OBJECT_VECTOR_SIZE = 0
 SIMPLE_OBJECT_VECTOR_DATA = 1
 SYMBOL_NAME = 0
-UNICODE_STRING_SIZE = 0
-UNICODE_STRING_DATA = 1
 
 CLASS_SLOT_NAMES_CACHE = {}
 
@@ -145,10 +143,7 @@ def dylan_is_stretchy_vector(value):
   return check_value_class(value, '<stretchy-object-vector>', 'dylan', 'dylan')
 
 def dylan_is_string(value):
-  return dylan_is_byte_string(value) or dylan_is_unicode_string(value)
-
-def dylan_is_unicode_string(value):
-  return check_value_class(value, '<unicode-string>', 'dylan', 'dylan')
+  return dylan_is_byte_string(value)
 
 def dylan_list_empty(value):
   target = lldb.debugger.GetSelectedTarget()
@@ -315,8 +310,6 @@ def dylan_stretchy_vector_element(vector, index):
 def dylan_string_data(value):
   if dylan_is_byte_string(value):
     return dylan_byte_string_data(value)
-  elif dylan_is_unicode_string(value):
-    return dylan_unicode_string_data(value)
   else:
     class_name = dylan_object_class_name(value)
     raise Exception("%s is a new type of string? %s" % (value, class_name))
@@ -328,15 +321,6 @@ def dylan_symbol_name(value):
 
 def dylan_unicode_character_value(value):
   return unichr(value.GetValueAsUnsigned() >> 2).encode('utf8')
-
-def dylan_unicode_string_data(value):
-  ensure_value_class(value, '<unicode-string>', 'dylan', 'dylan')
-  size = dylan_integer_value(dylan_slot_element(value, UNICODE_STRING_SIZE))
-  if size == 0:
-    return ''
-  # We don't need to read the null termination because we don't want that in
-  # our UTF-8 encoded result.
-  data = dylan_read_raw_data(value, UNICODE_STRING_DATA, size * 4)
 
 def dylan_sequence_empty(sequence):
   if dylan_is_simple_vector(sequence):

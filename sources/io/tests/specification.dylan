@@ -20,7 +20,6 @@ define module-spec streams ()
   open instantiable class <sequence-stream> (<positionable-stream>);
   open instantiable class <string-stream> (<sequence-stream>);
   open instantiable class <byte-string-stream> (<string-stream>);
-  // open instantiable class <unicode-string-stream> (<string-stream>);
 
   sealed instantiable class <incomplete-read-error> (<end-of-stream-error>);
   sealed instantiable class <end-of-stream-error> (<error>);

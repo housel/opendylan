@@ -1037,7 +1037,6 @@ end;
 // see also method for <ole-array> in "arrays.dylan".
 
 define method copy-automation-value ( value :: <BSTR> );
-  // should be <unicode-string> when that is supported ???
   as(<byte-string>, value)
 end;
 

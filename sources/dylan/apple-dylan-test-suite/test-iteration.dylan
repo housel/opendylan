@@ -29,7 +29,6 @@ define test initial-state-empty-collections (description: "empty collections")
           <stretchy-vector>,
           <string>,
           <byte-string>,
-          <unicode-string>,
           <list>,
           <deque>)));
 end test initial-state-empty-collections;

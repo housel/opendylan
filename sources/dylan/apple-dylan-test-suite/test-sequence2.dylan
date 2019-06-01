@@ -49,11 +49,6 @@ define test add-new!-4 (description: "add old element, using test: argument")
                    list('Y', 'o', 'w'),
                    'O',
                    #f,
-                   caseless=?),
-              list(unicode-string-instance('Y', 'o', 'w'),
-                   list('Y', 'o', 'w'),
-                   'O',
-                   #f,
                    caseless=?)));
 end test add-new!-4;
 

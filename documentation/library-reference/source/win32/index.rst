@@ -230,8 +230,8 @@ Consider a Windows function called *Foo* which is an alias for either
 *FooA* (an 8-bit character version) or *FooW* (a 16-bit character
 version). In Dylan, only the name *Foo* will be defined, but it will be
 a generic function with separate methods for arguments of types
-``<C-string>``, ``<C-unicode-string>``, :drm:`<byte-string>` or
-:drm:`<unicode-string>`. (Only the 8-bit versions will be supported in the
+``<C-string>``, ``<C-unicode-string>``, or :drm:`<byte-string>`.
+(Only the 8-bit versions will be supported in the
 initial implementation, both because the compiler is not ready to handle
 Unicode and because it will not work on Windows 95.)
 

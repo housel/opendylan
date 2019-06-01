@@ -469,7 +469,6 @@ There are *make* methods on the following stream classes:
 - :class:`<sequence-stream>`
 - :class:`<string-stream>`
 - :class:`<byte-string-stream>`
-- :class:`<unicode-string-stream>`
 
 Rather than creating direct instances of :class:`<sequence-stream>` or
 :class:`<string-stream>`, the :drm:`make` methods for those classes
@@ -479,7 +478,6 @@ might create an instance of a subclass determined by
 - :meth:`make(<sequence-stream>)`
 - :meth:`make(<string-stream>)`
 - :meth:`make(<byte-string-stream>)`
-- :meth:`make(<unicode-string-stream>)`
 
 Closing streams
 ^^^^^^^^^^^^^^^
@@ -1743,37 +1741,6 @@ are exported from the *streams* module.
      - :meth:`make(<sequence-stream>)`
      - :class:`<string-stream>`
 
-.. method:: make
-   :specializer: <unicode-string-stream>
-
-   Creates and opens a stream over a Unicode string.
-
-   :signature: make *unicode-string-stream-class* #key *contents* *direction* *start* *end* => *unicode-string-stream-instance*
-
-   :parameter unicode-string-stream-class: The class :class:`<unicode-string-stream>`.
-   :parameter #key contents: An instance of :drm:`<unicode-string>`.
-   :parameter #key direction: One of ``#"input"``, ``#"output"``, or
-     ``#"input-output"``. Default value: ``#"input"``.
-   :parameter #key start: An instance of :drm:`<integer>`. Default value: 0.
-   :parameter #key end: An instance of :drm:`<integer>`. Default value: *contents.size*.
-   :value unicode-string-stream-instance: An instance of :class:`<unicode-string-stream>`.
-
-   :description:
-
-     Creates and opens a stream over a Unicode string.
-
-     This method returns a new instance of
-     :class:`<unicode-string-stream>`. If supplied, *contents* describes
-     the contents of the stream, and must be an instance of
-     :drm:`<unicode-string>`. The *direction*, *start*, and *end*
-     init-keywords are as for :meth:`make <make(<sequence-stream>)>` on
-     :class:`<sequence-stream>`.
-
-   :seealso:
-
-     - :meth:`make(<sequence-stream>)`
-     - :class:`<unicode-string-stream>`
-
 .. generic-function:: new-line
    :open:
 
@@ -2821,52 +2788,6 @@ are exported from the *streams* module.
      - :meth:`make(<sequence-stream>)`
      - :class:`<sequence-stream>`
 
-.. class:: <unicode-string-stream>
-   :open:
-   :instantiable:
-
-   The class of streams over Unicode strings.
-
-   :superclasses: :class:`<string-stream>`
-
-   :keyword contents: A general instance of :drm:`<sequence>`.
-   :keyword direction: Specifies the direction of the stream. It must
-     be one of ``#"input"``, ``#"output"``, or ``#"input-output"``.
-     Default value: ``#"input"``.
-   :keyword start: An instance of :drm:`<integer>`. This specifies the
-     start position of the sequence to be streamed over. Only valid when
-     *direction:* is ``#"input"``. Default value: 0.
-   :keyword end: An instance of :drm:`<integer>`. This specifies the
-     sequence position immediately after the portion of the sequence to
-     stream over. Only valid when *direction:* is ``#"input"``. Default
-     value: *contents.size*.
-
-   :description:
-
-     The class of streams over Unicode strings. It is a subclass of
-     :class:`<string-stream>`.
-
-     The *contents:* init-keyword is used as the input for an input
-     stream, and as the initial storage for an output stream. If it is a
-     stretchy vector, then it is the only storage used by the stream.
-
-     The class supports the same init-keywords as
-     :class:`<sequence-stream>`.
-
-     The *start:* and *end:* init-keywords specify the portion of the
-     Unicode string to create the stream over: *start:* is inclusive and
-     *end:* is exclusive. The default is to stream over the entire
-     Unicode string.
-
-   :operations:
-
-     - :meth:`make(<unicode-string-stream>)`
-
-   :seealso:
-
-     - :meth:`make(<unicode-string-stream>)`
-     - :class:`<sequence-stream>`
-
 .. generic-function:: unlock-stream
    :open:
 
@@ -3198,7 +3119,7 @@ are exported from the *streams* module.
 
      *Implementation Note:* Buffered streams are intended to provide a
      very efficient implementation of ``write``, particularly when
-     sequence is an instance of :drm:`<byte-string>`, :drm:`<unicode-string>`,
+     sequence is an instance of :drm:`<byte-string>`,
      :class:`<byte-vector>`, or :class:`<buffer>`, and the stream's element type is
      the same as the element type of sequence.
 

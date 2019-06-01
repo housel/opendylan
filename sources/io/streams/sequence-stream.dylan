@@ -28,13 +28,6 @@ end class <byte-string-stream>;
 define sealed domain lock-stream (<byte-string-stream>);
 define sealed domain unlock-stream (<byte-string-stream>);
 
-define sealed class <unicode-string-stream> (<string-stream>)
-  inherited slot stream-sequence = make(<unicode-string>);
-end class <unicode-string-stream>;
-
-define sealed domain lock-stream (<unicode-string-stream>);
-define sealed domain unlock-stream (<unicode-string-stream>);
-
 
 /// Macros
 
@@ -121,11 +114,6 @@ end method type-for-sequence-stream;
 define method type-for-sequence-stream
     (contents :: <byte-string>) => (type :: singleton(<byte-string-stream>))
   <byte-string-stream>
-end method type-for-sequence-stream;
-
-define method type-for-sequence-stream
-    (contents :: <unicode-string>) => (type :: singleton(<unicode-string-stream>))
-  <unicode-string-stream>
 end method type-for-sequence-stream;
 
 
@@ -369,19 +357,3 @@ define sealed domain stream-size (<byte-string-stream>);
 define sealed domain clear-contents (<byte-string-stream>);
 define sealed domain stream-contents (<byte-string-stream>);
 define sealed domain stream-contents-as (<type>, <byte-string-stream>);
-
-define sealed domain make (singleton(<unicode-string-stream>));
-define sealed domain initialize (<unicode-string-stream>);
-define sealed domain read-element (<unicode-string-stream>);
-define sealed domain unread-element (<unicode-string-stream>, <object>);
-define sealed domain peek (<unicode-string-stream>);
-define sealed domain read (<unicode-string-stream>, <integer>);
-define sealed domain read-into! (<unicode-string-stream>, <integer>, <mutable-sequence>);
-define sealed domain stream-input-available? (<unicode-string-stream>);
-define sealed domain write-element (<unicode-string-stream>, <object>);
-define sealed domain write (<unicode-string-stream>, <sequence>);
-define sealed domain stream-at-end? (<unicode-string-stream>);
-define sealed domain stream-size (<unicode-string-stream>);
-define sealed domain clear-contents (<unicode-string-stream>);
-define sealed domain stream-contents (<unicode-string-stream>);
-define sealed domain stream-contents-as (<type>, <unicode-string-stream>);

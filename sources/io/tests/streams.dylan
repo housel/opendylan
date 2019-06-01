@@ -324,13 +324,6 @@ define sideways method make-stream-tests-of-size
   tests
 end method make-stream-tests-of-size;
 
-/*---*** andrewa: not yet...
-register-stream-class-info("<unicode-string-stream>", <unicode-string-stream>,
-                           input-stream?: #t,
-                           output-stream?: #t,
-                           element-type: <unicode-character>);
-*/
-
 
 /// Wrapper stream testing
 
@@ -486,9 +479,6 @@ end method write-element;
 
 
 /// Miscellaneous stream testing
-
-// Note:  Refs to <unicode-character> and <unicode-string-stream> have been
-//           commented out since they are not yet implemented.  1997-06-19
 
 define streams constant-test <buffer-index> ()
   // ---*** Fill this in.
@@ -815,10 +805,6 @@ end test;
 
 define test test-position-alt-string-streams ()
   positionable-stream-test(<byte-string-stream>, "yo baby!");
-  /*
-  positionable-stream-test(<unicode-string-stream>,
-                           concatenate("here we go baby", $line-end));
-  */
 end test;
 
 define test test-stretchy-stream (description: "<string-stream> stretchy vector tests")

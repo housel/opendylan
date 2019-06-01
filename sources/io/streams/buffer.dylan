@@ -147,23 +147,6 @@ define sealed method buffer-subsequence
   seq
 end method buffer-subsequence;
 
-/*
-define sealed method buffer-subsequence
-    (buffer :: <buffer>, class == <unicode-string>,
-     start-index :: <buffer-index>, end-index :: <buffer-index>)
- => (result :: <byte-string>)
-  let count = end-index - start-index;
-  assert(count >= 0 & even?(count));
-  let seq = make(class, size: end-index - start-index);
-  for (i from 0 below count,
-       j from 0 by 2)
-    seq[j] := bytes-to-unicode-character(byte-vector-ref(buffer, start-index + i + 0),
-                                         byte-vector-ref(buffer, start-index + i + 1))
-  end;
-  seq
-end method buffer-subsequence;
-*/
-
 
 define open generic copy-into-buffer!
     (buffer :: <buffer>,

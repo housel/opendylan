@@ -109,10 +109,6 @@ def dylan_thread_summary(value, internal_dict):
     return dylan_string_data(thread_name)
   return None
 
-@summaries.register('<unicode-string>', 'dylan', 'dylan')
-def dylan_unicode_string_summary(value, internal_dict):
-  return dylan_unicode_string_data(value)
-
 @summaries.register('<used-library>', 'dylan-extensions', 'dylan')
 def dylan_used_library_summary(value, internal_dict):
   used_library = dylan_slot_element_by_name(value, 'used-library')

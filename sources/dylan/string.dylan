@@ -282,28 +282,6 @@ define macro shared-string-definer
          }
 end macro;
 
-define macro string-definer
-  { define string ?:name (#key ?fill:expression) }
-    => { define shared-string ?name (fill: ?fill);
-         define sealed concrete primary class "<" ## ?name ## "-string>" (<string>, <vector>)
-           repeated sealed inline slot string-element :: <byte-character>,
-             init-value: ?fill,
-             init-keyword: fill:,
-             size-getter: size,
-             size-init-keyword: size:,
-             size-init-value: 0;
-         end class;
-
-         define constant "$empty-<" ## ?name ## "-string>"
-           = system-allocate-repeated-instance
-               ("<" ## ?name ## "-string>", <byte-character>, unbound(), 0, ?fill);
-
-         define sealed method empty
-             (class == "<" ## ?name ## "-string>") => (res :: "<" ## ?name ## "-string>")
-           "$empty-<" ## ?name ## "-string>"
-         end method; }
-end macro;
-
 define constant <string-type>
   = type-union(subclass(<string>), <limited-string-type>);
 

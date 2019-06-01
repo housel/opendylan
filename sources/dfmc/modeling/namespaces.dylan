@@ -1586,7 +1586,6 @@ define &module dylan
 
    <string>,
    <byte-string>,
-   <unicode-string>,
 
    as-lowercase,
    as-lowercase!,
@@ -2461,7 +2460,6 @@ define &module internal
     $signature-<double-integer>-types,
     $signature-<limited-type>-types,
     $signature-<object-deque>-types,
-    $signature-<unicode-string>-types,
     $signature-<limited-integer>-types,
     $signature-<simple-error>-types,
     $signature-<double-float>-types,

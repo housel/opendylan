@@ -301,8 +301,6 @@ end method;
 /// any pointer is itself
 define open /* abstract */ simple-c-mapped-subtype <c-unicode-string>
       (<c-unsigned-short*>, <string>)
-  export-map type-union(<unicode-string>, <c-unicode-string>),
-    export-function: export-c-string;
   pointer-type <c-unicode-string*>;
 end;
 
@@ -353,14 +351,6 @@ end;
 define method C-unicode-string-constant
     (string :: <byte-string>) => (value :: <C-unicode-string>)
   as(<C-unicode-string>, string);
-end method;
-
-define method C-unicode-string-constant
-    (string :: <unicode-string>) => (value :: <C-unicode-string>)
-  make(<C-unicode-string>,
-       address: primitive-wrap-machine-word
-                  (primitive-cast-pointer-as-raw
-                    (primitive-string-as-raw(string))))
 end method;
 
 /*
@@ -431,13 +421,6 @@ define method pointer-value-setter
 end;
 
 ///
-
-define method export-c-string (obj :: <unicode-string>)
- => (p :: <c-raw-signed-char*>);
-  make-c-pointer(<c-raw-unsigned-short*>,
-                 primitive-cast-pointer-as-raw(primitive-string-as-raw(obj)),
-                 #[])
-end;
 
 define inline function custr-next-state
     (collection :: <c-unicode-string>, state :: <integer>)
