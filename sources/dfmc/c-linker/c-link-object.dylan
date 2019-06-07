@@ -171,7 +171,7 @@ define method emit-object-slot
            in the instnace-slot-descriptors explicitly now.
   emit-object-slot(back-end, stream, class, ^size-slot-descriptor(slotd), o);
   */
-  if (slotd.^slot-type == dylan-value(#"<byte-character>"))
+  if (repeated-representation-byte?(slotd.^slot-type))
     write(stream, ",\n  \"");
     for (i from 0 below size)
       emit-raw-character-data

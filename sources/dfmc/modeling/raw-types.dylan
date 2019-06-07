@@ -431,6 +431,11 @@ define method repeated-representation-size
   end select;
 end method;
 
+define method repeated-representation-size
+    (type :: <&raw-type>) => (res :: <integer>);
+  raw-type-size(type)
+end method;
+
 define inline function in-range?
     (x :: <integer>, min :: <integer>, max :: <integer>) => (res :: <boolean>)
   x >= min & x <= max
