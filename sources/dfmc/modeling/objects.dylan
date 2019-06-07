@@ -332,9 +332,7 @@ define open abstract &class <string> (<mutable-sequence>) end;
 define generic ^string-element (object, index);
 
 define primary &class <byte-string> (<string>, <vector>)
-  compiler-constant repeated &slot string-element :: <byte-character>,
-    init-value: ' ',
-    init-keyword: fill:,
+  compiler-constant repeated &slot string-element :: <raw-byte>,
     size-getter: size,
     size-init-keyword: size:,
     size-init-value: 0;
