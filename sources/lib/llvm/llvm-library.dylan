@@ -72,6 +72,9 @@ define module llvm
     <llvm-symbolic-value>,
     <llvm-symbolic-constant>,
 
+    <llvm-model-value>,
+    llvm-value-model,
+
     <llvm-constant-value>,
     <llvm-null-constant>,
     <llvm-undef-constant>,
