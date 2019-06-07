@@ -368,6 +368,11 @@ define side-effect-free stateless indefinite-extent &primitive primitive-cast-po
 define side-effect-free stateless indefinite-extent &primitive primitive-cast-raw-as-pointer
     (x :: <raw-address>) => (z :: <raw-pointer>);
 
+/// MACHINE WORD CAST
+
+define side-effect-free stateless dynamic-extent &primitive primitive-cast-machine-word
+    (t :: <type>, x :: <raw-machine-word>) => (z :: <raw-machine-word>);
+
 /// TYPE CONSTRAINTS
 
 define side-effect-free stateless dynamic-extent &primitive primitive-the
