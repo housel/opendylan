@@ -244,7 +244,7 @@ define method emit-object-slot
   let repeated-size = ^slot-value(o, ^size-slot-descriptor(slotd));
   let repeated-elements = make(<simple-object-vector>, size: repeated-size);
 
-  if (slotd.^slot-type == dylan-value(#"<byte-character>"))
+  if (repeated-representation-byte?(slotd.^slot-type))
     for (i from 0 below repeated-size)
       repeated-elements[i]
         := llvm-raw-byte-character(back-end,

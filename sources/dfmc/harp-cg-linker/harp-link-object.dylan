@@ -729,7 +729,7 @@ define method emit-object-slot
  => ();
   let repeated-size = ^slot-value(o, ^size-slot-descriptor(slotd));
 
-  if (slotd.^slot-type == dylan-value(#"<byte-character>"))
+  if (repeated-representation-byte?(slotd.^slot-type))
     for (i from 0 below repeated-size)
       emit-raw-data-item(back-end, stream,
                          format-to-string("%s",
