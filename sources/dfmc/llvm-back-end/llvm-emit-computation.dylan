@@ -1080,6 +1080,8 @@ define method emit-primitive-call
   let descriptor
     = element($llvm-primitive-descriptors, primitive-name, default: #f)
     | error("No primitive named %=", primitive-name);
+  let model-parameters?
+    = member?(#"model-parameter", descriptor.primitive-attributes);
 
   let model-arguments = c.arguments;
   let signature = llvm-primitive-signature(back-end, descriptor);
@@ -1087,9 +1089,13 @@ define method emit-primitive-call
     = map(method (argument, parameter-type)
             let reference = emit-reference(back-end, m, argument);
             let value-type = llvm-type-forward(reference.llvm-value-type);
-            emit-cast-for-call(back-end, reference,
-                               value-type,
-                               parameter-type)
+            let value = emit-cast-for-call(back-end, reference,
+                                           value-type, parameter-type);
+            if (model-parameters?)
+              make(<llvm-model-value>, forward: value, model: argument)
+            else
+              value
+            end;
           end,
           model-arguments,
           signature.^signature-required);

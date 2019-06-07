@@ -69,7 +69,8 @@ end method;
 /// Placeholder values
 
 define abstract class <llvm-placeholder-value> (<llvm-value>)
-  slot llvm-placeholder-value-forward :: <llvm-value>;
+  slot llvm-placeholder-value-forward :: <llvm-value>,
+    init-keyword: forward:;
 end class;
 
 define class <llvm-symbolic-value> (<llvm-placeholder-value>)
@@ -87,4 +88,21 @@ define method value-forward
   else
     error("value %s is not defined", value.llvm-symbolic-value-name);
   end if
+end method;
+
+define class <llvm-model-value> (<llvm-placeholder-value>)
+  constant slot llvm-value-model :: <object>,
+    required-init-keyword: model:;
+end class;
+
+define method llvm-value-type
+    (value :: <llvm-model-value>)
+ => (type :: <llvm-type>);
+  llvm-value-type(value.llvm-placeholder-value-forward)
+end method;
+
+define method value-forward
+    (value :: <llvm-model-value>)
+ => (value :: <llvm-value>);
+  value-forward(value.llvm-placeholder-value-forward)
 end method;
