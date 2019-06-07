@@ -61,6 +61,13 @@ end function;
 
 /// Primitives
 
+define side-effect-free stateless dynamic-extent model-parameter &primitive-descriptor primitive-cast-machine-word
+    (t :: <type>, x :: <raw-machine-word>) => (z :: <raw-machine-word>);
+  let type-model = t.llvm-value-model.reference-value;
+  let llvm-type = llvm-reference-type(be, type-model);
+  op--integer-cast(be, x, llvm-type)
+end;
+
 define side-effect-free stateless dynamic-extent &primitive-descriptor primitive-integer?
     (x :: <object>) => (result :: <boolean>)
   let raw-machine-word

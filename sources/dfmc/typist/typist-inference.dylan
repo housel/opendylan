@@ -378,6 +378,13 @@ define method type-estimate-call-from-site(call :: <primitive-call>,
           return(make(<type-estimate-values>,
                       fixed: vector(as(<type-estimate>, type))))
         end when;
+
+      fn == dylan-value(#"primitive-cast-machine-word") =>
+        let (c?, type) = constant-value?(first(arguments(call)));
+        when (c?)
+          return(make(<type-estimate-values>,
+                      fixed: vector(as(<type-estimate>, type))))
+        end when;
     end case;
 
     type-estimate-call-stupidly-from-fn(call, fn, cache)

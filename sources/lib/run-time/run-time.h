@@ -857,6 +857,8 @@ extern dylan_value primitive_compare_bytes(dylan_value base1, DSINT offset1,
                                            dylan_value base2, DSINT offset2, DSINT size);
 extern dylan_value primitive_compare_words(dylan_value base1, DSINT offset1,
                                            dylan_value base2, DSINT offset2, DSINT size);
+/* MACHINE WORD CAST */
+#define primitive_cast_machine_word(t, x) (x)
 
 /* TYPE CONSTRAINTS */
 #define primitive_the(t, x)             (x)

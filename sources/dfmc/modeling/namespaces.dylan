@@ -384,6 +384,10 @@ define &module dylan-primitives
     primitive-machine-word-unsigned-double-shift-right-high,
     primitive-machine-word-unsigned-double-shift-right;
 
+  // Machine word cast
+  create
+    primitive-cast-machine-word;
+
   // Type constraints
   create
     primitive-the;
