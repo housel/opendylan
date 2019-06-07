@@ -2081,6 +2081,12 @@ define &primitive-descriptor primitive-double-float-atan, emitter: op--datan;
 define &primitive-descriptor primitive-single-float-as-double, emitter: ins--single-to-double-float;
 define &primitive-descriptor primitive-double-float-as-single, emitter: ins--double-to-single-float;
 
+// Machine word cast
+define &primitive-descriptor primitive-cast-machine-word,
+  emitter: method (back-end, result, type, value)
+             ins--move(back-end, result, value);
+           end;
+
 // Type constraints
 define &primitive-descriptor primitive-the,
   emitter: method (back-end, result, type, value)
