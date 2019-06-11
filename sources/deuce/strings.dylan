@@ -25,7 +25,7 @@ end function lower-case-code?;
 /// Case-insensitive character comparisons
 
 define sealed method char-equal?
-    (char1 :: <byte-character>, char2 :: <byte-character>)
+    (char1 :: <character>, char2 :: <character>)
  => (true? :: <boolean>)
   let code1 = as(<integer>, char1);
   let code2 = as(<integer>, char2);
@@ -36,7 +36,7 @@ define sealed method char-equal?
 end method char-equal?;
 
 define sealed method char-less?
-    (char1 :: <byte-character>, char2 :: <byte-character>)
+    (char1 :: <character>, char2 :: <character>)
  => (true? :: <boolean>)
   let code1 = as(<integer>, char1);
   let code2 = as(<integer>, char2);
@@ -50,7 +50,7 @@ define sealed method char-less?
 end method char-less?;
 
 define sealed method char-greater?
-    (char1 :: <byte-character>, char2 :: <byte-character>)
+    (char1 :: <character>, char2 :: <character>)
  => (true? :: <boolean>)
   let code1 = as(<integer>, char1);
   let code2 = as(<integer>, char2);
@@ -78,8 +78,8 @@ define sealed method string-equal?
     & without-bounds-checks
         for (i :: <integer> from start1 below end1,
              j :: <integer> from start2 below end2)
-          let char1 :: <byte-character> = string1[i];
-          let char2 :: <byte-character> = string2[j];
+          let char1 :: <character> = string1[i];
+          let char2 :: <character> = string2[j];
           unless (char-equal?(char1, char2))
             return(#f)
           end;
@@ -152,8 +152,8 @@ define sealed method string-compare
       for (i1 :: <integer> = start1 then i1 + 1,
            i2 :: <integer> = start2 then i2 + 1,
            until: count = 0)
-        let char1 :: <byte-character> = string1[i1];
-        let char2 :: <byte-character> = string2[i2];
+        let char1 :: <character> = string1[i1];
+        let char2 :: <character> = string2[i2];
         unless (char-equal?(char1, char2))
           return(if (char-less?(char1, char2))
                    (start1 - i1) - 1
@@ -182,13 +182,13 @@ end method string-compare;
 /// Predicates
 
 define sealed method alpha-char?
-    (char :: <byte-character>) => (true? :: <boolean>)
+    (char :: <character>) => (true? :: <boolean>)
   let code = as(<integer>, char);
   upper-case-code?(code) | lower-case-code?(code)
 end method alpha-char?;
 
 define sealed method digit-char?
-    (char :: <byte-character>, #key radix :: <integer> = 10) => (true? :: <boolean>)
+    (char :: <character>, #key radix :: <integer> = 10) => (true? :: <boolean>)
   let code = as(<integer>, char);
   (as(<integer>, '0') <= code & code <= as(<integer>, '9'))
   | (radix > 10 & radix < 36
@@ -197,19 +197,19 @@ define sealed method digit-char?
 end method digit-char?;
 
 define sealed inline method alphanumeric-char?
-    (char :: <byte-character>) => (true? :: <boolean>)
+    (char :: <character>) => (true? :: <boolean>)
   alpha-char?(char) | digit-char?(char)
 end method alphanumeric-char?;
 
 
 define sealed method upper-case?
-    (char :: <byte-character>) => (true? :: <boolean>)
+    (char :: <character>) => (true? :: <boolean>)
   let code = as(<integer>, char);
   upper-case-code?(code)
 end method upper-case?;
 
 define sealed method lower-case?
-    (char :: <byte-character>) => (true? :: <boolean>)
+    (char :: <character>) => (true? :: <boolean>)
   let code = as(<integer>, char);
   lower-case-code?(code)
 end method lower-case?;
@@ -217,7 +217,7 @@ end method lower-case?;
 
 // Returns #t iff the character is a "graphic" (printing) character
 define sealed method graphic-char?
-    (char :: <byte-character>) => (true? :: <boolean>)
+    (char :: <character>) => (true? :: <boolean>)
   let code = as(<integer>, char);
   as(<integer>, ' ') <= code & code <= as(<integer>, '~')
 end method graphic-char?;
@@ -225,7 +225,7 @@ end method graphic-char?;
 // Returns #t iff the character is a "graphic" (printing) character
 // or is one of the other "standard" characters
 define sealed method standard-char?
-    (char :: <byte-character>) => (true? :: <boolean>)
+    (char :: <character>) => (true? :: <boolean>)
   let code = as(<integer>, char);
   (as(<integer>, ' ') <= code & code <= as(<integer>, '~'))
   | code == as(<integer>, '\n')
@@ -236,13 +236,13 @@ define sealed method standard-char?
 end method standard-char?;
 
 define sealed inline method whitespace-char?
-    (char :: <byte-character>) => (true? :: <boolean>)
+    (char :: <character>) => (true? :: <boolean>)
   char == ' ' | char == '\t'
 end method whitespace-char?;
 
 // Returns #t for horizontal or vertical whitespace
 define sealed inline method any-whitespace-char?
-    (char :: <byte-character>) => (true? :: <boolean>)
+    (char :: <character>) => (true? :: <boolean>)
   char == ' ' | char == '\t' | char == '\r' | char == '\n' | char == '\f'
 end method any-whitespace-char?;
 
@@ -263,7 +263,7 @@ end method string-trim;
 
 define sealed method trim-whitespace
     (string :: <byte-string>) => (string :: <byte-string>)
-  local method non-whitespace? (ch :: <byte-character>)
+  local method non-whitespace? (ch :: <character>)
           ~whitespace-char?(ch)
         end method;
   string-trim(string, non-whitespace?)
@@ -285,7 +285,7 @@ define sealed method string-capitalize!
   let state = #f;
   without-bounds-checks
     for (i :: <integer> from _start below _end)
-      let char :: <byte-character> = string[i];
+      let char :: <character> = string[i];
       case
         ~state =>                // between words
           case

@@ -1271,7 +1271,7 @@ define sealed inline method word-syntax-table
 end method word-syntax-table;
 
 define inline function word-syntax
-    (char :: <byte-character>) => (syntax :: <integer>)
+    (char :: <character>) => (syntax :: <integer>)
   character-syntax(char, word-syntax-table(buffer-major-mode(*buffer*)))
 end function word-syntax;
 
@@ -1281,7 +1281,7 @@ define sealed inline method atom-syntax-table
 end method atom-syntax-table;
 
 define inline function atom-syntax
-    (char :: <byte-character>) => (syntax :: <integer>)
+    (char :: <character>) => (syntax :: <integer>)
   character-syntax(char, atom-syntax-table(buffer-major-mode(*buffer*)))
 end function atom-syntax;
 
@@ -1291,6 +1291,6 @@ define sealed inline method list-syntax-table
 end method list-syntax-table;
 
 define inline function list-syntax
-    (char :: <byte-character>) => (syntax :: <integer>)
+    (char :: <character>) => (syntax :: <integer>)
   character-syntax(char, list-syntax-table(buffer-major-mode(*buffer*)))
 end function list-syntax;

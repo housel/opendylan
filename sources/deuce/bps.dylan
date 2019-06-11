@@ -244,7 +244,7 @@ end method kill-bp!;
 
 // This "works" on diagram lines due to the default method for 'line-contents'
 define sealed method bp-character
-    (bp :: <basic-bp>) => (char :: <byte-character>)
+    (bp :: <basic-bp>) => (char :: <character>)
   let line  = bp-line(bp);
   let index = bp-index(bp);
   if (index = line-length(line))
@@ -257,8 +257,8 @@ end method bp-character;
 // NB: You can't insert '\n' this way!
 // Also note that the caller is responsible for calling 'note-line-changed'
 define sealed method bp-character-setter
-    (char :: <byte-character>, bp :: <basic-bp>)
- => (char :: <byte-character>)
+    (char :: <character>, bp :: <basic-bp>)
+ => (char :: <character>)
   assert(char ~== '\n',
          "'bp-character-setter' can't insert newline characters");
   let line  = bp-line(bp);
@@ -268,7 +268,7 @@ end method bp-character-setter;
 
 
 define sealed method bp-character-before
-    (bp :: <basic-bp>) => (char :: <byte-character>)
+    (bp :: <basic-bp>) => (char :: <character>)
   let line  = bp-line(bp);
   let index = bp-index(bp);
   if (index = 0)
@@ -279,7 +279,7 @@ define sealed method bp-character-before
 end method bp-character-before;
 
 define sealed method bp-character-after
-    (bp :: <basic-bp>) => (char :: <byte-character>)
+    (bp :: <basic-bp>) => (char :: <character>)
   let line  = bp-line(bp);
   let index = bp-index(bp);
   if (index = line-length(line) - 1)
