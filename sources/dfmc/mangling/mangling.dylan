@@ -213,7 +213,7 @@ define method mangler-reset
 end method;
 
 define inline method mangle-raw-into
-    (mangler :: <abstract-mangler>, name :: <byte-character>)
+    (mangler :: <abstract-mangler>, name :: <character>)
   add!(mangler-buffer(mangler), name);
 end method;
 
@@ -306,7 +306,7 @@ define method mangle-integer (number :: <integer>) => (mangled-number :: <byte-s
 
   iterate process-integer (number :: <integer> = number, index :: <integer> = 1)
     let (quotient :: <integer>, remainder :: <integer>) = truncate/(number, 10);
-    let digit :: <byte-character> = $number-characters[remainder];
+    let digit :: <character> = $number-characters[remainder];
 
     if (quotient = 0)
       let result :: <byte-string> = make(<byte-string>, size: index);
