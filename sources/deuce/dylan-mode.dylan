@@ -1357,7 +1357,7 @@ define sealed method \=
 end method \=;
 
 define sealed inline method token-terminator?
-    (ch :: <byte-character>) => (true? :: <boolean>)
+    (ch :: <character>) => (true? :: <boolean>)
   any-whitespace-char?(ch)
   | ch == ',' | ch == ';' | ch == '.'
   | ch == '(' | ch == ')' | ch == '[' | ch == ']' | ch == '{' | ch == '}'

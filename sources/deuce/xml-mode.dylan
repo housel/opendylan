@@ -214,7 +214,7 @@ define sealed method move-over-xml-tags
               ignore(ch);
               values(#t, #f)
             end method,
-            method non-whitespace? (ch :: <byte-character>)
+            method non-whitespace? (ch :: <character>)
               if (any-whitespace-char?(ch)) values(#f, #f)
               else values(#t, #t) end
             end method;

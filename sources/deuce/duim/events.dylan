@@ -338,21 +338,21 @@ define sealed method read-character
               let code = as(<integer>, char);
               case
                 code >= as(<integer>, 'a') & code <= as(<integer>, 'z') =>
-                  char := as(<byte-character>, code - as(<integer>, 'a') + 1);
+                  char := as(<character>, code - as(<integer>, 'a') + 1);
                 code >= as(<integer>, 'A') & code <= as(<integer>, 'A') =>
-                  char := as(<byte-character>, code - as(<integer>, 'A') + 1);
+                  char := as(<character>, code - as(<integer>, 'A') + 1);
                 code = as(<integer>, '@') =>
-                  char := as(<byte-character>, #o00);
+                  char := as(<character>, #o00);
                 code = as(<integer>, '[') =>
-                  char := as(<byte-character>, #o33);
+                  char := as(<character>, #o33);
                 code = as(<integer>, '\\') =>
-                  char := as(<byte-character>, #o34);
+                  char := as(<character>, #o34);
                 code = as(<integer>, ']') =>
-                  char := as(<byte-character>, #o35);
+                  char := as(<character>, #o35);
                 code = as(<integer>, '^') =>
-                  char := as(<byte-character>, #o36);
+                  char := as(<character>, #o36);
                 code = as(<integer>, '_') =>
-                  char := as(<byte-character>, #o37);
+                  char := as(<character>, #o37);
               end;
             ~char & keysym == #"tab"     & modifiers = 0 =>
               char := '\t';
