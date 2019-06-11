@@ -34,15 +34,15 @@ define function initialize-emacs-command-set () => ()
   let command-table = standard-command-table(command-set);
   // ASCII characters are self-inserting
   for (code from 32 to 126)
-    add-command!(command-table, as(<byte-character>, code), self-insert)
+    add-command!(command-table, as(<character>, code), self-insert)
   end;
   // Latin-1 characters are self-inserting, too
   for (code from 128 to 255)
-    add-command!(command-table, as(<byte-character>, code), self-insert)
+    add-command!(command-table, as(<character>, code), self-insert)
   end;
   let gesture :: <simple-object-vector> = vector(#f, #f);
   for (code from 48 below 58)                // i.e., '0' to '9'
-    gesture[0] := as(<byte-character>, code);
+    gesture[0] := as(<character>, code);
     for (modifier-state from 1 below 8)        // all combinations of control/meta/super
       gesture[1] := modifier-state;
       add-command!(command-table, gesture, numeric-argument)
@@ -218,7 +218,7 @@ define function initialize-emacs-command-set () => ()
   let command-table = escape-command-table(command-set);
   let gesture = vector(#f, #f);
   for (code from 48 below 58)                // i.e., '0' to '9'
-    gesture[0] := as(<byte-character>, code);
+    gesture[0] := as(<character>, code);
     for (modifier-state in vector(nothing, control))
       gesture[1] := modifier-state;
       add-command!(command-table, gesture, numeric-argument)
@@ -295,15 +295,15 @@ define function initialize-windows-command-set () => ()
   let command-table = standard-command-table(command-set);
   // ASCII characters are self-inserting
   for (code from 32 below 127)
-    add-command!(command-table, as(<byte-character>, code), self-insert)
+    add-command!(command-table, as(<character>, code), self-insert)
   end;
   // Latin-1 characters are self-inserting, too
   for (code from 128 below 256)
-    add-command!(command-table, as(<byte-character>, code), self-insert)
+    add-command!(command-table, as(<character>, code), self-insert)
   end;
   let gesture = vector(#f, $control-key);
   for (code from 48 below 58)                // i.e., '0' to '9'
-    gesture[0] := as(<byte-character>, code);
+    gesture[0] := as(<character>, code);
     add-command!(command-table, gesture, numeric-argument)
   end;
   add-commands!(command-table,

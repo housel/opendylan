@@ -212,7 +212,7 @@ define sealed method line-empty?
     (line :: <text-line>, #key index :: <integer> = 0) => (empty? :: <boolean>)
   line-length(line) = 0
   | ~position-if(line-contents(line),
-                 method (ch :: <byte-character>) ~any-whitespace-char?(ch) end,
+                 method (ch :: <character>) ~any-whitespace-char?(ch) end,
                  // Whitespace tends to be at the beginning of a line, so
                  // searching backwards for non-whitespace is likely faster
                  start: index, end: line-length(line), from-end?: #t)

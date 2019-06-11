@@ -246,7 +246,7 @@ define sealed method fill-skip-table!
   let length-1 :: <integer> = length - 1;
   fill!(skip-table, length);
   local method rightmost-occurrence
-            (char :: <byte-character>) => (i :: false-or(<integer>))
+            (char :: <character>) => (i :: false-or(<integer>))
           // Find the rightmost occurrence of the character in the pattern
           block (return)
             without-bounds-checks
@@ -262,7 +262,7 @@ define sealed method fill-skip-table!
   // We set the initial value above, so only look at characters in the
   // pattern (and only do them once!)
   without-bounds-checks
-    for (char :: <byte-character> in pattern)
+    for (char :: <character> in pattern)
       let code = as(<integer>, char);
       when (skip-table[code] = length)
         skip-table[code] := length-1 - rightmost-occurrence(char)
