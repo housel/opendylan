@@ -12,8 +12,7 @@ define module duim-imports
     exclude: { position },
     export: all;
   use dylan-extensions,
-    import: { <byte-character>,
-              <keyboard-interrupt>,
+    import: { <keyboard-interrupt>,
               \without-bounds-checks,
               element-no-bounds-check,
               element-no-bounds-check-setter,
