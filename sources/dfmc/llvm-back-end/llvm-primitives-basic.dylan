@@ -166,15 +166,15 @@ end;
 
 define side-effect-free dynamic-extent &primitive-descriptor primitive-byte-element
     (x :: <object>, offset :: <raw-integer>, byte-offset :: <raw-integer>)
- => (obj :: <raw-byte-character>);
+ => (obj :: <raw-byte>);
   let ptr = op--byte-element-ptr(be, x, offset, byte-offset);
   ins--load(be, ptr)
 end;
 
 define side-effecting stateless dynamic-extent &primitive-descriptor primitive-byte-element-setter
-    (new-value :: <raw-byte-character>,
+    (new-value :: <raw-byte>,
      x :: <object>, offset :: <raw-integer>, byte-offset :: <raw-integer>)
- => (obj :: <raw-byte-character>);
+ => (obj :: <raw-byte>);
   let ptr = op--byte-element-ptr(be, x, offset, byte-offset);
   ins--store(be, new-value, ptr);
   new-value
@@ -262,7 +262,7 @@ end;
 
 define side-effecting stateless dynamic-extent &primitive-descriptor primitive-fill-bytes!
     (dst :: <object>, base-offset :: <raw-integer>, offset :: <raw-integer>, size :: <raw-integer>,
-     value :: <raw-byte-character>)
+     value :: <raw-byte>)
  => ();
   let dst-ptr = op--byte-element-ptr(be, dst, base-offset, offset);
   ins--call-intrinsic(be, "llvm.memset",
