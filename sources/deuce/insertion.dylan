@@ -20,7 +20,7 @@ define generic insert!
     (bp :: <bp>, object, #key) => (new-bp :: <bp>);
 
 define sealed method insert!
-    (bp :: <basic-bp>, char :: <byte-character>, #key)
+    (bp :: <basic-bp>, char :: <character>, #key)
  => (new-bp :: <basic-bp>)
   let bp = insert-into-line(bp-line(bp), bp-index(bp), char);
   // Finalize the change record after we do the insertion
@@ -112,7 +112,7 @@ end method split-for-insertion;
 
 
 define sealed method insert-into-line
-    (line :: <text-line>, index :: <integer>, char :: <byte-character>, #key)
+    (line :: <text-line>, index :: <integer>, char :: <character>, #key)
  => (bp :: <basic-bp>)
   if (char = '\n')
     let new = split-for-insertion(line, index);
@@ -198,7 +198,7 @@ end method insert-into-line;
 
 // By default, inserting into a diagram creates a new line and inserts there
 define method insert-into-line
-    (line :: <diagram-line>, index :: <integer>, char :: <byte-character>, #key)
+    (line :: <diagram-line>, index :: <integer>, char :: <character>, #key)
  => (bp :: <basic-bp>)
   assert(index = 0,
          "Diagram lines can only be inserted into at index 0");

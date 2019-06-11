@@ -174,10 +174,10 @@ define sealed method move-over-words
       let reverse? = (n < 0);
       let limit :: <basic-bp>
         = if (reverse?) interval-start-bp(interval) else interval-end-bp(interval) end;
-      local method word-break-char? (ch :: <byte-character>)
+      local method word-break-char? (ch :: <character>)
               values(word-syntax(ch) ~== $word-alphabetic, #t)
             end method,
-            method word-char? (ch :: <byte-character>)
+            method word-char? (ch :: <character>)
               values(word-syntax(ch)  == $word-alphabetic, #t)
             end method;
       for (i :: <integer> from 0 below abs(n))
@@ -205,10 +205,10 @@ define sealed method move-over-atoms
       let reverse? = (n < 0);
       let limit :: <basic-bp>
         = if (reverse?) interval-start-bp(interval) else interval-end-bp(interval) end;
-      local method atom-break-char? (ch :: <byte-character>)
+      local method atom-break-char? (ch :: <character>)
               values(atom-syntax(ch) ~== $atom-alphabetic, #t)
             end method,
-            method atom-char? (ch :: <byte-character>)
+            method atom-char? (ch :: <character>)
               values(atom-syntax(ch)  == $atom-alphabetic, #t)
             end method;
       for (i :: <integer> from 0 below abs(n))
@@ -240,7 +240,7 @@ define sealed method move-over-lists
               ignore(ch);
               values(#t, #f)
             end method,
-            method non-whitespace? (ch :: <byte-character>)
+            method non-whitespace? (ch :: <character>)
               if (any-whitespace-char?(ch)) values(#f, #f)
               else values(#t, #t) end
             end method;
@@ -279,7 +279,7 @@ end method move-over-lists;
 // This is for moving over pairs of quotes (single or double)
 //--- This needs to handle $list-escape
 define sealed method move-over-matching-thing!
-    (bp :: <basic-bp>, char :: <byte-character>, reverse? :: <boolean>,
+    (bp :: <basic-bp>, char :: <character>, reverse? :: <boolean>,
      #key interval = bp-buffer(bp))
  => (bp :: false-or(<basic-bp>))
   let limit :: <basic-bp>
@@ -288,7 +288,7 @@ define sealed method move-over-matching-thing!
           ignore(ch);
           values(#t, #f)
         end method,
-        method matches-char? (ch :: <byte-character>)
+        method matches-char? (ch :: <character>)
           if (ch = char) values(#t, #f)
           else values(#f, #f) end
         end method;
@@ -306,10 +306,10 @@ end method move-over-matching-thing!;
 // while skipping any intervening quoted stuff
 //--- This needs to handle $list-escape
 define sealed method move-over-balanced-thing!
-    (bp :: <basic-bp>, start-char :: <byte-character>, reverse? :: <boolean>,
+    (bp :: <basic-bp>, start-char :: <character>, reverse? :: <boolean>,
      #key interval = bp-buffer(bp))
  => (bp :: false-or(<basic-bp>))
-  let end-char :: <byte-character>
+  let end-char :: <character>
     = select (start-char)
         '(' => ')'; ')' => '(';
         '[' => ']'; ']' => '[';
@@ -318,7 +318,7 @@ define sealed method move-over-balanced-thing!
       end;
   let count :: <integer> = 0;
   let quote = #f;
-  local method matches-char? (ch :: <byte-character>)
+  local method matches-char? (ch :: <character>)
           case
             ch = start-char =>
               when (~quote) inc!(count) end;
@@ -351,10 +351,10 @@ define sealed method move-over-atom!
  => (bp :: false-or(<basic-bp>))
   let limit :: <basic-bp>
     = if (reverse?) interval-start-bp(interval) else interval-end-bp(interval) end;
-  local method atom-break-char? (ch :: <byte-character>)
+  local method atom-break-char? (ch :: <character>)
           values(atom-syntax(ch) ~== $atom-alphabetic, #t)
         end method,
-        method atom-char? (ch :: <byte-character>)
+        method atom-char? (ch :: <character>)
           values(atom-syntax(ch)  == $atom-alphabetic, #t)
         end method;
   move-forward-or-backward!(bp, atom-char?, reverse?, interval: interval);
@@ -393,7 +393,7 @@ define sealed method move-up-or-down-lists
       let (open, close)
         = if (n < 0) values($list-open, $list-close)
           else values($list-close, $list-open) end;
-      local method open-or-close? (ch :: <byte-character>)
+      local method open-or-close? (ch :: <character>)
               let syntax = list-syntax(ch);
               values(syntax == open | syntax == close, #f)
             end method;
@@ -494,7 +494,7 @@ define sealed method forward-over!
     (bp :: <basic-bp>, chars :: <sequence>,
      #key fixup? = #t, interval = bp-buffer(bp))
  => (bp :: false-or(<basic-bp>))
-  local method non-match? (char :: <byte-character>)
+  local method non-match? (char :: <character>)
           if (member?(char, chars)) values(#f, #f)
           else values(#t, #t) end
         end method;
@@ -506,7 +506,7 @@ define sealed method forward-over!
     (bp :: <basic-bp>, chars :: <simple-object-vector>,
      #key fixup? = #t, interval = bp-buffer(bp))
  => (bp :: false-or(<basic-bp>))
-  local method non-match? (char :: <byte-character>)
+  local method non-match? (char :: <character>)
           if (member?(char, chars)) values(#f, #f)
           else values(#t, #t) end
         end method;
@@ -522,7 +522,7 @@ define sealed method forward-until
     (bp :: <basic-bp>, chars :: <sequence>,
      #key fixup? = #t, interval = bp-buffer(bp))
  => (bp :: false-or(<basic-bp>))
-  local method match? (char :: <byte-character>)
+  local method match? (char :: <character>)
           if (member?(char, chars)) values(#t, #t)
           else values(#f, #f) end
         end method;
@@ -543,7 +543,7 @@ define sealed method backward-over!
     (bp :: <basic-bp>, chars :: <sequence>,
      #key fixup? = #t, interval = bp-buffer(bp))
  => (bp :: false-or(<basic-bp>))
-  local method non-match? (ch :: <byte-character>)
+  local method non-match? (ch :: <character>)
           if (member?(ch, chars)) values(#f, #f)
           else values(#t, #t) end
         end method;
@@ -555,7 +555,7 @@ define sealed method backward-over!
     (bp :: <basic-bp>, chars :: <simple-object-vector>,
      #key fixup? = #t, interval = bp-buffer(bp))
  => (bp :: false-or(<basic-bp>))
-  local method non-match? (ch :: <byte-character>)
+  local method non-match? (ch :: <character>)
           if (member?(ch, chars)) values(#f, #f)
           else values(#t, #t) end
         end method;
@@ -571,7 +571,7 @@ define sealed method backward-until
     (bp :: <basic-bp>, chars :: <sequence>,
      #key fixup? = #t, interval = bp-buffer(bp))
  => (bp :: false-or(<basic-bp>))
-  local method match? (ch :: <byte-character>)
+  local method match? (ch :: <character>)
           if (member?(ch, chars)) values(#t, #t)
           else values(#f, #f) end
         end method;

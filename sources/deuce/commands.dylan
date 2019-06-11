@@ -177,7 +177,7 @@ end method check-read-only;
 define command self-insert (frame)
     "Insert the character you just typed.\n"
     "With a numeric argument, inserts that many copies of the character."
-  let char :: <byte-character> = frame-command-character(frame);
+  let char :: <character> = frame-command-character(frame);
   let state = frame-numeric-arg-state(frame);
   if (member?(state, #[#"universal", #"universal-digits", #"universal-sign"])
       & frame-last-command-type(frame) == #"number"
@@ -206,7 +206,7 @@ define command quoted-insert (frame)
     "With a numeric argument, inserts the character with that code."
   let window :: <basic-window> = frame-window(frame);
   if (frame-numeric-arg-state(frame) == #"digits")
-    let char = as(<byte-character>, logand(frame-numeric-arg(frame), #o377));
+    let char = as(<character>, logand(frame-numeric-arg(frame), #o377));
     frame-numeric-arg(frame) := 1;
     insert-character(frame, char)
   else
@@ -219,7 +219,7 @@ end command quoted-insert;
 define command insert-tab (frame)
     "Insert a tab at the current position.\n"
     "With a numeric argument, inserts that many tab characters."
-  let char :: <byte-character> = '\t';
+  let char :: <character> = '\t';
   insert-character(frame, char)
 end command insert-tab;
 
@@ -285,7 +285,7 @@ define command numeric-argument (frame)
   let state = frame-numeric-arg-state(frame);
   let n     :: <integer> = if (state & state ~== #"sign") frame-numeric-arg(frame) else 0 end;
   let sign  :: <integer> = if (n < 0 | state == #"sign") -1 else 1 end;
-  let char  :: <byte-character> = frame-command-character(frame);
+  let char  :: <character> = frame-command-character(frame);
   let digit :: <integer> = as(<integer>, char) - as(<integer>, '0');
   frame-numeric-arg(frame)       := n * 10 + digit * sign;
   frame-numeric-arg-state(frame) := #"digits";
@@ -487,7 +487,7 @@ define method compute-key-binding-documentation
                    code :: <integer> from 0)
                 let bits = position(bucket, command);
                 when (bits)
-                  let char :: <byte-character> = as(<byte-character>, code);
+                  let char :: <character> = as(<character>, code);
                   when (upper-case?(char))
                     bits := logior(bits, $shift-key)
                   end;
@@ -511,7 +511,7 @@ define method compute-key-binding-documentation
                    code :: <integer> from 0)
                 for (command in bucket,
                      bits :: <integer> from 0)
-                  let keysym = as(<byte-character>, code);
+                  let keysym = as(<character>, code);
                   let bits :: <integer>
                     = if (upper-case?(keysym)) logior(bits, $shift-key) else bits end;
                   print-binding(prefix, bits, if (keysym = ' ') "Space" else as-uppercase(keysym) end, command)
@@ -1878,7 +1878,7 @@ define command capitalize-word (frame)
                    end method, interval, skip-test: diagram-line?);
           let state = #f;
           until (sbp = ebp)
-            let ch :: <byte-character> = bp-character(sbp);
+            let ch :: <character> = bp-character(sbp);
             if (state)
               if (alpha-char?(ch))
                 bp-character(sbp) := as-lowercase(ch)

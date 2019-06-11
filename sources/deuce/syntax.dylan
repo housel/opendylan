@@ -47,7 +47,7 @@ end method copy-syntax-table-into!;
 
 
 define sealed method character-syntax
-    (character :: <byte-character>, syntax-table :: <syntax-table>)
+    (character :: <character>, syntax-table :: <syntax-table>)
  => (syntax :: <integer>)
   let code = as(<integer>, character);
   if (code < 0 | code > $largest-byte-character-code)
@@ -58,7 +58,7 @@ define sealed method character-syntax
 end method character-syntax;
 
 define sealed method character-syntax-setter
-    (syntax :: <integer>, character :: <byte-character>, syntax-table :: <syntax-table>)
+    (syntax :: <integer>, character :: <character>, syntax-table :: <syntax-table>)
  => (syntax :: <integer>)
   let code = as(<integer>, character);
   when (code >= 0 & code <= $largest-byte-character-code)
