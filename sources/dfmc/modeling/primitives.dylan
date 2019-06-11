@@ -218,11 +218,11 @@ define side-effecting stateless dynamic-extent &primitive primitive-element-sett
  => (obj :: <object>);
 define side-effect-free dynamic-extent &primitive primitive-byte-element
     (x :: <object>, offset :: <raw-integer>, byte-offset :: <raw-integer>)
- => (obj :: <raw-byte-character>);
+ => (obj :: <raw-byte>);
 define side-effecting stateless dynamic-extent &primitive primitive-byte-element-setter
-    (new-value :: <raw-byte-character>,
+    (new-value :: <raw-byte>,
      x :: <object>, offset :: <raw-integer>, byte-offset :: <raw-integer>)
- => (obj :: <raw-byte-character>);
+ => (obj :: <raw-byte>);
 define side-effect-free dynamic-extent &primitive primitive-bit-element
     (x :: <object>, word-offset :: <raw-integer>, byte-offset :: <raw-integer>,
      bit-offset :: <raw-integer>)
@@ -255,7 +255,7 @@ define side-effecting stateless dynamic-extent &primitive primitive-fill!
  => ();
 define side-effecting stateless dynamic-extent &primitive primitive-fill-bytes!
     (dst :: <object>, base-offset :: <raw-integer>, offset :: <raw-integer>, size :: <raw-integer>,
-     value :: <raw-byte-character>)
+     value :: <raw-byte>)
  => ();
 define side-effecting stateless dynamic-extent &primitive primitive-replace!
     (dst :: <object>, dst-base-offset :: <raw-integer>, dst-offset :: <raw-integer>,
