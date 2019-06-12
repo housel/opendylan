@@ -197,7 +197,7 @@ define function display-integer(number :: <integer>, field :: <integer>)
 
   iterate process-integer (num :: <integer> = number, exponent :: <integer> = 1)
     let (quotient :: <integer>, remainder :: <integer>) = truncate/(num, 10);
-    let digit :: <byte-character> = number-characters[remainder];
+    let digit :: <character> = number-characters[remainder];
 
     if (quotient = 0)
       let index = field - (exponent + truncate/(exponent - 1, 3));
