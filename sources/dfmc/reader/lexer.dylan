@@ -121,7 +121,7 @@ define method add-transition
         end;
   let last = #f;                // Last transition actually added.
   let range = #f;               // Just saw a hyphen (but not added yet).
-  for (char :: <byte-character> in on)
+  for (char :: <character> in on)
     if (range)
       if (last)
         for (i :: <integer> from as(<integer>, last) + 1 to as(<integer>, char))
