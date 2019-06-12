@@ -76,7 +76,7 @@ define method add-transition
     <byte-string> =>
       let last = #f;
       let range = #f;
-      for (char :: <byte-character> in on)
+      for (char :: <character> in on)
         if (range)
           if (last)
             for (i :: <integer>
