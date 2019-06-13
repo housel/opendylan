@@ -80,7 +80,7 @@ define abstract class <ssl-socket> (<TCP-socket>)
 end;
 
 define method make (class == <ssl-socket>, #rest initargs,
-                    #key element-type = <byte-character>)
+                    #key element-type = <character>)
  => (stream :: <ssl-socket>)
   apply(make, client-class-for-element-type(class, element-type), initargs)
 end;
@@ -107,7 +107,7 @@ define method client-class-for-element-type
 end;
 
 define method client-class-for-element-type
-    (class == <ssl-socket>, element-type == <byte-character>) => (class == <byte-char-ssl-socket>)
+    (class == <ssl-socket>, element-type == <character>) => (class == <byte-char-ssl-socket>)
   <byte-char-ssl-socket>
 end;
 
@@ -121,7 +121,7 @@ define class <general-ssl-socket> (<ssl-socket>, <general-typed-stream>)
 end;
 
 define class <byte-char-ssl-socket> (<ssl-socket>, <general-typed-stream>)
-  inherited slot stream-element-type = <byte-character>;
+  inherited slot stream-element-type = <character>;
 end;
 
 define class <byte-ssl-socket> (<ssl-socket>, <general-typed-stream>)

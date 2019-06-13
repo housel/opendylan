@@ -106,7 +106,7 @@ end;
 
 
 define method make (class == <TCP-socket>, #rest initargs,
-                    #key element-type = <byte-character>,
+                    #key element-type = <character>,
                     direction: requested-direction = #"input-output",
                     ssl?)
  => (stream :: <TCP-socket>)
@@ -130,7 +130,7 @@ define method client-class-for-element-type
 end method;
 
 define method client-class-for-element-type
-    (class == <TCP-socket>, element-type == <byte-character>) => (class == <byte-char-TCP-socket>)
+    (class == <TCP-socket>, element-type == <character>) => (class == <byte-char-TCP-socket>)
   <byte-char-TCP-socket>
 end method;
 
@@ -151,7 +151,7 @@ define class <byte-char-TCP-socket>
     (<TCP-socket>,
      <byte-char-element-stream>,
      <sealed-object>)
-  inherited slot stream-element-type = <byte-character>;
+  inherited slot stream-element-type = <character>;
 end class <byte-char-TCP-socket>;
 
 define class <byte-TCP-socket>
@@ -171,7 +171,7 @@ end method;
 define primary class
     <platform-server-socket> (<server-socket>)
   slot default-element-type :: <type>, init-keyword: element-type:,
-    init-value: <byte-character>;
+    init-value: <character>;
 end class;
 
 define open primary class

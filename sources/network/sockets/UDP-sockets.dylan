@@ -51,13 +51,13 @@ define method client-class-for-element-type
 end method;
 
 define method client-class-for-element-type
-    (class == <UDP-socket>, element-type == <byte-character>)
+    (class == <UDP-socket>, element-type == <character>)
   => (class == <byte-char-UDP-socket>)
   <byte-char-UDP-socket>
 end method;
 
 define method make (class == <UDP-socket>, #rest initargs,
-                    #key element-type = <byte-character>,
+                    #key element-type = <character>,
                     direction: requested-direction = #"input-output")
  => (stream :: <UDP-socket>)
   apply(make, client-class-for-element-type(class, element-type),
