@@ -58,7 +58,7 @@ define method open-log-stream () => (res :: false-or(<file-stream>))
   when ($auditing?)
     make(<file-stream>, 
 	 locator:           $default-audit-locator,
-	 element-type:      <byte-character>,
+	 element-type:      <character>,
 	 direction:         #"output",
 	 if-does-not-exist: #"create",
 	 if-exists:         #"replace");

@@ -47,7 +47,7 @@ end class;
 
 define open class <byte-char-file-stream>
     (<file-stream>, <byte-char-element-stream>)
-  inherited slot stream-element-type = <byte-character>;
+  inherited slot stream-element-type = <character>;
   keyword encoding:;
 end class;
 
@@ -106,7 +106,7 @@ define method initialize
 end method initialize;
 
 define method make (class == <file-stream>, #rest initargs,
-                    #key locator, element-type = <byte-character>, encoding)
+                    #key locator, element-type = <character>, encoding)
  => (stream :: <file-stream>)
   let type
     = apply(type-for-file-stream, locator, element-type, encoding, initargs);
@@ -131,15 +131,6 @@ define method type-for-file-stream
   <general-file-stream>
 end method type-for-file-stream;
 
-define method type-for-file-stream
-    (locator :: <object>,
-     element-type == <byte-character>, encoding :: <object>,
-     #key, #all-keys)
- => (file-stream-type :: subclass(<file-stream>))
-  <byte-char-file-stream>
-end method type-for-file-stream;
-
-//---*** This equates <character> with <byte-character>.  Hmm...
 define method type-for-file-stream
     (locator :: <object>,
      element-type == <character>, encoding :: <object>,

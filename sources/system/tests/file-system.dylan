@@ -590,7 +590,7 @@ define test test-file-stream-creation (title: "<file-stream> make tests")
   check-true("make <file-stream> - create or overwrite", begin
           let s = make(<file-stream>, locator: path, if-exists: #"overwrite",
                        if-does-not-exist: #"create",
-                       element-type: <byte-character>,
+                       element-type: <character>,
                        buffer-size: 1);
           close(s);
           #t;
@@ -723,12 +723,12 @@ define test test-file-write-stream (title: "<file-stream> write tests")
   begin
     let s = make(<file-stream>, locator: path, buffer-size: *tbs*,
                  direction: #"output", if-exists: #"replace",
-                 element-type: <byte-character>);
+                 element-type: <character>);
     write(s, "hello there");
     write-line(s, " world");
     close(s);
     let s = make(<file-stream>, locator: path, buffer-size: *tbs*,
-                 direction: #"input", element-type: <byte-character>);
+                 direction: #"input", element-type: <character>);
     check-true("Stream contents = hello there world",
                concatenate("hello there world", $line-end) =
                  stream-contents-and-close(s));
@@ -737,16 +737,16 @@ define test test-file-write-stream (title: "<file-stream> write tests")
   begin
     let s = make(<file-stream>, locator: path, buffer-size: *tbs*,
                  direction: #"output", if-exists: #"replace",
-                 element-type: <byte-character>);
+                 element-type: <character>);
     write(s, "hello there");
     close(s);
     let s = make(<file-stream>, locator: path, buffer-size: *tbs*,
                  direction: #"output", if-exists: #"append",
-                 element-type: <byte-character>);
+                 element-type: <character>);
     write-line(s, " sailor");
     close(s);
     let s = make(<file-stream>, locator: path, buffer-size: *tbs*,
-                 direction: #"input", element-type: <byte-character>);
+                 direction: #"input", element-type: <character>);
     check-true("Open output file with if-exists = append and write",
                concatenate("hello there sailor", $line-end) =
                  stream-contents-and-close(s));
@@ -757,16 +757,16 @@ define test test-file-write-stream (title: "<file-stream> write tests")
     // that I don't even want to touch them!!
     let s = make(<file-stream>, locator: path, buffer-size: *tbs*,
                  direction: #"output", if-exists: #"replace",
-                 element-type: <byte-character>);
+                 element-type: <character>);
     write(s, "hello there");
     close(s);
     let s = make(<file-stream>, locator: path, buffer-size: *tbs*,
                  direction: #"input-output", if-exists: #"append",
-                 element-type: <byte-character>);
+                 element-type: <character>);
     write-line(s, " sailor");
     close(s);
     let s = make(<file-stream>, locator: path, buffer-size: *tbs*,
-                 direction: #"input", element-type: <byte-character>);
+                 direction: #"input", element-type: <character>);
     check-true("Open output file with if-exists = append and write",
                concatenate("hello there sailor", $line-end) =
                  stream-contents-and-close(s));
@@ -802,12 +802,12 @@ define test test-write-to-multi-buffered-file-stream (title: "<multi-buffered-st
   begin
     let s = make(<multi-buffered-stream>, locator: path, buffer-size: 4,
                  number-of-buffers: 2, if-exists: #"replace",
-                 element-type: <byte-character>);
+                 element-type: <character>);
     write(s, "hello there");
     write-line(s, " world");
     close(s);
     let s = make(<file-stream>, locator: path, buffer-size: *tbs*,
-                 direction: #"input", element-type: <byte-character>);
+                 direction: #"input", element-type: <character>);
     check-true("Stream contents = hello there world",
                concatenate("hello there world", $line-end) =
                  stream-contents-and-close(s));
@@ -816,16 +816,16 @@ define test test-write-to-multi-buffered-file-stream (title: "<multi-buffered-st
   begin
     let s = make(<file-stream>, locator: path, buffer-size: *tbs*,
                  direction: #"output", if-exists: #"replace",
-                 element-type: <byte-character>);
+                 element-type: <character>);
     write(s, "hello there");
     close(s);
     let s = make(<multi-buffered-stream>, locator: path, buffer-size: 4,
                  number-of-buffers: 2, if-exists: #"append",
-                 element-type: <byte-character>);
+                 element-type: <character>);
     write-line(s, " sailor");
     close(s);
     let s = make(<file-stream>, locator: path, buffer-size: *tbs*,
-                 direction: #"input", element-type: <byte-character>);
+                 direction: #"input", element-type: <character>);
     check-true("Open output file with if-exists = append and write",
                concatenate("hello there sailor", $line-end) =
                  stream-contents-and-close(s));
@@ -1047,7 +1047,7 @@ define method closed-external-stream-test-2
                 ", ",
                 as(<string>, the-direction),
                 select (the-element-type)
-                  <byte-character> => ", byte-character";
+                  <character> => ", character";
                   <byte> => ", byte";
                   otherwise => ", unknown element type";
                 end select);
@@ -1129,7 +1129,7 @@ define method closed-external-stream-test()
            if-exists: #"replace", if-does-not-exist: #"create");
   write(temporary-output-stream, "closed streams tests" );
   close(temporary-output-stream);
-  closed-external-stream-test-1(<byte-character>, temp-file-locator);
+  closed-external-stream-test-1(<character>, temp-file-locator);
   closed-external-stream-test-1(<byte>, temp-file-locator);
   delete-file(temp-file-locator);
 end method;

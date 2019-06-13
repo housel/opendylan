@@ -609,7 +609,7 @@ end;
 register-stream-class-info("<indenting-stream>", <indenting-stream>,
                            input-stream?: #f,
                            output-stream?: #t,
-                           element-type: <byte-character>);
+                           element-type: <character>);
 
 define sideways method make-stream-tests-of-size
     (class :: subclass(<indenting-stream>), stream-size :: <integer>)

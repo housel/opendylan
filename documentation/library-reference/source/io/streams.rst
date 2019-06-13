@@ -429,8 +429,8 @@ The *element-type:* init-keyword controls how the elements of the
 underlying file are accessed. The possible element types
 are:
 
-- :type:`<byte-character>`
-  The file is accessed as a sequence of 8-bit characters.
+- :type:`<character>`
+  The file is accessed as a sequence of encoded characters.
 
 - :type:`<byte>`
   The file is accessed as a sequence of unsigned 8-bit integers.
@@ -647,10 +647,6 @@ The following types are used in operations that involve buffers.
 
 :type:`<byte>`
    A type representing limited integers in the range 0 to 255 inclusive.
-
-:type:`<byte-character>`
-   A type representing 8-bit characters that instances of
-   :drm:`<byte-string>` can contain.
 
 :type:`<byte-vector>`
    A subtype of :drm:`<vector>` whose element-type is :type:`<byte>`.
@@ -1030,21 +1026,6 @@ are exported from the *streams* module.
    :description:
 
       A type representing limited integers in the range 0 to 255 inclusive.
-
-   :operations:
-
-     - :gf:`type-for-file-stream`
-
-.. type:: <byte-character>
-
-   :type:    A type representing 8-bit characters that instances of :drm:`<byte-string>` can contain.
-
-   :supertypes: :drm:`<character>`
-
-   :description:
-
-      A type representing 8-bit characters that instances of :drm:`<byte-string>`
-      can contain.
 
    :operations:
 
@@ -1609,7 +1590,7 @@ are exported from the *streams* module.
    :parameter #key if-does-not-exist: One of ``#f``, ``#"signal"``, or
      ``#"create"``. Default value: depends on the value of *direction*.
    :parameter #key buffer-size: An instance of :drm:`<integer>`.
-   :parameter #key element-type: One of :type:`<byte-character>`,
+   :parameter #key element-type: One of :type:`<character>`,
      or :type:`<byte>`, or ``#f``.
    :value file-stream-instance: An instance of :class:`<file-stream>`.
 
@@ -1642,7 +1623,7 @@ are exported from the *streams* module.
      represented abstractly; for instance, contiguous elements could be
      treated as a single database record. This init-keyword defaults to
      something useful, potentially based on the properties of the file;
-     `<byte-character>`_ is a likely choice.
+     `<character>`_ is a likely choice.
      See `Options when creating file streams`_.
 
    :seealso:
@@ -2015,11 +1996,6 @@ are exported from the *streams* module.
      second value returned is ``#t`` if the read terminated with a
      newline or ``#f`` if the read terminated because it came to the end
      of the stream.
-
-     The type of the result string is chosen so that the string can
-     contain characters of *input-stream* 's element type. For example,
-     if the element type is `<byte-character>`_, the string will be a
-     :drm:`<byte-string>`.
 
      If *input-stream* is at its end immediately upon calling
      ``read-line`` (that is, the end of stream appears to be at the end
@@ -2746,7 +2722,7 @@ are exported from the *streams* module.
    :signature: type-for-file-stream *filename* *element-type* #rest #all-keys => *file-stream-type*
 
    :parameter filename: An instance of :drm:`<object>`.
-   :parameter element-type: One of :type:`<byte-character>`,
+   :parameter element-type: One of :type:`<character>`,
      or :type:`<byte>`, or ``#f``.
    :value file-stream-type: An instance of :drm:`<type>`.
 

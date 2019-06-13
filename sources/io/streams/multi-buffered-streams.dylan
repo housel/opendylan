@@ -91,7 +91,7 @@ end class;
 
 define sealed primary class <byte-char-multi-buffered-stream>
     (<multi-buffered-stream>, <byte-char-element-stream>)
-  inherited slot stream-element-type = <byte-character>;
+  inherited slot stream-element-type = <character>;
   keyword encoding:;
 end class;
 
@@ -163,7 +163,7 @@ end method initialize;
 
 define sealed method make
     (class == <multi-buffered-stream>, #rest initargs,
-     #key locator, direction, element-type = <byte-character>, encoding)
+     #key locator, direction, element-type = <character>, encoding)
  => (stream :: <multi-buffered-stream>)
   let type
     = apply(type-for-multi-buffered-stream, locator, element-type,
@@ -190,15 +190,6 @@ define sealed method type-for-multi-buffered-stream
   <general-multi-buffered-stream>
 end method type-for-multi-buffered-stream;
 
-define sealed method type-for-multi-buffered-stream
-    (locator :: <object>,
-     element-type == <byte-character>, encoding :: <object>,
-     #key)
- => (multi-buffered-stream-type /* ---*** :: subclass(<multi-buffered-stream>) */)
-  <byte-char-multi-buffered-stream>
-end method type-for-multi-buffered-stream;
-
-//---*** This equates <character> with <byte-character>.  Hmm...
 define sealed method type-for-multi-buffered-stream
     (locator :: <object>,
      element-type == <character>, encoding :: <object>,

@@ -87,7 +87,7 @@ end method reversi-game-read-data;
 define method reversi-game-save-game 
     (game :: <reversi-game>, file :: <pathname>) => ()
   let file-stream = make(<file-stream>, locator: file, direction: #"output",
-			 element-type: <byte-character>);
+			 element-type: <character>);
   reversi-game-write-data(game, file-stream);
   close(file-stream);
 end method reversi-game-save-game;
