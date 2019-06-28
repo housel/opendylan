@@ -10,12 +10,12 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 /// String buffers
 
 //---*** Oh for a stretchy string...
-define constant <string-buffer> = limited(<stretchy-vector>, of: <byte-character>);
+define constant <string-buffer> = limited(<stretchy-vector>, of: <character>);
 
 //---*** Is there a more efficient way to do this?
 define function print-string
     (buffer :: <string-buffer>, string :: <byte-string>) => ()
-  for (character :: <byte-character> in string)
+  for (character :: <character> in string)
     add!(buffer, character)
   end
 end function print-string;
@@ -234,12 +234,12 @@ end method print-unique-name;
 define constant $number-characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 define inline function integer-to-character
-    (integer :: <integer>) => (character :: <byte-character>)
+    (integer :: <integer>) => (character :: <character>)
   $number-characters[integer]
 end function integer-to-character;
 
 define inline function character-to-integer
-    (character :: <byte-character>) => (integer :: false-or(<integer>))
+    (character :: <character>) => (integer :: false-or(<integer>))
   //---*** We might want to make this more efficient...
   position($number-characters, character)
 end function character-to-integer;
@@ -248,7 +248,7 @@ define function integer-to-string
     (integer :: <integer>,
      #key base :: <integer> = 10,
           size: string-size :: <integer> = 0,
-          fill :: <byte-character> = '0')
+          fill :: <character> = '0')
  => (string :: <byte-string>)
   user-assert(2 <= base & base <= 36,
               "Base %d is not between 2 and 36",
@@ -325,7 +325,7 @@ define function string-to-integer
   let next-key :: <integer>
     = block (return)
         for (i :: <integer> from start below stop)
-          let ch :: <byte-character> = as-uppercase(string[i]);
+          let ch :: <character> = as-uppercase(string[i]);
           let digit = character-to-integer(ch);
           when (~digit | digit >= base)
             return(i)
@@ -379,7 +379,7 @@ define function float-to-string
           format-to-string("{NaN}%c0", marker)
         end;
       infinite?(float) =>
-        let sign :: <byte-character> = if (negative?(float)) '-' else '+' end;
+        let sign :: <character> = if (negative?(float)) '-' else '+' end;
         if (class == <single-float>)
           format-to-string("%c{infinity}", sign)
         else
@@ -521,7 +521,7 @@ define function string-to-machine-word
   let next-key
     = block (return)
         for (i from start below stop)
-          let ch :: <byte-character> = as-uppercase(str[i]);
+          let ch :: <character> = as-uppercase(str[i]);
           let digit = character-to-integer(ch);
           when (~digit | digit >= 16)
             return(i > start & i)
