@@ -443,10 +443,6 @@ define test test-<buffer-index> ()
   // ---*** Fill this in.
 end;
 
-define test test-<byte-character> ()
-  // ---*** Fill this in.
-end;
-
 define test test-<buffer> ()
   // ---*** Fill this in.
 end;
@@ -857,9 +853,7 @@ define suite streams-test-suite ()
   test test-<pretty-stream>;
   test test-<buffer-index>;
   test test-<buffer>;
-  test test-<byte-character>;
   test test-<stream-position>;
-  //test test-<unicode-character>;
   test test-buffer-end-setter;
   test test-buffer-end;
   test test-buffer-next-setter;

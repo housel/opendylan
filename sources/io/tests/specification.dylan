@@ -11,7 +11,6 @@ define interface-specification-suite streams-specification-suite ()
   // Constants
 
   constant <buffer-index> :: <type>;
-  constant <byte-character> :: <type>;
 
   // Classes
 
