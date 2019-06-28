@@ -119,22 +119,3 @@ end macro;
 
 define constant <byte-integer> = <byte>;
 define character <byte-character>;
-
-define constant $number-ascii-characters = 256;
-
-define constant $lowercase-ascii :: <byte-string>
-  = make(<byte-string>, size: $number-ascii-characters);
-
-for (i from 0 below size($lowercase-ascii))
-  let c = as(<byte-character>, i);
-  $lowercase-ascii[i] := as-lowercase-guts(c);
-end for;
-
-/// THIS NEEDS TO BE FAST FOR SYMBOLS ETC
-
-define sealed inline method as-lowercase (character :: <byte-character>)
- => (lowercase-character :: <byte-character>)
-  // without-bounds-checks
-  element-no-bounds-check($lowercase-ascii, as(<integer>, character))
-  // end without-bounds-checks;
-end method as-lowercase;

@@ -135,7 +135,7 @@ define function string-hash
     if (instance?(collection, <byte-string>))
       // copy-down for efficiency.
       let collection :: <byte-string> = collection;
-      for (c :: <byte-character> in collection,
+      for (c :: <character> in collection,
            hash :: <integer> = len
              then modulo(ash(hash, 6) + as(<integer>, c), 970747))
       finally
@@ -159,18 +159,6 @@ define function string-hash
   end
 end function;
 
-/*
-define function byte-string-hash
-    (collection :: <byte-string>, hash-state :: <hash-state>)
- => (hi :: <integer>, hash-state :: <hash-state>)
-  let h :: <integer> = 0;
-  for (c :: <byte-character> in collection,
-       hash = 0 then modulo(ash(hash, 6) + as(<integer>, c), 970747))
-  finally
-    values(hash, hash-state)
-  end
-end;
-*/
 /*
 define function case-insensitive-string-hash
     (collection :: <byte-string>, hash-state :: <hash-state>)
