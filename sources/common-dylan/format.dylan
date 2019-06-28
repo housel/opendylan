@@ -10,12 +10,12 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 /// String buffers
 
 //---*** Oh for a stretchy string...
-define constant <string-buffer> = limited(<stretchy-vector>, of: <byte-character>);
+define constant <string-buffer> = limited(<stretchy-vector>, of: <character>);
 
 //---*** Is there a more efficient way to do this?
 define function print-string
     (buffer :: <string-buffer>, string :: <byte-string>) => ()
-  for (character :: <byte-character> in string)
+  for (character :: <character> in string)
     add!(buffer, character)
   end
 end function print-string;
@@ -245,12 +245,12 @@ define constant $character-numbers :: <simple-object-vector>
       25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, #f, #f, #f, #f, #f]; // 70-7F
 
 define inline function integer-to-character
-    (integer :: <integer>) => (character :: <byte-character>)
+    (integer :: <integer>) => (character :: <character>)
   $number-characters[integer]
 end function integer-to-character;
 
 define inline function character-to-integer
-    (character :: <byte-character>) => (integer :: false-or(<integer>))
+    (character :: <character>) => (integer :: false-or(<integer>))
   element($character-numbers, as(<integer>, character), default: #f)
 end function character-to-integer;
 
@@ -258,7 +258,7 @@ define function integer-to-string
     (integer :: <integer>,
      #key base :: <integer> = 10,
           size: string-size :: <integer> = 0,
-          fill :: <byte-character> = '0',
+          fill :: <character> = '0',
           lowercase? :: <boolean>)
  => (string :: <byte-string>)
   user-assert(2 <= base & base <= 36,
@@ -399,7 +399,7 @@ define function float-to-string
           format-to-string("{NaN}%c0", marker)
         end;
       infinite?(float) =>
-        let sign :: <byte-character> = if (negative?(float)) '-' else '+' end;
+        let sign :: <character> = if (negative?(float)) '-' else '+' end;
         if (class == <single-float>)
           format-to-string("%c{infinity}", sign)
         else
