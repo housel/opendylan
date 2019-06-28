@@ -8,16 +8,6 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 /// Buffers
 
-// TODO: EVENTUALLY WANT
-//   define constant <byte-value>              = <byte>;
-//   define constant <byte-representation>     = <byte>;
-//   define constant $byte-representation-fill = 0;
-// BUT CURRENTLY TYPIST IS NOT UP TO IT
-
-define constant <byte-value>              = <integer>;
-define constant <byte-representation>     = <byte-character>;
-define constant $byte-representation-fill = ' ';
-
 define sealed primary class <buffer> (<vector>)
   slot buffer-next   :: <buffer-index> = 0, init-keyword: buffer-next:;
   slot buffer-end    :: <buffer-index> = 0, init-keyword: buffer-end:;
@@ -31,8 +21,8 @@ define sealed primary class <buffer> (<vector>)
   slot buffer-use-count :: <integer> = 0, init-keyword: use-count:;
   slot buffer-owning-stream :: false-or(<integer>) = #f, init-keyword: stream-id:;
   // DA DATA
-  repeated slot buffer-element :: <byte-representation>,
-    init-value:        $byte-representation-fill,
+  repeated slot buffer-element :: <byte>,
+    init-value:        0,
     init-keyword:      fill:,
     size-init-value:   0,
     size-init-keyword: size:,
@@ -45,9 +35,9 @@ define sealed domain initialize (<buffer>);
 
 define inline sealed method make
     (class :: subclass(<buffer>),
-     #rest all-keys, #key fill = $byte-representation-fill, #all-keys)
+     #rest all-keys, #key fill = 0, #all-keys)
  => (buffer :: <buffer>)
-  apply(next-method, class, fill: as(<byte-representation>, fill), all-keys)
+  apply(next-method, class, fill: fill, all-keys)
 end method;
 
 define inline sealed method buffer-size
@@ -74,7 +64,7 @@ define generic buffer-end-setter
 
 define /* inline */ sealed method element
     (buffer :: <buffer>, index :: <integer>,
-     #key default = unsupplied()) => (result :: <byte-value>)
+     #key default = unsupplied()) => (result :: <byte>)
   if (element-range-check(index, size(buffer)))
     element-no-bounds-check(buffer, index)
   else
@@ -96,8 +86,8 @@ end method;
 
 define inline sealed method element-no-bounds-check
     (buffer :: <buffer>, index :: <integer>, #key default)
-         => (res :: <byte-value>)
-  as(<byte-value>, buffer-element(buffer, index))
+         => (res :: <byte>)
+  as(<byte>, buffer-element(buffer, index))
 end method;
 
 //
@@ -105,20 +95,20 @@ end method;
 //
 
 define /* inline */ sealed method element-setter
-    (new-value :: <byte-value>,
+    (new-value :: <byte>,
      vector :: <buffer>, index :: <integer>) => (value)
   if (element-range-check(index, size(vector)))
-    buffer-element(vector, index) := as(<byte-representation>, new-value);
+    buffer-element(vector, index) := new-value;
   else
     element-range-error(vector, index);
   end if
 end method;
 
 define /* inline */ sealed method element-setter
-    (new-value :: <byte-character>,
+    (new-value :: <character>,
      vector :: <buffer>, index :: <integer>) => (value)
   if (element-range-check(index, size(vector)))
-    buffer-element(vector, index) := as(<byte-representation>, new-value)
+    buffer-element(vector, index) := as(<byte>, new-value)
   else
     element-range-error(vector, index)
   end if
@@ -130,15 +120,15 @@ end method;
 //
 
 define inline sealed method element-no-bounds-check-setter
-    (new-value :: <byte-value>,
+    (new-value :: <byte>,
      buffer :: <buffer>, index :: <integer>) => (value)
-  buffer-element(buffer, index) := as(<byte-representation>, new-value);
+  buffer-element(buffer, index) := new-value;
 end method;
 
 define inline sealed method element-no-bounds-check-setter
-    (new-value :: <byte-character>,
+    (new-value :: <character>,
      buffer :: <buffer>, index :: <integer>) => (value)
-  buffer-element(buffer, index) := as(<byte-representation>, new-value);
+  buffer-element(buffer, index) := as(<byte>, new-value);
 end method;
 
 //
@@ -157,7 +147,6 @@ define sealed method as (bsc == <byte-string>,  buffer :: <buffer>)
   let bs :: <byte-string> = make(<byte-string>, size: buffer.size);
   without-bounds-checks
     for (i :: <integer> from 0 below buffer.size)
-      // buffer-element returns a character
       element(bs, i) := as(<byte-character>, element(buffer, i));
     end for;
   end without-bounds-checks;
@@ -169,7 +158,7 @@ define sealed method as (buffer-class == <buffer>, bs :: <byte-string>)
   let buffer :: <buffer> = make(<buffer>, size: bs.size);
   without-bounds-checks
     for (i :: <integer> from 0 below bs.size)
-      element(buffer, i) := as(<byte-representation>, element(bs, i));
+      element(buffer, i) := as(<byte>, element(bs, i));
     end for;
   end without-bounds-checks;
   buffer
@@ -186,12 +175,12 @@ end method;
 
 define inline function buffer-current-element
     (buffer :: <buffer>, state :: <integer>)
- => (result :: <byte-value>)
+ => (result :: <byte>)
   element-no-bounds-check(buffer, state);
 end function;
 
 define inline function buffer-current-element-setter
-    (new-value :: <byte-value>,
+    (new-value :: <byte>,
      buffer :: <buffer>, state :: <integer>) => ()
   element-no-bounds-check(buffer, state) := new-value;
 end function;
@@ -218,18 +207,18 @@ end method forward-iteration-protocol;
 
 define inline function buffer-ref
     (buffer :: <buffer>, index :: <integer>)
- => (result :: <byte-value>)
+ => (result :: <byte>)
   element-no-bounds-check(buffer, index)
 end function buffer-ref;
 
 define inline function buffer-ref-setter
-    (value :: <byte-value>, buffer :: <buffer>, index :: <integer>)
+    (value :: <byte>, buffer :: <buffer>, index :: <integer>)
   element-no-bounds-check(buffer, index) := value;
 end function buffer-ref-setter;
 
 
 define inline-only function fill-bytes!
-    (target :: <buffer>, value :: <byte-value>,
+    (target :: <buffer>, value :: <byte>,
      start :: <integer>, last :: <integer>) => ()
   primitive-fill-bytes!
     (target, primitive-repeated-slot-offset(target), integer-as-raw(start),
@@ -237,7 +226,7 @@ define inline-only function fill-bytes!
 end;
 
 define sealed method buffer-fill
-    (target :: <buffer>, value :: <byte-value>,
+    (target :: <buffer>, value :: <byte>,
      #key start :: <integer> = 0, end: last = size(target)) => ();
   let last :: <integer> =
     check-start-compute-end(target, start, last);
@@ -245,9 +234,9 @@ define sealed method buffer-fill
 end;
 
 define sealed method buffer-fill
-    (target :: <buffer>, value :: <byte-character>,
+    (target :: <buffer>, value :: <character>,
      #key start :: <integer> = 0, end: last = size(target)) => ();
-  buffer-fill(target, as(<byte-value>, value), start: start, end: last)
+  buffer-fill(target, as(<byte>, value), start: start, end: last)
 end;
 
 //---*** It would sure be nice to have low-level run-time support for this
@@ -345,7 +334,7 @@ define sealed method copy-bytes
     for (src-i :: <integer> from src-start below src-end,
          dst-i :: <integer> from dst-start)
       buffer-element(dst, dst-i)
-        := as(<byte-representation>, element-no-bounds-check(src, src-i));
+        := as(<byte>, element-no-bounds-check(src, src-i));
     end for;
   else
     copy-bytes-range-error(src, src-start, dst, dst-start, n);
