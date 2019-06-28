@@ -28,8 +28,8 @@ define inline method case-insensitive-string-equal-2
   when (string1.size == e2 - s2)
     iterate loop (i :: <integer> = s2)
       (i == e2) | begin
-                    let c1 :: <byte-character> = string1[i - s2];
-                    let c2 :: <byte-character> = string2[i];
+                    let c1 :: <character> = string1[i - s2];
+                    let c2 :: <character> = string2[i];
                     (c1 == c2 | as-lowercase(c1) == as-lowercase(c2))
                       & loop(i + 1)
                   end
@@ -43,8 +43,8 @@ define method case-insensitive-string-equal-2
   when (string1.size == e2 - s2)
     iterate loop (i :: <integer> = s2)
       (i == e2) | begin
-                    let c1 :: <byte-character> = string1[i - s2];
-                    let c2 :: <byte-character> = as(<byte-character>, string2[i]);
+                    let c1 :: <character> = string1[i - s2];
+                    let c2 :: <character> = as(<character>, string2[i]);
                     (c1 == c2 | as-lowercase(c1) == as-lowercase(c2))
                       & loop(i + 1)
                   end

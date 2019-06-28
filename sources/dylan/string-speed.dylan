@@ -10,7 +10,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 //
 
 define sealed method member?
-    (ch :: <byte-character>, big :: <byte-string>,
+    (ch :: <character>, big :: <byte-string>,
      #key test :: <function> = \==)
  => (found? :: <boolean>)
   let sz = big.size;
@@ -82,7 +82,7 @@ define sealed method subsequence-position
       else
         // It's worth doing something Boyer-Moore-ish....
         let pat-last :: <integer> = pat-sz - 1;
-        let last-char :: <byte-character> = pat[pat-last];
+        let last-char :: <character> = pat[pat-last];
         let skip :: <simple-object-vector>
           = make(<vector>, size: 256, fill: pat-sz);
         for (i :: <integer> from 0 below pat-last)
@@ -92,7 +92,7 @@ define sealed method subsequence-position
                 if (index >= sz)
                   #f;
                 else
-                  let char :: <byte-character> = big[index];
+                  let char :: <character> = big[index];
                   if (char == last-char)
                     search(index - pat-last, index, pat-last, count);
                   else
