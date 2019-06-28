@@ -222,8 +222,8 @@ define sealed method \=
     (string-1 :: <byte-string>, string-2 :: <byte-string>)
  => (eq :: <boolean>)
   unless (string-1.size ~= string-2.size)
-    for (c1 :: <byte-character> in string-1,
-         c2 :: <byte-character> in string-2,
+    for (c1 :: <character> in string-1,
+         c2 :: <character> in string-2,
          eq = #t then c1 == c2,
          while: eq)
     finally
@@ -236,8 +236,8 @@ define sealed method case-insensitive-equal
     (string-1 :: <byte-string>, string-2 :: <byte-string>)
  => (eq :: <boolean>)
   unless (string-1.size ~= string-2.size)
-    for (c1 :: <byte-character> in string-1,
-         c2 :: <byte-character> in string-2,
+    for (c1 :: <character> in string-1,
+         c2 :: <character> in string-2,
          eq = #t then c1 == c2 | as-lowercase(c1) == as-lowercase(c2),
          while: eq)
     finally
