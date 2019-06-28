@@ -34,15 +34,6 @@ define sealed method byte-vector-fill
      integer-as-raw(last - start + 1), integer-as-raw(value));
 end;
 
-define sealed method byte-vector-fill
-    (target :: <byte-vector>, value :: <byte-character>,
-     #key start :: <integer> = 0, end: last = size(target)) => ()
-  let last :: <integer> = check-start-compute-end(target, start, last);
-  primitive-fill-bytes!
-    (target, primitive-repeated-slot-offset(target), integer-as-raw(start),
-     integer-as-raw(last - start + 1), integer-as-raw(as(<integer>, value)));
-end method;
-
 //---*** It would sure be nice to have low-level run-time support for this
 define open generic copy-bytes (dst, dst-start, src, src-start, n) => ();
 
