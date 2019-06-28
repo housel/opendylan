@@ -488,10 +488,6 @@ define streams constant-test <byte> ()
   // ---*** Fill this in.
 end;
 
-define streams constant-test <byte-character> ()
-  // ---*** Fill this in.
-end;
-
 
 define streams class-test <byte-vector> ()
   // ---*** Fill this in.

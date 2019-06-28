@@ -26,7 +26,7 @@ define module streams
   use streams-protocol,
     export: all;
   use dylan-extensions,
-    export: { <byte>, <byte-character> };
+    export: { <byte> };
   use byte-vector,
     export: { <byte-vector> };
 
