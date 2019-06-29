@@ -25,7 +25,7 @@ define constant corba/<double> = <double-float>;
 
 define constant corba/<octet> = <byte>; // limited(dylan/<integer>, min: 0, max: #xff)
 
-define constant corba/<char> = <byte-character>;
+define constant corba/<char> = <character>;
 
 define constant corba/<boolean> = <boolean>;
 
