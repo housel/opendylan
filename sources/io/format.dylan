@@ -191,7 +191,7 @@ end method;
 /// The return value indicates whether to consume one format argument;
 /// otherwise, consume none.
 ///
-define method do-dispatch (char :: <byte-character>, stream :: <stream>, arg)
+define method do-dispatch (char :: <character>, stream :: <stream>, arg)
     => consumed-arg? :: <boolean>;
   select (char by \==)
     ('s'), ('S'), ('c'), ('C') =>

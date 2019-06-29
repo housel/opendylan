@@ -502,7 +502,7 @@ define method write-string-escaped
   local
 
     method find-next-break (index :: <integer>)
-        => (next-break :: <integer>, char :: <byte-character>)
+        => (next-break :: <integer>, char :: <character>)
       if (index == len)
         // It doesn't matter what character we return, we just need to
         // return some character so the type matches.
