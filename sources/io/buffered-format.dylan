@@ -121,7 +121,7 @@ define method format
 end method format;
 
 define method buffered-do-dispatch
-    (char :: <byte-character>, stream :: <buffered-stream>, sb :: <buffer>, arg)
+    (char :: <character>, stream :: <buffered-stream>, sb :: <buffer>, arg)
  => (consumed-arg? :: <boolean>)
   select (char by \==)
     ('s'), ('S') =>
@@ -135,8 +135,6 @@ define method buffered-do-dispatch
       #t;
     ('c'), ('C') =>
       select (arg by instance?)
-        <byte-character> =>
-          buffered-write-element(stream, sb, arg);
         <character> =>
           print-message(arg, stream);
         otherwise =>
