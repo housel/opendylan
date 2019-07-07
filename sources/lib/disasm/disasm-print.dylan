@@ -36,7 +36,7 @@ define method hex-byte-to-string(x :: <integer>) => (str :: <byte-string>)
   end
 end method hex-byte-to-string;
 
-define method hex-byte-to-string(x :: <byte-character>)
+define method hex-byte-to-string(x :: <character>)
   => (str :: <byte-string>)
   hex-byte-to-string(as(<integer>, x));
 end method hex-byte-to-string;
