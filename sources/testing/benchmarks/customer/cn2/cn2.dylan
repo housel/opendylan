@@ -9,7 +9,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 /// Parser utilities
 
 define inline function whitespace?
-    (c :: <byte-character>) => (whitespace? :: <boolean>)
+    (c :: <character>) => (whitespace? :: <boolean>)
   c == ' ' | c == '\t' | c == '\n'
 end function whitespace?;
 
@@ -36,7 +36,7 @@ define function tokenize
             let done?   :: <boolean> = #f;
             token.size := 0;
             while (_start < _end & ~done?)
-              let c :: <byte-character> = line[_start];
+              let c :: <character> = line[_start];
 	      case
 		quoted? & whitespace?(c) =>
 		  add!(token, c);
