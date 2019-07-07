@@ -139,7 +139,7 @@ define method graphic? (character :: <character>)
 end method graphic?;
 
 define method emit-raw-character-data
-    (back-end :: <c-back-end>, stream :: <stream>, c :: <byte-character>)
+    (back-end :: <c-back-end>, stream :: <stream>, c :: <character>)
  => ()
   select (c)
     '\\' => write(stream, "\\\\");
