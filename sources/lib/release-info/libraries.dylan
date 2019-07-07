@@ -462,7 +462,7 @@ end method installed-library-categories;
 //       (now common-extensions) but the original has now diverged
 //       from this one.
 define sealed method %split
-    (string :: <byte-string>, character :: <byte-character>,
+    (string :: <byte-string>, character :: <character>,
      #key start :: <integer> = 0,
           end: _end :: <integer> = string.size,
           trim? :: <boolean> = #t)

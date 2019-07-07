@@ -51,7 +51,7 @@ define function read-rules (inp :: <stream>)
 end;
 
 define inline function whitespace-char? 
-    (char :: <byte-character>) => (whitespace? :: <boolean>)
+    (char :: <character>) => (whitespace? :: <boolean>)
   member?(char, " \t\n\r\f");
 end;
 

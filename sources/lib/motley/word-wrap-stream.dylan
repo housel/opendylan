@@ -7,9 +7,8 @@ License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-define constant <character-vector> :: <type> = 
-	limited(<stretchy-vector>, of: <byte-character>);
-
+define constant <character-vector> :: <type>
+  = limited(<stretchy-vector>, of: <character>);
 
 // This class implements a generic word-wrapping wrapper stream.  It wraps
 // only at spaces or tabs, when the line would be over line-length
