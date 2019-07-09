@@ -49,8 +49,7 @@ define method dood-repeated-slot?  (dood :: <dood>, class :: <class>)
 end method;
 
 define method dood-repeated-byte-slot?  (dood :: <dood>, class :: <class>)
-  let sd = repeated-slot-descriptor(class);
-  sd & slot-type(sd) == <byte-character>
+  #f
 end method;
 
 /*
@@ -153,10 +152,10 @@ define inline function dood-integer-disk-pointer+object
 end function;
 
 define inline function dood-character-disk-pointer+object
-    (dood :: <dood>, object :: <byte-character>)
+    (dood :: <dood>, object :: <character>)
  => (pointer :: <pointer>, disk-object)
   dood-format("WRITING BYTE-CHARACTER %=\n", object);
-  values(tag-as-byte-character(as(<integer>, object)), object)
+  values(tag-as-character(as(<integer>, object)), object)
 end function;
 
 define inline function address-as-integer

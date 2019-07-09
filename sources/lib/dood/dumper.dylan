@@ -43,7 +43,7 @@ define method dump-at (dood :: <dood>, address :: <address>) => (next-address)
 	  end unless;
 	integer?(value)        => 
 	  format-out(" %d", untag(value));
-	byte-character?(value) => 
+	character?(value) => 
 	  format-out("'%s'", as(<character>, untag(value)));
       end case;
       format-out("\n");

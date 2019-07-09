@@ -28,7 +28,7 @@ define constant $address-mask       = 2;
 define constant $address-tag        = 0;
 define constant $pair-tag           = 1;
 define constant $integer-tag        = 2;
-define constant $byte-character-tag = 3;
+define constant $character-tag      = 3;
 
 define constant $max-dood-integer :: <integer>
   =   (2 ^ ($dood-word-size - 1)) - 1;
@@ -37,7 +37,7 @@ define constant $min-dood-integer :: <integer>
 
 /*
 define method tagged? (object :: <integer>) #T end;
-define method tagged? (object :: <byte-character>) #T end;
+define method tagged? (object :: <character>) #T end;
 define method tagged? (object :: <pair>) $tag-pairs? end;
 define method tagged? (object) #F end;
 */
@@ -66,9 +66,9 @@ define inline function pair?
   logand(pointer, $tag-mask) == $pair-tag
 end function;
 
-define inline function byte-character? 
+define inline function character?
     (pointer :: <pointer>) => (res :: <boolean>)
-  logand(pointer, $tag-mask) == $byte-character-tag
+  logand(pointer, $tag-mask) == $character-tag
 end function;
 
 define inline function tag-as-integer 
@@ -81,9 +81,9 @@ define inline function tag-as-pair
   logior(ash(address, $number-tag-bits), $pair-tag)
 end function;
 
-define inline function tag-as-byte-character 
+define inline function tag-as-character 
     (address :: <address>) => (res :: <pointer>)
-  logior(ash(address, $number-tag-bits), $byte-character-tag)
+  logior(ash(address, $number-tag-bits), $character-tag)
 end function;
 
 // define inline function mark

@@ -383,8 +383,8 @@ define sealed method case-insensitive-less-than?
       if (index >= min-size)
 	string-1.size < string-2.size
       else
-	let x :: <byte-character> = as-lowercase(element(string-1, index));
-	let y :: <byte-character> = as-lowercase(element(string-2, index));
+	let x :: <character> = as-lowercase(element(string-1, index));
+	let y :: <character> = as-lowercase(element(string-2, index));
 	if (x == y)
 	  grovel(index + 1)
 	else
