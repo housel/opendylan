@@ -175,6 +175,10 @@ define method walk-slots
   walk-byte-string-slots(dood, info, <byte-string>, object);
 end method;
 
+define method dood-repeated-byte-slot? (dood :: <dood>, class == <byte-string>)
+  #t
+end method;
+
 //// BYTE-VECTOR
 
 define method read-object-using-class-at
