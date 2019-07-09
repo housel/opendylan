@@ -22,7 +22,7 @@ define open generic dood-disk-object
 // end method;
 
 // define method dood-disk-pointer+object
-//     (dood :: <dood>, object :: <byte-character>)
+//     (dood :: <dood>, object :: <character>)
 //  => (pointer :: <pointer>, disk-object)
 //   dood-character-disk-pointer+object(dood, object)
 // end method;
@@ -49,8 +49,8 @@ define function dood-disk-pointer+object
   if (class == <integer>)
     let object :: <integer> = object;
     dood-integer-disk-pointer+object(dood, object);
-  elseif (class == <byte-character>)
-    let object :: <byte-character> = object;
+  elseif (class == <character>)
+    let object :: <character> = object;
     dood-character-disk-pointer+object(dood, object);
   else
     dood-indirect-disk-pointer+object(dood, $default-walk-info, object);
@@ -97,7 +97,7 @@ end function;
 
 // define constant object-kind          = object-class;
 // define constant $integer-kind        = <integer>;
-// define constant $byte-character-kind = <byte-character>;
+// define constant $character-kind      = <character>;
 
 define constant $lazy-pointer = tag-as-address(#f, 0);
 
@@ -109,8 +109,8 @@ define inline function maybe-walk-object
     instance?(object, <integer>) & small-integer?(object) =>
       let object :: <integer> = object; // TYPE ONLY
       tag-as-integer(object);
-    instance?(object, <byte-character>) =>
-      let object :: <byte-character> = object; // TYPE ONLY
+    instance?(object, <character>) =>
+      let object :: <character> = object; // TYPE ONLY
       dood-character-disk-pointer+object(dood, object);
     otherwise =>
       let maybe-address = dood-walked-address-using-table(dood, object);

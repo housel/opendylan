@@ -400,7 +400,7 @@ define function read-address
     // ---*** This emits a warning here because read-object-at and
     // friends get inlined. The warning is because maybe-read-pointer
     // can return the default value (here: #f), or an <integer> or
-    // <byte-character>. I don't see a good way to make this not
+    // <character>. I don't see a good way to make this not
     // warn currently.
     let class :: <class> = read-object-at(dood, address);
     audit(dood, "%dT%d%s\n", address, debug-name(class));
@@ -445,8 +445,8 @@ define inline function maybe-read-pointer
       end if;
     integer?(pointer) =>
       address-as-integer(address);
-    byte-character?(pointer) =>
-      as(<byte-character>, address);
+    character?(pointer) =>
+      as(<character>, address);
   end case;
 end function;
 
