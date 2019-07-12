@@ -48,6 +48,7 @@ void force_reference_to_spy_interface()
 #include "mm.h"        /* Dylan Interface */
 #include <memory.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -91,6 +92,7 @@ static void simple_error (char* message)
 typedef size_t                  word;
 typedef unsigned char           byte_char;
 typedef unsigned short          half_word;
+typedef uint32_t                character;
 typedef _int64                  double_word;
 typedef float                   single_float;
 typedef double                  double_float;
@@ -152,6 +154,7 @@ void fill_ ## type ## _mem(type *mem, type fill, int count) \
 
 define_fill_mem(word)
 define_fill_mem(half_word)
+define_fill_mem(character)
 define_fill_mem(double_word)
 define_fill_mem(single_float)
 define_fill_mem(double_float)
@@ -186,6 +189,7 @@ void untraced_fill_ ## type ## _mem(void **object, type fill, size_t count, size
 define_untraced_fill_mem(dylan_object)
 define_untraced_fill_mem(word)
 define_untraced_fill_mem(half_word)
+define_untraced_fill_mem(character)
 define_untraced_fill_mem(double_word)
 define_untraced_fill_mem(single_float)
 define_untraced_fill_mem(double_float)

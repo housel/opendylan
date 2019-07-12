@@ -80,7 +80,7 @@ typedef unsigned long           DBOOL;
 typedef unsigned char           DBCHR;
 typedef unsigned char           DBYTE;
 typedef UINT16                  DDBYTE;
-typedef UINT16                  DUCHR;
+typedef UINT32                  DCHR;
 typedef long                    DSINT;
 typedef long                    DMINT;
 typedef DMINT                   DWORD;
@@ -1299,6 +1299,13 @@ void *primitive_alloc_s_rhf(size_t size,
                             size_t rep_size,
                             size_t rep_size_slot,
                             DDBYTE rep_fill);
+void *primitive_alloc_s_rcf(size_t size,
+                            void *wrapper,
+                            int no_to_fill,
+                            void *fill,
+                            size_t rep_size,
+                            size_t rep_size_slot,
+                            DCHR rep_fill);
 void *primitive_alloc_s_rsff(size_t size,
                              void *wrapper,
                              int no_to_fill,
@@ -1390,6 +1397,11 @@ void *primitive_alloc_leaf_rhf(size_t size,
                                size_t rep_size,
                                size_t rep_size_slot,
                                DDBYTE rep_fill);
+void *primitive_alloc_leaf_rcf(size_t size,
+                               void *wrapper,
+                               size_t rep_size,
+                               size_t rep_size_slot,
+                               DCHR rep_fill);
 void *primitive_alloc_leaf_rsff(size_t size,
                                 void *wrapper,
                                 size_t rep_size,
