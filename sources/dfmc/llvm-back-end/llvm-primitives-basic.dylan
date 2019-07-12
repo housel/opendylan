@@ -398,7 +398,7 @@ define side-effect-free stateless dynamic-extent &runtime-primitive-descriptor p
   // Check for zero bytes
   ins--block(be, first-word-loop-body);
   let byte = ins--load(be, first-word-p, type: $llvm-i8-type);
-  let zero-byte = be.%byte-character-constants[0];
+  let zero-byte = be.%byte-constants[0];
   let found? = ins--icmp-eq(be, byte, zero-byte);
   ins--br(be, found?, return, first-word-loop-inc);
 
