@@ -10,7 +10,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 // Cast an integer as an i8 integer constant
 define inline function i8
     (value :: <integer>) => (llvm-value :: <llvm-integer-constant>)
-  current-back-end().%byte-character-constants[value]
+  current-back-end().%byte-constants[value]
 end function;
 
 // Cast an integer as an i32 integer constant
