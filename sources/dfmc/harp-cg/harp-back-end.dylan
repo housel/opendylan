@@ -428,12 +428,14 @@ define c-runtime-reference primitive-alloc-s-rbfz;
 define c-runtime-reference primitive-alloc-rf;
 define c-runtime-reference primitive-alloc-leaf-rf;
 define c-runtime-reference primitive-alloc-leaf-rhf;
+define c-runtime-reference primitive-alloc-leaf-rcf;
 define c-runtime-reference primitive-alloc-leaf-rdwf;
 define c-runtime-reference primitive-alloc-leaf-rsff;
 define c-runtime-reference primitive-alloc-leaf-rdff;
 
 define c-runtime-reference primitive-alloc-s-rf;
 define c-runtime-reference primitive-alloc-s-rhf;
+define c-runtime-reference primitive-alloc-s-rcf;
 define c-runtime-reference primitive-alloc-s-rdwf;
 define c-runtime-reference primitive-alloc-s-rsff;
 define c-runtime-reference primitive-alloc-s-rdff;
