@@ -46,18 +46,18 @@
 
 /* CONCRETE RAW TYPES */
 
-typedef signed char             INT8;
-typedef unsigned char           UINT8;
-typedef signed short            INT16;
-typedef unsigned short          UINT16;
-typedef signed long             INT32;
-typedef unsigned long           UINT32;
+typedef int8_t                  INT8;
+typedef uint8_t                 UINT8;
+typedef int16_t                 INT16;
+typedef uint16_t                UINT16;
+typedef int32_t                 INT32;
+typedef uint32_t                UINT32;
 #ifdef OPEN_DYLAN_PLATFORM_WINDOWS
 typedef _int64                  INT64;
 typedef unsigned _int64         UINT64;
 #else
-typedef signed long long        INT64;
-typedef unsigned long long      UINT64;
+typedef int64_t                 INT64;
+typedef uint64_t                UINT64;
 #endif
 typedef float                   FLT;
 typedef double                  DFLT;
