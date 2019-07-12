@@ -45,8 +45,8 @@ define abstract class <llvm-back-end> (<back-end>, <llvm-builder>)
   constant slot %primitive-function-table :: <object-table>
     = make(<object-table>);
 
-  // Precomputed byte character constants
-  constant slot %byte-character-constants :: <simple-object-vector>
+  // Precomputed byte constants
+  constant slot %byte-constants :: <simple-object-vector>
     = make(<simple-object-vector>, size: 256);
 
   // Value import function
@@ -110,7 +110,7 @@ define sealed method initialize
 
   // Create canonical instances of the 256 i8 constants
   for (i from 0 below 256)
-    back-end.%byte-character-constants[i]
+    back-end.%byte-constants[i]
       := make(<llvm-integer-constant>, type: $llvm-i8-type, integer: i);
   end for;
 end method;

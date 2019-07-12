@@ -246,9 +246,8 @@ define method emit-object-slot
 
   if (repeated-representation-byte?(slotd.^slot-type))
     for (i from 0 below repeated-size)
-      repeated-elements[i]
-        := llvm-raw-byte-character(back-end,
-                                   ^repeated-slot-value(o, slotd, i));
+      let byte = as(<integer>, ^repeated-slot-value(o, slotd, i));
+      repeated-elements[i] := llvm-raw-byte(back-end, byte);
     end;
   else
     for (i from 0 below repeated-size)

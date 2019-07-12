@@ -148,10 +148,10 @@ define method emit-object
   op--tag-character(back-end, o)
 end method;
 
-// Raw byte characters
+// Raw byte values
 
-define method llvm-raw-byte-character
-    (back-end :: <llvm-back-end>, c :: <byte-character>)
+define method llvm-raw-byte
+    (back-end :: <llvm-back-end>, b :: <byte>)
  => (result :: <llvm-constant-value>)
-  back-end.%byte-character-constants[as(<integer>, c)]
+  back-end.%byte-constants[b]
 end method;

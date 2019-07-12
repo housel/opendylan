@@ -92,5 +92,5 @@ define module dfmc-llvm-back-end
     llvm-calling-convention,
     llvm-c-function-calling-convention,
 
-    llvm-raw-byte-character;
+    llvm-raw-byte;
 end module;
