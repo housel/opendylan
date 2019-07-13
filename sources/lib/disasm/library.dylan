@@ -21,7 +21,6 @@ end library;
 define module disasm
   use generic-arithmetic-dylan;
   use common-extensions;
-  use dylan-extensions, import: { <byte-character> };
   use byte-vector;
   use format;
   use format-out;

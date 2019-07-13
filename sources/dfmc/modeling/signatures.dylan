@@ -84,7 +84,7 @@ define signature-type-vector-table $signature-type-vectors = {
 
   <boolean> =>                         $max-default-signature-size,
   <machine-word> =>                    $max-default-signature-size,
-  <byte-character> =>                  $max-default-signature-size,
+  <character> =>                       $max-default-signature-size,
   <abstract-integer> =>                $max-default-signature-size,
   <big-integer> =>                     $max-default-signature-size,
   <double-integer> =>                  $max-default-signature-size,

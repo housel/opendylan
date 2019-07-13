@@ -31,14 +31,6 @@ define method c-repeated-type-name (o)
   c-type-name(o)
 end method;
 
-define method c-repeated-type-name (o :: <&class>)
-  if (o == dylan-value(#"<byte-character>"))
-    "char"
-  else
-    c-type-name(o)
-  end if
-end method;
-
 /// !@#$ hack for when slot-type is not yet filled in
 
 define method c-type-name (o)

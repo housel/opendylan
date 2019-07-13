@@ -58,7 +58,7 @@ define sealed class <byte-file-stream>
 end class;
 
 define copy-down-buffered-stream <byte-char-file-stream>
-   element <byte-character> sequence <byte-string>;
+   element <character> sequence <byte-string>;
 
 define copy-down-buffered-stream <byte-file-stream>
    element <byte> sequence <byte-string>;

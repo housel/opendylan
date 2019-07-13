@@ -163,6 +163,7 @@ end macro;
 define repeated-allocator-primitive(object,       <object>);
 define repeated-allocator-primitive(byte,         <raw-byte>);
 define repeated-allocator-primitive(double-byte,  <raw-double-byte>);
+define repeated-allocator-primitive(character,    <raw-character>);
 define repeated-allocator-primitive(word,         <raw-machine-word>);
 define repeated-allocator-primitive(double-word,  <raw-double-integer>);
 define repeated-allocator-primitive(single-float, <raw-single-float>);
@@ -338,15 +339,15 @@ define side-effecting &primitive primitive-keyboard-interrupt-polling-thread-set
   (interrupt-polling? :: <raw-boolean>, hThread :: <raw-pointer>) => ();
 
 
-/// BYTE-CHARACTER
+/// CHARACTER
 
-define side-effect-free stateless dynamic-extent &primitive-and-override primitive-byte-character-as-raw
-    (x :: <byte-character>) => (r :: <raw-integer>)
+define side-effect-free stateless dynamic-extent &primitive-and-override primitive-character-as-raw
+    (x :: <character>) => (r :: <raw-integer>)
   make-raw-literal(as(<integer>, x))
 end;
-define side-effect-free stateless dynamic-extent &primitive-and-override primitive-raw-as-byte-character
-     (r :: <raw-integer>) => (x :: <byte-character>)
-  as(<byte-character>, ^raw-object-value(r))
+define side-effect-free stateless dynamic-extent &primitive-and-override primitive-raw-as-character
+     (r :: <raw-integer>) => (x :: <character>)
+  as(<character>, ^raw-object-value(r))
 end;
 
 /// INTEGER

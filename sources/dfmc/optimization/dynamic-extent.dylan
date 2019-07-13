@@ -473,7 +473,7 @@ define method really-dynamic-extent?(temp :: <lexical-specialized-variable>)
     => (dynamic? :: <boolean>)
   select (temp.specializer)
     dylan-value(#"<integer>")  => #t;
-    dylan-value(#"<byte-character>") => #t;
+    dylan-value(#"<character>") => #t;
     dylan-value(#"<boolean>") => #t;
     dylan-value(#"<symbol>") => #t;     // Check that this is sound...
     otherwise => next-method()

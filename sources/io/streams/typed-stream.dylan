@@ -9,12 +9,12 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 /// Type coercion functions
 
 define function byte-to-byte-char
-    (byte :: <byte>) => (char :: <byte-character>)
-  as(<byte-character>, byte)
+    (byte :: <byte>) => (char :: <character>)
+  as(<character>, byte)
 end function byte-to-byte-char;
 
 define function byte-char-to-byte
-    (character :: <byte-character>) => (byte :: <byte>)
+    (character :: <character>) => (byte :: <byte>)
   as(<integer>, character)
 end function byte-char-to-byte;
 

@@ -147,7 +147,7 @@ define sealed method as (bsc == <byte-string>,  buffer :: <buffer>)
   let bs :: <byte-string> = make(<byte-string>, size: buffer.size);
   without-bounds-checks
     for (i :: <integer> from 0 below buffer.size)
-      element(bs, i) := as(<byte-character>, element(buffer, i));
+      element(bs, i) := as(<character>, element(buffer, i));
     end for;
   end without-bounds-checks;
   bs

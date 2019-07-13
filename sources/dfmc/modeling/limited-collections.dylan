@@ -139,7 +139,7 @@ define method lookup-any-limited-collection-element-type
 end method;
 
 define limited-element-type-mappings (<string>)
-  <byte-character>    => <byte-string>;
+  <character>         => <byte-string>;
   otherwise           => <byte-string>;
 end limited-element-type-mappings;
 
@@ -232,8 +232,8 @@ end method;
 define limited-element-type-mappings (<stretchy-vector>)
   <object>
     => <stretchy-object-vector>;
-  <byte-character>
-    => <stretchy-byte-character-vector>;
+  <character>
+    => <stretchy-character-vector>;
   limited(<integer>, min: 0, max: 255)
     => <stretchy-byte-vector>;
   otherwise

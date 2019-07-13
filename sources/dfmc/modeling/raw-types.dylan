@@ -186,7 +186,7 @@ define &dylan-raw-machine-word-subtypes
     // dylan raw types
 
     boolean,
-    byte-character,
+    character,
     byte,
     double-byte,
     integer,
@@ -373,7 +373,7 @@ define method make-raw-literal (object :: <boolean>)
 end method;
 
 define method make-raw-literal (object :: <character>)
-  ^make(<&raw-byte-character>, value: object)
+  ^make(<&raw-character>, value: object)
 end method;
 
 define method make-raw-literal (object :: <byte-string>)
@@ -424,7 +424,7 @@ end method;
 define method repeated-representation-size
     (type :: <&class>) => (res :: <integer>)
   select (type)
-    dylan-value(#"<byte-character>")    => 1;
+    dylan-value(#"<character>")         => 4;
     dylan-value(#"<single-float>")      => 4;
     dylan-value(#"<double-float>")      => 8;
     otherwise                           => word-size();
@@ -509,7 +509,7 @@ end method;
 define constant $raw-repeated-class-names
   = #[#"<single-float>", #"<double-float>",
       #"<machine-word>",
-      #"<byte-character>"];
+      #"<character>"];
 
 define method raw-repeated-representation?
     (type :: <&singleton>)

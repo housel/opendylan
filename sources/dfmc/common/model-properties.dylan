@@ -138,7 +138,7 @@ define method mapped-model (object :: <integer>) => model;
   object
 end method;
 
-define method mapped-model (object :: <byte-character>) => model;
+define method mapped-model (object :: <character>) => model;
   object
 end method;
 
