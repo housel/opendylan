@@ -34,8 +34,8 @@ define sideways method emit-all
 
 		    $dylan-integer
                       = dylan-value(#"<integer>"),
-		    $dylan-byte-character
-                      = dylan-value(#"<byte-character>"),
+		    $dylan-character
+                      = dylan-value(#"<character>"),
                     $current-handlers
                       = op--constant-ref(back-end,
                                          dylan-binding(#"*current-handlers*"),
@@ -976,7 +976,7 @@ define method emit-data-item
 end method;
 
 define method emit-data-item
-    (back-end :: <harp-back-end>, stream, object :: <byte-character>)
+    (back-end :: <harp-back-end>, stream, object :: <character>)
  => ();
   output-data-item(back-end, stream,
 		   emit-object(back-end, stream, object));

@@ -58,8 +58,7 @@ define &override-operator \~ = \~ end;
 
 define sealed abstract &class <value-object> (<object>) end;
 
-define sealed abstract &class <character> (<object>) end;
-define sealed concrete &class <byte-character> (<character>) end;
+define sealed concrete &class <character> (<object>) end;
 
 define open   abstract &class <number> (<object>) end;
 define sealed abstract &class <complex> (<number>) end;
@@ -623,8 +622,8 @@ type:
     => { <single-float> }
   { <byte-string> }
     => { <byte-string> }
-  { <byte-character> }
-    => { <byte-character> }
+  { <character> }
+    => { <character> }
   { <boolean> }
     => { <boolean> }
   { <symbol> }
@@ -1134,10 +1133,10 @@ end ^mapping;
 ///---*** Should it be <abstract-integer> now or was that wrong?!?!?
 define method direct-object? (o :: <integer>) #t end;
 
-define ^mapping <byte-character> => <byte-character>
+define ^mapping <character> => <character>
 end ^mapping;
 
-define method direct-object? (o :: <byte-character>) #t end;
+define method direct-object? (o :: <character>) #t end;
 
 define ^mapping <boolean> => <boolean>
   &instance %true  => #t;

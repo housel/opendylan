@@ -640,7 +640,7 @@ end function;
 define function new-mapped-model (model)
  => (p :: <mapped-model-properties>)
   debug-assert(~instance?(model, <module-binding>) &
-                 ~instance?(model, <byte-character>) &
+                 ~instance?(model, <character>) &
                  ~instance?(model, <integer>),
                "Bug: making mapped model properties for %s", model);
   let m = make(<mapped-model-properties>);

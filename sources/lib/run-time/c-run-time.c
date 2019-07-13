@@ -271,6 +271,7 @@ dylan_value primitive_byte_allocate_leaf_filled
 
 define_repeated_allocator(object, dylan_value, primitive_alloc_rf, primitive_alloc_s_rf)
 define_repeated_allocator(double_byte, DDBYTE, primitive_alloc_leaf_rhf, primitive_alloc_s_rhf)
+define_repeated_allocator(character, DCHR, primitive_alloc_leaf_rcf, primitive_alloc_s_rcf)
 define_repeated_allocator(single_float, DSFLT, primitive_alloc_leaf_rsff, primitive_alloc_s_rsff)
 define_repeated_allocator(double_float, DDFLT, primitive_alloc_leaf_rdff, primitive_alloc_s_rdff)
 

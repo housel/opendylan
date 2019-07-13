@@ -1420,11 +1420,11 @@ define method emit-type-check-internal
   let type-name = type.^debug-name;
 
   select(type-name by \=)
-    "<integer>", "<byte-character>" =>
+    "<integer>", "<character>" =>
       let tag-bits =
 	select(type-name by \=)
 	  "<integer>" => 1;
-	  "<byte-character>" => 2;
+	  "<character>" => 2;
 	end;
       let temp = make-n-register(back-end);
 
@@ -1454,9 +1454,9 @@ define method emit-type-check-internal
 	^class-subtype-bit(type) ~== 0 =>
 	  let temp = make-n-register(back-end);
 	  let integer = make-tag(back-end);
-	  let byte-character = make-tag(back-end);
+	  let character = make-tag(back-end);
 	  let integer-supertype? = ^subtype?($dylan-integer, type);
-	  let byte-char-supertype? = ^subtype?($dylan-byte-character, type);
+	  let char-supertype? = ^subtype?($dylan-character, type);
 	  let wrapper = make-g-register(back-end);
 	  let mask = make-n-register(back-end);
 	  let bit = make-n-register(back-end);
@@ -1464,7 +1464,7 @@ define method emit-type-check-internal
 	  
 	  ins--and(back-end, temp, object, 3);
 	  ins--beq(back-end, integer, temp, 1);
-	  ins--beq(back-end, byte-character, temp, 2);
+	  ins--beq(back-end, character, temp, 2);
 
 	  ins--load(back-end, wrapper, object, 0);
 	  ins--load(back-end, mask, wrapper,
@@ -1482,8 +1482,8 @@ define method emit-type-check-internal
 	    ins--bra(back-end, error);
 	  end if;
 
-	  ins--tag(back-end, byte-character);
-	  if (byte-char-supertype?)
+	  ins--tag(back-end, character);
+	  if (char-supertype?)
 	    ins--bra(back-end, done);
 	  else
 	    ins--bra(back-end, error);
@@ -2796,8 +2796,8 @@ define sideways method emit-object
 end method;
 
 define sideways method emit-object
-    (back-end :: <harp-back-end>, stream, o :: <&raw-byte-character>) => (object :: <object>)
-  let raw-value :: <byte-character> = o.^raw-object-value;
+    (back-end :: <harp-back-end>, stream, o :: <&raw-byte>) => (object :: <object>)
+  let raw-value :: <character> = o.^raw-object-value;
   as(<integer>, raw-value)
 end method;
 
@@ -2875,7 +2875,7 @@ define method infer-backend-type(c :: <repeated-slot-value>, #key, #all-keys) =>
   let type = ^slot-type(computation-slot-descriptor(c));
 
   select(type)
-    dylan-value(#"<byte-character>"),
+    dylan-value(#"<character>"),
     dylan-value(#"<byte>"),
     dylan-value(#"<double-byte>"),
     dylan-value(#"<machine-word>"),

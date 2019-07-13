@@ -1041,8 +1041,8 @@ define method repeated-slot-type-alignment
  => (alignment :: <integer>)
   let word-size = back-end-word-size(back-end);
   select (type)
-    dylan-value(#"<byte-character>") =>
-      1;
+    dylan-value(#"<character>") =>
+      4;
     dylan-value(#"<single-float>") =>
       min(word-size, raw-type-alignment(dylan-value(#"<raw-single-float>")));
     dylan-value(#"<double-float>") =>

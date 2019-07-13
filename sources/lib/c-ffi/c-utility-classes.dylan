@@ -67,7 +67,7 @@ define method make
       let raw-pointer :: <raw-c-pointer> = primitive-unwrap-c-pointer(result);
       if (fill)
         // check type and fill in default.
-        let fill :: <byte-character>
+        let fill :: <character>
           = if (given?(fill)) fill else ' ' end;
         let raw-fill :: <raw-integer>
           = integer-as-raw(as(<integer>, fill));
@@ -135,8 +135,8 @@ end;
 
 /// pointer-value in a C-string returns a character.
 define method pointer-value (c-str :: <c-string>, #key index :: <integer> = 0)
- => (c :: <byte-character>);
-  as(<byte-character>,
+ => (c :: <character>);
+  as(<character>,
      raw-as-integer
        (primitive-c-unsigned-char-at(primitive-unwrap-c-pointer(c-str),
                                      integer-as-raw(index),
@@ -144,9 +144,9 @@ define method pointer-value (c-str :: <c-string>, #key index :: <integer> = 0)
 end;
 
 
-define method pointer-value-setter (c :: <byte-character>,
+define method pointer-value-setter (c :: <character>,
                                     c-str :: <c-string>, #key index :: <integer> = 0)
- => (c :: <byte-character>);
+ => (c :: <character>);
   primitive-c-unsigned-char-at-setter(integer-as-raw(as(<integer>, c)),
                                       primitive-unwrap-c-pointer(c-str),
                                       integer-as-raw(index),
@@ -410,8 +410,8 @@ define method pointer-value-setter
 end;
 
 define method pointer-value-setter
-    (c :: <byte-character>, c-str :: <c-unicode-string>, #key index :: <integer> = 0)
- => (c :: <byte-character>);
+    (c :: <character>, c-str :: <c-unicode-string>, #key index :: <integer> = 0)
+ => (c :: <character>);
   primitive-c-unsigned-short-at-setter
     (integer-as-raw(as(<integer>, c)),
      primitive-unwrap-c-pointer(c-str),

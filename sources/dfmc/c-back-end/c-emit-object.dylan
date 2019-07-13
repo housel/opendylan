@@ -159,7 +159,7 @@ define method graphic? (character :: <character>)
   code >= as(<integer>, ' ') & code < as(<integer>, $delete-character)
 end method graphic?;
 
-define method emit-raw-character-data // !@#$ should be <byte-character>
+define method emit-raw-character-data
     (back-end :: <c-back-end>, stream :: <stream>, c :: <character>)
  => ()
   select (c)
@@ -181,7 +181,7 @@ define method emit-raw-character-data // !@#$ should be <byte-character>
   end select
 end method;
 
-define method emit-object // !@#$ should be <byte-character>
+define method emit-object
     (back-end :: <c-back-end>, stream :: <stream>, c :: <character>)
  => ()
   write(stream, "C(");

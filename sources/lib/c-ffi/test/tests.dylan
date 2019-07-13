@@ -355,7 +355,7 @@ end;
 /// is correct.
 define function check-a-c-string (name-string, a-string, seed) => ();
   for (i from 0 below size(a-string))
-    let this-char = as(<byte-character>, as(<integer>, seed) + i);
+    let this-char = as(<character>, as(<integer>, seed) + i);
     check-equal(concatenate(name-string,
                             " c-string get value from alias before"),
                 c-string-value(a-string, i),

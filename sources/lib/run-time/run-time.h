@@ -943,10 +943,10 @@ extern dylan_value SLOT_VALUE(dylan_value object, DSINT position);
 #define REPEATED_DYLAN_VALUE_SLOT_VALUE_SETTER(new_value, object, base_position, position) \
   ((((dylan_object*)object)->slots)[base_position + position] = (new_value))
 
-#define REPEATED_DBCHR_SLOT_VALUE(object, position, index) \
-        (((DBCHR*)&((((dylan_object*)object)->slots)[position]))[index])
-#define REPEATED_DBCHR_SLOT_VALUE_SETTER(new_value, object, position, index) \
-        (((DBCHR*)&((((dylan_object*)object)->slots)[position]))[index] = \
+#define REPEATED_DCHR_SLOT_VALUE(object, position, index) \
+        (((DCHR*)&((((dylan_object*)object)->slots)[position]))[index])
+#define REPEATED_DCHR_SLOT_VALUE_SETTER(new_value, object, position, index) \
+        (((DCHR*)&((((dylan_object*)object)->slots)[position]))[index] = \
            (new_value))
 
 #define REPEATED_DUCHR_SLOT_VALUE(object, position, index) \
@@ -995,10 +995,10 @@ extern dylan_value SLOT_VALUE(dylan_value object, DSINT position);
 
 /* SHOULD REMOVE BELOW */
 
-#define REPEATED_DBCHR_SLOT_VALUE_TAGGED(object, position, index) \
-        (((DBCHR*)&((((dylan_object*)object)->slots)[position]))[R(index)])
-#define REPEATED_DBCHR_SLOT_VALUE_TAGGED_SETTER(new_value, object, position, index) \
-        (((DBCHR*)&((((dylan_object*)object)->slots)[position]))[R(index)] = \
+#define REPEATED_DCHR_SLOT_VALUE_TAGGED(object, position, index) \
+        (((DCHR*)&((((dylan_object*)object)->slots)[position]))[R(index)])
+#define REPEATED_DCHR_SLOT_VALUE_TAGGED_SETTER(new_value, object, position, index) \
+        (((DCHR*)&((((dylan_object*)object)->slots)[position]))[R(index)] = \
            (new_value))
 
 #define REPEATED_DUCHR_SLOT_VALUE_TAGGED(object, position, index) \
@@ -1240,6 +1240,7 @@ extern dylan_value primitive_allocate_filled(DSINT, dylan_value, DSINT, dylan_va
 extern dylan_value primitive_object_allocate_filled(DSINT, dylan_value, DSINT, dylan_value, DSINT, DSINT, dylan_value);
 extern dylan_value primitive_byte_allocate_filled(DSINT, dylan_value, DSINT, dylan_value, DSINT, DSINT, DBYTE);
 extern dylan_value primitive_double_byte_allocate_filled(DSINT, dylan_value, DSINT, dylan_value, DSINT, DSINT, DDBYTE);
+extern dylan_value primitive_character_allocate_filled(DSINT, dylan_value, DSINT, dylan_value, DSINT, DSINT, DCHR);
 extern dylan_value primitive_word_allocate_filled(DSINT, dylan_value, DSINT, dylan_value, DSINT, DSINT, DWORD);
 extern dylan_value primitive_double_word_allocate_filled(DSINT, dylan_value, DSINT, dylan_value, DSINT, DSINT, DDWORD);
 extern dylan_value primitive_single_float_allocate_filled(DSINT, dylan_value, DSINT, dylan_value, DSINT, DSINT, DSFLT);
@@ -1545,9 +1546,9 @@ extern int primitive_mps_ld_isstale(void *hs);
 
 /* BYTE CHARACTER PRIMITIVES */
 
-#define primitive_byte_character_as_raw(x) \
+#define primitive_character_as_raw(x) \
    (R(x))
-#define primitive_raw_as_byte_character(x) \
+#define primitive_raw_as_character(x) \
    (C(x))
 
 /* INTEGER PRIMITIVES */

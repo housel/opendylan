@@ -336,7 +336,7 @@ define method do-primitive-coercion-inverses
 end method;
 
 define primitive-coercion-inverses
-  primitive-byte-character-as-raw and primitive-raw-as-byte-character;
+  primitive-character-as-raw and primitive-raw-as-character;
 
 define primitive-coercion-inverses
   primitive-single-float-as-raw and primitive-raw-as-single-float;

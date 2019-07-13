@@ -299,16 +299,16 @@ end;
 
 /// Byte Characters
 
-define side-effect-free stateless dynamic-extent &primitive-descriptor primitive-byte-character-as-raw
-    (x :: <byte-character>) => (r :: <raw-integer>);
+define side-effect-free stateless dynamic-extent &primitive-descriptor primitive-character-as-raw
+    (x :: <character>) => (r :: <raw-integer>);
   let raw-integer-type
     = llvm-reference-type(be, dylan-value(#"<raw-integer>"));
   let bits = ins--ptrtoint(be, x, raw-integer-type);
   ins--lshr(be, bits, $dylan-tag-bits)
 end;
 
-define side-effect-free stateless dynamic-extent &primitive-descriptor primitive-raw-as-byte-character
-     (r :: <raw-integer>) => (x :: <byte-character>);
+define side-effect-free stateless dynamic-extent &primitive-descriptor primitive-raw-as-character
+     (r :: <raw-integer>) => (x :: <character>);
   let r-type = llvm-type-forward(llvm-value-type(r));
   let word-type = be.%type-table["iWord"];
   let word

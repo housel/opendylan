@@ -18,7 +18,7 @@ define method inlineable?
 end method;
 
 define method inlineable?
-    (object :: <byte-character>) => (inlineable? :: <boolean>, value)
+    (object :: <character>) => (inlineable? :: <boolean>, value)
   values(#t, object)
 end method;
 

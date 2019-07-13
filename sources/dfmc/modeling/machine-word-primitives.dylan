@@ -40,9 +40,6 @@ define custom &machine-word-primitive primitive-wrap-machine-word
   select (x by instance?)
     <&raw-integer> =>
       make(<&machine-word>, data: make(<&raw-machine-word>, value: ^raw-object-value(x)));
-    <&raw-byte-character> =>
-      make(<&machine-word>, data: make(<&raw-machine-word>,
-                                       value: as(<integer>, ^raw-object-value(x))));
     <&raw-machine-word> =>
       let raw-value = ^raw-object-value(x);
       if (instance?(raw-value, <&machine-word>))
@@ -57,7 +54,7 @@ define custom &machine-word-primitive primitive-unwrap-machine-word
     (x :: <machine-word>) => (result :: <raw-machine-word>)
   select (x by instance?)
     <abstract-integer> => make-raw-literal(x);
-    <byte-character> => make-raw-literal(as(<integer>, x));
+    <character> => make-raw-literal(as(<integer>, x));
     <&machine-word> => ^%machine-word-data(x);
     otherwise => error("PUNT THIS FOLDER");
   end

@@ -676,7 +676,7 @@ define module-with-models dfmc-modeling
       raw-c-pointer, <&raw-c-pointer>,
       raw-c-size-t, raw-c-ssize-t,
       raw-boolean, <&raw-boolean>,
-      raw-byte-character, <&raw-byte-character>, // TODO: OBSOLETE
+      raw-character, <&raw-character>,
       raw-byte, // <&raw-byte>,
       raw-double-byte, // <&raw-double-byte>,
       raw-byte-string, <&raw-byte-string>,

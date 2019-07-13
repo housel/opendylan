@@ -29,8 +29,8 @@ end method ^initialize-class;
 define sideways method ^instance?-function (c :: <&class>)
   if (c == dylan-value(#"<object>"))
     #"<object>-class-instance?"
-  elseif (c == dylan-value(#"<byte-character>"))
-    #"<byte-character>-instance?"
+  elseif (c == dylan-value(#"<character>"))
+    #"<character>-instance?"
   elseif (c == dylan-value(#"<integer>"))
     #"<integer>-instance?"
   elseif (^sealed-with-no-subclasses?(c))

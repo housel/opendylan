@@ -133,7 +133,7 @@ define method ^as (type, object :: <integer>) => (object)
   end if;
 end method;
 
-define method ^as (type, object :: <byte-character>) => (object)
+define method ^as (type, object :: <character>) => (object)
   if (^instance?(object, type))
     object
   elseif (type == dylan-value(#"<integer>"))

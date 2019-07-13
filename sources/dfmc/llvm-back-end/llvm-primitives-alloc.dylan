@@ -433,6 +433,8 @@ define repeated-allocate-primitive(be, byte,         leaf-rbf,  s-rbf,
                                    <raw-byte>, <raw-integer>);
 define repeated-allocate-primitive(be, double-byte,  leaf-rhf,  s-rhf,
                                    <raw-double-byte>, <raw-integer>);
+define repeated-allocate-primitive(be, character,    leaf-rcf,  s-rcf,
+                                   <raw-character>, <raw-integer>);
 define repeated-allocate-primitive(be, word,         leaf-rwf,  s-rwf,
                                    <raw-machine-word>, <raw-machine-word>);
 //define repeated-allocate-primitive(be, double-word,  leaf-rdwf, s-rdwf,

@@ -46,18 +46,18 @@ end method make;
 
 define method make
     (class == <byte-string>,
-     #key fill :: <byte-character> = ' ', size :: <integer> = 0)
+     #key fill :: <character> = ' ', size :: <integer> = 0)
  => (res :: <byte-string>)
   if (size = 0)
     empty(class)
   else
     system-allocate-repeated-instance
-      (<byte-string>, <byte-character>, unbound(), size, fill);
+      (<byte-string>, <character>, unbound(), size, fill);
   end if
 end method;
 
 define sealed inline method concrete-limited-string-class
-    (of == <byte-character>)
+    (of == <character>)
  => (type :: singleton(<byte-string>))
   <byte-string>
 end method;
@@ -65,9 +65,9 @@ end method;
 define inline sealed method element
     (string :: <byte-string>, index :: <integer>,
      #key default = unsupplied())
- => (character :: <byte-character>)
+ => (character :: <character>)
   if (element-range-check(index, size(string)))
-    primitive-raw-as-byte-character(string-element(string, index))
+    primitive-raw-as-character(string-element(string, index))
   else
     if (unsupplied?(default))
       element-range-error(string, index)
@@ -80,36 +80,29 @@ end method element;
 
 define inline sealed method element-no-bounds-check
     (string :: <byte-string>, index :: <integer>, #key default)
- => (character :: <byte-character>)
-  primitive-raw-as-byte-character(string-element(string, index))
+ => (character :: <character>)
+  primitive-raw-as-character(string-element(string, index))
 end method element-no-bounds-check;
 
 define inline sealed method element-setter
-    (new-value :: <byte-character>,
+    (new-value :: <character>,
      string :: <byte-string>, index :: <integer>)
- => (character :: <byte-character>)
+ => (character :: <character>)
   if (element-range-check(index, size(string)))
     string-element(string, index)
-      := primitive-cast-machine-word(<raw-byte>, primitive-byte-character-as-raw(new-value));
+      := primitive-cast-machine-word(<raw-byte>, primitive-character-as-raw(new-value));
     new-value
   else
     element-range-error(string, index)
   end if
 end method element-setter;
 
-define inline sealed method element-setter
+define inline sealed method element-no-bounds-check-setter
     (new-value :: <character>,
      string :: <byte-string>, index :: <integer>)
- => (character :: <byte-character>)
-  string[index] := new-value;
-end method element-setter;
-
-define inline sealed method element-no-bounds-check-setter
-    (new-value :: <byte-character>,
-     string :: <byte-string>, index :: <integer>)
- => (character :: <byte-character>)
+ => (character :: <character>)
   string-element(string, index)
-    := primitive-cast-machine-word(<raw-byte>, primitive-byte-character-as-raw(new-value));
+    := primitive-cast-machine-word(<raw-byte>, primitive-character-as-raw(new-value));
   new-value
 end method element-no-bounds-check-setter;
 
@@ -140,14 +133,14 @@ end method as;
 
 define inline function byte-string-current-element
     (string :: <byte-string>, state :: <integer>)
-  primitive-raw-as-byte-character(string-element(string, state))
+  primitive-raw-as-character(string-element(string, state))
 end function;
 
 define inline function byte-string-current-element-setter
     (new-value :: <character>, string :: <byte-string>,
      state :: <integer>)
   string-element(string, state)
-    := primitive-cast-machine-word(<raw-byte>, primitive-byte-character-as-raw(as(<byte-character>, new-value)));
+    := primitive-cast-machine-word(<raw-byte>, primitive-character-as-raw(as(<character>, new-value)));
   new-value
 end function;
 
@@ -250,7 +243,7 @@ define sealed method as-lowercase (string :: <byte-string>)
     = make(<byte-string>, size: string.size);
   for (i :: <integer> from 0 below string.size)
     string-element(new-string, i)
-      := primitive-cast-machine-word(<raw-byte>, primitive-byte-character-as-raw(as-lowercase(primitive-raw-as-byte-character(string-element(string, i)))));
+      := primitive-cast-machine-word(<raw-byte>, primitive-character-as-raw(as-lowercase(primitive-raw-as-character(string-element(string, i)))));
   end for;
   new-string
 end method as-lowercase;
@@ -259,7 +252,7 @@ define sealed method as-lowercase! (string :: <byte-string>)
  => (string :: <byte-string>)
   for (i :: <integer> from 0 below string.size)
     string-element(string, i)
-      := primitive-cast-machine-word(<raw-byte>, primitive-byte-character-as-raw(as-lowercase(primitive-raw-as-byte-character(string-element(string, i)))));
+      := primitive-cast-machine-word(<raw-byte>, primitive-character-as-raw(as-lowercase(primitive-raw-as-character(string-element(string, i)))));
   end for;
   string
 end method as-lowercase!;
@@ -270,7 +263,7 @@ define sealed method as-uppercase (string :: <byte-string>)
     = make(<byte-string>, size: string.size);
   for (i :: <integer> from 0 below string.size)
     string-element(new-string, i)
-      := primitive-cast-machine-word(<raw-byte>, primitive-byte-character-as-raw(as-uppercase(primitive-raw-as-byte-character(string-element(string, i)))));
+      := primitive-cast-machine-word(<raw-byte>, primitive-character-as-raw(as-uppercase(primitive-raw-as-character(string-element(string, i)))));
   end for;
   new-string
 end method as-uppercase;
@@ -279,7 +272,7 @@ define sealed method as-uppercase! (string :: <byte-string>)
  => (string :: <byte-string>)
   for (i :: <integer> from 0 below string.size)
     string-element(string, i)
-      := primitive-cast-machine-word(<raw-byte>, primitive-byte-character-as-raw(as-uppercase(primitive-raw-as-byte-character(string-element(string, i)))));
+      := primitive-cast-machine-word(<raw-byte>, primitive-character-as-raw(as-uppercase(primitive-raw-as-character(string-element(string, i)))));
   end for;
   string
 end method as-uppercase!;
@@ -315,8 +308,8 @@ define sealed method empty
 end method;
 
 define inline method system-allocate-repeated-instance
-    (class == <byte-string>, type == <byte-character>, fill,
-     repeated-size :: <integer>, repeated-fill :: <byte-character>)
+    (class == <byte-string>, type == <character>, fill,
+     repeated-size :: <integer>, repeated-fill :: <character>)
  => (instance :: <byte-string>)
   system-allocate-repeated-byte-instance-terminated
     (<byte-string>, repeated-size, repeated-fill);

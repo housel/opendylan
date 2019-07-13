@@ -1526,6 +1526,8 @@ define method op--allocate-filled
     select (type)
       #"dylan-object" =>
 	values($primitive-alloc-rf, $primitive-alloc-s-rf, bytes%);
+      #"raw-character" =>
+	values($primitive-alloc-leaf-rcf, $primitive-alloc-s-rcf, bytes%);
       #"raw-half-word" =>
 	values($primitive-alloc-leaf-rhf, $primitive-alloc-s-rhf, half%);
       #"raw-double-word" =>
@@ -1870,8 +1872,8 @@ define &c-primitive-descriptor primitive-keyboard-interrupt-polling-thread-sette
 define &primitive-descriptor primitive-runtime-module-handle, reference: $primitive-runtime-module-handle;
 
 // Byte Character.
-define &primitive-descriptor primitive-byte-character-as-raw, emitter: op--raw;
-define &primitive-descriptor primitive-raw-as-byte-character, emitter: op--character;
+define &primitive-descriptor primitive-character-as-raw, emitter: op--raw;
+define &primitive-descriptor primitive-raw-as-character, emitter: op--character;
 
 // Small integer.
     

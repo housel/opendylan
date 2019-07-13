@@ -976,7 +976,7 @@ define function make-envp
       primitive-c-unsigned-char-at
         (primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(buffer)),
          integer-as-raw(offset), integer-as-raw(i))
-        := primitive-byte-character-as-raw(c);
+        := primitive-character-as-raw(c);
     finally
       // Terminating NUL
       primitive-c-unsigned-char-at
