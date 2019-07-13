@@ -310,24 +310,6 @@ define inline-only function repeated-slot-element-setter
 end function;
 
 
-define inline-only function byte-slot-element
-    (instance, base-offset :: <integer>, byte-offset :: <integer>)
- => (value :: <byte-character>)
-  primitive-raw-as-byte-character
-    (primitive-byte-element
-       (instance, integer-as-raw(base-offset), integer-as-raw(byte-offset)))
-end function;
-
-define inline-only function byte-slot-element-setter
-    (new-value :: <byte-character>, instance,
-     base-offset :: <integer>, byte-offset :: <integer>)
- => (value :: <byte-character>)
-  primitive-byte-element
-      (instance, integer-as-raw(base-offset), integer-as-raw(byte-offset))
-    := primitive-byte-character-as-raw(new-value);
-  new-value
-end function;
-
 ////
 //// ALLOCATION
 ////
@@ -469,8 +451,6 @@ end macro;
 
 define repeated-instance-allocator
   (object, object, <object>, identity);
-define leaf repeated-instance-allocator
-  (byte-character, byte, <byte-character>, primitive-byte-character-as-raw);
 define leaf repeated-instance-allocator
   (byte, byte, <byte>, integer-as-raw);
 define repeated-instance-allocator
