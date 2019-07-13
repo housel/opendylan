@@ -60,7 +60,7 @@ define macro copy-down-stream-definer
 end macro;
 
 define copy-down-stream <byte-string-stream>
-   element <byte-character> sequence <byte-string>;
+   element <character> sequence <byte-string>;
 
 define macro copy-down-buffered-stream-definer
   { define copy-down-buffered-stream ?:name element ?elt:name sequence ?seq:name }

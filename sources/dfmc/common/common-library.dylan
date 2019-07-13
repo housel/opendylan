@@ -21,7 +21,6 @@ end library;
 define module dfmc-imports
   use dylan-extensions,
     import: {<hash-state>, string-hash,
-             <byte-character>,
              <abstract-integer>,
              <double-integer>,
                %double-integer-low,

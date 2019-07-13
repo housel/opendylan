@@ -308,7 +308,7 @@ define thread variable $true = #f;
 define thread variable $current-handlers = #f;
 
 define thread variable $dylan-integer = #f;
-define thread variable $dylan-byte-character = #f;
+define thread variable $dylan-character = #f;
 
 
 define variable $dylan-resolve-symbol-iep = make(<dylan-object>);

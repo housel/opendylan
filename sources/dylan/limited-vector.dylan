@@ -70,7 +70,7 @@ define method as (bsc == <byte-string>, bv :: <simple-byte-vector>)
   let bs :: <byte-string> = make(<byte-string>, size: bv.size);
   without-bounds-checks
     for (i :: <integer> from 0 below bv.size)
-      bs[i] := as(<byte-character>, bv[i]);
+      bs[i] := as(<character>, bv[i]);
     end;
   end without-bounds-checks;
   bs

@@ -127,7 +127,7 @@ define method op--raw(back-end :: <harp-back-end>, result, object :: <integer>) 
   value
 end method op--raw;
 
-define method op--raw(back-end :: <harp-back-end>, result, object :: <byte-character>) => (result :: <integer>)
+define method op--raw(back-end :: <harp-back-end>, result, object :: <character>) => (result :: <integer>)
   let value = as(<integer>, object);
 
   if (result)

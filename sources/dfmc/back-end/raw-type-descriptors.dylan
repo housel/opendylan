@@ -172,7 +172,7 @@ define raw-type-descriptors (back-end :: <back-end>)
   // dylan raw types
 
   raw-boolean,                       "DBOOL",   1, 1, #f;
-  raw-byte-character,                "DBCHR",   1, 1, #f;
+  raw-character,                     "DCHR",    4, 4, #f;
   raw-byte,                          "DBYTE",   1, 1, #f;
   raw-double-byte,                   "DDBYTE",  2, 2, #f;
   raw-integer,                       "DSINT",   w, w, #t;

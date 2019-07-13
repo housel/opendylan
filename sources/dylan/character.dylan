@@ -7,18 +7,8 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 // BOOTED: define ... class <character> ... end;
 
-define sealed inline method make (class == <character>, #key code)
- => (character :: <byte-character>);
-  make(<byte-character>, code: code)
-end method make;
-
 define open generic as-uppercase (object :: <object>) => (result :: <object>);
 define open generic as-lowercase (object :: <object>) => (result :: <object>);
-
-define sealed inline method as (class == <character>, integer :: <abstract-integer>)
- => (result)
-  as(<byte-character>, integer)
-end method as;
 
 define sealed inline method \=
     (character-1 :: <character>, character-2 :: <character>) => (well? :: <boolean>)
@@ -67,41 +57,33 @@ define inline function uppercase? (character :: <character>) => (result :: <bool
   code >= as(<integer>, 'A') & code <= as(<integer>, 'Z')
 end function uppercase?;
 
-////
-//// <BYTE-CHARACTER>
-////
-
-// BOOTED: define ... class <byte-character> ... end;
-
-//  (code init-keyword: code: type: <integer>)
-
 define sealed inline method make
-    (class == <byte-character>,
-     #key code :: <byte>)
- => (character :: <byte-character>)
-  as(<byte-character>, code)
+    (class == <character>,
+     #key code :: <integer>)
+ => (character :: <character>)
+  as(<character>, code)
 end method make;
 
 define sealed inline method as
-    (class == <abstract-integer>, character :: <byte-character>)
- => (code :: <byte>);
+    (class == <abstract-integer>, character :: <character>)
+ => (code :: <integer>);
   as(<integer>, character)
 end method as;
 
 define sealed inline method as
-    (type :: <limited-integer>, character :: <byte-character>)
- => (code :: <byte>);
+    (type :: <limited-integer>, character :: <character>)
+ => (code :: <integer>);
   as(<integer>, character)
 end method as;
 
 define sealed inline method as
-    (class == <integer>, character :: <byte-character>)
+    (class == <integer>, character :: <character>)
  => (code :: <integer>)
-  raw-as-integer(primitive-byte-character-as-raw(character))
+  raw-as-integer(primitive-character-as-raw(character))
 end method as;
 
 define sealed inline method as
-    (class == <byte-character>, integer :: <integer>)
- => (result :: <byte-character>)
-  primitive-raw-as-byte-character(integer-as-raw(integer))
+    (class == <character>, integer :: <integer>)
+ => (result :: <character>)
+  primitive-raw-as-character(integer-as-raw(integer))
 end method as;
