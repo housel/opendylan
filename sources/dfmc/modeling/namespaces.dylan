@@ -38,7 +38,7 @@ define &module dylan-primitives
   create
     <raw-object>,
     <raw-boolean>,
-    <raw-byte-character>,
+    <raw-character>,
     <raw-byte>,
     <raw-double-byte>,
     <raw-integer>,
@@ -85,6 +85,7 @@ define &module dylan-primitives
     primitive-byte-allocate-leaf-filled,
     primitive-byte-allocate-leaf-filled-terminated,
     primitive-double-byte-allocate-filled,
+    primitive-character-allocate-filled,
     primitive-word-allocate-filled,
     primitive-double-word-allocate-filled,
     primitive-single-float-allocate-filled,
@@ -154,8 +155,8 @@ define &module dylan-primitives
 
   // Byte Character.
   create
-    primitive-byte-character-as-raw,
-    primitive-raw-as-byte-character;
+    primitive-character-as-raw,
+    primitive-raw-as-character;
 
   // Integer.
 
@@ -620,7 +621,6 @@ define &module dylan-hygiene-glitches
     \%signature,
     \generic-method,
     \constant-method,
-    byte-slot-element, byte-slot-element-setter,
     \iterate-aux,
 
     <raw-type>,
@@ -663,8 +663,7 @@ define &module dylan-extensions
 
   create
     address-of,
-    as-object,
-    <byte-character>;
+    as-object;
 
   // Integers
   create
@@ -782,7 +781,7 @@ define &module dylan-extensions
   create
     <stretchy-mutable-sequence>,
     <stretchy-element-type-vector>,
-    <stretchy-byte-character-vector>;
+    <stretchy-character-vector>;
     // <stretchy-integer-vector>;
 
   create
@@ -982,7 +981,6 @@ define &module dylan-extensions
     call-to-type-incomplete-generic,
     decache-gf,
     initialized-slot-element, slot-element, slot-element-setter,
-    // byte-slot-element, byte-slot-element-setter,
     <slot-descriptor>, <any-instance-slot-descriptor>, <any-class-slot-descriptor>,
     <repeated-slot-descriptor>, <instance-slot-descriptor>, <inherited-slot-descriptor>,
     <init-arg-descriptor>, <slot-keyword-initialization-descriptor>,
@@ -2503,7 +2501,7 @@ define &module internal
     $signature-<mutable-collection>-types,
     $signature-<bottom-type>-types,
     $signature-<big-integer>-types,
-    $signature-<byte-character>-types,
+    $signature-<character>-types,
     $signature-<hash-state>-types,
     $signature-<stretchy-sequence>-types,
     $signature-<serious-condition>-types,

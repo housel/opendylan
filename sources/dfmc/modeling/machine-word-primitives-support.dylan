@@ -48,16 +48,16 @@ define inline-only function extract-mw-operand-unsigned (rx :: <&raw-machine-wor
   select (rx by instance?)
     <&raw-integer> =>
       generic/logand(^raw-object-value(rx), target-machine-word-mask());
-    <&raw-byte-character> =>
-      // No need to mask as <byte-character>s are always positive and "small" ...
+    <&raw-character> =>
+      // No need to mask as <character>s are always positive and "small" ...
       as(<integer>, ^raw-object-value(rx));
     <&raw-machine-word> =>
       let x = ^raw-object-value(rx);
       select (x by instance?)
         <abstract-integer> =>
           generic/logand(x, target-machine-word-mask());
-        <byte-character> =>
-          // No need to mask as <byte-character>s are always positive and "small" ...
+        <character> =>
+          // No need to mask as <character>s are always positive and "small" ...
           as(<integer>, x);
         <machine-word> =>
           //---*** NOTE: Should be coerce-machine-word-to-unsigned-abstract-integer(x)
@@ -82,7 +82,7 @@ define inline-only function extract-mw-operand-signed (rx :: <&raw-machine-word>
   select (rx by instance?)
     <&raw-integer> =>
       ^raw-object-value(rx);
-    <&raw-byte-character> =>
+    <&raw-character> =>
       as(<integer>, ^raw-object-value(rx));
     <&raw-machine-word> =>
       let x = ^raw-object-value(rx);
@@ -93,8 +93,8 @@ define inline-only function extract-mw-operand-signed (rx :: <&raw-machine-word>
           // TODO: the compiler should figure this out, but it doesn't
           let x :: <abstract-integer> = x;
           sign-extend(x);
-        <byte-character> =>
-          // No need to mask as <byte-character>s are always positive and "small" ...
+        <character> =>
+          // No need to mask as <character>s are always positive and "small" ...
           as(<integer>, x);
         <machine-word> =>
           //---*** NOTE: Should be coerce-machine-word-to-unsigned-abstract-integer(x)
