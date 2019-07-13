@@ -269,12 +269,7 @@ define function make-slot-access-engine-node (meth :: <accessor-method>, ds :: <
       = slot-location(sizesd, thisargiclass, ds);
     get-repeated-slot-access-engine-node(select (sd by instance?)
                                            <any-instance-slot-descriptor> =>
-                                             // @@@@ This is sick.
-                                             if (sd.slot-type == <byte-character>)
-                                               engine-node$k-raw-byte-repeated-instance-slot-getter
-                                             else
-                                               engine-node$k-boxed-repeated-instance-slot-getter
-                                             end if;
+                                             engine-node$k-boxed-repeated-instance-slot-getter;
                                            <any-class-slot-descriptor> =>
                                              error("You must be joking");
                                          end select,

@@ -2898,31 +2898,9 @@ define singular entry-point-descriptor raw-byte-repeated-instance-slot-getter
     (engine :: <engine-node>, function :: <generic-function>,
      object :: <object>, index :: <integer>, _a2 :: <object>, _a3 :: <object>)
  => (#rest values);
-  let index-raw = op--untag-integer(be, index);
-
-  // Find the repeated slot and its size
-  let repeated-slot-offset = op--slot-access-engine-node-offset(be, engine);
-  let repeated-size-offset = ins--sub(be, repeated-slot-offset, 1);
-  let repeated-size
-    = call-primitive(be, primitive-initialized-slot-value-descriptor,
-                     object, repeated-size-offset);
-  let repeated-size-raw = op--untag-integer(be, repeated-size);
-
-  // Check for out-of-range index values
-  let range-cmp = ins--icmp-ult(be, index-raw, repeated-size-raw);
-  ins--if (be, op--likely(be, range-cmp))
-    let repeated-element-offset
-      = ins--add(be, repeated-slot-offset,
-                 dylan-value(#"$number-header-words"));
-    let value = call-primitive(be, primitive-byte-element-descriptor,
-                               object, repeated-element-offset, index-raw);
-    let zext = ins--zext(be, value, be.%type-table["iWord"]);
-    let character-value = op--tag-character(be, zext);
-    op--global-mv-struct(be, character-value, i8(1))
-  ins--else
-    op--call-error-iep(be, #"repeated-slot-getter-index-out-of-range-trap",
-                       object, index);
-  end ins--if
+  // No longer used
+  ins--call-intrinsic(be, "llvm.trap", #[]);
+  ins--unreachable(be);
 end entry-point-descriptor;
 
 define singular entry-point-descriptor raw-byte-repeated-instance-slot-setter
@@ -2930,33 +2908,9 @@ define singular entry-point-descriptor raw-byte-repeated-instance-slot-setter
      value :: <object>, object :: <object>, index :: <integer>,
      _a3 :: <object>)
  => (#rest values);
-  let module = be.llvm-builder-module;
-  let index-raw = op--untag-integer(be, index);
-
-  // Find the repeated slot and its size
-  let repeated-slot-offset = op--slot-access-engine-node-offset(be, engine);
-  let repeated-size-offset = ins--sub(be, repeated-slot-offset, 1);
-  let repeated-size
-    = call-primitive(be, primitive-initialized-slot-value-descriptor,
-                     object, repeated-size-offset);
-  let repeated-size-raw = op--untag-integer(be, repeated-size);
-
-  // Check for out-of-range index values
-  let range-cmp = ins--icmp-ult(be, index-raw, repeated-size-raw);
-  ins--if (be, op--likely(be, range-cmp))
-    // Set the value
-    let repeated-element-offset
-      = ins--add(be, repeated-slot-offset,
-                 dylan-value(#"$number-header-words"));
-    let raw-value = op--untag-character(be, value);
-    let byte = ins--trunc(be, raw-value, $llvm-i8-type);
-    call-primitive(be, primitive-byte-element-setter-descriptor,
-                   byte, object, repeated-element-offset, index-raw);
-    op--global-mv-struct(be, value, i8(1))
-  ins--else
-    op--call-error-iep(be, #"repeated-slot-setter-index-out-of-range-trap",
-                       value, object, index);
-  end ins--if
+  // No longer used
+  ins--call-intrinsic(be, "llvm.trap", #[]);
+  ins--unreachable(be);
 end entry-point-descriptor;
 
 // Discriminators
