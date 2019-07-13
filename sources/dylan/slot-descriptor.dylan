@@ -386,10 +386,6 @@ end method slot-value-setter;
 
 // BOOTED: define ... class <repeated-slot-descriptor> ... end;
 
-define method repeated-byte-slot? (descriptor :: <repeated-slot-descriptor>)
-  descriptor.slot-type == <byte-character>
-end method repeated-byte-slot?;
-
 //// CREATION
 
 define method slot-allocation (descriptor :: <repeated-slot-descriptor>)
@@ -425,11 +421,7 @@ define method repeated-slot-value
   let base-offset = slot-offset-i(descriptor, object.object-implementation-class);
   if (base-offset)
     let value
-      = if (descriptor.repeated-byte-slot?)
-          byte-slot-element(object, base-offset, offset)
-        else
-          repeated-slot-element(object, base-offset, offset)
-        end if;
+      = repeated-slot-element(object, base-offset, offset);
     if (value.unbound?)
       error(make(<simple-slot-error>,
                  format-string: "The Slot-Descriptor %= is unbound in class %= of object %=",
@@ -451,11 +443,7 @@ define method repeated-slot-value-setter
  => (value)
   let base-offset = slot-offset-i(descriptor, object.object-implementation-class);
   if (base-offset)
-    if (descriptor.repeated-byte-slot?)
-      byte-slot-element(object, base-offset, offset) := new-value
-    else
-      repeated-slot-element(object, base-offset, offset) := new-value
-    end if
+    repeated-slot-element(object, base-offset, offset) := new-value
   else
     error(make(<simple-slot-error>,
                format-string: "slot-value-setter Slot-Descriptor %= is missing from class %= of object %=",

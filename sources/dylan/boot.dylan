@@ -310,24 +310,6 @@ define inline-only function repeated-slot-element-setter
 end function;
 
 
-define inline-only function byte-slot-element
-    (instance, base-offset :: <integer>, byte-offset :: <integer>)
- => (value :: <byte-character>)
-  primitive-raw-as-byte-character
-    (primitive-byte-element
-       (instance, integer-as-raw(base-offset), integer-as-raw(byte-offset)))
-end function;
-
-define inline-only function byte-slot-element-setter
-    (new-value :: <byte-character>, instance,
-     base-offset :: <integer>, byte-offset :: <integer>)
- => (value :: <byte-character>)
-  primitive-byte-element
-      (instance, integer-as-raw(base-offset), integer-as-raw(byte-offset))
-    := primitive-byte-character-as-raw(new-value);
-  new-value
-end function;
-
 ////
 //// ALLOCATION
 ////
