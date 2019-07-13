@@ -95,16 +95,16 @@ end function;
 ignore(<integer>-instance?);
 
 ////
-//// <BYTE-CHARACTER> | ascii code | 10 |
+//// <CHARACTER> | ascii code | 10 |
 ////
 
-install-direct-object-class(2, <byte-character>);
+install-direct-object-class(2, <character>);
 
-define function <byte-character>-instance? (x, c == <byte-character>) => (well? :: <boolean>);
+define function <character>-instance? (x, c == <character>) => (well? :: <boolean>);
   primitive-machine-word-equal?(tag-bits(x), integer-as-raw(2))
 end function;
 
-ignore(<byte-character>-instance?);
+ignore(<character>-instance?);
 
 // BOOTED: define ... class <mm-wrapper> ... end;
 
