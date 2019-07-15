@@ -62,7 +62,7 @@ define class <jam-return-statement> (<jam-statement>)
 end class;
 
 define class <jam-for-statement> (<jam-statement>)
-  constant slot for-var :: <byte-string>,
+  constant slot for-var :: <string>,
     required-init-keyword: var:;
   constant slot for-values :: <sequence>,
     required-init-keyword: values:;
@@ -101,7 +101,7 @@ define class <jam-on-statement> (<jam-statement>)
 end class;
 
 define class <jam-ruledef-statement> (<jam-statement>)
-  constant slot ruledef-name :: <byte-string>,
+  constant slot ruledef-name :: <string>,
     required-init-keyword: name:;
   constant slot ruledef-params :: <sequence>,
     required-init-keyword: params:;
@@ -110,18 +110,18 @@ define class <jam-ruledef-statement> (<jam-statement>)
 end class;
 
 define class <jam-actiondef-statement> (<jam-statement>)
-  constant slot actiondef-name :: <byte-string>,
+  constant slot actiondef-name :: <string>,
     required-init-keyword: name:;
   constant slot actiondef-flags :: <sequence>,
     required-init-keyword: flags:;
   constant slot actiondef-bindlist :: false-or(<sequence>),
     required-init-keyword: bindlist:;
-  constant slot actiondef-commands :: <byte-string>,
+  constant slot actiondef-commands :: <string>,
     required-init-keyword: commands:;
 end class;
 
 define class <jam-case> (<object>)
-  //constant slot case-pattern :: <byte-string>,
+  //constant slot case-pattern :: <string>,
   //  required-init-keyword: pattern:;
   constant slot case-match-function :: <function>,
     required-init-keyword: match-function:;

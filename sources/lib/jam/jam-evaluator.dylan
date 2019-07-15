@@ -16,7 +16,7 @@ define generic jam-expand-arg
  => (result :: <sequence>);
 
 define method jam-expand-arg
-    (jam :: <jam-state>, arg :: <byte-string>,
+    (jam :: <jam-state>, arg :: <string>,
      #key start :: <integer> = 0, end: _end :: <integer> = arg.size)
  => (result :: <sequence>);
   let arg-markers
@@ -29,9 +29,9 @@ end method;
 define constant $empty-bit-set = make(<bit-set>);
 
 define method am-extract
-    (arg :: <byte-string>, arg-markers :: <bit-set>,
+    (arg :: <string>, arg-markers :: <bit-set>,
      start :: <integer>, _end :: <integer>)
- => (extracted :: <byte-string>, extracted-markers :: <bit-set>);
+ => (extracted :: <string>, extracted-markers :: <bit-set>);
   if(start = _end)
     values("", $empty-bit-set)
   else
@@ -46,7 +46,7 @@ define method am-extract
 end method;
 
 define method jam-expand-arg-aux
-    (jam :: <jam-state>, arg :: <byte-string>, arg-markers :: <bit-set>,
+    (jam :: <jam-state>, arg :: <string>, arg-markers :: <bit-set>,
      start :: <integer>, _end :: <integer>)
  => (result :: <sequence>, markers :: <sequence>);
   block (return)
@@ -106,13 +106,13 @@ end method;
 //
 define method jam-expand-arg-product
     (jam :: <jam-state>,
-     prefix :: <byte-string>, prefix-markers :: <bit-set>,
+     prefix :: <string>, prefix-markers :: <bit-set>,
      vars :: <sequence>, vars-markers :: <sequence>,
      suffixes :: <sequence>, suffixes-markers :: <sequence>)
  => (result :: <sequence>, markers :: <sequence>);
   let result = make(<stretchy-vector>);
   let markers = make(<stretchy-vector>);
-  for (var :: <byte-string> in vars, var-markers :: <bit-set> in vars-markers)
+  for (var :: <string> in vars, var-markers :: <bit-set> in vars-markers)
     let contents
       = block(return)
           for (c :: <character> in var, i :: <integer> from 0)
@@ -129,7 +129,7 @@ define method jam-expand-arg-product
           jam-variable(jam, var);
         end block;
     for (component in contents)
-      for (suffix :: <byte-string> in suffixes,
+      for (suffix :: <string> in suffixes,
            suffix-markers :: <bit-set> in suffixes-markers)
         add!(result, concatenate(prefix, component, suffix));
 
@@ -152,7 +152,7 @@ end method;
 define function jam-expand-arg-colon
     (jam :: <jam-state>,
      contents :: false-or(<sequence>),
-     variable :: <byte-string>,
+     variable :: <string>,
      i :: <integer>)
  => (result :: <sequence>);
   let variable-size :: <integer> = variable.size;
@@ -199,7 +199,7 @@ define function jam-expand-arg-colon
         cleanup
           close(stream);
         end;
-        vector(as(<byte-string>, locator))
+        vector(as(<string>, locator))
       end if
     else
       let func =
@@ -207,16 +207,16 @@ define function jam-expand-arg-colon
           // B - Filename base
           'B' =>
             if (replace?)
-              method (name :: <byte-string>) => (modified :: <byte-string>);
+              method (name :: <string>) => (modified :: <string>);
                 let locator = as(<file-locator>, strip-grist(name));
-                as(<byte-string>,
+                as(<string>,
                    make(<file-locator>,
                         directory: locator.locator-directory,
                         base: copy-sequence(variable, start: i + 2),
                         extension: locator.locator-extension))
               end
             else
-              method (name :: <byte-string>) => (extracted :: <byte-string>);
+              method (name :: <string>) => (extracted :: <string>);
                 as(<file-locator>, strip-grist(name)).locator-base;
               end
             end if;
@@ -224,17 +224,17 @@ define function jam-expand-arg-colon
           // S - Filename suffix
           'S' =>
             if (replace?)
-              method (name :: <byte-string>) => (modified :: <byte-string>);
+              method (name :: <string>) => (modified :: <string>);
                 let locator = as(<file-locator>, strip-grist(name));
                   
-                as(<byte-string>,
+                as(<string>,
                    make(<file-locator>,
                         directory: locator.locator-directory,
                         base: locator.locator-base,
                         extension: copy-sequence(variable, start: i + 3)))
               end
             else
-              method (name :: <byte-string>) => (extracted :: <byte-string>);
+              method (name :: <string>) => (extracted :: <string>);
                 let locator = as(<file-locator>, strip-grist(name));
                 if (locator.locator-extension)
                   concatenate(".",
@@ -249,10 +249,10 @@ define function jam-expand-arg-colon
           // D - Directory path
           'D', 'P' =>
             if (replace?)
-              method (name :: <byte-string>) => (modified :: <byte-string>);
+              method (name :: <string>) => (modified :: <string>);
                 let locator = as(<file-locator>, strip-grist(name));
                 add-grist(name,
-                          as(<byte-string>,
+                          as(<string>,
                              make(<file-locator>,
                                   directory:
                                     as(<directory-locator>,
@@ -261,9 +261,9 @@ define function jam-expand-arg-colon
                                   extension: locator.locator-extension)))
                          end
             else
-              method (name :: <byte-string>) => (extracted :: <byte-string>);
+              method (name :: <string>) => (extracted :: <string>);
                 let locator = as(<file-system-locator>, strip-grist(name));
-                add-grist(name,as(<byte-string>, locator.locator-directory | ""))
+                add-grist(name,as(<string>, locator.locator-directory | ""))
               end
             end if;
 
@@ -272,8 +272,8 @@ define function jam-expand-arg-colon
             if (replace?)
               let new-root = as(<directory-locator>,
                                 copy-sequence(variable, start: i + 2));
-              method (name :: <byte-string>) => (modified :: <byte-string>);
-                as(<byte-string>,
+              method (name :: <string>) => (modified :: <string>);
+                as(<string>,
                    merge-locators(as(<file-system-locator>, name),
                                   new-root))
               end method;
@@ -296,7 +296,7 @@ define function jam-expand-arg-colon
                   end;
               let grist
                 = copy-sequence(variable, start: new-start, end: new-end);
-              method (name :: <byte-string>) => (modified :: <byte-string>);
+              method (name :: <string>) => (modified :: <string>);
                   concatenate("<", grist, ">", strip-grist(name))
               end
             else
@@ -339,7 +339,7 @@ end function;
 define function jam-expand-arg-bracket
     (jam :: <jam-state>,
      contents :: <sequence>,
-     variable :: <byte-string>,
+     variable :: <string>,
      start :: <integer>)
  => (result :: <sequence>);
   let variable-size :: <integer> = variable.size;
@@ -437,12 +437,12 @@ define method evaluate-statement
   // Dynamically bind block's local variables
   let vars = jam-expand-list(jam, statement.block-local-vars);
   let outer-values
-    = map(method (v :: <byte-string>) jam-variable(jam, v, default: #f) end, vars);
+    = map(method (v :: <string>) jam-variable(jam, v, default: #f) end, vars);
   let inner-values = jam-expand-list(jam, statement.block-local-values);
   let result = #[];
   block ()
     // Initialize local variables
-    do(method (v :: <byte-string>) => ();
+    do(method (v :: <string>) => ();
          jam-variable(jam, v) := inner-values;
        end,
        vars);
@@ -453,7 +453,7 @@ define method evaluate-statement
     end for;
   cleanup
     // Restore the previous state of each variable
-    do(method (v :: <byte-string>, w :: false-or(<sequence>)) => ();
+    do(method (v :: <string>, w :: false-or(<sequence>)) => ();
          jam-variable(jam, v) := w;
        end,
        vars,
@@ -671,7 +671,7 @@ define method evaluate-statement
         (jam :: <jam-state>, #rest lol) => (result :: <sequence>);
       // Dynamically bind the rule's parameters
       let outer-values
-        = map(method (v :: <byte-string>) jam-variable(jam, v, default: #f) end,
+        = map(method (v :: <string>) jam-variable(jam, v, default: #f) end,
               all-params);
 
       // Initialize the parameter values
@@ -692,7 +692,7 @@ define method evaluate-statement
         result
       cleanup
         // Restore the previous state of each parameter variable
-        do(method (v :: <byte-string>, w :: false-or(<sequence>)) => ();
+        do(method (v :: <string>, w :: false-or(<sequence>)) => ();
              jam-variable(jam, v) := w;
            end,
            all-params,

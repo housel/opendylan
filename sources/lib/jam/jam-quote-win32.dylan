@@ -12,13 +12,13 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 // See http://msdn.microsoft.com/en-us/library/17w5ykft.aspx
 //
 define function quote-argument
-    (argument :: <byte-string>,
+    (argument :: <string>,
      #key start: _start :: <integer> = 0,
           end: _end :: <integer> = argument.size)
- => (result :: <byte-string>);
+ => (result :: <string>);
   local
     // Non-quoted characters
-    method nqc (index :: <integer>) => (result :: <byte-string>);
+    method nqc (index :: <integer>) => (result :: <string>);
       if (index < _end)
         select (argument[index])
           '|', '<', '>', '&', '^', ' ', '\t', '\"' =>
@@ -38,7 +38,7 @@ define function quote-argument
     // Strings of backslashes
     method bs
         (index :: <integer>, start-index :: <integer>)
-     => (result :: <byte-string>);
+     => (result :: <string>);
       if (index < _end)
         select (argument[index])
           ' ', '\t' =>
@@ -56,7 +56,7 @@ define function quote-argument
     end method,
 
     // Quote string
-    method q (index :: <integer>) => (result :: <byte-string>);
+    method q (index :: <integer>) => (result :: <string>);
       with-output-to-string (s)
         write-element(s, '\"');
         write(s, argument, start: _start, end: index);

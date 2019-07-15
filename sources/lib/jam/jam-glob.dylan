@@ -15,7 +15,7 @@ define constant $any-char-set
     end;
 
 define function parse-glob-pattern
-    (string :: <byte-string>)
+    (string :: <string>)
  => (node :: <regular-expression>);
   iterate loop (node :: <regular-expression>
                   = make(<epsilon-regular-expression>),
@@ -109,7 +109,7 @@ define function parse-glob-pattern
 end function;
 
 define function glob-match-function
-    (pattern :: <byte-string>, #rest more-patterns)
+    (pattern :: <string>, #rest more-patterns)
  => (matcher :: <function>);
   let regex = parse-glob-pattern(pattern);
 
@@ -129,7 +129,7 @@ define function glob-match-function
                              transition-collection-size: 256,
                              state-class: <match-dfa-state>);
   
-  method (match-string :: <byte-string>) => (match? :: <boolean>);
+  method (match-string :: <string>) => (match? :: <boolean>);
     block (return)
       for (char in match-string,
            state = dfa
@@ -152,7 +152,7 @@ define function jam-builtin-glob
     do-directory(method (directory :: <directory-locator>, name, type)
                    if (match?(name))
                      add!(result,
-                          as(<byte-string>,
+                          as(<string>,
                              merge-locators(as(<file-locator>, name),
                                             directory)));
                    end if;

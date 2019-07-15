@@ -11,7 +11,7 @@ define constant <jam-input-mode>
 define class <jam-input-state> (<object>)
   slot jam-input-mode :: <jam-input-mode>,
     init-value: #"normal";
-  constant slot jam-input-data :: <byte-string>,
+  constant slot jam-input-data :: <string>,
     init-keyword: input-data:;
   slot jam-input-position :: <integer>,
     init-value: 0, init-keyword: input-position:;
@@ -29,7 +29,7 @@ define variable *jam-toplevel-statements* :: <sequence> = #[];
 define function jam-read-file
     (jam :: <jam-state>, jamfile :: <locator>)
  => ();
-  let input-data :: <byte-string>
+  let input-data :: <string>
     = with-open-file(stream = jamfile)
         read-to-end(stream)
       end;
@@ -97,7 +97,7 @@ define function jam-read
                         = *jam-input-state*.jam-input-position,
                       metachars? :: <boolean> = #f,
                       quoting? :: <boolean> = #f,
-                      accumulated-string :: <byte-string> = "")
+                      accumulated-string :: <string> = "")
           if (start = _end)
             values($EOF-token, #f)
           elseif (pos = _end)
@@ -246,7 +246,7 @@ define function jam-read
     end method,
 
     method return-token
-        (token-string :: <byte-string>, metachars? :: <boolean>)
+        (token-string :: <string>, metachars? :: <boolean>)
      => (token-class, token-value);
       if (metachars?)
         values($%ARG-token, token-string)

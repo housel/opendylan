@@ -6,8 +6,8 @@ License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define function extract-grist
-    (name :: <byte-string>)
- => (grist :: <byte-string>);
+    (name :: <string>)
+ => (grist :: <string>);
   if (name.size > 1 & name[0] == '<')
     let grist-end = find-key(name, curry(\==, '>'));
     if (grist-end)
@@ -21,8 +21,8 @@ define function extract-grist
 end function;
 
 define function strip-grist
-    (name :: <byte-string>)
- => (result :: <byte-string>);
+    (name :: <string>)
+ => (result :: <string>);
   if (name.size > 1 & name[0] == '<')
     let grist-end = find-key(name, curry(\==, '>'));
     if (grist-end)
@@ -36,8 +36,8 @@ define function strip-grist
 end function;
 
 define function add-grist
-    (old :: <byte-string>, new :: <byte-string>)
- => (result :: <byte-string>);
+    (old :: <string>, new :: <string>)
+ => (result :: <string>);
   let old-grist = extract-grist(old);
   if (old-grist.empty?)
     new

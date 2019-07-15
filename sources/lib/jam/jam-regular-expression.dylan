@@ -9,11 +9,11 @@ define constant $regular-expression-cache :: <string-table>
   = make(<string-table>);
 
 define function parse-regular-expression
-    (string :: <byte-string>)
+    (string :: <string>)
  => (node :: <regular-expression>);
   local
     method parse-regexp0
-        (string :: <byte-string>, start :: <integer>)
+        (string :: <string>, start :: <integer>)
      => (node :: <regular-expression>, pos :: <integer>);
       let (node :: <regular-expression>, pos :: <integer>)
         = parse-regexp1(string, start);
@@ -28,7 +28,7 @@ define function parse-regular-expression
     end,
   
   method parse-regexp1
-      (string :: <byte-string>, start :: <integer>)
+      (string :: <string>, start :: <integer>)
    => (node :: <regular-expression>, pos :: <integer>);
     let (node :: <regular-expression>, pos :: <integer>)
       = parse-regexp2(string, start);
@@ -43,7 +43,7 @@ define function parse-regular-expression
   end,
   
   method parse-regexp2
-      (string :: <byte-string>, start :: <integer>)
+      (string :: <string>, start :: <integer>)
    => (node :: <regular-expression>, pos :: <integer>);
     let (node :: <regular-expression>, pos :: <integer>)
       = parse-regexp3(string, start);
@@ -70,7 +70,7 @@ define function parse-regular-expression
     end if;
   end,
   method parse-regexp3
-      (string :: <byte-string>, start :: <integer>)
+      (string :: <string>, start :: <integer>)
    => (node :: <regular-expression>, pos :: <integer>);
     if (start >= string.size)
       error("regexp missing at end of '%s'", string);

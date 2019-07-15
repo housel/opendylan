@@ -51,7 +51,7 @@ define method jam-target-build
   let ok? = #f;
 
   local
-    method bind(name :: <byte-string>) => (target :: <jam-target>);
+    method bind(name :: <string>) => (target :: <jam-target>);
       bind-aux(#f, jam-target(jam, name))
     end method,
     
@@ -408,7 +408,7 @@ define method jam-target-build
     end method,
 
     method command-outputter (command :: <jam-action-command>,
-                              msg :: <byte-string>, #key end: _end)
+                              msg :: <string>, #key end: _end)
       if (slot-initialized?(command, action-command-output-stream))
         write(command.action-command-output-stream, msg, end: _end);
       else
@@ -513,10 +513,10 @@ end method;
 //
 define method substitute-command
     (jam :: <jam-state>, command :: <string>)
- => (result :: <byte-string>);
+ => (result :: <string>);
   let command-size = command.size;
-  let result :: <byte-string>
-    = make(<byte-string>, size: truncate/(command-size * 3, 2));
+  let result :: <string>
+    = make(<string>, size: truncate/(command-size * 3, 2));
   let result-size :: <integer> = 0;
 
   local
@@ -527,7 +527,7 @@ define method substitute-command
       if (result-size + str-size > result.size)
         let new-size = max(truncate/(result.size * 3, 2),
                            result.size + str-size);
-        let new-result = make(<byte-string>, size: new-size);
+        let new-result = make(<string>, size: new-size);
         copy-bytes(new-result, 0, result, 0, result.size);
         result := new-result;
       end if;
