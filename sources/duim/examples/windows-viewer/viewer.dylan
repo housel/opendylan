@@ -232,7 +232,7 @@ define method print-window-styles
       let column2 :: <integer> = column1 + max(title1.size, max-name1 + max-value1 + inner-spacing) + outer-spacing;
       let column3 :: <integer> = column2 + max(title2.size, max-name2 + max-value2 + inner-spacing) + outer-spacing;
       let column4 :: <integer> = column3 + max(title3.size, max-name3 + max-value3 + inner-spacing) + outer-spacing;
-      let spaces = make(<byte-string>, size: column4, fill: ' ');
+      let spaces = make(<string>, size: column4, fill: ' ');
       let total-size :: <integer> = max(size1, size2, size3);
       write(stream, title1);
       write(stream, spaces, end: column2 - column1 - title1.size);

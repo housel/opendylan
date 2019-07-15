@@ -167,7 +167,7 @@ define method read-registry-string
       if (result ~= $ERROR-SUCCESS | type ~= $REG-SZ)
         error(make(<registry-entry-lookup-error>, name: name, result: result))
       else
-        as(<byte-string>, buffer)
+        as(<string>, buffer)
       end
     end
   end

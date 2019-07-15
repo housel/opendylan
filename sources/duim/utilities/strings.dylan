@@ -7,7 +7,7 @@ License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 /// String and character functions
-/// Note that this assumes <byte-string> implements 7-bit ASCII encoding
+/// Note that this assumes <string> implements 7-bit ASCII encoding
 
 /// Utilities
 
@@ -67,7 +67,7 @@ end method char-greater?;
 /// Case-insensitive string comparisons
 
 define sealed method string-equal?
-    (string1 :: <byte-string>, string2 :: <byte-string>,
+    (string1 :: <string>, string2 :: <string>,
      #key start1 :: <integer> = 0, end1 :: <integer> = size(string1),
           start2 :: <integer> = 0, end2 :: <integer> = size(string2))
  => (true? :: <boolean>)
@@ -91,7 +91,7 @@ define sealed method string-equal?
 end method string-equal?;
 
 define sealed method string-less?
-    (string1 :: <byte-string>, string2 :: <byte-string>,
+    (string1 :: <string>, string2 :: <string>,
      #key start1 :: <integer> = 0, end1 :: <integer> = size(string1),
           start2 :: <integer> = 0, end2 :: <integer> = size(string2))
  => (true? :: <boolean>)
@@ -109,7 +109,7 @@ define sealed method string-less?
 end method string-less?;
 
 define sealed method string-greater?
-    (string1 :: <byte-string>, string2 :: <byte-string>,
+    (string1 :: <string>, string2 :: <string>,
      #key start1 :: <integer> = 0, end1 :: <integer> = size(string1),
           start2 :: <integer> = 0, end2 :: <integer> = size(string2))
  => (true? :: <boolean>)
@@ -127,8 +127,8 @@ define sealed method string-greater?
 end method string-greater?;
 
 define sealed method string-compare
-    (string1 :: <byte-string>, start1 :: <integer>,
-     string2 :: <byte-string>, start2 :: <integer>, count :: <integer>)
+    (string1 :: <string>, start1 :: <integer>,
+     string2 :: <string>, start2 :: <integer>, count :: <integer>)
  => (result :: <integer>)
   let subrange1 = size(string1) - start1;
   let subrange2 = size(string2) - start2;
@@ -244,16 +244,16 @@ end method whitespace-char?;
 /// Other string utilities
 
 define inline function string-capitalize
-    (string :: <byte-string>,
+    (string :: <string>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = size(string))
- => (string :: <byte-string>)
+ => (string :: <string>)
   string-capitalize!(copy-sequence(string), start: _start, end: _end)
 end function string-capitalize;
 
 define sealed method string-capitalize!
-    (string :: <byte-string>,
+    (string :: <string>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = size(string))
- => (string :: <byte-string>)
+ => (string :: <string>)
   range-check(string, size(string), _start, _end);
   let state = #f;
   without-bounds-checks
@@ -286,7 +286,7 @@ end method string-capitalize!;
 
 // Pluralize the given string
 define method string-pluralize
-    (string :: <byte-string>, #key count) => (plural :: <byte-string>)
+    (string :: <string>, #key count) => (plural :: <string>)
   let length :: <integer> = size(string);
   let pos    :: <integer> = (string-search-set(string, #[' ', '\t'], from-end?: #t) | -1) + 1;
   if (length = 0 | (count & count = 1))
@@ -297,7 +297,7 @@ define method string-pluralize
     let last-char   :: <character> = string[length - 1];
     let penult-char :: <character>
       = if (length > 1) string[length - 2] else '*' end;
-    local method find-char (chars :: <byte-string>, char :: <character>)
+    local method find-char (chars :: <string>, char :: <character>)
             member?(char, chars, test: char-equal?)
           end method;
     case
@@ -330,7 +330,7 @@ define method string-pluralize
       otherwise =>
         suffix := "s";
     end;
-    concatenate-as(<byte-string>,
+    concatenate-as(<string>,
                    if (flush) copy-sequence(string, start: 0, end: length - flush)
                    else string end,
                    suffix)
@@ -340,7 +340,7 @@ end method string-pluralize;
 // Returns an article to be used with the specified string
 // We admittedly heuristicate...
 define method string-a-or-an
-    (string :: <byte-string>) => (article :: <byte-string>)
+    (string :: <string>) => (article :: <string>)
   let length :: <integer> = size(string);
   if (length = 0)
     ""
@@ -349,7 +349,7 @@ define method string-a-or-an
     if (digit-char?(char))        // pronounce leading digits number
       string-a-or-an(pronounce-string(string))
     else
-      local method find-char (chars :: <byte-string>, char :: <character>)
+      local method find-char (chars :: <string>, char :: <character>)
               member?(char, chars, test: char-equal?)
             end method;
       case
@@ -387,13 +387,13 @@ end method string-a-or-an;
 
 //--- Implement this sometime!
 define method pronounce-string
-    (string :: <byte-string>) => (new-string :: <byte-string>)
+    (string :: <string>) => (new-string :: <string>)
   string
 end method pronounce-string;
 
 // Find any of the given characters within a string
 define method string-search-set
-    (string :: <byte-string>, char-set :: <sequence>,
+    (string :: <string>, char-set :: <sequence>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = size(string),
           from-end? :: <boolean> = #f, test = char-equal?)
  => (index :: false-or(<integer>))

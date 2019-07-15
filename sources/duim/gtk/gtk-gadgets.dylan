@@ -645,7 +645,7 @@ end method note-gadget-value-changed;
 
 define method gtk-copy-text (text :: <c-string>) => (str :: <string>)
   // Convert to gc'able string.
-  as(<byte-string>, text)
+  as(<string>, text)
 end;
 
 // Mixin class for text fields, password fields, and text editors, i.e.
@@ -1819,7 +1819,7 @@ define method handle-row-expanded
   //duim-debug-message("handling row expansion signal");
   let model = sheet.store-model;
   let path = map(string-to-integer,
-                 split(as(<byte-string>, gtk-tree-path-to-string(path)),
+                 split(as(<string>, gtk-tree-path-to-string(path)),
                        ':'));
   let node = find-node-list(sheet, path);
   node.gtk-iter := iter;
@@ -1945,7 +1945,7 @@ end;
 
 define method handle-changed-selection (gadget :: <gtk-combo-box>) => (handled? :: <boolean>)
   let widget = mirror-widget(sheet-direct-mirror(gadget));
-  let text = as(<byte-string>, gtk-combo-box-text-get-active-text(widget));
+  let text = as(<string>, gtk-combo-box-text-get-active-text(widget));
   distribute-text-changed-callback(gadget, text);
   #t
 end;
@@ -1955,7 +1955,7 @@ define method handle-changing-selection (gadget :: <gtk-combo-box>) => (handled?
   let row = gtk-combo-box-get-active(widget);
   let text =
     if (row = -1)
-      as(<byte-string>, gtk-combo-box-text-get-active-text(widget));
+      as(<string>, gtk-combo-box-text-get-active-text(widget));
     else
       let gtkentry = gtk-bin-get-child(widget);
       gtk-entry-set-text(gtkentry, gadget-items(gadget)[row]);

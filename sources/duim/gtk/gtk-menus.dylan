@@ -193,7 +193,7 @@ define sealed method compute-standard-gtk-mnemonic
     (gadget :: <gadget>, label :: <string>, #key remove-ampersand? = #t)
  => (label, mnemonic :: false-or(<mnemonic>), index :: false-or(<integer>))
   let length :: <integer> = size(label);
-  let dots :: <byte-string> = "...";
+  let dots :: <string> = "...";
   let dots?
     = length > 3 & string-equal?(label, dots, start1: length - 3);
   let dotless-label

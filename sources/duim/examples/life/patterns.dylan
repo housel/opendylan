@@ -16,9 +16,9 @@ define variable *patterns* = #();
 define class <life-pattern> (<object>)
   constant slot name :: <symbol>,
     required-init-keyword: name:;
-  slot pretty-name :: <byte-string> = "",
+  slot pretty-name :: <string> = "",
     init-keyword: pretty-name:;
-  constant slot documentation :: <byte-string> = "",
+  constant slot documentation :: <string> = "",
     init-keyword: documentation:;
   // Each pattern's init-function is responsible for returning the number
   // of live cells it created, in order to maintain the live-cell-count
@@ -33,7 +33,7 @@ end class <life-pattern>;
 define method initialize (p :: <life-pattern>, #key)
   next-method();
   if (p.pretty-name = "")
-    p.pretty-name := as-lowercase(as(<byte-string>, p.name));
+    p.pretty-name := as-lowercase(as(<string>, p.name));
     element(p.pretty-name, 0) := as-uppercase(element(p.pretty-name, 0));
   end if;
   // Remove the pattern if it was already there.

@@ -216,7 +216,7 @@ define sealed method position
 end method position;
 
 define sealed method position
-    (string :: <byte-string>, item,
+    (string :: <string>, item,
      #key test = \==,
           start: _start :: <integer> = 0, end: _end :: <integer> = size(string))
  => (index :: false-or(<integer>))

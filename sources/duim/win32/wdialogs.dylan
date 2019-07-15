@@ -463,12 +463,12 @@ define function parse-file-name-buffer
  => (locator :: type-union(<string>, <sequence>))
   select (selection-mode)
     #"single" =>
-      as(<byte-string>, buffer);
+      as(<string>, buffer);
     #"multiple" =>
       local method copy-substring       // like 'copy-sequence-as'...
                 (buffer :: <C-string>, _start :: <integer>, _end :: <integer>)
-             => (string :: <byte-string>)
-              let string :: <byte-string> = make(<byte-string>, size: _end - _start);
+             => (string :: <string>)
+              let string :: <string> = make(<string>, size: _end - _start);
               without-bounds-checks
                 for (i :: <integer> from _start below _end,
                      j :: <integer> from 0)
@@ -531,7 +531,7 @@ define sealed method init-open-file-name
     without-bounds-checks
       let i :: <integer> = 0;
       for (filter in filters)
-        for (string :: <byte-string> in filter,
+        for (string :: <string> in filter,
              name? = #t then #f)
           for (j :: <integer> from 0 below size(string))
             filter-value[i] := string[j];
@@ -704,7 +704,7 @@ define sealed method do-choose-directory
         bi.iImage2-value   := 0;
         let pidlBrowse = SHBrowseForFolder(bi);
         when (SHGetPathFromIDList(pidlBrowse, buffer))
-          locator := as(<byte-string>, buffer)
+          locator := as(<string>, buffer)
         end;
         IMalloc/Free(shell-IMalloc, pidlBrowse);
         unless (default = $NULL-string) destroy(default) end;

@@ -9,7 +9,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 /// Some magic Win32 constants
 
 //---*** All of the following should be computed
-define constant $default-label :: <byte-string>  = "";
+define constant $default-label :: <string>  = "";
 
 // The thickness of the nice 3d border we use
 define constant $gadget-border-thickness :: <integer> = 2;      // in pixels
@@ -202,7 +202,7 @@ define sealed method get-window-text
     with-stack-structure (buffer :: <C-string>, size: buffer-size)
       let actual-length = GetWindowText(handle, buffer, buffer-size);
       when (actual-length = 0) ensure-no-error("GetWindowText") end;
-      as(<byte-string>, buffer)
+      as(<string>, buffer)
     end
   end
 end method get-window-text;
@@ -741,14 +741,14 @@ define sealed method note-mirror-created
 end method note-mirror-created;
 
 define method gadget-convert-to-windows-newlines
-    (gadget :: <text-gadget>, string :: <byte-string>)
- => (string :: <byte-string>)
+    (gadget :: <text-gadget>, string :: <string>)
+ => (string :: <string>)
   string
 end method gadget-convert-to-windows-newlines;
 
 define method gadget-convert-from-windows-newlines
-    (gadget :: <text-gadget>, string :: <byte-string>)
- => (string :: <byte-string>)
+    (gadget :: <text-gadget>, string :: <string>)
+ => (string :: <string>)
   string
 end method gadget-convert-from-windows-newlines;
 
@@ -851,7 +851,7 @@ define sealed method selected-text
       with-stack-structure (buffer :: <C-string>, size: buffer-size)
         let actual-length = GetWindowText(handle, buffer, buffer-size);
         when (actual-length = 0) ensure-no-error("GetWindowText") end;
-        let string :: <byte-string> = make(<byte-string>, size: _size);
+        let string :: <string> = make(<string>, size: _size);
         without-bounds-checks
           for (i :: <integer> from _start below _end,
                j :: <integer> from 0)
@@ -1011,7 +1011,7 @@ define sealed class <win32-text-editor>
     (<win32-text-gadget-mixin>,
      <text-editor>,
      <leaf-pane>)
-  sealed slot %text :: false-or(<byte-string>) = #f;
+  sealed slot %text :: false-or(<string>) = #f;
 end class <win32-text-editor>;
 
 define method class-for-make-pane
@@ -1059,14 +1059,14 @@ define method gadget-text-buffer-setter
 end method gadget-text-buffer-setter;
 
 define method gadget-convert-to-windows-newlines
-    (gadget :: <win32-text-editor>, string :: <byte-string>)
- => (string :: <byte-string>)
+    (gadget :: <win32-text-editor>, string :: <string>)
+ => (string :: <string>)
   convert-to-windows-newlines(string)
 end method gadget-convert-to-windows-newlines;
 
 define method gadget-convert-from-windows-newlines
-    (gadget :: <win32-text-editor>, string :: <byte-string>)
- => (string :: <byte-string>)
+    (gadget :: <win32-text-editor>, string :: <string>)
+ => (string :: <string>)
   convert-from-windows-newlines(string)
 end method gadget-convert-from-windows-newlines;
 
@@ -1151,11 +1151,11 @@ define constant $mnemonic-escape = '&';
 
 // Create a new label given a string label and a mnemonic
 // Clients are responsible for destroying the C string when done
-//--- This only works on <byte-string> since <C-string> is effectively a byte string...
+//--- This only works on <string> since <C-string> is effectively a byte string...
 define sealed method make-win32-mnemonic-label
-    (label :: <byte-string>, mnemonic :: false-or(<mnemonic>),
+    (label :: <string>, mnemonic :: false-or(<mnemonic>),
      index :: false-or(<integer>), new-index :: false-or(<integer>),
-     #key postfix :: <byte-string> = "")
+     #key postfix :: <string> = "")
  => (new-label :: <C-string>)
   let new-index :: false-or(<integer>)
     = case
@@ -1186,7 +1186,7 @@ define sealed method make-win32-mnemonic-label
       end;
       new-label;
     postfix =>
-      as(<C-string>, concatenate-as(<byte-string>, label, postfix));
+      as(<C-string>, concatenate-as(<string>, label, postfix));
     otherwise =>
       as(<C-string>, label);
   end

@@ -292,9 +292,9 @@ define open abstract primary class <win32-image> (<image>)
     required-init-keyword: width:;
   sealed constant slot image-height :: <integer>,
     required-init-keyword: height:;
-  //--- Type should be 'type-union(<byte-string>, <integer>, <machine-word>)'
-  //--- except that 'make-gadget-control' expects to get a <byte-string>
-  sealed constant slot image-resource-id :: <byte-string>,
+  //--- Type should be 'type-union(<string>, <integer>, <machine-word>)'
+  //--- except that 'make-gadget-control' expects to get a <string>
+  sealed constant slot image-resource-id :: <string>,
     required-init-keyword: resource-id:;
 end class <win32-image>;
 
@@ -328,7 +328,7 @@ define sealed domain make (singleton(<win32-bitmap>));
 define sealed domain initialize (<win32-bitmap>);
 
 define sideways method read-image-as
-    (class :: subclass(<image>), resource-id :: <byte-string>,
+    (class :: subclass(<image>), resource-id :: <string>,
      image-type == #"bitmap",
      #key width, height, error? = #f, resource-context = #"application")
  => (image :: false-or(<win32-bitmap>))
@@ -382,7 +382,7 @@ define sideways method read-image-as
          handle: handle,
          width: width, height: height,
          //---*** This was 'resource-id: resource-id'
-         //---*** The conversion to <byte-string> is just plain *wrong*,
+         //---*** The conversion to <string> is just plain *wrong*,
          //---*** because trying to feed that string back to other Win32
          //---*** resource functions won't get the same object, if it works at all.
          resource-id: integer-to-string(resource-id))
@@ -440,7 +440,7 @@ define sealed domain make (singleton(<win32-icon>));
 define sealed domain initialize (<win32-icon>);
 
 define sideways method read-image-as
-    (class :: subclass(<image>), resource-id :: <byte-string>,
+    (class :: subclass(<image>), resource-id :: <string>,
      image-type == #"small-icon",
      #key width, height, error? = #f, resource-context = #"application")
  => (image :: false-or(<win32-icon>))
@@ -452,7 +452,7 @@ define sideways method read-image-as
 end method read-image-as;
 
 define sideways method read-image-as
-    (class :: subclass(<image>), resource-id :: <byte-string>,
+    (class :: subclass(<image>), resource-id :: <string>,
      image-type == #"large-icon",
      #key width, height, error? = #f, resource-context = #"application")
  => (image :: false-or(<win32-icon>))
@@ -464,7 +464,7 @@ define sideways method read-image-as
 end method read-image-as;
 
 define sideways method read-image-as
-    (class :: subclass(<image>), resource-id :: <byte-string>,
+    (class :: subclass(<image>), resource-id :: <string>,
      image-type == #"icon",
      #key width, height, error? = #f, resource-context = #"application")
  => (image :: false-or(<win32-icon>))

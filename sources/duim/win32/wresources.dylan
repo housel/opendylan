@@ -90,7 +90,7 @@ define sealed method decode-resource
   if (zero?(%logand(as(<machine-word>, #xFFFF0000), value)))
     as(<integer>, value)
   else
-    as(<byte-string>, raw-id)
+    as(<string>, raw-id)
   end
 end method decode-resource;
 
@@ -113,7 +113,7 @@ define sealed method encode-resource
 end method encode-resource;
 
 define sealed method encode-resource
-    (resource-id :: <byte-string>) => (raw-id :: <raw-resource-id>)
+    (resource-id :: <string>) => (raw-id :: <raw-resource-id>)
   as(<raw-resource-id>, as(<C-string>, resource-id))
 end method encode-resource;
 
@@ -243,7 +243,7 @@ define sealed method register-child
 end method register-child;
 
 define sealed method register-child
-    (dialog :: <dialog-resource>, child :: <control-resource>, id :: <byte-string>) => ()
+    (dialog :: <dialog-resource>, child :: <control-resource>, id :: <string>) => ()
   dialog-children(dialog)[encode-resource(id)] := child
 end method register-child;
 
@@ -386,7 +386,7 @@ define sealed method store-resource-name
 end method store-resource-name;
 
 define sealed method store-resource-name
-    (database :: <win32-resource-database>, name :: <byte-string>) => ()
+    (database :: <win32-resource-database>, name :: <string>) => ()
   store-new-resource(database, encode-resource(name))
 end method store-resource-name;
 

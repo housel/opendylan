@@ -364,7 +364,7 @@ define sealed method do-choose-file
       end;
     gtk-widget-destroy(dialog);
     if (filename)
-      values(as(<byte-string>, filename), #f)
+      values(as(<string>, filename), #f)
     else
       values(#f, #f);
     end;
@@ -465,7 +465,7 @@ define sealed method do-choose-directory
       end;
     gtk-widget-destroy(dialog);
     if (filename)
-      locator := as(<byte-string>, filename);
+      locator := as(<string>, filename);
     end;
   end;
   locator

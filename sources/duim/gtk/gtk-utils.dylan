@@ -42,13 +42,13 @@ end;
 
 // We're running on Unix where the newline convention is '\n'
 define sealed inline method convert-to-native-newlines
-    (string :: <byte-string>)
- => (new-string :: <byte-string>)
+    (string :: <string>)
+ => (new-string :: <string>)
   string
 end method convert-to-native-newlines;
 
 define method convert-from-native-newlines
-    (string :: <byte-string>)
- => (new-string :: <byte-string>)
+    (string :: <string>)
+ => (new-string :: <string>)
   string
 end method convert-from-native-newlines;

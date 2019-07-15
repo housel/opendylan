@@ -226,7 +226,7 @@ define sealed method make-top-level-window
                    Null-Proc);
   check-result("CreateDialog (top-level)", handle);
   // Set the default font
-  let font-name  = as(<byte-string>, dialog-font-name(resource));
+  let font-name  = as(<string>, dialog-font-name(resource));
   let font-size  = dialog-font-size(resource);
   let text-style = make-text-style-from-name-and-size(_port, font-name, font-size);
   when (text-style)

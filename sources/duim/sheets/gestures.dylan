@@ -115,7 +115,7 @@ begin
   for (ch :: <integer> from 33 below 127)
     // Each string must be unique, because 'as(<symbol>, ...)'
     // doesn't copy the string as it creates the symbol
-    let string = make(<byte-string>, size: 1, fill: as(<character>, ch));
+    let string = make(<string>, size: 1, fill: as(<character>, ch));
     $standard-char-keysyms[ch]  := as(<symbol>, string)
   end;
   $standard-char-keysyms[as(<integer>, ' ')]   := #"space";

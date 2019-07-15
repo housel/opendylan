@@ -6,11 +6,11 @@ Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
 License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-define constant $application-name :: <byte-string> = "Tetris";
-define constant $application-major-version :: <byte-string> = "1";
-define constant $application-minor-version :: <byte-string> = "0";
+define constant $application-name :: <string> = "Tetris";
+define constant $application-major-version :: <string> = "1";
+define constant $application-minor-version :: <string> = "0";
 
-define method application-full-name () => (full-name :: <byte-string>)
+define method application-full-name () => (full-name :: <string>)
   concatenate($application-name, " Version ",
               $application-major-version, ".",
               $application-minor-version)

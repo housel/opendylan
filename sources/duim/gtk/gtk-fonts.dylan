@@ -76,14 +76,14 @@ define method install-default-text-style-mappings
 end method install-default-text-style-mappings;
 
 define method can-install-entire-family?
-    (_port :: <gtk-port>, duim-family, x-family :: <byte-string>)
+    (_port :: <gtk-port>, duim-family, x-family :: <string>)
  => (can-install? :: <boolean>)
   ignoring("can-install-entire-family?");
   #f
 end method can-install-entire-family?;
 
 define method scaleable-font-name-at-size
-    (font-name :: <byte-string>, point-size :: <integer>,
+    (font-name :: <string>, point-size :: <integer>,
      horiz-dpi :: <integer>, vertical-dpi :: <integer>)
  => (font-name :: <integer>)
   not-yet-implemented("scaleable-font-name-at-size")

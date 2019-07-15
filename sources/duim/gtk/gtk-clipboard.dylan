@@ -120,10 +120,10 @@ define function string-to-clipboard-buffer
 end function string-to-clipboard-buffer;
 
 define function clipboard-buffer-to-string
-    (handle :: <string>) => (string :: <byte-string>)
+    (handle :: <string>) => (string :: <string>)
   with-clipboard-lock (buffer = handle)
     let string-size = size(buffer);
-    let string = make(<byte-string>, size: string-size);
+    let string = make(<string>, size: string-size);
     without-bounds-checks
       for (i from 0 below string-size)
         string[i] := buffer[i]

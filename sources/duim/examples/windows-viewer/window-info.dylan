@@ -36,7 +36,7 @@ define method window-class-name
   with-stack-structure (buffer :: <C-string>, size: buffer-size)
     let actual-length = GetClassName(handle, buffer, buffer-size);
     when (actual-length = 0) ensure-no-win32-error("GetWindowText") end;
-    as(<byte-string>, copy-sequence(buffer, end: actual-length))
+    as(<string>, copy-sequence(buffer, end: actual-length))
   end
 end method window-class-name;
 
@@ -70,7 +70,7 @@ define method window-label
         with-stack-structure (buffer :: <C-string>, size: buffer-size)
           let actual-length = GetWindowText(handle, buffer, buffer-size);
           when (actual-length = 0) ensure-no-win32-error("GetWindowText") end;
-          as(<byte-string>, buffer)
+          as(<string>, buffer)
         end
       end
     end

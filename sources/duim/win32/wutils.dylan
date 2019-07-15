@@ -227,14 +227,14 @@ end macro with-delayed-drawing;
 //      \n   => \r\n
 //      \r   => \r
 define sealed method convert-to-windows-newlines
-    (string :: <byte-string>)
- => (new-string :: <byte-string>)
+    (string :: <string>)
+ => (new-string :: <string>)
   let n-newlines = count(curry(\==, '\n'), string);
   if (n-newlines = 0)
     string
   else
     let length :: <integer>     = size(string);
-    let result :: <byte-string> = make(<byte-string>, size: length + n-newlines);
+    let result :: <string> = make(<string>, size: length + n-newlines);
     without-bounds-checks
       let j :: <integer> = 0;           // index into 'result'
       for (i :: <integer> from 0 below length)
@@ -271,14 +271,14 @@ end method convert-to-windows-newlines;
 //      \r   => [gone]
 // This is equivalent to just dropping \r when we see it.
 define method convert-from-windows-newlines
-    (string :: <byte-string>)
- => (new-string :: <byte-string>)
+    (string :: <string>)
+ => (new-string :: <string>)
   let n-returns = count(curry(\==, '\r'), string);
   if (n-returns = 0)
     string
   else
     let length :: <integer>     = size(string);
-    let result :: <byte-string> = make(<byte-string>, size: length - n-returns);
+    let result :: <string> = make(<string>, size: length - n-returns);
     without-bounds-checks
       let j :: <integer> = 0;           // index into 'result'
       for (i :: <integer> from 0 below length)

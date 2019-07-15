@@ -95,7 +95,7 @@ define sealed method hook-window-callback
               let message = *last-message*;
               if (message)
                 let text = pointer-cast(<C-string>, data.lpData-value);
-                message.message-description := as(<byte-string>, text)
+                message.message-description := as(<string>, text)
               end;
             otherwise =>
               format-out("Unexpected data: %=\n", data.dwData-value);
