@@ -69,7 +69,7 @@ end method;
 // Interface function.
 define method pop-login
     (stream :: <stream>, 
-       login :: <byte-string>, password :: false-or(<byte-string>)) 
+       login :: <string>, password :: false-or(<string>)) 
  => ()
   format-pop-line(stream, "USER %s", login);
   check-pop-response(stream);

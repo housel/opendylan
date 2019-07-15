@@ -49,7 +49,7 @@ define function win32-socket-error
      host-port = #f, error-code: input-error-code = #f)
   if (instance?(host-name, <string>))
     // Get rid of annoying <c-string>s in the condition slots
-    host-name := as(<byte-string>, host-name);
+    host-name := as(<string>, host-name);
   end if;
   let error-code =
     if (input-error-code) input-error-code else WSAGetLastError() end;
@@ -265,7 +265,7 @@ define method accessor-ipv4-presentation-to-address
 end method;
 
 define method accessor-ipv4-presentation-to-address
-    (ip-address-string :: <byte-string>) =>
+    (ip-address-string :: <string>) =>
     (result :: <ipv4-network-order-address>)
   // Filter out screw case
   if (ip-address-string = "255.255.255.255")
@@ -325,7 +325,7 @@ define method get-host-entry
                                   format-string:
                                     "Couldn't translate %s as a host name",
                                   format-arguments:
-                                    vector(as(<byte-string>,the-name)),
+                                    vector(as(<string>,the-name)),
                                   host-name: the-name);
             end if;
             result
@@ -342,7 +342,7 @@ define method get-host-entry
                                format-string:
                                  "Couldn't translate %s as a host name",
                                format-arguments:
-                                 vector(as(<byte-string>, the-name)),
+                                 vector(as(<string>, the-name)),
                                host-name: the-name);
           else
             host-entry := result;
@@ -353,7 +353,7 @@ define method get-host-entry
                            format-string:
                              "Error translating %s as a host name",
                            format-arguments:
-                             vector(as(<byte-string>, the-name)),
+                             vector(as(<string>, the-name)),
                            host-name: the-name);
     end select;
   end if;
@@ -383,7 +383,7 @@ define function copy-aliases-recursive
     make(<simple-object-vector>, size: offset)
   else
     let result = copy-aliases-recursive(array-pointer, offset + 1);
-    result[offset] := as(<byte-string>,
+    result[offset] := as(<string>,
                          pointer-cast(<C-string>, string-pointer));
     result
   end if
@@ -430,14 +430,14 @@ define method accessor-get-host-by-name
     = select (input-name by instance?)
         <C-char*> =>
           get-host-entry(input-name);
-        <byte-string> =>
+        <string> =>
           with-C-string(input-name-as-C-string = input-name)
              get-host-entry(input-name-as-C-string);
           end with-c-string;
       end select;
   // now fill in the fields of the <ipv4-address>. Everything must be
   // copied out of the
-  new-address.%host-name := as(<byte-string>,
+  new-address.%host-name := as(<string>,
                                pointer-cast(<C-string>,
                                             host-entry.h-name-value));
   new-address.%aliases := copy-aliases(host-entry.h-aliases-value);
@@ -498,7 +498,7 @@ define function accessor-get-host-by-address
       end with-stack-structure;
   // now fill in the fields of the <ipv4-address>. Everything must be
   // copied out of the
-  new-address.%host-name := as(<byte-string>,
+  new-address.%host-name := as(<string>,
                                pointer-cast(<C-string>,
                                             host-entry.h-name-value));
   new-address.%aliases := copy-aliases(host-entry.h-aliases-value);
@@ -518,8 +518,8 @@ define method accessor-get-port-for-service
           make(<service-not-found>,
                format-string: "Service: %s not found for protocol: %s",
                format-arguments: vector(service, proto),
-               service: as(<byte-string>, service),
-               protocol: as(<byte-string>, proto));
+               service: as(<string>, service),
+               protocol: as(<string>, proto));
         otherwise => #f;
       end select;
     win32-socket-error("win32-getservbyname", error-code: service-error-code,
@@ -530,7 +530,7 @@ define method accessor-get-port-for-service
 end method;
 
 define method accessor-get-port-for-service
-    (service :: <c-string>, proto :: <byte-string>) =>
+    (service :: <c-string>, proto :: <string>) =>
     (result :: <integer>)
   with-c-string (proto-as-c-string = proto)
     accessor-get-port-for-service(service, proto-as-c-string);
@@ -539,7 +539,7 @@ define method accessor-get-port-for-service
 end method;
 
 define method accessor-get-port-for-service
-    (service :: <byte-string>, proto :: <c-string>) =>
+    (service :: <string>, proto :: <c-string>) =>
     (result :: <integer>)
   with-c-string (service-as-c-string = service)
     accessor-get-port-for-service(service-as-c-string, proto);
@@ -547,7 +547,7 @@ define method accessor-get-port-for-service
 end method;
 
 define method accessor-get-port-for-service
-    (service :: <byte-string>, proto :: <byte-string>) =>
+    (service :: <string>, proto :: <string>) =>
     (result :: <integer>)
   with-c-string (service-as-c-string = service)
     with-c-string (proto-as-c-string = proto)
@@ -653,7 +653,7 @@ define function accessor-local-host-name()
     if (gethostname-result == $SOCKET-ERROR)
       win32-socket-error("win32-gethostname");
     end if;
-    local-host-name := as(<byte-string>, name-buffer-as-C-string);
+    local-host-name := as(<string>, name-buffer-as-C-string);
   end with-c-string;
   local-host-name
 end function;

@@ -71,7 +71,7 @@ define function unix-socket-error
      host-port = #f, error-code: input-error-code = #f)
   if (instance?(host-name, <string>))
     // Get rid of annoying <c-string>s in the condition slots
-    host-name := as(<byte-string>, host-name);
+    host-name := as(<string>, host-name);
   end if;
   let error-code =
     if (input-error-code) input-error-code else unix-errno() end;
@@ -250,7 +250,7 @@ define method accessor-ipv4-address-to-presentation
 end method;
 
 define method accessor-ipv4-presentation-to-address
-  (ip-address-string :: <byte-string>) =>
+  (ip-address-string :: <string>) =>
   (result :: <ipv4-network-order-address>)
   with-stack-structure(inp :: <in-addr*>)
     if (zero?(inet-aton(ip-address-string, inp)))
@@ -275,7 +275,7 @@ define method get-host-entry
                       format-string:
                         "Error translating %s as a host name",
                       format-arguments:
-                        vector(as(<byte-string>, the-name)),
+                        vector(as(<string>, the-name)),
                       host-name: the-name);
   end if;
   host-entry
@@ -304,7 +304,7 @@ define function copy-aliases-recursive
     make(<simple-object-vector>, size: offset)
   else
     let result = copy-aliases-recursive(array-pointer, offset + 1);
-    result[offset] := as(<byte-string>,
+    result[offset] := as(<string>,
                          pointer-cast(<C-string>, string-pointer));
     result
   end if
@@ -352,14 +352,14 @@ define method accessor-get-host-by-name
       = select (input-name by instance?)
           <C-char*> =>
             get-host-entry(input-name);
-          <byte-string> =>
+          <string> =>
             with-C-string(input-name-as-C-string = input-name)
               get-host-entry(input-name-as-C-string);
             end with-c-string;
         end select;
     // now fill in the fields of the <ipv4-address>. Everything must be
     // copied out of the hostent struct
-    new-address.%host-name := as(<byte-string>,
+    new-address.%host-name := as(<string>,
                                  pointer-cast(<C-string>,
                                               host-entry.h-name-value));
     new-address.%aliases := copy-aliases(host-entry.h-aliases-value);
@@ -391,7 +391,7 @@ define function accessor-get-host-by-address
         end with-stack-structure;
     // now fill in the fields of the <ipv4-address>. Everything must be
     // copied out of the hostent structure
-    new-address.%host-name := as(<byte-string>,
+    new-address.%host-name := as(<string>,
                                  pointer-cast(<C-string>,
                                               host-entry.h-name-value));
     new-address.%aliases := copy-aliases(host-entry.h-aliases-value);
@@ -407,8 +407,8 @@ define method accessor-get-port-for-service
       unix-getservbyname(service, proto);
     if (null-pointer?(sp))
       /* Linux/BSD docs don't mention a specific errno */
-      let service = as(<byte-string>, service);
-      let proto = as(<byte-string>, proto);
+      let service = as(<string>, service);
+      let proto = as(<string>, proto);
       let service-error-code = unix-errno();
       let high-level-error =
         make(<service-not-found>,
@@ -425,7 +425,7 @@ define method accessor-get-port-for-service
 end method;
 
 define method accessor-get-port-for-service
-    (service :: <c-string>, proto :: <byte-string>) =>
+    (service :: <c-string>, proto :: <string>) =>
     (result :: <integer>)
   with-c-string (proto-as-c-string = proto)
     accessor-get-port-for-service(service, proto-as-c-string);
@@ -433,7 +433,7 @@ define method accessor-get-port-for-service
 end method;
 
 define method accessor-get-port-for-service
-    (service :: <byte-string>, proto :: <c-string>) =>
+    (service :: <string>, proto :: <c-string>) =>
     (result :: <integer>)
   with-c-string (service-as-c-string = service)
     accessor-get-port-for-service(service-as-c-string, proto);
@@ -441,7 +441,7 @@ define method accessor-get-port-for-service
 end method;
 
 define method accessor-get-port-for-service
-    (service :: <byte-string>, proto :: <byte-string>) =>
+    (service :: <string>, proto :: <string>) =>
     (result :: <integer>)
   with-c-string (service-as-c-string = service)
     with-c-string (proto-as-c-string = proto)
@@ -544,7 +544,7 @@ define function accessor-local-host-name()
     if (gethostname-result == $SOCKET-ERROR)
       unix-socket-error("unix-gethostname");
     end if;
-    local-host-name := as(<byte-string>, name-buffer-as-C-string);
+    local-host-name := as(<string>, name-buffer-as-C-string);
   end with-c-string;
   local-host-name
 end function;

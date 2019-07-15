@@ -48,7 +48,7 @@ end method;
 
 define method as
     (the-class == <string>, the-address :: <ipv4-numeric-address>)
- => (result :: <byte-string>)
+ => (result :: <string>)
   accessor-ipv4-address-to-presentation(the-address)
 end method;
 
