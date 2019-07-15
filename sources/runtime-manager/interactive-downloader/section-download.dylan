@@ -29,7 +29,7 @@ define method download-sections-into-region
   // extensions.
 
   local method section-names-equivalent?
-                  (actual-name :: <byte-string>, basic-name :: <byte-string>)
+                  (actual-name :: <string>, basic-name :: <string>)
                      => (answer :: <boolean>)
      let actual-size = size(actual-name);
      let basic-size = size(basic-name);
@@ -349,7 +349,7 @@ define method classify-coff-section (coff-section :: <coff-section>)
   // extensions.
 
   local method section-names-equivalent?
-                  (actual-name :: <byte-string>, basic-name :: <byte-string>)
+                  (actual-name :: <string>, basic-name :: <string>)
                      => (answer :: <boolean>)
      let actual-size = size(actual-name);
      let basic-size = size(basic-name);

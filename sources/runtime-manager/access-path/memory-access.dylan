@@ -25,7 +25,7 @@ define sealed abstract class <remote-register> (<object>)
   constant slot nub-enumeration-code :: <integer>,
     required-init-keyword: code:;
 
-  constant slot C-name :: <byte-string>,
+  constant slot C-name :: <string>,
     required-init-keyword: name:;
 
   constant slot register-category :: <symbol>,
@@ -156,12 +156,12 @@ define generic write-double-float
 define generic read-byte-string 
     (ap :: <access-path>, address :: <remote-value>,
      length :: <integer>)
-       => (val :: <byte-string>);
+       => (val :: <string>);
 
 define generic write-byte-string 
     (ap :: <access-path>, address :: <remote-value>,
-     value :: <byte-string>, #key ending-index)
-       => (val :: <byte-string>);
+     value :: <string>, #key ending-index)
+       => (val :: <string>);
 
 
 ///// DO-REGISTERS
@@ -262,7 +262,7 @@ define method enumeration-code-to-register
 end method;
 
 define method enumeration-code-to-register
-    (ap :: <access-path>, code :: <byte-string>)
+    (ap :: <access-path>, code :: <string>)
        => (register :: <unassigned-remote-register>)
   unless (ap.register-tables-built?)
     build-register-tables(ap)
@@ -503,11 +503,11 @@ end method;
 define open generic read-byte-string-from-memory 
    (conn :: <access-connection>, address :: <remote-value>,
     length :: <integer>)
- => (val :: <byte-string>);
+ => (val :: <string>);
 
 define method read-byte-string 
     (ap :: <access-path>, address :: <remote-value>, length :: <integer>)
-      => (val :: <byte-string>)
+      => (val :: <string>)
   read-byte-string-from-memory (ap.connection, address, length)
 end method;
 
@@ -516,12 +516,12 @@ end method;
 
 define open generic write-byte-string-to-memory
     (conn :: <access-connection>, address :: <remote-value>,
-     string-source :: <byte-string>, ending-index :: <integer>) => ();
+     string-source :: <string>, ending-index :: <integer>) => ();
 
 define method write-byte-string 
-    (ap :: <access-path>, address :: <remote-value>, value :: <byte-string>,
+    (ap :: <access-path>, address :: <remote-value>, value :: <string>,
      #key ending-index = #f)
-       => (val :: <byte-string>)
+       => (val :: <string>)
   unless (ending-index)
     ending-index := size(value) - 1
   end unless;

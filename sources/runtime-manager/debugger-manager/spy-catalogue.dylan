@@ -454,7 +454,7 @@ end method;
 //    Attempts to dynamically load a runtime component (DLL).
 
 define method load-runtime-component
-    (application :: <debug-target>, name :: <byte-string>)
+    (application :: <debug-target>, name :: <string>)
        => (success? :: <boolean>)
   let spy-thread = select-thread-for-spy(application);
   let address-space = application.temporary-download-block;

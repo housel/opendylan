@@ -94,7 +94,7 @@ end class;
 define class <interactive-thread-initialized-stop-reason>
                 (<language-level-stop-reason>)
 
-  constant slot interactive-thread-name :: <byte-string>,
+  constant slot interactive-thread-name :: <string>,
     required-init-keyword: name:;
 
 end class;

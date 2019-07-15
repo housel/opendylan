@@ -33,7 +33,7 @@ define method construct-source-location-map
       let fname-length
         = nub-source-location-filename-length(conn.connection-process, sl-table);
       let fname 
-        = make(<byte-string>, size: fname-length);
+        = make(<string>, size: fname-length);
       nub-source-location-filename
         (conn.connection-process, sl-table, fname-length, fname);
 

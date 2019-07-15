@@ -191,7 +191,7 @@ define method evaluate-simple-expression
   unless (expression.expression-evaluated?)
     let hex-string-with-zero-x = expression.literal-token.representation;
     let string-sz = size(hex-string-with-zero-x) - 2;
-    let hex-string = make(<byte-string>, size: string-sz);
+    let hex-string = make(<string>, size: string-sz);
     for (i from 0 below string-sz)
       hex-string[i] := hex-string-with-zero-x[i + 2];
     end for;

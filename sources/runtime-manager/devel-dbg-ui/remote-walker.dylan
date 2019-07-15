@@ -53,10 +53,10 @@ define class <wrapper-information-tuple> (<object>)
   constant slot wrapper-actual-address :: <remote-value>,
     required-init-keyword: actual-address:;
 
-  constant slot wrapper-presented-name :: <byte-string>,
+  constant slot wrapper-presented-name :: <string>,
     required-init-keyword: presented-name:;
 
-  constant slot wrapper-module-name :: <byte-string>,
+  constant slot wrapper-module-name :: <string>,
     required-init-keyword: module-name:;
 
   // The following two slots accumulate the statistics.

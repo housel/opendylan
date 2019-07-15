@@ -33,8 +33,8 @@ define sideways method do-processes
          | begin
              let nl = local-process-name-length(i);
              let sys-idl = local-process-system-identifier-length(i);
-             let nm = make(<byte-string>, size: nl);
-             let sys-id = make(<byte-string>, size: sys-idl);
+             let nm = make(<string>, size: nl);
+             let sys-id = make(<string>, size: sys-idl);
              local-process-name(i, nl, nm);
              local-process-system-identifier(i, sys-idl, sys-id);
              make(<remote-process>,
@@ -101,10 +101,10 @@ define method construct-library-object
     => (lib :: <remote-library>)
   let name-length :: <integer>
     = nub-get-library-filename-length (conn.connection-process, lib);
-  let C-filename = make (<byte-string>, size: name-length);
+  let C-filename = make (<string>, size: name-length);
   let basic-name-length =
     nub-get-library-undecorated-name-length(conn.connection-process, lib);
-  let basic-name = make(<byte-string>, size: basic-name-length);
+  let basic-name = make(<string>, size: basic-name-length);
   let (major-v, minor-v) =
     nub-get-library-version(conn.connection-process, lib);
   let base-addr =

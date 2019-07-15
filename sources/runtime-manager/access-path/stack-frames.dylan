@@ -78,7 +78,7 @@ end;
 
 define abstract class <lexical-variable> (<object>)
 
-  constant slot C-name :: <byte-string>,
+  constant slot C-name :: <string>,
     required-init-keyword: name:;
 
   constant slot lexical-variable-address :: <remote-location>,

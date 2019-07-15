@@ -50,7 +50,7 @@ define method collect-nearest-symbols
   let name-length1
     = nub-lookup-symbol-name-length(conn.connection-process, lookups, 1);
   let name1 
-    = make(<byte-string>,
+    = make(<string>,
            size: name-length1); 
   let addr1 
     = nub-lookup-symbol-address (conn.connection-process, lookups, 1);
@@ -85,7 +85,7 @@ define method collect-nearest-symbols
   let name-length2
     = nub-lookup-symbol-name-length(conn.connection-process, lookups, 2);
   let name2
-    = make(<byte-string>,
+    = make(<string>,
            size: name-length2); 
   let addr2
     = nub-lookup-symbol-address (conn.connection-process, lookups, 2);
@@ -120,7 +120,7 @@ define method collect-nearest-symbols
   let name-length3
     = nub-lookup-symbol-name-length(conn.connection-process, lookups, 3);
   let name3 
-    = make(<byte-string>,
+    = make(<string>,
            size: name-length3); 
   let addr3 
     = nub-lookup-symbol-address (conn.connection-process, lookups, 3);
@@ -212,7 +212,7 @@ define method symbol-relative-address-on-connection
   if (foundit == 1)
     let remote-lib = find-or-make-library(path, lib);
     let sym = #f;
-    let sym-name = make(<byte-string>, size: name-length);
+    let sym-name = make(<string>, size: name-length);
     nub-closest-symbol-name(conn.connection-process, name-length, sym-name);
     let language-classification = classify-symbolic-name(conn, sym-name);
     if (is-function == 1)

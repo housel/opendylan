@@ -123,9 +123,9 @@ define method open-interactive-transaction
   // Splits up an arbitrary filename into path, name, extension. This
   // will break if the filename is illegal.
 
-  local method name-information-from-coff-filename (n :: <byte-string>)
-           => (name :: <byte-string>, path :: <byte-string>,
-               source-ext :: <byte-string>, obj-ext :: <byte-string>)
+  local method name-information-from-coff-filename (n :: <string>)
+           => (name :: <string>, path :: <string>,
+               source-ext :: <string>, obj-ext :: <string>)
           let index-slash = -1;
           let index-dot = n.size;
           let limit = n.size;
@@ -136,15 +136,15 @@ define method open-interactive-transaction
               index-dot := i
             end if;
           end for;
-          let path = make(<byte-string>, size: index-slash + 1);
+          let path = make(<string>, size: index-slash + 1);
           let source-ext = 
             if (limit == index-dot)
               ""
             else 
-              make(<byte-string>, size: limit - index-dot - 1)
+              make(<string>, size: limit - index-dot - 1)
             end if;
           let obj-ext = "obj";
-          let name = make(<byte-string>, size: index-dot - index-slash - 1);
+          let name = make(<string>, size: index-dot - index-slash - 1);
           let j = 0;
           for (i from 0 to index-slash)
             path[j] := n[i]; j := j + 1
@@ -163,8 +163,8 @@ define method open-interactive-transaction
   // NAME-INFORMATION-FROM-COFF-FILE
 
   local method name-information-from-coff-file (f :: <coff-file>)
-           => (name :: <byte-string>, path :: <byte-string>,
-               source-ext :: <byte-string>, obj-ext :: <byte-string>)
+           => (name :: <string>, path :: <string>,
+               source-ext :: <string>, obj-ext :: <string>)
           let file-sym =
             element(f.symbols.table-data, ".file", default: #f);
           if (file-sym)

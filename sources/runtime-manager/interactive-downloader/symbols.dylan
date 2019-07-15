@@ -104,7 +104,7 @@ define method define-this-symbol
   end method;
 
   local method strip-import (name :: <string>) => (stripped :: <string>)
-    let stripped = make(<byte-string>, size: name.size - 6);
+    let stripped = make(<string>, size: name.size - 6);
     for (i from 0 below (name.size - 6))
       stripped[i] := name[i + 6]
     end for;

@@ -17,7 +17,7 @@ define method download-byte-vector-into
       => (object-address :: false-or(<remote-value>))
 
   download-byte-string-into
-    (access-path, static-block, as(<byte-string>, bytes),
+    (access-path, static-block, as(<string>, bytes),
      from-index: from-index, to-index: to-index);
 
 end method;
@@ -28,7 +28,7 @@ end method;
 
 define method download-byte-string-into
   (access-path :: <access-path>, static-block :: <static-block>,
-   bytes :: <byte-string>,
+   bytes :: <string>,
    #key from-index = 0, to-index = #f)
       => (object-address :: false-or(<remote-value>))
 

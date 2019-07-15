@@ -15,7 +15,7 @@ define method remote-value-as-string-on-connection
     (conn :: <local-access-connection>, val :: <remote-value>,
      radix :: <integer>, pad :: <integer>, sz :: <integer>)
        => (str :: <string>)
-  let str = make(<byte-string>, size: sz);
+  let str = make(<string>, size: sz);
   let trunc? =
     nub-target-address-to-string(conn.connection-process, val, sz, str, radix, pad);
   str;

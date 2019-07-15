@@ -1114,7 +1114,7 @@ end method;
 
 define method generate-actual-string
     (token :: <token>) => (str :: <string>)
-  let str = make(<byte-string>, size: size(token.representation) - 2);
+  let str = make(<string>, size: size(token.representation) - 2);
   for (i from 1 to size(token.representation) - 2)
     str[i - 1] := token.representation[i];
   end for;
@@ -1129,7 +1129,7 @@ end method;
 
 define method generate-actual-register-name
     (token :: <token>) => (reg-name :: <string>)
-  let str = make(<byte-string>, size: size(token.representation) - 2);
+  let str = make(<string>, size: size(token.representation) - 2);
   for (i from 1 to size(token.representation) - 2)
     str[i - 1] := token.representation[i];
   end for;
@@ -1147,7 +1147,7 @@ define method generate-actual-keyword
   if (token.code == $tokenDylanKeyword)
     let full = token.representation;
     let limit = size(full) - 1;
-    let result = make(<byte-string>, size: limit);
+    let result = make(<string>, size: limit);
     for (i from 0 below limit)
       result[i] := full[i];
     end for;

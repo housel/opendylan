@@ -24,7 +24,7 @@ define abstract class <runtime-compiled-lambda> (<compiled-lambda>)
     init-value: #f,
     init-keyword: recorded-offsets:;
 
-  slot lambda-runtime-filename :: false-or(<byte-string>),
+  slot lambda-runtime-filename :: false-or(<string>),
     init-value: #f,
     init-keyword: filename:;
 

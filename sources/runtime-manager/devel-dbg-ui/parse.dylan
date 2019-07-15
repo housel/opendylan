@@ -1195,7 +1195,7 @@ define method compute-profile-set-functions
 end method;
 
 define method compute-profile-set-functions 
-    (app :: <application>, name :: <byte-string>) 
+    (app :: <application>, name :: <string>) 
  => (res :: <profile-set>)
   let symbol = symbol-table-find-symbol(app.debug-target-symbol-table, name);
   if (symbol)

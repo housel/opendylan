@@ -250,7 +250,7 @@ define corba-method Rtmgr/RemoteNub/get-library-filename
   let process = remote-process(rnub);
   let name-length :: <integer> =
     nub-get-library-filename-length(process, dll);
-  let C-filename = make (<byte-string>, size: name-length);
+  let C-filename = make (<string>, size: name-length);
   nub-get-library-filename 
     (process, dll, name-length, C-filename);
   C-filename
@@ -262,7 +262,7 @@ define corba-method Rtmgr/RemoteNub/get-library-undecorated-name
   let process = remote-process(rnub);
   let name-length =
     nub-get-library-undecorated-name-length(process, dll);
-  let basic-name = make(<byte-string>, size: name-length);
+  let basic-name = make(<string>, size: name-length);
   nub-get-library-undecorated-name
   (process, dll, name-length, basic-name);
   basic-name
@@ -274,7 +274,7 @@ define corba-method Rtmgr/RemoteNub/get-register-name
   let process = remote-process(rnub);
   let name-length :: <integer> =
     nub-get-register-name-length(process, reg);
-  let register-name = make (<byte-string>, size: name-length);
+  let register-name = make (<string>, size: name-length);
   nub-get-register-name
   (process, reg, name-length, register-name);
   register-name
@@ -382,7 +382,7 @@ define corba-method Rtmgr/RemoteNub/target-address-to-string
     (rnub :: <RemoteNub-implementation>, x :: Rtmgr/RemoteNub/<RTARGET-ADDRESS>, sz :: Rtmgr/RemoteNub/<NUBINT>, radix :: Rtmgr/RemoteNub/<NUBINT>, pad :: Rtmgr/RemoteNub/<NUBINT>)
  => (result :: CORBA/<string>, truncated :: Rtmgr/RemoteNub/<NUBINT>)
   let process = remote-process(rnub);
-  let str = make(<byte-string>, size: sz);
+  let str = make(<string>, size: sz);
   let trunc? =
     nub-target-address-to-string
     (process, x, sz, str, radix, pad);
@@ -433,7 +433,7 @@ define corba-method Rtmgr/RemoteNub/read-byte-string-from-process-memory
     (rnub :: <RemoteNub-implementation>, address :: Rtmgr/RemoteNub/<RTARGET-ADDRESS>, sz :: Rtmgr/RemoteNub/<NUBINT>)
  => (buffer :: CORBA/<string>, status :: Rtmgr/RemoteNub/<NUB-ERROR>)
   let process = remote-process(rnub);
-  let string-destination = make (<byte-string>, size: sz);
+  let string-destination = make (<string>, size: sz);
   values(string-destination,
 	 nub-read-byte-string-from-process-memory
 	   (process, address, sz, string-destination));
@@ -969,7 +969,7 @@ define corba-method Rtmgr/RemoteNub/get-lexical-variable-name
   let name-length :: <integer> =
     nub-get-lexical-variable-name-length 
     (process, table, variable);
-  let variable-name = make (<byte-string>, size: name-length);
+  let variable-name = make (<string>, size: name-length);
   nub-get-lexical-variable-name
   (process, table, variable, name-length, variable-name);
   variable-name
@@ -989,7 +989,7 @@ define corba-method Rtmgr/RemoteNub/lookup-symbol-name
   let process = remote-process(rnub);       
   let name-length =
     nub-lookup-symbol-name-length(process, table, sym);
-  let name = make(<byte-string>, size: name-length); 
+  let name = make(<string>, size: name-length); 
   nub-lookup-symbol-name
   (process, table, sym, name-length, name);
   name
@@ -1073,7 +1073,7 @@ define corba-method Rtmgr/RemoteNub/closest-symbol-name
     (rnub :: <RemoteNub-implementation>, sz :: Rtmgr/RemoteNub/<NUBINT>)
  => (result :: CORBA/<string>)
   let process = remote-process(rnub);
-  let sym-name = make(<byte-string>, size: sz);
+  let sym-name = make(<string>, size: sz);
   nub-closest-symbol-name
   (process, sz, sym-name);
   sym-name
@@ -1133,7 +1133,7 @@ define corba-method Rtmgr/RemoteNub/source-location-filename
   let process = remote-process(rnub);
   let fname-length :: <integer> =
     nub-source-location-filename-length(process, table);
-  let fname = make(<byte-string>, size: fname-length);
+  let fname = make(<string>, size: fname-length);
   nub-source-location-filename
   (process, table, fname-length, fname);
   fname

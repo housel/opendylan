@@ -228,7 +228,7 @@ end method;
 define method read-byte-string-from-memory 
    (conn :: <remote-access-connection>, address :: <remote-value>,
     length :: <integer>)
-      => (val :: <byte-string>)
+      => (val :: <string>)
 
   let (string-destination :: <string>, error) =
     Rtmgr/RemoteNub/read-byte-string-from-process-memory
@@ -244,7 +244,7 @@ end method;
 
 define method write-byte-string-to-memory
     (conn :: <remote-access-connection>, address :: <remote-value>,
-     string-source :: <byte-string>, ending-index :: <integer>) => ()
+     string-source :: <string>, ending-index :: <integer>) => ()
   let error =
     Rtmgr/RemoteNub/write-byte-string-to-process-memory
       (conn.nub, as-integer(address), ending-index + 1, string-source);

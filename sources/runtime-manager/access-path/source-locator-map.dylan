@@ -13,7 +13,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define sealed class <source-location-map> (<object>)
 
-  constant slot source-filename :: <byte-string>,
+  constant slot source-filename :: <string>,
     required-init-keyword: filename:;
 
   constant slot associated-function :: <remote-symbol>,
@@ -108,7 +108,7 @@ end method;
 
 define method function-recorded-source-locations
     (ap :: <access-path>, sym :: <remote-symbol>)
-       => (filename :: false-or(<byte-string>),
+       => (filename :: false-or(<string>),
            base-linenumber :: <integer>,
            base-address :: <remote-value>,
            line-positions :: <sequence>,

@@ -538,7 +538,7 @@ end method;
 //    a special stop-reason.
 
 define method spawn-interactive-thread
-    (application :: <debug-target>, tname :: <byte-string>,
+    (application :: <debug-target>, tname :: <string>,
      #key thread)
   => (success? :: <boolean>)
 
@@ -546,7 +546,7 @@ define method spawn-interactive-thread
   let static-block = application.interactive-thread-download-block;
   let path = application.debug-target-access-path;
 
-  local method download-byte-string (str :: <byte-string>)
+  local method download-byte-string (str :: <string>)
                     => (address-we-hope :: false-or(<remote-value>))
           let wrapper-field =
             lookup-static-wrapper(application, "<byte-string>", "dylan");

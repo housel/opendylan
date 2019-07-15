@@ -107,10 +107,10 @@ end function;
 ///// INITIALIZE (Dylan)
 //    Sets up debugger connections.
 
-define constant $local-hostname :: <byte-string> =
+define constant $local-hostname :: <string> =
   begin
     let hostname-length = get-local-hostname-length();
-    let hostname = make(<byte-string>, size: hostname-length);
+    let hostname = make(<string>, size: hostname-length);
     get-local-hostname(hostname-length, hostname);
     hostname
   end;

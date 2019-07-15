@@ -123,7 +123,7 @@ define method read-frame-lexicals
        = nub-get-lexical-variable-name-length 
            (conn.connection-process, lookups, i + 1);
 
-     let variable-name = make (<byte-string>, size: name-length);
+     let variable-name = make (<string>, size: name-length);
 
      let variable-type = #f; // Until we figure <remote-type> out!
 

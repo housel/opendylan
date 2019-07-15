@@ -262,7 +262,7 @@ end method;
 
 define variable *profiler-debug?* = #f;
 
-define inline method debug-format (string :: <byte-string>, #rest args)
+define inline method debug-format (string :: <string>, #rest args)
   if (*profiler-debug?*)
     apply(format-out, string, args);
   end if;

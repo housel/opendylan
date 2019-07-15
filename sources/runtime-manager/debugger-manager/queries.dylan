@@ -1058,9 +1058,9 @@ end method;
 
 define method wrapper-trace-information
     (application :: <debug-target>, proved-wrapper :: <remote-value>)
-  => (symbolic-name :: <byte-string>,
-      presented-name :: <byte-string>,
-      module-name :: <byte-string>,
+  => (symbolic-name :: <string>,
+      presented-name :: <string>,
+      module-name :: <string>,
       slot-count :: <integer>,
       repeat-information :: <symbol>,
       repeat-offset :: <integer>)

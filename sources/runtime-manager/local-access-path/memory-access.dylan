@@ -19,7 +19,7 @@ define method register-vector-on-connection
           nub-get-register-name-length (conn.connection-process, r);
           let enum-code :: <integer> =
             nub-get-register-enumeration-code(conn.connection-process, r);
-          let register-name = make (<byte-string>, size: name-length);
+          let register-name = make (<string>, size: name-length);
           nub-get-register-name 
             (conn.connection-process, r, name-length, register-name);
           let reg = make (<unassigned-remote-register>,
@@ -242,9 +242,9 @@ end method;
 define method read-byte-string-from-memory 
    (conn :: <local-access-connection>, address :: <remote-value>,
     length :: <integer>)
-      => (val :: <byte-string>)
+      => (val :: <string>)
 
-  let string-destination = make (<byte-string>, size: length);
+  let string-destination = make (<string>, size: length);
 
   let error =
     nub-read-byte-string-from-process-memory (conn.connection-process, address, length,
@@ -261,7 +261,7 @@ end method;
 
 define method write-byte-string-to-memory
     (conn :: <local-access-connection>, address :: <remote-value>,
-     string-source :: <byte-string>, ending-index :: <integer>) => ()
+     string-source :: <string>, ending-index :: <integer>) => ()
   let error =
     nub-write-byte-string-to-process-memory
       (conn.connection-process, address, ending-index + 1, string-source);

@@ -31,10 +31,10 @@ define constant $demangler = make(<demangler>);
 
 define class <dylan-name-context> (<object>)
 
-  slot context-library :: <byte-string> = "dylan",
+  slot context-library :: <string> = "dylan",
     init-keyword: library:;
 
-  slot context-module :: <byte-string> = "dylan",
+  slot context-module :: <string> = "dylan",
     init-keyword: module:;
 
 end class;
@@ -52,10 +52,10 @@ define constant $dylan-extensions
 
 
 define method demangle-qualified-name 
-  (s :: <byte-string>) 
-     => (lib :: <byte-string>,
-         mod :: <byte-string>,
-         name :: <byte-string>)
+  (s :: <string>) 
+     => (lib :: <string>,
+         mod :: <string>,
+         name :: <string>)
   let (name, mod, lib) = demangle-binding-spread($demangler, s);
   values (lib | "",
           mod | "", 
@@ -63,13 +63,13 @@ define method demangle-qualified-name
 end method;
 
 define method demangle-dylan-name
-   (full-mangled-name :: <byte-string>)
-      => (name-part :: <byte-string>,
-          module-part :: <byte-string>,
-          library-part :: <byte-string>,
+   (full-mangled-name :: <string>)
+      => (name-part :: <string>,
+          module-part :: <string>,
+          library-part :: <string>,
           method-name? :: <boolean>, method-iep? :: <boolean>,
-          method-library-part :: false-or(<byte-string>),
-          method-number-part :: false-or(<byte-string>))
+          method-library-part :: false-or(<string>),
+          method-number-part :: false-or(<string>))
   let (library-part, module-part, name-part)
     = demangle-qualified-name(full-mangled-name);
   let (constant?, wrapper?, method-iep?, method-name?)
@@ -91,21 +91,21 @@ define method demangle-dylan-name
 end method;
 
 define method demangle-local-dylan-name
-   (full-mangled-name :: <byte-string>) => (demang :: <byte-string>)
+   (full-mangled-name :: <string>) => (demang :: <string>)
   demangle-name-locally($demangler, full-mangled-name)
 end method;
 
 define method mangle-local-dylan-name
-    (s :: <byte-string>) => (mangled :: <byte-string>)
+    (s :: <string>) => (mangled :: <string>)
   mangle-name-locally($basic-mangler, s)
 end method;
 
 define method mangle-in-context 
-  (s :: <byte-string>, cxt :: <dylan-name-context>,
+  (s :: <string>, cxt :: <dylan-name-context>,
    #key as-wrapper? = #f,
         as-static-object? = #f,
         as-entry-point? = #f) 
-     => (mangled :: <byte-string>)
+     => (mangled :: <string>)
   let lib = cxt.context-library;
   let mod = cxt.context-module;
   if (as-wrapper?)
@@ -126,7 +126,7 @@ end method;
 
 /*
 define method mangled-name-is-wrapper?
-    (name :: <byte-string>) => (answer :: <boolean>)
+    (name :: <string>) => (answer :: <boolean>)
   let (constant?, wrapper?, iep?, method?)
     = demangler-extract-characteristics($demangler, name);
   wrapper?
@@ -135,7 +135,7 @@ end method;
 
 /*
 define method mangled-name-is-static?
-    (name :: <byte-string>) => (answer :: <boolean>)
+    (name :: <string>) => (answer :: <boolean>)
   let (constant?, wrapper?, iep?, method?)
     = demangler-extract-characteristics($demangler, name);
   constant?
@@ -143,14 +143,14 @@ end method;
 */
 
 define method mangled-name-is-method?
-    (name :: <byte-string>) => (answer :: <boolean>)
+    (name :: <string>) => (answer :: <boolean>)
   let (constant?, wrapper?, iep?, method?)
     = demangler-extract-characteristics($demangler, name);
   method?
 end method;
 
 define method mangled-name-is-iep?
-    (name :: <byte-string>) => (answer :: <boolean>)
+    (name :: <string>) => (answer :: <boolean>)
   let (constant?, wrapper?, iep?, method?)
     = demangler-extract-characteristics($demangler, name);
   iep?
@@ -158,7 +158,7 @@ end method;
 
 /*
 define method mangled-name-is-C-name?
-    (name :: <byte-string>) => (answer :: <boolean>)
+    (name :: <string>) => (answer :: <boolean>)
   name[0] == '_';
 end method;
 */
@@ -173,7 +173,7 @@ end method;
 //    Just remove the capital I from the end!
 
 define method mangle-map-iep-to-method
-    (iep-name :: <byte-string>) => (method-name :: <byte-string>)
+    (iep-name :: <string>) => (method-name :: <string>)
   demangler-extract-callable-object-name($demangler, iep-name)
 end method;
 
@@ -182,7 +182,7 @@ end method;
 //    Knock off everything including and following the first capital 'M'.
 
 define method mangle-map-method-to-generic
-    (method-name :: <byte-string>) => (generic-name :: <byte-string>)
+    (method-name :: <string>) => (generic-name :: <string>)
   demangler-extract-generic-function-name
      ($demangler, method-name);
 end method;
@@ -223,7 +223,7 @@ end method;
 //    should be defining it. 
 
 define method mangled-name-to-remote-library
-    (application :: <debug-target>, name :: <byte-string>)
+    (application :: <debug-target>, name :: <string>)
          => (search-library :: <remote-library>)
   let libname
     = demangler-extract-library-name($demangler, name);

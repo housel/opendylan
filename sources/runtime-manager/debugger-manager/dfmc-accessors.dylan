@@ -943,12 +943,12 @@ end method;
 
 
 ///// DYLAN-STRING-DATA
-//    Given a <byte-string> instance, returns a local copy.
+//    Given a <string> instance, returns a local copy.
 
 define method dylan-string-data 
     (ap :: <debug-target>, string-instance :: <remote-value>,
      #key clip-at = #f)
-       => (val :: <byte-string>, clipped? :: <boolean>)
+       => (val :: <string>, clipped? :: <boolean>)
   let (size, ok) = read-instance-slot-element (ap, string-instance, 0);
   let size = tagged-remote-value-as-integer(size);
   let clipped? = #f;
@@ -1206,7 +1206,7 @@ end method;
 
 ///// DYLAN-SYMBOL-NAME
 //    Given a remote instance of <symbol>, returns a remote instance of
-//    <byte-string> naming the symbol.
+//    <string> naming the symbol.
 
 define method dylan-symbol-name (ap :: <debug-target>,
                                  sym :: <remote-value>)

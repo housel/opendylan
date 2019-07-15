@@ -161,7 +161,7 @@ define method Rtmgr/NubServer/get-local-hostname
     (server :: <NubServer-implementation>)
  => (result :: CORBA/<string>)
   let hostname-length = get-local-hostname-length();
-  let hostname = make(<byte-string>, size: hostname-length);
+  let hostname = make(<string>, size: hostname-length);
   get-local-hostname(hostname-length, hostname);
   hostname
 end method;
@@ -192,7 +192,7 @@ end method;
 define method Rtmgr/NubServer/local-process-name (server :: <NubServer-implementation>, i :: Rtmgr/NubServer/<NUB-INDEX>)
  => (result :: CORBA/<string>)
   let nl = local-process-name-length(i);
-  let nm = make(<byte-string>, size: nl);
+  let nm = make(<string>, size: nl);
   local-process-name(i, nl, nm);
   nm
 end method;
@@ -200,7 +200,7 @@ end method;
 define method Rtmgr/NubServer/local-process-system-identifier (server :: <NubServer-implementation>, i :: Rtmgr/NubServer/<NUB-INDEX>)
  => (result :: CORBA/<string>)
   let sys-idl = local-process-system-identifier-length(i);
-  let sys-id = make(<byte-string>, size: sys-idl);
+  let sys-id = make(<string>, size: sys-idl);
   local-process-system-identifier(i, sys-idl, sys-id);
   sys-id
 end method;

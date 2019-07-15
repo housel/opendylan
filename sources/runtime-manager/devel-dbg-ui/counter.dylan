@@ -15,7 +15,7 @@ define class <single-function-descriptor> (<function-descriptor>)
     required-init-keyword: address:;
   slot function-descriptor-index :: false-or(<integer>) = #f;
   slot function-descriptor-name :: false-or(<symbol>);
-  slot function-descriptor-raw-name :: false-or(<byte-string>);
+  slot function-descriptor-raw-name :: false-or(<string>);
   slot function-descriptor-binding :: false-or(<symbol>);
   slot function-descriptor-module :: false-or(<symbol>);
   slot function-descriptor-library :: false-or(<symbol>);

@@ -52,5 +52,5 @@ end method;
 // It will be called by the real implementation of link-and-download
 define open generic download-for-interactive-execution
     (runtime-context, downloadable-records :: <sequence>,
-     component-name :: <byte-string>, init-function :: <byte-string>)
+     component-name :: <string>, init-function :: <string>)
  => transaction-id;

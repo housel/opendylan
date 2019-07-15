@@ -29,7 +29,7 @@ end method;
 
 define sideways method download-for-interactive-execution
     (context :: <runtime-context>, coff-files :: <sequence>, 
-     library :: <byte-string>, entry-point :: <byte-string>)
+     library :: <string>, entry-point :: <string>)
         => (transaction-id)
 
   // Unpick the execution context to get the debug target, and the
@@ -52,8 +52,8 @@ end method;
 
 define method download-for-interactive-execution-internal
     (application :: <debug-target>, thread :: <remote-thread>, 
-     coff-files :: <sequence>, library :: <byte-string>, 
-     entry-point :: <byte-string>)
+     coff-files :: <sequence>, library :: <string>, 
+     entry-point :: <string>)
         => (transaction-id)
 
   // If we've been given a thread suitable for interactivity, we know

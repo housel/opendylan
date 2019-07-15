@@ -34,7 +34,7 @@ end macro;
 //    Defines a delimiting scope for static symbols.
 
 define method symbol-table-define-file
-    (st :: <interactive-symbol-table>, name :: <byte-string>,
+    (st :: <interactive-symbol-table>, name :: <string>,
      #key language = $symbol-language-C, library = #f,
           client-data = #f, source-extension = "c",
           object-extension = "obj", path = "")

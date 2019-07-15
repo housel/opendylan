@@ -263,7 +263,7 @@ define variable *debugger-stream* = #f;
 
 define variable *debugger-stream-count* = 0;
 
-define function make-debugger-stream(file-name :: <byte-string>)
+define function make-debugger-stream(file-name :: <string>)
 
   *debugging-debugger?* := #t;
 
@@ -290,7 +290,7 @@ define function debugger-message
     (string :: <string>, #rest args) => ()
 
   if (*debugging-debugger?*)
-    let string :: <byte-string> = as(<byte-string>, string);
+    let string :: <string> = as(<string>, string);
     if (*debugger-stream*)
       apply(format, *debugger-stream*, concatenate("\n### ", string, "\n"), args);
       // force-output(*debugger-stream*);
@@ -305,7 +305,7 @@ end function;
 define function nub-debug-message
     (string :: <string>, #rest args) => ()
 
-  let string :: <byte-string> = as(<byte-string>, string);
+  let string :: <string> = as(<string>, string);
   apply(debug-message, string, args)
   // apply(format-out, concatenate("\n### ", string, "\n"), args);
 
@@ -314,6 +314,6 @@ end function;
 define function debugger-error
     (string :: <string>, #rest args) => ()
 
-  apply(error, as(<byte-string>, string), args)
+  apply(error, as(<string>, string), args)
 
 end function;

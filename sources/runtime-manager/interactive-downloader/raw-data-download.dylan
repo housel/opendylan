@@ -37,7 +37,7 @@ define method download-coff-section-raw-data
   // extensions.
 
   local method section-names-equivalent?
-                  (actual-name :: <byte-string>, basic-name :: <byte-string>)
+                  (actual-name :: <string>, basic-name :: <string>)
                      => (answer :: <boolean>)
      let actual-size = size(actual-name);
      let basic-size = size(basic-name);

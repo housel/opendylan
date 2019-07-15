@@ -16,18 +16,18 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define class <remote-object-file> (<object>)
 
-  constant slot remote-object-file-core-name :: <byte-string>,
+  constant slot remote-object-file-core-name :: <string>,
     required-init-keyword: name:;
 
-  constant slot remote-object-file-source-extension :: <byte-string>,
+  constant slot remote-object-file-source-extension :: <string>,
     init-value: "c",
     init-keyword: source-extension:;
 
-  constant slot remote-object-file-object-extension :: <byte-string>,
+  constant slot remote-object-file-object-extension :: <string>,
     init-value: "obj",
     init-keyword: object-extension:;
 
-  constant slot remote-object-file-path :: <byte-string>,
+  constant slot remote-object-file-path :: <string>,
     init-value: "",
     init-keyword: path:;
 
