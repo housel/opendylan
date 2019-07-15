@@ -121,7 +121,7 @@ end method handle-event;
 
 define sealed method generate-frame-title
     (debugger :: <debugger>)
- => (title :: <byte-string>)
+ => (title :: <string>)
   with-output-to-string (stream)
     let project = debugger.frame-project;
     let application = project.project-application;

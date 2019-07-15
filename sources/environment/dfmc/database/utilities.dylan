@@ -97,7 +97,7 @@ define method environment-object-primitive-name
   (server :: <server>, expression :: <dfmc-type-expression-object>) => (result :: false-or(<string>));
   let s :: <byte-string-stream>
     = make(<byte-string-stream>,
-           contents: make(<byte-string>, size: 32), direction: #"output");
+           contents: make(<string>, size: 32), direction: #"output");
   print(expression.compiler-object-proxy, s, escape?: #f);
   s.stream-contents
 end;

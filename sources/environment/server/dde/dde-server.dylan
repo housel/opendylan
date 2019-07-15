@@ -32,7 +32,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 // find that its $XTYP-EXECUTE transactions fail at some point.
 
 // Name for DDE Service and Topic.
-define atomic variable *service-and-topic-name* :: <byte-string>
+define atomic variable *service-and-topic-name* :: <string>
   = "FunctionalDeveloper";
 
 // Default flags for DdeInitialize.
@@ -67,17 +67,17 @@ define class <environment-dde-server> (<simple-lock>)
   constant slot dde-server-channel :: <channel> = make(<channel>);
   constant slot dde-server-filter-flags :: <integer> = $allow-executes,
     init-keyword: filter-flags:;
-  /* virtual atomic slot dde-server-service :: <byte-string>; */
+  /* virtual atomic slot dde-server-service :: <string>; */
   slot dde-server-service-handle :: <HSZ> = $NULL-HSZ;
 end class;
 
 // A virtual slot, so that the environment can change our service name
 // from outside, at any time.
 define generic dde-server-service
-    (server :: <environment-dde-server>) => (service :: <byte-string>);
+    (server :: <environment-dde-server>) => (service :: <string>);
 
 define method dde-server-service
-    (server :: <environment-dde-server>) => (service :: <byte-string>)
+    (server :: <environment-dde-server>) => (service :: <string>)
   *service-and-topic-name*
 end method;
 
@@ -86,8 +86,8 @@ end method;
 //---*** to shutdown the server and restart it?  Or at least unregister
 //---*** and then reregister the service.
 define method dde-server-service-setter
-    (service :: <byte-string>, server :: <environment-dde-server>)
- => (service :: <byte-string>)
+    (service :: <string>, server :: <environment-dde-server>)
+ => (service :: <string>)
   *service-and-topic-name* := service
 end method;
 */
@@ -298,7 +298,7 @@ define function broadcast-dde-execute-transaction
       // there is one -- this is not guaranteed), which we don't want;
       // so we make a shorter <string> by copying up to the first NUL
       // or to command-size, whichever comes first.
-      // NOTE: We can't just use "as(<byte-string>, command-buffer)",
+      // NOTE: We can't just use "as(<string>, command-buffer)",
       // because command-buffer is not guaranteed to be NUL-terminated.
       // We can't force command-buffer to be NUL-terminated and then use
       // "as", because it must be treated as read-only.
@@ -310,8 +310,8 @@ define function broadcast-dde-execute-transaction
           // Move along till we hit a NUL or the end of the buffer.
         finally i
         end for;
-      let command-string :: <byte-string>
-        = make(<byte-string>, size: string-size);
+      let command-string :: <string>
+        = make(<string>, size: string-size);
       for (i from 0 below string-size)
         command-string[i]
           := as(<byte-character>,

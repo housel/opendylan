@@ -12,10 +12,10 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 // ---*** I should get these from the new build-system library, or whatever
 // it's called, once Roman checks it in.
-define constant $user-project-suffix :: <byte-string> = "hdp";
-define constant $dylan-source-suffix :: <byte-string> = "dylan";
-define constant $idl-suffix :: <byte-string> = "idl";
-define constant $spec-suffix :: <byte-string> = "spec";
+define constant $user-project-suffix :: <string> = "hdp";
+define constant $dylan-source-suffix :: <string> = "dylan";
+define constant $idl-suffix :: <string> = "idl";
+define constant $spec-suffix :: <string> = "spec";
 
 
 /// ----------------------------------------------------------------------
@@ -598,7 +598,7 @@ define sealed generic do-write-project-from-description
 // ---*** What if the destination directory doesn't exist?
 
 /* #### TEMPLATE PROJECTS ###########################
-define constant $define-library-string :: <byte-string> = "define library ";
+define constant $define-library-string :: <string> = "define library ";
 define constant $define-library-string-size :: <integer> = 14;
 
 define method do-write-project-from-description
@@ -789,24 +789,24 @@ define method copy-library-templates
          direction: #"output", if-exists: #"signal",
          header-order: $project-file-header-order)
       format(stream,
-  "define constant $application-name :: <byte-string> = \"%s\";\n",
+  "define constant $application-name :: <string> = \"%s\";\n",
   name);
   /*
       format(stream,
-  "define constant $application-author :: <byte-string> = \"%s\";\n",
+  "define constant $application-author :: <string> = \"%s\";\n",
   element(common-keywords, #"Author", default: "Unknown"));
       format(stream,
-  "define constant $application-copyright :: <byte-string> = \"%s\";\n",
+  "define constant $application-copyright :: <string> = \"%s\";\n",
   element(common-keywords, #"Copyright", default: "No copyright."));
   */
       format(stream,
-  "define constant $application-major-version :: <byte-string> = \"%s\";\n",
+  "define constant $application-major-version :: <string> = \"%s\";\n",
   element(main-keywords, #"Major-Version", default: "0"));
       format(stream,
-  "define constant $application-minor-version :: <byte-string> = \"%s\";\n",
+  "define constant $application-minor-version :: <string> = \"%s\";\n",
   element(main-keywords, #"Minor-Version", default: "0"));
       format(stream,
-  "\ndefine method application-full-name () => (full-name :: <byte-string>)\n"
+  "\ndefine method application-full-name () => (full-name :: <string>)\n"
   "  concatenate($application-name, \" Version \",\n"
   "              $application-major-version, \".\",\n"
   "              $application-minor-version)\n"

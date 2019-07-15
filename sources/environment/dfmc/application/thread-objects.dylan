@@ -20,7 +20,7 @@ define class <application-thread-state> (<object>)
   constant slot thread-state-thread-index :: <integer>,
     required-init-keyword: thread-index:;
 
-  slot thread-state-thread-name :: false-or(<byte-string>) = #f,
+  slot thread-state-thread-name :: false-or(<string>) = #f,
     init-keyword: thread-name:;
 
   slot thread-spawned-by-environment? :: <boolean> = #f;
@@ -74,7 +74,7 @@ end method thread-state-transaction-setter;
 
 define class <thread-interaction-request> (<object>)
 
-  constant slot interaction-request-string :: <byte-string>,
+  constant slot interaction-request-string :: <string>,
     required-init-keyword: string:;
 
   constant slot interaction-request-module :: <module-object>,
@@ -161,7 +161,7 @@ end method;
 define method request-interaction
     (application :: <dfmc-application>, thread :: <remote-thread>,
      context :: <runtime-context>, module :: <module-object>,
-     code-string :: <byte-string>, state :: <application-state>)
+     code-string :: <string>, state :: <application-state>)
  => (request :: <thread-interaction-request>)
   debugger-message("request-interaction on %=", thread);
   let request = make(<thread-interaction-request>,
@@ -481,7 +481,7 @@ end method;
 //    by the environment.
 
 define method next-evaluator-thread-name
-    (application :: <dfmc-application>) => (name :: <byte-string>)
+    (application :: <dfmc-application>) => (name :: <string>)
   let str = format-to-string("Interactive Thread %d",
                              application.evaluator-thread-counter);
   application.evaluator-thread-counter :=
@@ -498,7 +498,7 @@ end method;
 
 define method request-evaluator-thread
     (application :: <dfmc-application>,
-     #key name :: <byte-string> = next-evaluator-thread-name(application),
+     #key name :: <string> = next-evaluator-thread-name(application),
           thread :: <remote-thread> = application.dylan-thread-manager)
  => (thread :: <remote-thread>)
   debugger-message("request-evaluator-thread %=", name);
@@ -521,7 +521,7 @@ end method;
 
 define method install-evaluator-thread
     (application :: <dfmc-application>, thread :: <remote-thread>,
-     name :: <byte-string>) => ()
+     name :: <string>) => ()
   debugger-message("install-evaluator-thread %= %=", name, thread);
   let target = application.application-target-app;
   let path = target.debug-target-access-path;

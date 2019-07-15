@@ -173,7 +173,7 @@ end method;
 //    interactive downloader.
 
 define method project-execute-code
-    (app :: <dfmc-application>, code :: <byte-string>,
+    (app :: <dfmc-application>, code :: <string>,
      thread :: <thread-object>,
      #key module = #f, runtime-context = #f, stack-frame = #f)
     => (execution-id :: <object>, execution-deferred? :: <boolean>)

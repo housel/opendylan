@@ -414,9 +414,9 @@ define method environment-object-kind-label
         modifier-name[0] := as-uppercase(char);
       end;
     end when;
-    kind-name := concatenate-as(<byte-string>, kind-name, modifier-name, " ")
+    kind-name := concatenate-as(<string>, kind-name, modifier-name, " ")
   end for;
-  concatenate-as(<byte-string>, kind-name, type-name)
+  concatenate-as(<string>, kind-name, type-name)
 end method environment-object-kind-label;
 
 define method environment-object-kind-label

@@ -396,7 +396,7 @@ define method read-version-file
       with-open-file (stream = version, direction: #"input")
         let name = locator-name(locator);
         local method position
-                  (string :: <byte-string>, char :: <byte-character>,
+                  (string :: <string>, char :: <byte-character>,
                    #key start: _start :: <integer> = 0,
                         end:   _end   :: <integer> = size(string))
                => (index :: false-or(<integer>))

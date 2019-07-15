@@ -254,7 +254,7 @@ define function print-table
             (item1, item2) => (true? :: <boolean>)
           item1.label-key < item2.label-key
         end method item-label<;
-  let spaces = make(<byte-string>, size: tab-column, fill: ' ');
+  let spaces = make(<string>, size: tab-column, fill: ' ');
   let items
     = case
         sort      => sort(items, test: item-label<);

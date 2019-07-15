@@ -54,7 +54,7 @@ define method initialize-major-mode
 end method initialize-major-mode;
 
 define method mode-name
-    (mode :: <dylanworks-mode>) => (name :: <byte-string>)
+    (mode :: <dylanworks-mode>) => (name :: <string>)
   "Dylan"
 end method mode-name;
 
@@ -101,7 +101,7 @@ define method frame-primary-object
       let section  = line-section(bp-line(interval-start-bp(interval)));
       let (module, project) = section-module(section);
       when (module)
-        let name = as(<byte-string>, interval);
+        let name = as(<string>, interval);
         find-environment-object(project, name, module: module)
       end
     end
@@ -169,7 +169,7 @@ define method target-object
     let section  = line-section(bp-line(interval-start-bp(interval)));
     let (module, project) = section-module(section);
     when (module)
-      let name = as(<byte-string>, interval);
+      let name = as(<string>, interval);
       find-environment-object(project, name, module: module)
     end
   end
@@ -510,7 +510,7 @@ define method do-edit-definition
      interval :: <basic-interval>, window :: <basic-window>, #key name)
  => (success? :: <boolean>)
   let object = primary-object-interval(window) | interval;
-  let name   = name | as(<byte-string>, object);
+  let name   = name | as(<string>, object);
   let (pathname, coords) = interval->location-info(object);
   when (pathname)
     edit-definitions(environment-editor-token(), "", pathname, coords, name);
@@ -583,7 +583,7 @@ define method do-describe-object
      interval :: <basic-interval>, window :: <basic-window>, #key name)
  => (success? :: <boolean>)
   let object = primary-object-interval(window) | interval;
-  let name   = name | as(<byte-string>, object);
+  let name   = name | as(<string>, object);
   let (pathname, coords) = interval->location-info(object);
   when (pathname)
     describe(environment-editor-token(), "", pathname, coords, name)
@@ -595,7 +595,7 @@ define method do-browse-object
      interval :: <basic-interval>, window :: <basic-window>, #key name)
  => (success? :: <boolean>)
   let object = primary-object-interval(window) | interval;
-  let name   = name | as(<byte-string>, object);
+  let name   = name | as(<string>, object);
   let (pathname, coords) = interval->location-info(object);
   when (pathname)
     browse(environment-editor-token(), "", pathname, coords, name)
@@ -607,7 +607,7 @@ define method do-browse-class
      interval :: <basic-interval>, window :: <basic-window>, #key name)
  => (success? :: <boolean>)
   let object = primary-object-interval(window) | interval;
-  let name   = name | as(<byte-string>, object);
+  let name   = name | as(<string>, object);
   let (pathname, coords) = interval->location-info(object);
   when (pathname)
     browse-type(environment-editor-token(), "", pathname, coords, name)
@@ -619,7 +619,7 @@ define method do-browse-function
      interval :: <basic-interval>, window :: <basic-window>, #key name)
  => (success? :: <boolean>)
   let object = primary-object-interval(window) | interval;
-  let name   = name | as(<byte-string>, object);
+  let name   = name | as(<string>, object);
   let (pathname, coords) = interval->location-info(object);
   when (pathname)
     browse-function(environment-editor-token(), "", pathname, coords, name)
@@ -634,7 +634,7 @@ define method do-show-arglist
      interval :: <basic-interval>, window :: <basic-window>, #key name)
  => (success? :: <boolean>)
   let object = primary-object-interval(window) | interval;
-  let name   = name | as(<byte-string>, object);
+  let name   = name | as(<string>, object);
   let (pathname, coords) = interval->location-info(object);
   when (pathname)
     //---*** For lack of anything better, just use 'describe'
@@ -647,7 +647,7 @@ define method do-show-documentation
      interval :: <basic-interval>, window :: <basic-window>, #key name)
  => (success? :: <boolean>)
   let object = primary-object-interval(window) | interval;
-  let name   = name | as(<byte-string>, object);
+  let name   = name | as(<string>, object);
   let frame  = sheet-frame(window);
   // Off to HTML Help or whatever...
   frame-help-on-keyword(frame, name);
@@ -662,7 +662,7 @@ define method definition-browser-parameters
  => (definition, name-key :: <function>, generator :: <function>,
      major-mode :: <major-mode>, node-class :: subclass(<definition-node>))
   // Get the definition object from its name
-  let name     = as(<byte-string>, interval);
+  let name     = as(<string>, interval);
   let section  = line-section(bp-line(interval-start-bp(interval)));
   let (module, project) = section-module(section);
   let definition = module & find-named-definition(project, module, name);
@@ -908,7 +908,7 @@ define function add-interactive-source-section
   let section = make(<dylan-section>,
                      container: #f,
                      start-line: #f, end-line: #f);
-  let code   = as(<byte-string>, source-record-contents(record));
+  let code   = as(<string>, source-record-contents(record));
   let stream = make(<string-stream>, contents: code);
   read-section-contents-from-stream(section, stream);
   close(stream);
@@ -1428,7 +1428,7 @@ begin
 end;
 
 define method mode-name
-    (mode :: <dylanworks-shell-mode>) => (name :: <byte-string>)
+    (mode :: <dylanworks-shell-mode>) => (name :: <string>)
   "Dylan shell"
 end method mode-name;
 

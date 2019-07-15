@@ -52,14 +52,14 @@ define variable *wizard-images-initialized?* = #f;
 
 define function initialize-wizard-images ()
   unless (*wizard-images-initialized?*)
-    let _id = as(<byte-string>, "WIZARD");
+    let _id = as(<string>, "WIZARD");
     //---*** Hack the size for now, since DUIM doesn't calculate it correctly.
     let _bitmap
       = read-image-as(<win32-bitmap>, _id, #"bitmap", width: 165, height: 250);
     when (_bitmap)
       $wizard-image := _bitmap;
     end;
-    let _id = as(<byte-string>, "AAC"); // Project window icon.
+    let _id = as(<string>, "AAC"); // Project window icon.
     let _image = read-image-as(<win32-icon>, _id, #"small-icon");
     when (_image)
       $wizard-frame-icon := _image;

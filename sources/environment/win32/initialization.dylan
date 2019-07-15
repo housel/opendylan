@@ -12,7 +12,7 @@ define variable *bitmaps-initialized?* :: <boolean> = #f;
 
 define macro initialize-bitmap
   { initialize-bitmap(?bitmap:name, ?resource-id:expression) }
-    => { let _id     = as(<byte-string>, ?resource-id);
+    => { let _id     = as(<string>, ?resource-id);
          let _bitmap = read-image-as(<win32-bitmap>, _id, #"bitmap");
          when (_bitmap)
            ?bitmap := _bitmap
@@ -21,7 +21,7 @@ end macro initialize-bitmap;
 
 define macro initialize-icon
   { initialize-icon(?size:expression, ?icon:name, ?resource-id:expression) }
-    => { let _id   = as(<byte-string>, ?resource-id);
+    => { let _id   = as(<string>, ?resource-id);
          let _icon
            = select (?size)
                #"small" => read-image-as(<win32-icon>, _id, #"small-icon");

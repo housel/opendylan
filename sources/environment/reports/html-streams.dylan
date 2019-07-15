@@ -34,15 +34,6 @@ define sealed method write
   end
 end method write;
 
-define sealed method write
-    (stream :: <html-wrapper-stream>, string :: <byte-string>,
-     #key start: start-index = 0, end: end-index)
- => ()
-  for (index :: <integer> from start-index | 0 below end-index | string.size)
-    write-element(stream, string[index])
-  end
-end method write;
-
 define method write-element
     (stream :: <html-wrapper-stream>, character :: <character>)
  => ()

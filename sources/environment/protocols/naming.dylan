@@ -719,7 +719,7 @@ define method print-environment-object-to-string
  => (name :: <string>)
   let stream = make(<byte-string-stream>, direction: #"output");
   apply(print-environment-object, stream, server, object, args);
-  as(<byte-string>, stream-contents(stream))
+  as(<string>, stream-contents(stream))
 end method print-environment-object-to-string;
 
 define method print-environment-object-name-to-string
@@ -731,7 +731,7 @@ define method print-environment-object-name-to-string
     | begin
         let stream = make(<byte-string-stream>, direction: #"output");
         apply(print-environment-object-name, stream, server, object, args);
-        as(<byte-string>, stream-contents(stream))
+        as(<string>, stream-contents(stream))
       end
 end method print-environment-object-name-to-string;
 

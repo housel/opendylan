@@ -210,7 +210,7 @@ define method interactor-valid-command?
 end method interactor-valid-command?;
 
 define constant $interactor-compilation-timeout :: <integer> = 10;
-define constant $waiting-message :: <byte-string> = "Waiting for return values...";
+define constant $waiting-message :: <string> = "Waiting for return values...";
 
 define constant $transaction-types :: <object-table> = make(<table>, weak: #"key");
 
@@ -641,8 +641,8 @@ define method interactor-do-show-contents
       label-size := max(size(name-label), label-size);
       labels[offset]  := name-label
     end;
-    let spaces :: <byte-string>
-      = make(<byte-string>, size: label-size + 1, fill: ' ');
+    let spaces :: <string>
+      = make(<string>, size: label-size + 1, fill: ' ');
     for (i :: <integer> from _start below _end,
          name-label in labels)
       let value = values[i];

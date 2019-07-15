@@ -89,7 +89,7 @@ define method replace-in-window
           ignore(match-word?);
           ignore(match-regexp?, progress-callback);
           local method compare-strings
-                    (char-test :: <function>, s1 :: <byte-string>, s2 :: <byte-string>)
+                    (char-test :: <function>, s1 :: <string>, s2 :: <string>)
                  => (equal? :: <boolean>)
                   // Automatically not equal if they're not the same size.
                   let equal? = (size(s1) = size(s2));

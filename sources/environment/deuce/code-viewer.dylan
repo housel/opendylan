@@ -340,10 +340,10 @@ end method do-handle-presentation-event;
 
 /// Environment frame protocol
 
-define constant $code-viewer-no-source-message :: <byte-string>
+define constant $code-viewer-no-source-message :: <string>
   = "No source available";
 
-define constant $code-viewer-interactive-code-message :: <byte-string>
+define constant $code-viewer-interactive-code-message :: <string>
   = "Interactive source code";
 
 define method refresh-frame-property-page

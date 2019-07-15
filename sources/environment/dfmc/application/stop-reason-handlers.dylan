@@ -571,7 +571,7 @@ define sealed method print-application-breakpoint-message
   end;
   let indentation = current-depth * $depth-indentation;
   format(stream, "%s%d: ",
-         make(<byte-string>, size: indentation, fill: ' '),
+         make(<string>, size: indentation, fill: ' '),
          current-depth);
   print-environment-object-name
     (stream, project, breakpoint.breakpoint-object, qualify-names?: #f);

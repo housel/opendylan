@@ -492,7 +492,7 @@ end function stack-frame-derived-type;
 
 define sealed method stack-frame-override-name
     (project :: <project-object>, frame :: <stack-frame-object>, #key type)
- => (name :: false-or(<byte-string>))
+ => (name :: false-or(<string>))
   let function = stack-frame-function(project, frame);
   let anonymous? = function & ~environment-object-home-name(project, function);
   let type = type | stack-frame-derived-type(project, frame);
@@ -510,13 +510,13 @@ end method stack-frame-override-name;
 
 define sealed method stack-pane-node-label
     (debugger :: <debugger>, thread :: <thread-object>)
- => (name :: <byte-string>)
+ => (name :: <string>)
   frame-default-object-name(debugger, thread)
 end method stack-pane-node-label;
 
 define sealed method stack-pane-node-label
     (debugger :: <debugger>, wrapper :: <stack-frame-wrapper>)
- => (name :: <byte-string>)
+ => (name :: <string>)
   let project  = debugger.ensure-frame-project;
   let frame :: <stack-frame-object> = wrapper.wrapper-object;
   let function = stack-frame-function(project, frame);
@@ -527,7 +527,7 @@ end method stack-pane-node-label;
 
 define sealed method stack-pane-node-label
     (debugger :: <debugger>, variable :: <local-variable-object>)
- => (name :: <byte-string>)
+ => (name :: <string>)
   let project = debugger.ensure-frame-project;
   let value   = variable-value(project, variable);
   let module  = debugger.frame-current-module;
