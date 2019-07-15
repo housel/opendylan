@@ -85,7 +85,7 @@ define generic source-record-end-line
 
 
 define generic source-record-file-name 
-    (pos :: <absolute-source-position>) => (file :: false-or(<byte-string>));
+    (pos :: <absolute-source-position>) => (file :: false-or(<string>));
 
 
 
@@ -108,7 +108,7 @@ define method source-record-end-line
 end method;
 
 define method source-record-file-name
-    (pos :: <absolute-source-position>)  => (name :: false-or(<byte-string>))
+    (pos :: <absolute-source-position>)  => (name :: false-or(<string>))
   pos.source-position-source-record.source-record-name;
 end method;
 
@@ -183,7 +183,7 @@ end method;
 /// compilation.
 
 define abstract primary class <named-variable> (<local-variable>)
-  constant slot variable-name :: <byte-string>,
+  constant slot variable-name :: <string>,
     required-init-keyword: name:;
 end class;
 
@@ -271,7 +271,7 @@ define method make-indirection-variable
        #key name, sub-indirections :: <simple-object-vector> = #[])
      => (indirection :: <variable-indirection-offset>)
   if (sub-indirections.empty?)
-    if (instance?(name, <byte-string>))
+    if (instance?(name, <string>))
       make(<named-indirection>, name: name, indirection-offset: offset);
     else
 	harp-error("Attempt to make an indirection variable with no name or dependents");
@@ -288,7 +288,7 @@ end method;
 
 
 define method make-named-variable 
-      (be :: <harp-back-end>, name :: <byte-string>, 
+      (be :: <harp-back-end>, name :: <string>, 
        location :: <real-register>, with-frame :: <boolean>)
       => (var :: <named-variable>)
   make(<named-variable-in-register>, name: name, enumeration: 
@@ -297,7 +297,7 @@ end method;
 
 
 define method make-named-variable 
-      (be :: <harp-back-end>, name :: <byte-string>, 
+      (be :: <harp-back-end>, name :: <string>, 
        location :: <spill>, with-frame :: <boolean>)
       => (var :: <named-variable>)
   if (with-frame)
@@ -311,7 +311,7 @@ end method;
 
 
 define method make-named-variable 
-      (be :: <harp-back-end>, name :: <byte-string>, 
+      (be :: <harp-back-end>, name :: <string>, 
        location :: <integer>, with-frame :: <boolean>)
       => (var :: <named-variable>)
   if (with-frame)
@@ -326,7 +326,7 @@ end method;
 
 
 define method make-named-indirections
-      (be :: <harp-back-end>, name :: <byte-string>, 
+      (be :: <harp-back-end>, name :: <string>, 
        indirections :: <simple-object-vector>,
        location :: <real-register>, with-frame :: <boolean>)
       => (var :: <named-variable>)
@@ -337,7 +337,7 @@ end method;
 
 
 define method make-named-indirections
-      (be :: <harp-back-end>, name :: <byte-string>, 
+      (be :: <harp-back-end>, name :: <string>, 
        indirections :: <simple-object-vector>,
        location :: <spill>, with-frame :: <boolean>)
       => (var :: <named-variable>)
@@ -354,7 +354,7 @@ end method;
 
 
 define method make-named-indirections
-      (be :: <harp-back-end>, name :: <byte-string>, 
+      (be :: <harp-back-end>, name :: <string>, 
        indirections :: <simple-object-vector>,
        location :: <integer>, with-frame :: <boolean>)
       => (var :: <named-variable>)
@@ -1323,7 +1323,7 @@ end;
 
 
 define method stack-description 
-  (scope :: <debug-scope>) => (r :: <byte-string>)
+  (scope :: <debug-scope>) => (r :: <string>)
   if (scope.debug-scope-with-frame?)
     "with frame";
   else

@@ -128,7 +128,7 @@ end method;
 
 
 define method runtime-reference 
-    (name :: <byte-string>) => (c :: <constant-reference>)
+    (name :: <string>) => (c :: <constant-reference>)
   make(<constant-reference>, 
        refers-to: name,
        address-mode: #"address",

@@ -132,7 +132,7 @@ end method;
 define method read-section-name
     (stream :: <stream>, coff-file :: <coff-file>) => (name :: <coff-string>)
   let name-field-size = 8;
-  let name-field = make(<byte-string>, size: name-field-size);
+  let name-field = make(<string>, size: name-field-size);
   read-into!(stream, name-field-size, name-field);
   if (name-field[0] == '/')
     error("Found a long section name. Format is ~s", name-field);
@@ -257,7 +257,7 @@ define method read-string-auxiliary-symbols
        symbol :: <coff-symbol>, aux-num :: <integer>) 
    => ()
   let aux-size = aux-num * size-of-symbol;
-  let data = make(<byte-string>, size: aux-size);
+  let data = make(<string>, size: aux-size);
   read-into!(stream, aux-size, data);
   let base = remove(data, as(<character>, 0));
   let aux = make(<coff-string-auxiliary-symbol>, string: base);
@@ -302,7 +302,7 @@ define method read-symbol-name
     // we have found a short name - so reset the position and read it
     stream.stream-position := start-pos;
     let name-field-size = 8;
-    let name-field = make(<byte-string>, size: name-field-size);
+    let name-field = make(<string>, size: name-field-size);
     read-into!(stream, name-field-size, name-field);
     coff-string-from-name-field(name-field);
   end if;
@@ -500,7 +500,7 @@ end method;
 
 
 define method coff-string-from-name-field
-       (name-field :: <byte-string>) 
+       (name-field :: <string>) 
     => (str :: <coff-short-string>)
   let nul = as(<character>, 0);
   let null-pos = find-key(name-field, curry(\==, nul));

@@ -33,7 +33,7 @@ end class;
 /// are not.
 
 define abstract class <coff-string> (<coff-unit>)
-  constant slot string-data :: <byte-string>,
+  constant slot string-data :: <string>,
     required-init-keyword: string:;
 end class;
 
@@ -95,7 +95,7 @@ end class;
 /// in .file declarations.
 
 define class <coff-string-auxiliary-symbol> (<coff-auxiliary-symbol>)
-  slot auxiliary-string :: <byte-string>,
+  slot auxiliary-string :: <string>,
     required-init-keyword: string:;
 end class;
 
@@ -412,7 +412,7 @@ end class;
 
 define class <coff-duplicated-table> (<coff-table>)
   // symbol table for COFF
-  // keyed by <byte-string>s
+  // keyed by <string>s
   // values are coff-symbols
   inherited slot ordered-data,
     init-function: curry(make, <stretchy-vector>);
@@ -489,14 +489,14 @@ end method;
 
 define class <coff-symbol-table> (<coff-duplicated-table>)
   // symbol table for COFF
-  // keyed by <byte-string>s
+  // keyed by <string>s
   // values are coff-symbols
 end class;
 
 
 define method binary-element-add!
       (coff-table :: <coff-symbol-table>, 
-       key :: <byte-string>, 
+       key :: <string>, 
        newval :: <coff-symbol>,
        #key model-object = unsupplied()) => (newval)
   // fill in the symbol number (starting from 0)
@@ -507,7 +507,7 @@ end method;
 
 define method binary-element-add!
       (coff-table :: <coff-symbol-table>, 
-       dummy-key :: <byte-string>,
+       dummy-key :: <string>,
        newval :: <coff-auxiliary-symbol>,
        #key model-object = unsupplied()) => (newval)
   // auxiliary symbols are not put in the table - only in the ordered data
@@ -523,14 +523,14 @@ end method;
 
 define class <coff-section-table> (<coff-duplicated-table>)
   // table of COFF sections
-  // keyed by <byte-string>s
+  // keyed by <string>s
   // values are coff-sections
 end class;
 
 
 define method binary-element-add!
       (coff-table :: <coff-section-table>, 
-       key :: <byte-string>, 
+       key :: <string>, 
        newval :: <coff-section>,
        #key model-object = unsupplied()) => (newval)
   next-method();
@@ -545,7 +545,7 @@ end method;
 
 define class <coff-string-table> (<coff-table>)
   // table of COFF strings
-  // keyed by <byte-string>s
+  // keyed by <string>s
   // values are coff-long-strings
 end class;
 

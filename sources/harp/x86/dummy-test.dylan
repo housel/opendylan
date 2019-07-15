@@ -246,7 +246,7 @@ end method;
 // second generation lambda tests .....
 
 define method set-function-name
-    (be :: <harp-x86-back-end>, name :: <byte-string>) 
+    (be :: <harp-x86-back-end>, name :: <string>) 
   be.variables.function-name  := name;
 end method;
 
@@ -413,7 +413,7 @@ end;
 
 
 define class <dummy-source-record> (<source-record>)
-  constant slot source-record-name :: <byte-string>, required-init-keyword: name:;
+  constant slot source-record-name :: <string>, required-init-keyword: name:;
 end class;
 
 define abstract class <dummy-source-locator> (<object>)
@@ -440,7 +440,7 @@ end method;
 
 
 define method locator-for-test
-    (name :: <byte-string>, start-line :: <integer>, end-line :: <integer>)
+    (name :: <string>, start-line :: <integer>, end-line :: <integer>)
     => (locator)
   if (end-line = 0)
     #f

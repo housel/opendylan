@@ -403,7 +403,7 @@ define c-runtime-primitive c-primitive-raw-as-string
   On entry:
     Str  - a raw C string
   On exit:
-    A pointer to a freshly boxed Dylan <byte-string>
+    A pointer to a freshly boxed Dylan <string>
 */
   nreg str;
 

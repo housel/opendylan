@@ -66,10 +66,10 @@ end method;
 // Use this function to cache compiled-lambdas in compilation records
 
 define open generic output-compilation-record-data
-  (back-end :: <harp-back-end>, name :: <byte-string>, compiled-lambda) => ();
+  (back-end :: <harp-back-end>, name :: <string>, compiled-lambda) => ();
 
 define method output-compilation-record-data
-  (back-end :: <harp-back-end>, name :: <byte-string>, compiled-lambda) => ()
+  (back-end :: <harp-back-end>, name :: <string>, compiled-lambda) => ()
 end method;
 
 
@@ -121,10 +121,10 @@ end method;
 // of model-objects only
 
 define class <string-model-object>(<object>)
-  constant slot string-model-object :: <byte-string>, required-init-keyword: model:;
+  constant slot string-model-object :: <string>, required-init-keyword: model:;
 end class;
 
-define method make-string-model-object(object :: <byte-string>)
+define method make-string-model-object(object :: <string>)
  => (model-object :: <string-model-object>)
   make(<string-model-object>, model: object)
 end method;
@@ -132,7 +132,7 @@ end method;
 // This method is in here for Outputters that don't support Model Objects
 // to work with Clients that do
 
-define method model-object-as-string(object :: <string-model-object>) => (name :: <byte-string>)
+define method model-object-as-string(object :: <string-model-object>) => (name :: <string>)
   model-object-as-string(object.string-model-object)
 end method;
 
@@ -146,7 +146,7 @@ define class <derived-model-object>(<object>)
   constant slot derived-model-object-suffix, required-init-keyword: suffix:;
 end class;
 
-define method make-derived-model-object(object, suffix :: <byte-string>)
+define method make-derived-model-object(object, suffix :: <string>)
  => (model-object :: <derived-model-object>)
   make(<derived-model-object>, model: object, suffix: suffix)
 end method;
@@ -156,8 +156,8 @@ define method outputter-model-object(object :: <derived-model-object>)
   object.derived-model-object
 end method;
 
-define method outputter-model-object-name(object :: <derived-model-object>, parent-name :: <byte-string>)
- => (derived-name :: <byte-string>)
+define method outputter-model-object-name(object :: <derived-model-object>, parent-name :: <string>)
+ => (derived-name :: <string>)
   concatenate(parent-name, object.derived-model-object-suffix)
 end method;
 
@@ -173,11 +173,11 @@ end method;
 
 define constant $outputter-unsupplied-name = "unsupplied-name";
 
-define method outputter-name-unsupplied() => (unsupplied :: <byte-string>)
+define method outputter-name-unsupplied() => (unsupplied :: <string>)
   $outputter-unsupplied-name
 end method;
 
-define method outputter-name-supplied?(name :: <byte-string>) => (supplied? :: <boolean>)
+define method outputter-name-supplied?(name :: <string>) => (supplied? :: <boolean>)
   name ~== $outputter-unsupplied-name
 end method;
 
@@ -195,11 +195,11 @@ define constant $dummy-model-object = unsupplied();
 
 define method canonical-code-object
   (outputter :: <harp-outputter>,
-   reference :: <constant-reference>) => (name :: <byte-string>, model-object)
+   reference :: <constant-reference>) => (name :: <string>, model-object)
   if (outputter.model-object-protocol?)
     let object = reference.cr-refers-to-object;
     select (object by instance?)
-      <byte-string>          => values(object, $dummy-model-object);
+      <string>          => values(object, $dummy-model-object);
       <string-model-object>  => values($dummy-name, object.string-model-object);
       otherwise              => values($dummy-name, object);
     end select
@@ -212,11 +212,11 @@ end method;
 // For Clients that use model-objects, a "lambda-name" may refer to a model-object
 
 define method canonical-lambda-object
-  (lambda :: <fully-compiled-lambda>) => (name :: <byte-string>, model-object)
+  (lambda :: <fully-compiled-lambda>) => (name :: <string>, model-object)
   let lambda-object = lambda.lambda-model-object;
 
   select (lambda-object by instance?)
-    <byte-string> => values(lambda-object, $dummy-model-object);
+    <string> => values(lambda-object, $dummy-model-object);
     otherwise => values($dummy-name, lambda-object);
   end select;
 end method;
@@ -242,7 +242,7 @@ end method;
 // per outputter session
 
 define method model-object-name
-  (model-object, name :: <byte-string>) => (name :: <byte-string>)
+  (model-object, name :: <string>) => (name :: <string>)
   if (outputter-name-supplied?(name))
     name
   else
@@ -253,7 +253,7 @@ end method;
 // This coerces lambda-names to strings
 
 define method lambda-name(lambda :: <compiled-lambda>)
- => (lambda-name :: <byte-string>)
+ => (lambda-name :: <string>)
   let lambda-object = lambda.lambda-name-internal;
   if (instance?(lambda-object, <string>)) lambda-object
   else model-object-as-string(lambda-object)
@@ -312,7 +312,7 @@ define open generic output-line-comment
 
 
 // OUTPUT-EXTERNAL defines the name as an external symbol.
-// Name will normally be a <constant-reference> or <byte-string>
+// Name will normally be a <constant-reference> or <string>
 // The import? keyword must be set to #t for externals from other libraries
 // Must be specialized by an outputter library
 //
@@ -326,7 +326,7 @@ define open generic output-implicit-externals
 
 
 // OUTPUT-PUBLIC defines the name as a public symbol.
-// Name will normally be a <constant-reference> or <byte-string>
+// Name will normally be a <constant-reference> or <string>
 // Must be specialized by an outputter library
 //
 define open generic output-public 
@@ -335,7 +335,7 @@ define open generic output-public
 
 
 // OUTPUT-EXPORT defines the name as an exported symbol.
-// Name will normally be a <constant-reference> or <byte-string>
+// Name will normally be a <constant-reference> or <string>
 // Must be specialized by an outputter library
 //
 define open generic output-export
@@ -344,7 +344,7 @@ define open generic output-export
 
 // OUTPUT-DEFINITION defines the name symbolically at the current
 // point in the section.
-// Name will normally be a <constant-reference> or <byte-string>
+// Name will normally be a <constant-reference> or <string>
 // If a section is given it should be a <symbol> describing where to 
 // put the definition. The following sections have special meanings:-
 //      #"data"             - ambiguously traced data section (this is the default)
@@ -516,7 +516,7 @@ define open generic make-harp-outputter-by-type
 
 define open generic file-extension-for-outputter-type
     (backend :: <harp-back-end>, type :: <symbol>) 
-    => (extension :: <byte-string>);
+    => (extension :: <string>);
 
 
 define open generic stream-type-for-outputter-type
@@ -542,7 +542,7 @@ define open generic open-output-stream
 
 define method open-output-stream
       (back-end :: <harp-back-end>, 
-       file-name :: <byte-string>, extension :: <byte-string>) 
+       file-name :: <string>, extension :: <string>) 
       => (s :: <stream>)
   let full-name = concatenate(file-name, ".", extension);
   make(<file-stream>,
@@ -552,7 +552,7 @@ end method;
 
 define method open-output-stream
       (back-end :: <harp-back-end>, 
-       file-name :: <byte-string>, type :: <symbol>) 
+       file-name :: <string>, type :: <symbol>) 
       => (s :: <stream>)
   let extension = file-extension-for-outputter-type(back-end, type);
   let stream-type = stream-type-for-outputter-type(back-end, type);

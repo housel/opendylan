@@ -26,7 +26,7 @@ define constant $harp-type$ = #"print-harp";
 
 define method file-extension-for-outputter-type
        (backend :: <harp-back-end>, type == $harp-type$) 
-       => (extension :: <byte-string>)
+       => (extension :: <string>)
   "harp";
 end method;
 

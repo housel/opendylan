@@ -24,13 +24,13 @@ define constant $mnemonic-asm-type$ = #"mnemonic-assembler";
 
 define method file-extension-for-outputter-type
        (backend :: <harp-back-end>, type == $asm-type$) 
-       => (extension :: <byte-string>)
+       => (extension :: <string>)
   "asm";
 end method;
 
 define method file-extension-for-outputter-type
        (backend :: <harp-back-end>, type == $mnemonic-asm-type$) 
-       => (extension :: <byte-string>)
+       => (extension :: <string>)
   "asm";
 end method;
 

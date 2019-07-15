@@ -16,38 +16,38 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 /// Support for normal C calls
 
 define open generic c-mangle 
-    (be :: <harp-back-end>, name :: <byte-string>)
-     => (mangled :: <byte-string>);
+    (be :: <harp-back-end>, name :: <string>)
+     => (mangled :: <string>);
 
 define method c-mangle 
-    (be :: <harp-back-end>, name :: <byte-string>)
-     => (mangled :: <byte-string>)
+    (be :: <harp-back-end>, name :: <string>)
+     => (mangled :: <string>)
   concatenate("_", name);
 end method;
 
 define method c-mangled-ref 
-    (be :: <harp-back-end>, name :: <byte-string>)
+    (be :: <harp-back-end>, name :: <string>)
      => (ref :: <constant-reference>)
   ins--constant-ref(be, c-mangle(be, name));
 end method;
 
 
 define method c-mangled-indirect-ref 
-    (be :: <harp-back-end>, name :: <byte-string>)
+    (be :: <harp-back-end>, name :: <string>)
      => (ref :: <constant-reference>)
   ins--indirect-constant-ref(be, c-mangle(be, name));
 end method;
 
 
 define method c-full-mangled-ref
-    (be :: <harp-back-end>, name :: <byte-string>)
+    (be :: <harp-back-end>, name :: <string>)
      => (ref :: <constant-reference>)
   let name = raw-mangle(be, name);
   ins--constant-ref(be, c-mangle(be, name));
 end method;
 
 define method c-full-mangled-indirect-ref
-    (be :: <harp-back-end>, name :: <byte-string>)
+    (be :: <harp-back-end>, name :: <string>)
      => (ref :: <constant-reference>)
   let name = raw-mangle(be, name);
   ins--indirect-constant-ref(be, c-mangle(be, name));
@@ -59,13 +59,13 @@ end method;
 /// STDCALLs in Windows are name mangled specially.
 
 define method stdcall-mangle 
-    (be :: <harp-back-end>, name :: <byte-string>, number :: <byte-string>) 
-     => (mangled :: <byte-string>)
+    (be :: <harp-back-end>, name :: <string>, number :: <string>) 
+     => (mangled :: <string>)
   concatenate("_", name, "@", number);
 end method;
 
 define method stdcall-mangled-ref 
-    (be :: <harp-back-end>, name :: <byte-string>, number :: <byte-string>)
+    (be :: <harp-back-end>, name :: <string>, number :: <string>)
      => (ref :: <constant-reference>)
   ins--constant-ref(be, stdcall-mangle(be, name, number));
 end method;
@@ -82,9 +82,9 @@ end method;
 define constant $harp-mangler = make(<mangler>);
 
 define method full-mangle 
-    (be :: <harp-back-end>, name :: <byte-string>, 
+    (be :: <harp-back-end>, name :: <string>, 
      #key module = "dylan", library = "dylan")
-    => (mangled-name :: <byte-string>)
+    => (mangled-name :: <string>)
   mangle-binding-spread($harp-mangler, name,
 			module, library);
 end method;
@@ -93,7 +93,7 @@ end method;
 define macro mangler-function-definer
   { define ?ref-opts mangler-function ?:name }
     => { define method ?name 
-               (be :: <harp-back-end>, name :: <byte-string>)
+               (be :: <harp-back-end>, name :: <string>)
                => (ref :: <constant-reference>)
            ?ref-opts
          end method }
@@ -183,16 +183,16 @@ define indirect dispatch-engine mangler-function dylan-dispatch-engine-indirect-
 
 
 define method primitive-name 
-    (be :: <harp-back-end>, name :: <byte-string>) 
-    => (prim-name :: <byte-string>)
+    (be :: <harp-back-end>, name :: <string>) 
+    => (prim-name :: <string>)
   raw-mangle(be, concatenate("primitive-", name));
 end method;
 
 
 
 define method c-primitive-name 
-    (be :: <harp-back-end>, name :: <byte-string>) 
-    => (prim-name :: <byte-string>)
+    (be :: <harp-back-end>, name :: <string>) 
+    => (prim-name :: <string>)
   c-mangle(be, raw-mangle(be, name));
 end method;
 
@@ -204,16 +204,16 @@ end method;
 
 
 define method entry-point-name 
-    (be :: <harp-back-end>, name :: <byte-string>, num :: <integer>)
-    => (name :: <byte-string>)
+    (be :: <harp-back-end>, name :: <string>, num :: <integer>)
+    => (name :: <string>)
   raw-mangle(be, format-to-string("%s-%=", as-lowercase(name), num));
 end method;
 
 
 
 define method entry-point-name 
-    (be :: <harp-back-end>, name :: <byte-string>, num == #"dynamic")
-    => (name :: <byte-string>)
+    (be :: <harp-back-end>, name :: <string>, num == #"dynamic")
+    => (name :: <string>)
   raw-mangle(be, as-lowercase(name));
 end method;
 

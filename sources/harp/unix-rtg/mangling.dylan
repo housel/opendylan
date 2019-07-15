@@ -13,7 +13,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 
 define sideways method c-mangle 
-    (be :: <harp-native-unix-back-end>, name :: <byte-string>)
-     => (mangled :: <byte-string>)
+    (be :: <harp-native-unix-back-end>, name :: <string>)
+     => (mangled :: <string>)
   name
 end method;

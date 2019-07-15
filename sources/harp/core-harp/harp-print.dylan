@@ -53,7 +53,7 @@ end;
 
 
 define method print-register
-   (reg :: <virtual-register>, prefix :: <byte-string>, stream)
+   (reg :: <virtual-register>, prefix :: <string>, stream)
   if (reg.virtual-register-name)
     format(stream, "%=/", reg.virtual-register-name);
   end if;
@@ -110,52 +110,52 @@ end;
 // Printing constant references
 
 define method constant-reference-class-name 
-    (ref :: <constant-reference>) => (name :: <byte-string>)
+    (ref :: <constant-reference>) => (name :: <string>)
   "unknown type of constant";
 end method;
 
 define method constant-reference-class-name 
-    (ref :: <i-address-constant-reference>) => (name :: <byte-string>)
+    (ref :: <i-address-constant-reference>) => (name :: <string>)
   "constant";
 end method;
 
 define method constant-reference-class-name 
-    (ref :: <i-indirect-constant-reference>) => (name :: <byte-string>)
+    (ref :: <i-indirect-constant-reference>) => (name :: <string>)
   "indirect-constant";
 end method;
 
 define method constant-reference-class-name 
-    (ref :: <sf-address-constant-reference>) => (name :: <byte-string>)
+    (ref :: <sf-address-constant-reference>) => (name :: <string>)
   "single float constant";
 end method;
 
 define method constant-reference-class-name 
-    (ref :: <sf-indirect-constant-reference>) => (name :: <byte-string>)
+    (ref :: <sf-indirect-constant-reference>) => (name :: <string>)
   "single float indirect-constant";
 end method;
 
 define method constant-reference-class-name 
-    (ref :: <df-address-constant-reference>) => (name :: <byte-string>)
+    (ref :: <df-address-constant-reference>) => (name :: <string>)
   "double float constant";
 end method;
 
 define method constant-reference-class-name 
-    (ref :: <df-indirect-constant-reference>) => (name :: <byte-string>)
+    (ref :: <df-indirect-constant-reference>) => (name :: <string>)
   "double float indirect-constant";
 end method;
 
 define method constant-reference-full-name 
-    (ref :: <imported-constant-reference>) => (name :: <byte-string>)
+    (ref :: <imported-constant-reference>) => (name :: <string>)
   concatenate("imported ", ref.constant-reference-class-name);
 end method;
 
 define method constant-reference-full-name 
-    (ref :: <constant-reference>) => (name :: <byte-string>)
+    (ref :: <constant-reference>) => (name :: <string>)
   ref.constant-reference-class-name;
 end method;
 
 define method constant-reference-full-name 
-    (ref :: <interactor-constant-reference>) => (name :: <byte-string>)
+    (ref :: <interactor-constant-reference>) => (name :: <string>)
   "interactor constant";
 end method;
 
@@ -195,18 +195,18 @@ end;
 
 
 define method print-name-for-label 
-    (lab :: <labelled-absolute-constant>) => (s :: <byte-string>)
+    (lab :: <labelled-absolute-constant>) => (s :: <string>)
   "label";
 end method;
 
 define method print-name-for-label 
-    (lab :: <labelled-relative-constant>) => (s :: <byte-string>)
+    (lab :: <labelled-relative-constant>) => (s :: <string>)
   "relative-label";
 end method;
 
 
 define method print-name-for-label 
-    (lab :: <labelled-constant-with-opcode>) => (s :: <byte-string>)
+    (lab :: <labelled-constant-with-opcode>) => (s :: <string>)
   format-to-string("op-label %s", lab.opcode);
 end method;
 

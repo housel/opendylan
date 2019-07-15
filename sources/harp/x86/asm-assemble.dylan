@@ -35,7 +35,7 @@ end method;
 
 define method file-extension-for-outputter-type
        (backend :: <harp-x86-back-end>, type == $coff-type$)
-       => (extension :: <byte-string>)
+       => (extension :: <string>)
   "obj";
 end method;
 
@@ -230,7 +230,7 @@ end method;
 define method output-code-label-internal
     (outputter :: <harp-assembler-outputter>,
      item :: <labelled-constant>,
-     #key attr :: <byte-string> = "",
+     #key attr :: <string> = "",
           adjust :: <integer> = 0,
           directive = "DD",
           intervene = #f) => ()
@@ -272,7 +272,7 @@ end method;
 define method output-data-item
     (be :: <harp-x86-back-end>,
      outputter :: <harp-assembler-outputter>,
-     item :: <byte-string>,
+     item :: <string>,
      #key import?,
           model-object = unsupplied()) => ()
   let asm-stream = outputter.outputter-stream;
@@ -299,13 +299,13 @@ define method unreadable-character? (ch :: <character>) => (r :: <boolean>)
 end method;
 
 define method print-string
-    (stream :: <stream>, string :: <byte-string>) => ()
+    (stream :: <stream>, string :: <string>) => ()
   // Print a string in quoted MASM syntax, assuming all characters are valid
   format(stream, "\"%s\"", string);
 end method;
 
 define method output-readable-string
-    (stream :: <stream>, string :: <byte-string>) => ()
+    (stream :: <stream>, string :: <string>) => ()
   let badch = find-key(string, unreadable-character?);
   if (badch)
     unless (badch == 0)
@@ -327,7 +327,7 @@ end method;
 define method output-data-byte
     (be :: <harp-x86-back-end>,
      outputter :: <harp-assembler-outputter>,
-     item :: <byte-string>) => ()
+     item :: <string>) => ()
   let asm-stream = outputter.outputter-stream;
   format(asm-stream, "\n\tDB ");
   output-readable-string(asm-stream, item);
@@ -389,7 +389,7 @@ end method;
 
 
 define method output-external
-    (be :: <harp-x86-back-end>, outputter :: <harp-assembler-outputter>, name :: <byte-string>,
+    (be :: <harp-x86-back-end>, outputter :: <harp-assembler-outputter>, name :: <string>,
      #key import?)
      => ()
   let asm-stream = outputter.outputter-stream;
@@ -405,7 +405,7 @@ end method;
 
 
 define method output-public
-    (be :: <harp-x86-back-end>, outputter :: <harp-assembler-outputter>, name :: <byte-string>,
+    (be :: <harp-x86-back-end>, outputter :: <harp-assembler-outputter>, name :: <string>,
      #key)
      => ()
   let asm-stream = outputter.outputter-stream;
@@ -422,7 +422,7 @@ end method;
 
 
 define method output-export
-    (be :: <harp-x86-back-end>, outputter :: <harp-assembler-outputter>, name :: <byte-string>)
+    (be :: <harp-x86-back-end>, outputter :: <harp-assembler-outputter>, name :: <string>)
      => ()
   // Do nothing. This is not implemented for the assembler
 end method;
@@ -437,7 +437,7 @@ end method;
 define method output-definition
     (be :: <harp-x86-back-end>,
      outputter :: <harp-assembler-outputter>,
-     name :: <byte-string>,
+     name :: <string>,
      #key section, public?, export?,
           model-object = unsupplied()) => ()
   let asm-stream = outputter.outputter-stream;
@@ -461,7 +461,7 @@ end method;
 
 define method output-variable
     (be :: <harp-x86-back-end>, outputter :: <harp-assembler-outputter>,
-     name :: <byte-string>, initial-value,
+     name :: <string>, initial-value,
      #key repeat, section, import-value?, public?, export?,
           model-object = unsupplied()) => ()
   let asm-stream = outputter.outputter-stream;

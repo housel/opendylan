@@ -51,8 +51,8 @@ define constant $obj-file-start-untraced-data-symbol = "_dylan_untraced_data_sta
 define function ensure-optional-section  
     (builder :: <binary-builder>, 
      optional-section :: false-or(<section-with-fixups>),
-     section-name :: <byte-string>, 
-     start-symbol :: <byte-string>)
+     section-name :: <string>, 
+     start-symbol :: <string>)
     => (section-with-fixups :: <section-with-fixups>)
   let section-with-fixups :: <section-with-fixups> = 
     if (optional-section)
@@ -72,7 +72,7 @@ end function;
 define function ensure-code-section  
     (builder :: <binary-builder>, 
      optional-section :: false-or(<binary-section>),
-     section-name :: <byte-string>,
+     section-name :: <string>,
      code-item-increment)
     => (section :: <binary-section>)
   builder.current-fixups := #f;
@@ -146,7 +146,7 @@ define function select-dylan-section
 end function;
 
 
-define method select-data-section (builder :: <binary-builder>, name :: <byte-string>)
+define method select-data-section (builder :: <binary-builder>, name :: <string>)
  => ()
   select-binary-section(builder, name, alignment: 4,
 			flags: select (name by \=)
@@ -157,7 +157,7 @@ end method;
 
 
 define method select-code-section 
-    (builder :: <binary-builder>, name :: <byte-string>, code-item-increment) => ()
+    (builder :: <binary-builder>, name :: <string>, code-item-increment) => ()
   select-binary-section(builder, name, alignment: code-item-increment,
 			flags: if (name = $init-code-section)
 				 init-code-flags(builder)
@@ -237,7 +237,7 @@ end method;
 
 
 define method select-binary-section 
-    (builder :: <binary-builder>, section-name :: <byte-string>,
+    (builder :: <binary-builder>, section-name :: <string>,
      #key alignment = 4, flags = init-flags(builder)) => ()
   builder.current-section :=
     share-or-create(builder.binary-file.sections, section-name, unsupplied(),
@@ -248,19 +248,19 @@ define method select-binary-section
 end method;
 
 define open generic  make-binary-section 
-    (builder :: <binary-builder>, name :: <byte-string>, 
+    (builder :: <binary-builder>, name :: <string>, 
      alignment :: <integer>, flags)
     => (new :: <binary-section>);
 
 
 define open generic add-symbol-definition
     (outputter :: <binary-builder>,
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      #key section);
 
 define method add-binary-symbol-definition
     (builder :: <binary-builder>,
-     name :: <byte-string>,
+     name :: <string>,
      #rest all-keys,
      #key, #all-keys)
     => ()
@@ -281,7 +281,7 @@ define open generic add-byte-to-section
     (section :: <binary-section>, data :: <integer>) => ();
 
 define open generic add-string-to-section 
-    (section :: <binary-section>, string :: <byte-string>) => ();
+    (section :: <binary-section>, string :: <string>) => ();
 
 
 define method add-integer-data 
@@ -328,7 +328,7 @@ define method add-data
 end method;
 
 define method add-data-string
-    (builder :: <binary-builder>, string :: <byte-string>, 
+    (builder :: <binary-builder>, string :: <string>, 
      #key section = builder.current-section)
     => ()
   add-string-to-section(section, string);

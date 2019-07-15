@@ -37,7 +37,7 @@ end method;
 
 define method generate-runtime 
     (back-end :: <harp-back-end>,
-     file-name :: <byte-string>,
+     file-name :: <string>,
      print-harp? :: <boolean>,
      client? :: <boolean>,
      type)
@@ -63,7 +63,7 @@ define method output-dylan-runtime
     (be :: <harp-back-end>, outputter, #key client? = #f)
 
   let output-one-fn =
-    method (name :: <byte-string>, fn :: <function>, #rest keys)
+    method (name :: <string>, fn :: <function>, #rest keys)
       apply(invoke-harp, be, fn, name, 
             outputter: outputter, harp-debug: #t, keys);
     end method;
@@ -107,7 +107,7 @@ define method test-functions
           client? = #f)
 
   let output-one-fn =
-    method (name :: <byte-string>, fn :: <function>, #rest keys)
+    method (name :: <string>, fn :: <function>, #rest keys)
       apply(invoke-harp, back-end, fn, name, 
             outputter: outputter, harp-debug: #t, keys);
     end method;

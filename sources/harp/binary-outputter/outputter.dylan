@@ -49,7 +49,7 @@ define method output-data-item
 end method;
 
 define method output-data-item  
-    (be :: <harp-back-end>, builder :: <harp-binary-builder>, item :: <byte-string>,
+    (be :: <harp-back-end>, builder :: <harp-binary-builder>, item :: <string>,
      #key import?,
           model-object = unsupplied(),
           offset) => ()
@@ -90,10 +90,10 @@ end method;
 
 
 define open generic do-export
-    (export?, builder :: <harp-binary-builder>, name :: <byte-string>) => ();
+    (export?, builder :: <harp-binary-builder>, name :: <string>) => ();
 
 define method do-export
-    (export?, builder :: <harp-binary-builder>, name :: <byte-string>) => ()
+    (export?, builder :: <harp-binary-builder>, name :: <string>) => ()
   // If the value of export? is the symbol #"code-stub", then
   // the export will include a code stub in the client library.
   // Otherwise it will not, and the client must indirect through the 
@@ -106,7 +106,7 @@ define method do-export
 end method do-export;
 
 define method output-export
-    (be :: <harp-back-end>, builder :: <harp-binary-builder>, name :: <byte-string>)
+    (be :: <harp-back-end>, builder :: <harp-binary-builder>, name :: <string>)
  => ()
   do-export(#t, builder, name);
 end method;
@@ -120,7 +120,7 @@ end method;
 
 define method output-variable
     (be :: <harp-back-end>, builder :: <harp-binary-builder>, 
-     name :: <byte-string>, initial-value,
+     name :: <string>, initial-value,
      #key repeat, section, import-value?, public?, export? = public?.and-force-dll-exports?,
           model-object = unsupplied()) => ()
   output-definition(be, builder, name,

@@ -73,7 +73,7 @@ end runtime-primitive;
 
 define init runtime-primitive string-as-symbol
   // On entry:
-  //    name  -- the name of the symbol as a <byte-string>
+  //    name  -- the name of the symbol as a <string>
   // On exit:
   //    A pointer to an interned symbol with that name
 

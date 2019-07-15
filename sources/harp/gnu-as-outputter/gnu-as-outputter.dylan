@@ -28,7 +28,7 @@ define constant $gnu-as-outputter-type$ = #"gnu-as-outputter";
 
 define sideways method file-extension-for-outputter-type
        (backend :: <harp-back-end>, type == $gnu-as-outputter-type$)
-       => (extension :: <byte-string>)
+       => (extension :: <string>)
   "s";
 end method;
 
@@ -56,7 +56,7 @@ define constant $elf-as-outputter-type$ = #"elf-as-outputter";
 
 define sideways method file-extension-for-outputter-type
        (backend :: <harp-back-end>, type == $elf-as-outputter-type$)
-       => (extension :: <byte-string>)
+       => (extension :: <string>)
   file-extension-for-outputter-type(backend, $gnu-as-outputter-type$);
 end method;
 
@@ -83,7 +83,7 @@ define constant $macho-as-outputter-type$ = #"macho-as-outputter";
 
 define sideways method file-extension-for-outputter-type
        (backend :: <harp-back-end>, type == $macho-as-outputter-type$)
-       => (extension :: <byte-string>)
+       => (extension :: <string>)
   file-extension-for-outputter-type(backend, $gnu-as-outputter-type$);
 end method;
 
@@ -261,7 +261,7 @@ define method output-relative-address
     (outputter :: <harp-gnu-as-outputter>,
      item :: <relative-address-constant>,
      increment :: <integer>,
-     #key attr :: <byte-string> = "") => ()
+     #key attr :: <string> = "") => ()
 
   let offset = item.relative-offset;
   let stream = outputter.destination;
@@ -319,7 +319,7 @@ define method output-code-label
      item :: <labelled-constant-with-opcode>,
      increment :: <integer>)
   output-code-label-internal(outputter, item, increment,
-                             directive: as(<byte-string>, item.opcode));
+                             directive: as(<string>, item.opcode));
 end method;
 
 
@@ -327,7 +327,7 @@ define method output-code-label-internal
     (outputter :: <harp-gnu-as-outputter>,
      item :: <labelled-constant>,
      increment :: <integer>,
-     #key attr :: <byte-string> = "",
+     #key attr :: <string> = "",
           adjust :: <integer> = 0,
           directive = select (increment)
                         4 => ".long";
@@ -447,7 +447,7 @@ end method;
 
 
 define method output-external
-    (be :: <harp-back-end>, outputter :: <harp-gnu-as-outputter>, name :: <byte-string>,
+    (be :: <harp-back-end>, outputter :: <harp-gnu-as-outputter>, name :: <string>,
      #key import?,
           model-object = unsupplied(),
      #all-keys)
@@ -467,7 +467,7 @@ end method;
 
 
 define method output-public
-    (be :: <harp-back-end>, outputter :: <harp-gnu-as-outputter>, name :: <byte-string>,
+    (be :: <harp-back-end>, outputter :: <harp-gnu-as-outputter>, name :: <string>,
      #key model-object = unsupplied(),
           export? = and-force-dll-exports?(#t),
      #all-keys)
@@ -490,7 +490,7 @@ end method;
 
 define method add-symbol-definition
     (outputter :: <harp-gnu-as-outputter>,
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      #key section = outputter.current-section,
      #all-keys)
   // copy-to-section(section, "\n\n\t.align 4\n");
@@ -503,7 +503,7 @@ end method;
 define method output-definition
     (be :: <harp-back-end>,
      outputter :: <harp-gnu-as-outputter>,
-     name :: <byte-string>,
+     name :: <string>,
      #key section, public?,
           export? = public?.and-force-dll-exports?,
           model-object = unsupplied(),
@@ -572,7 +572,7 @@ end method;
 
 define method output-data-footer
     (be :: <harp-back-end>, outputter :: <harp-gnu-as-outputter>,
-     name :: <byte-string>,
+     name :: <string>,
      #key model-object = unsupplied(),
      #all-keys) => ()
   let section = outputter.current-section;
@@ -581,7 +581,7 @@ end method;
 
 define method output-data-footer
     (be :: <harp-back-end>, outputter :: <harp-elf-as-outputter>,
-     name :: <byte-string>,
+     name :: <string>,
      #key model-object = unsupplied(),
      #all-keys) => ()
   // ELF Outputter requires this to create PLT relocation type
@@ -600,7 +600,7 @@ define method output-data-footer
 end method;
 
 define method do-export
-    (export?, builder :: <harp-elf-as-outputter>, name :: <byte-string>) => ()
+    (export?, builder :: <harp-elf-as-outputter>, name :: <string>) => ()
 end method do-export;
 
 // Functions to update the current position within the line
@@ -650,8 +650,8 @@ end method;
 
 
 define inline method imported-name
-    (outputter :: <harp-gnu-as-outputter>, name :: <byte-string>, import? :: <boolean>)
-  => (imported-name :: <byte-string>)
+    (outputter :: <harp-gnu-as-outputter>, name :: <string>, import? :: <boolean>)
+  => (imported-name :: <string>)
   if (import?)
     $imported-name-mangler(name)
   else
@@ -660,8 +660,8 @@ define inline method imported-name
 end method;
 
 define inline method imported-name
-    (outputter :: <harp-elf-as-outputter>, name :: <byte-string>, import? :: <boolean>)
-  => (imported-name :: <byte-string>)
+    (outputter :: <harp-elf-as-outputter>, name :: <string>, import? :: <boolean>)
+  => (imported-name :: <string>)
   name
 end method;
 
@@ -691,7 +691,7 @@ define method add-word-to-section
 end method;
 
 define method add-word-to-section
-    (section :: <gnu-section>, data :: <byte-string>) => ()
+    (section :: <gnu-section>, data :: <string>) => ()
   let pos = section.current-position;
   let new-size = pos + 4;
   section.current-position := new-size;
@@ -719,7 +719,7 @@ end method;
 
 
 define method add-string-to-section
-    (section :: <gnu-section>, string :: <byte-string>) => ()
+    (section :: <gnu-section>, string :: <string>) => ()
   let pos = section.current-position;
   let len = string.size;
   section.current-position := pos + len;
@@ -732,7 +732,7 @@ define method unreadable-character? (ch :: <character>) => (r :: <boolean>)
 end method;
 
 define inline method find-key-from-start
-    (string :: <byte-string>, predicate? :: <function>, start :: <integer>)
+    (string :: <string>, predicate? :: <function>, start :: <integer>)
  => (key :: false-or(<integer>))
   let size :: <integer> = string.size;
   let pos :: <integer> = start;
@@ -747,7 +747,7 @@ end method;
 // Propagate string positions to avoid consing substrings
 
 define method add-assembler-string-to-section
-    (section :: <gnu-section>, string :: <byte-string>, start :: <integer>) => ()
+    (section :: <gnu-section>, string :: <string>, start :: <integer>) => ()
   copy-to-section(section, "\n\t");
   let badch = find-key-from-start(string, unreadable-character?, start);
   if (badch)
@@ -790,7 +790,7 @@ define method add-data-vector
 end method;
 
 define method copy-to-section
-    (section :: <gnu-section>, string :: <byte-string>,
+    (section :: <gnu-section>, string :: <string>,
      #key start :: <integer> = 0, end: _end :: <integer> = string.size) => ()
   let pos = section.raw-data-size;
   let len = _end - start;
@@ -839,7 +839,7 @@ end method;
 
 define method add-data
     (outputter :: <harp-gnu-as-outputter>,
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      #key section = outputter.current-section,
           type = #"absolute",
           relocation-class = #f, relocation-type = #f,
@@ -864,7 +864,7 @@ end method;
 
 define method add-imported-data
     (outputter :: <harp-elf-as-outputter>,
-     item :: <byte-string>,
+     item :: <string>,
      model-object, offset) => ()
   add-data(outputter, item, model-object);
 end method;
@@ -902,7 +902,7 @@ end method;
 
 
 define method make-binary-section
-    (builder :: <harp-gnu-as-outputter>, name :: <byte-string>,
+    (builder :: <harp-gnu-as-outputter>, name :: <string>,
      alignment :: <integer>, flags)
     => (new :: <gnu-section>)
   make(<gnu-section>,

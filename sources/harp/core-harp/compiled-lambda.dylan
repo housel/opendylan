@@ -94,7 +94,7 @@ end dood-class;
 define method external-lambda-location (lambda :: <fully-compiled-lambda>)
  => (start-line :: false-or(<integer>),
      end-line :: false-or(<integer>),
-     name :: false-or(<byte-string>))
+     name :: false-or(<string>))
   let loc = lambda.lambda-location;
   let src-loc = lambda.lambda-object-location;
   let (start-line :: false-or(<integer>), end-line :: false-or(<integer>))
@@ -128,7 +128,7 @@ define primary dood-class <compiled-lambda-unpacked-slots> (<object>)
 
   lazy constant slot lambda-harp-print-info-internal = #f, 
     init-keyword: print-info:;
-  // Either false, or a <byte-string> which contains the printed
+  // Either false, or a <string> which contains the printed
   //  information which is useful for debugging the HARP
 
   constant slot lambda-is-public?-internal = #t, init-keyword: public:;

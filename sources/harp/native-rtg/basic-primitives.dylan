@@ -71,7 +71,7 @@ define runtime-primitive raw-as-string
   On entry:
     Str  - a raw C string
   On exit:
-    A pointer to a freshly boxed Dylan <byte-string>
+    A pointer to a freshly boxed Dylan <string>
 */
 
   arg0 arg0;

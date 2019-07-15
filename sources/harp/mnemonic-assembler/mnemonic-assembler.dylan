@@ -6,19 +6,19 @@ Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
 License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-define method convert-label(lambda-name :: <byte-string>, label :: <labelled-absolute-constant>) => (ext :: <some-external>)
+define method convert-label(lambda-name :: <string>, label :: <labelled-absolute-constant>) => (ext :: <some-external>)
   make(<labelled-external>, ext-code-pos: label.labelled-constant-index, init-label-name: cr-refers-to(label.labelled-constant-reference))
 end method;
 
-define method convert-label(lambda-name :: <byte-string>, label :: <labelled-relative-constant>) => (ext :: <some-external>)
+define method convert-label(lambda-name :: <string>, label :: <labelled-relative-constant>) => (ext :: <some-external>)
   make(<labelled-external>, ext-code-pos: label.labelled-constant-index, init-label-name: cr-refers-to(label.labelled-constant-reference))
 end method;
 
-define method convert-label(lambda-name :: <byte-string>, label :: <labelled-constant-with-opcode>) => (ext :: <some-external>)
+define method convert-label(lambda-name :: <string>, label :: <labelled-constant-with-opcode>) => (ext :: <some-external>)
   make(<labelled-external>, ext-code-pos: label.labelled-constant-index + 1, init-label-name: cr-refers-to(label.labelled-constant-reference))
 end method;
 
-define method convert-label(lambda-name :: <byte-string>, label :: <relative-address-constant>) => (ext :: <some-external>)
+define method convert-label(lambda-name :: <string>, label :: <relative-address-constant>) => (ext :: <some-external>)
   make(<relative-external>, ext-code-pos: label.labelled-constant-index, init-label-name: lambda-name, init-offset: label.relative-offset)
 end method;
 

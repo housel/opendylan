@@ -243,7 +243,7 @@ define method op--call-xep
 end method;
 
 define method op--call-c 
-    (be :: <harp-back-end>, name :: <byte-string>, #rest args)
+    (be :: <harp-back-end>, name :: <string>, #rest args)
   let name-ref = ins--constant-ref(be, c-mangle(be, name));
   apply(op--call-c, be, name-ref, args);
 end method;

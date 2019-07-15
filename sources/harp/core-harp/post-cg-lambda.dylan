@@ -52,14 +52,14 @@ define method post-cg-lambda
   let print-stream 
     = if (harp-debug?) 
         make(<string-stream>, direction: #"output", 
-             contents: make(<byte-string>, size: 1000));
+             contents: make(<string>, size: 1000));
       else #f 
       end;
   code-gen-from-block(backend, bb, print-stream);
   resolve-sdis(backend);
   let print-info
     = if (harp-debug?) 
-        stream-contents-as(<byte-string>, print-stream)
+        stream-contents-as(<string>, print-stream)
       else #f 
       end;
   let compiled-lambda 

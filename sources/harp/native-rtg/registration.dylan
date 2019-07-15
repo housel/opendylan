@@ -70,7 +70,7 @@ end macro;
 define method output-literal (be :: <harp-back-end>, 
                               outputter, 
                               ref :: <constant-reference>,
-                              lit :: <byte-string>,
+                              lit :: <string>,
                               given-section :: <symbol>)
   let section = if (given-section == #"untraced-data")
                   #"untraced-objects"; // no reason to have a string in untraced-data
@@ -423,7 +423,7 @@ define method output-entry-point-set
     (be :: <harp-back-end>, 
      output-one-fn :: <function>, 
      emitter-fn :: <function>, 
-     name-stem :: <byte-string>, 
+     name-stem :: <string>, 
      limit :: <integer>)
     => (refs :: <vector>)
 
@@ -582,7 +582,7 @@ define method output-table-entry
      output-one-fn :: <function>, 
      emitter-fn :: <function>,
      cases,
-     name-stem :: <byte-string>)
+     name-stem :: <string>)
     => ()
 
   let name = table-entry-name(be, name-stem, cases);
@@ -592,7 +592,7 @@ end method;
 define method output-table-data-entry
     (be :: <harp-back-end>, 
      cases,
-     name-stem :: <byte-string>)
+     name-stem :: <string>)
     => (ref-info :: <pair>)
 
   let name = table-entry-name(be, name-stem, cases);
@@ -601,22 +601,22 @@ end method;
 
 
 define method table-entry-name 
-    (be :: <harp-back-end>, name :: <byte-string>, cases :: <vector>)
-    => (name :: <byte-string>)
+    (be :: <harp-back-end>, name :: <string>, cases :: <vector>)
+    => (name :: <string>)
   raw-mangle(be, format-to-string("%s-%=", as-lowercase(name), cases[0]));
 end method;
 
 
 define method table-entry-name 
-    (be :: <harp-back-end>, name :: <byte-string>, cases == #"default")
-    => (name :: <byte-string>)
+    (be :: <harp-back-end>, name :: <string>, cases == #"default")
+    => (name :: <string>)
   raw-mangle(be, format-to-string("%s-default", as-lowercase(name)));
 end method;
 
 
 define method output-table
     (be :: <harp-back-end>, outputter, 
-     name :: <byte-string>, entries :: <list>,
+     name :: <string>, entries :: <list>,
      table-size :: <integer>) => (ref :: <constant-reference>)
   // entries is a list of pairs, where each pair is of the form
   // returned by output-table-entry. I.e. (constant-ref . cases)

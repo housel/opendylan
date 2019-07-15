@@ -107,19 +107,19 @@ end method;
 
 define method relocation-type-and-contents 
     (object :: <coff-absolute-relocation>)
-     => (type :: <byte-string>, contents :: <byte-string>)
+     => (type :: <string>, contents :: <string>)
   values("coff-reloc", object.relocation-symbol.symbol-name.string-data);
 end method;
 
 define method relocation-type-and-contents 
     (object :: <coff-relative-relocation>)
-     => (type :: <byte-string>, contents :: <byte-string>)
+     => (type :: <string>, contents :: <string>)
   values("coff-relative-reloc", object.relocation-symbol.symbol-name.string-data);
 end method;
 
 define method relocation-type-and-contents 
     (object :: <coff-interactor-relocation>)
-     => (type :: <byte-string>, contents)
+     => (type :: <string>, contents)
   values("coff-interactor-reloc", object.interactor-handle);
 end method;
 
@@ -193,13 +193,13 @@ end method;
 
 
 define method prefix-type 
-    (section :: <coff-section>) => (name :: <byte-string>)
+    (section :: <coff-section>) => (name :: <string>)
   "";
 end method;
 
 
 define method prefix-type 
-    (section :: <coff-bss-section>) => (name :: <byte-string>)
+    (section :: <coff-bss-section>) => (name :: <string>)
   "BSS ";
 end method;
 
@@ -359,7 +359,7 @@ define method print-exports
             if (ch = ' ') '\n' else ch end;
           end method;
     let exports-data = exports-section.section-data;
-    let exports-string = map-as(<byte-string>, convert, exports-data);
+    let exports-string = map-as(<string>, convert, exports-data);
     format(stream, "\nExport info: \n%s\n\n", exports-string);
   else
     format(stream, "\nNo export info.\n");
@@ -740,7 +740,7 @@ define method print-info-header
       meaning :: <string>,
       #key thats-all = #f) => ()
   let past-end = meaning.size;
-  let str1 = make(<byte-string>, size: 20, fill: ' ');
+  let str1 = make(<string>, size: 20, fill: ' ');
   let str2 = replace-subsequence!(str1, meaning, end: meaning.size);
   format(stream, "  Index: %s  %s", pad-out(index, 4, hex: #t), str2);
   if (thats-all) format(stream, "\n") end;
@@ -761,7 +761,7 @@ end method;
 
 define method pad-out
        (num :: <integer>, field :: <integer>, #key hex) => (str :: <string>)
-  let str = make(<byte-string>, size: field, fill: ' ');
+  let str = make(<string>, size: field, fill: ' ');
   let data = format-to-string(if (hex) "%x" else "%d" end, num);
   let data-size = data.size;
   if (data-size <= field)

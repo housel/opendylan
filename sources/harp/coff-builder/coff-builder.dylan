@@ -88,7 +88,7 @@ end method;
 
 
 define method add-source-file-definition
-    (builder :: <coff-builder>, file-name :: <byte-string>) => ()
+    (builder :: <coff-builder>, file-name :: <string>) => ()
   // This symbol is not entered into the name dictionary - so we bypass
   // all the sharing support.
   let syms = builder.binary-file.symbols;
@@ -138,7 +138,7 @@ end method;
 
 define method add-function-line-number-definition
     (builder :: <coff-builder>,
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      code-size :: <integer>, num-lines :: <integer>, 
      start-line :: <integer>, end-line :: <integer>,
      #key section = builder.current-section, 
@@ -235,7 +235,7 @@ end method;
 
 
 define method make-coff-string 
-     (builder :: <coff-builder>, string :: <byte-string>,
+     (builder :: <coff-builder>, string :: <string>,
       #key model-object = unsupplied())
      => (cs :: <coff-string>)
   if (string.size <= 8)
@@ -264,7 +264,7 @@ end method;
 
 define method make-coff-symbol 
      (builder :: <coff-builder>,
-      name :: <byte-string>,
+      name :: <string>,
       model-object,
       #key import?)
       => (cs :: <coff-symbol>)
@@ -325,7 +325,7 @@ end method;
 
 define method define-coff-symbol
     (builder :: <coff-builder>,
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      #rest all-keys,  
      #key representation, section, value, aux-symbols,
           must-be-fresh? = #f, import?,
@@ -356,7 +356,7 @@ end method;
 
 define method define-external-symbol
     (builder :: <coff-builder>,
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      #rest all-keys,  
      #key representation = #"external", section = coff-section-undefined,
           import?,
@@ -371,7 +371,7 @@ end method;
 
 define method define-public-symbol
     (builder :: <coff-builder>,
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      #rest all-keys,  
      #key representation = #"public-data",
      #all-keys)  
@@ -391,7 +391,7 @@ end method;
 
 
 define method make-binary-section 
-    (builder :: <coff-builder>, name :: <byte-string>, 
+    (builder :: <coff-builder>, name :: <string>, 
      alignment :: <integer>, flags :: <abstract-integer>)
     => (new :: <coff-section>)
   make(<coff-section>, name: make-coff-string(builder, name), 
@@ -415,7 +415,7 @@ end method;
 
 define method add-symbol-definition
     (builder :: <coff-builder>,
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      #rest all-keys,
      #key section = builder.current-section, 
           public? = #f,
@@ -432,7 +432,7 @@ define method add-symbol-definition
 end method;
 
 define method add-line-number-symbol
-    (builder :: <coff-builder>, name :: <byte-string>, 
+    (builder :: <coff-builder>, name :: <string>, 
      #key section = builder.current-section)
     => ()
   let symbol = make-coff-symbol(builder, name, unsupplied());
@@ -471,7 +471,7 @@ end method;
 
 define method add-data-short 
     (builder :: <coff-builder>, 
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      #key section = builder.current-section, 
           type = #"segment", 
           relocation-class = #f, relocation-type = #f,
@@ -491,7 +491,7 @@ end method;
 
 define method add-data 
     (builder :: <coff-builder>, 
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      #key section = builder.current-section, 
           type = #"absolute", 
           relocation-class = #f, relocation-type = #f,
@@ -519,7 +519,7 @@ end method;
 
 define method insert-relocation
     (builder :: <coff-builder>, 
-     name :: <byte-string>, 
+     name :: <string>, 
      model-object,
      #key section = builder.current-section, 
           type = #"absolute", 
@@ -596,7 +596,7 @@ end method;
 
 
 define sideways method add-string-to-section 
-    (section :: <coff-section>, string :: <byte-string>) => ()
+    (section :: <coff-section>, string :: <string>) => ()
   let pos = section.current-position;
   let len = string.size;
   section.current-position := pos + len;
@@ -850,7 +850,7 @@ define method fixup-string-table (builder :: <coff-builder>) => ()
 end method;
 
 define method splice-string-into-vector! (data :: <byte-vector>, 
-                                          string :: <byte-string>, 
+                                          string :: <string>, 
                                           inx :: <integer>) => ()
   let len = string.size;
   copy-bytes(data, inx, string, 0, len);

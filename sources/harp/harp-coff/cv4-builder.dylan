@@ -25,7 +25,7 @@ define constant $dylan-flags = #x04098010;
 
 define method initialize-debug-section 
     (builder :: <coff-builder>,
-     object-file-name :: <byte-string>,
+     object-file-name :: <string>,
      #key version = $dylan-version,
           section-name = ".debug$S")
  => ()
@@ -40,7 +40,7 @@ end method;
 // and caches it in the debug-section slot in the builder
 
 define method select-debug-section 
-    (builder :: <coff-builder>, section-name :: <byte-string>,
+    (builder :: <coff-builder>, section-name :: <string>,
      #key alignment = 4, flags = $debug-flags) 
     => (section :: <coff-section>)
   builder.debug-section :=
@@ -94,7 +94,7 @@ end method;
 
 
 define method add-cv4-compile-flag
-    (builder :: <coff-builder>, version :: <byte-string>,
+    (builder :: <coff-builder>, version :: <string>,
      #key flags = 0, section = builder.debug-section)
  => ()
   let len = 4 + version.coff-string-length;
@@ -106,7 +106,7 @@ end method;
 
 define method add-cv4-register
     (builder :: <coff-builder>, type :: <integer>, 
-     register :: <integer>, name :: <byte-string>, 
+     register :: <integer>, name :: <string>, 
      #key section = builder.debug-section)
  => ()
   let len = 4 + name.coff-string-length;
@@ -150,7 +150,7 @@ end method;
 
 define method add-cv4-bp-relative
     (builder :: <coff-builder>, 
-     offset :: <integer>, type :: <integer>, name :: <byte-string>,
+     offset :: <integer>, type :: <integer>, name :: <string>,
      #key section = builder.debug-section)
  => ()
   let len = 6 + name.coff-string-length;
@@ -162,7 +162,7 @@ end method;
 
 
 define method add-cv4-local-data
-    (builder :: <coff-builder>, type :: <integer>, name :: <byte-string>,
+    (builder :: <coff-builder>, type :: <integer>, name :: <string>,
      #key segment = 0, offset = 0, 
           section = builder.debug-section)
  => ()
@@ -175,7 +175,7 @@ end method;
 
 
 define method add-cv4-global-data
-    (builder :: <coff-builder>, type :: <integer>, name :: <byte-string>,
+    (builder :: <coff-builder>, type :: <integer>, name :: <string>,
      #key segment = 0, offset = 0, 
           section = builder.debug-section)
  => ()
@@ -189,7 +189,7 @@ end method;
 
 define method add-cv4-local-proc-start
     (builder :: <coff-builder>,
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      length :: <integer>, frame-on :: <integer>, frame-off :: <integer>, 
      proctype :: <integer>,
      #key p-parent = 0, p-end = 0, p-next = 0, 
@@ -205,7 +205,7 @@ end method;
 
 define method add-cv4-global-proc-start
     (builder :: <coff-builder>,
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      length :: <integer>, frame-on :: <integer>, frame-off :: <integer>, 
      proctype :: <integer>,
      #key p-parent = 0, p-end = 0, p-next = 0, 
@@ -222,7 +222,7 @@ end method;
 
 define method add-cv4-procedure-start
     (builder :: <coff-builder>, index :: <integer>,
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      length :: <integer>, frame-on :: <integer>, frame-off :: <integer>, 
      proctype :: <integer>,
      p-parent :: <integer>, p-end :: <integer>, p-next :: <integer>, 
@@ -247,9 +247,9 @@ end method;
 
 define method add-cv4-block-start
     (builder :: <coff-builder>, 
-     reloc-name :: <byte-string>,
+     reloc-name :: <string>,
      model-object,
-     block-name :: <byte-string>, 
+     block-name :: <string>, 
      length :: <integer>, 
      #key p-parent = 0, p-end = 0, 
           segment = 0, offset = 0, 
@@ -267,7 +267,7 @@ end method;
 
 
 define method add-cv4-code-label
-    (builder :: <coff-builder>, name :: <byte-string>, 
+    (builder :: <coff-builder>, name :: <string>, 
      #key segment = 0, offset = 0, flags = 0,
           section = builder.debug-section)
  => ()
@@ -282,7 +282,7 @@ end method;
 
 define method add-cv4-relocation
     (builder :: <coff-builder>,
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      offset :: <integer>, segment :: <integer>, 
      #key section = builder.debug-section)
  => ()

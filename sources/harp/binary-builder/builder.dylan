@@ -79,7 +79,7 @@ define open class <binary-builder> (<object>)
   slot source-file = #f,
     init-keyword: source-file:;
     // Either #f (to indicate no source level debugging)
-    // or a <byte-string> with the filename of the source
+    // or a <string> with the filename of the source
 
   slot current-fixups :: false-or(<ordered-string-table>) = #f;
   slot id-current-fixups :: false-or(<table>) = #f;
@@ -134,7 +134,7 @@ end class;
 
 define method fixups-element
     (builder :: <binary-builder>,
-     item :: <byte-string>,
+     item :: <string>,
      model-object, offset) => (element :: false-or(<stretchy-vector>))
   if (supplied?(model-object))
     let result =
@@ -165,7 +165,7 @@ end method;
 define method fixups-element-setter
     (new-value :: <stretchy-vector>,
      builder :: <binary-builder>,
-     item :: <byte-string>,
+     item :: <string>,
      model-object, offset) => (new-value :: <stretchy-vector>)
   if (supplied?(model-object))
     builder.id-current-fixups[model-object] := pair(item, new-value);
@@ -213,7 +213,7 @@ end method;
 
 
 define inline method $imported-name-mangler
-    (name :: <byte-string>) => (mangled :: <byte-string>)
+    (name :: <string>) => (mangled :: <string>)
   if (*dll-support*)
     concatenate("__imp_", name)
   else
@@ -287,12 +287,12 @@ define constant $not-yet-relocated-data = #x3;  // Invalid tag value
 
 define open generic add-imported-data
     (builder :: <binary-builder>, 
-     item :: <byte-string>,
+     item :: <string>,
      model-object, offset) => ();
 
 define method add-imported-data
     (builder :: <binary-builder>, 
-     item :: <byte-string>,
+     item :: <string>,
      model-object, offset) => ()
   let this-item :: <stretchy-vector> =
     fixups-element(builder, item, model-object, offset) 
@@ -313,7 +313,7 @@ define method add-imported-data-fixups
 
   local method add-fixups-for-one-section 
             (optional-section :: false-or(<section-with-fixups>),
-	     start-symbol :: <byte-string>) => () 
+	     start-symbol :: <string>) => () 
           if (optional-section)
             let fixups = optional-section.import-fixups;
             let id-fixups = optional-section.id-import-fixups;
@@ -486,7 +486,7 @@ end method;
 
 
 define method undecorated-name 
-    (name :: <byte-string>) => (export-name :: <byte-string>)
+    (name :: <string>) => (export-name :: <string>)
   // STDCALL Names of the form "_foo@4" should be exported as "foo"
   if (name[0] == '_')
     // If it's a STDCALL, some demangling is needed
@@ -501,19 +501,19 @@ end method;
 
 
 define method add-symbol-export
-    (builder :: <binary-builder>, name :: <byte-string>,
+    (builder :: <binary-builder>, name :: <string>,
      #key section = builder.ensure-directives-section,
           code-stub? = #f)
     => ()
   if (*add-exports-to-directives-section*)
     local method add-export 
-	      (export-name :: <byte-string>, suffix :: <byte-string>)
-	    let prefix :: <byte-string> =
+	      (export-name :: <string>, suffix :: <string>)
+	    let prefix :: <string> =
 	      if (section.current-position = 0)
 		"-export:"
 	      else " -export:"
 	      end;
-	    let data-string :: <byte-string> =
+	    let data-string :: <string> =
 	      if (code-stub?) "" else ",data" end;
 	    let export-string =
 	      concatenate(prefix, export-name, data-string, suffix);
@@ -528,7 +528,7 @@ define method add-symbol-export
   end if;
 end method;
 
-define method add-symbol-def(builder :: <binary-builder>, name :: <byte-string>)
+define method add-symbol-def(builder :: <binary-builder>, name :: <string>)
  => ()
   let stream = builder.def-file;
   if (stream) format(stream, "%s\n", name) end;

@@ -33,7 +33,7 @@ end class;
 
 define sideways method file-extension-for-outputter-type
        (backend :: <harp-back-end>, type == $coff-type$) 
-       => (extension :: <byte-string>)
+       => (extension :: <string>)
   "o";
 end method;
 
@@ -158,7 +158,7 @@ end method;
 define method output-external 
     (be :: <harp-back-end>, 
      builder :: <harp-coff-builder>,
-     name :: <byte-string>,
+     name :: <string>,
      #key import?,
           model-object = unsupplied(),
           derived-model-object) => ()
@@ -191,7 +191,7 @@ define method output-external
 end method;
 
 define method output-public
-    (be :: <harp-back-end>, builder :: <harp-coff-builder>, name :: <byte-string>,
+    (be :: <harp-back-end>, builder :: <harp-coff-builder>, name :: <string>,
      #key model-object = unsupplied(), derived-model-object,
           export? = and-force-dll-exports?(#t)) => ()
   let coff-symbol = define-public-symbol(builder, name, model-object);
@@ -226,7 +226,7 @@ end method;
 define method output-definition
     (be :: <harp-back-end>,
      builder :: <harp-coff-builder>,
-     name :: <byte-string>,
+     name :: <string>,
      #key section = #f,
           public?,
           export? = public?.and-force-dll-exports?,
@@ -330,7 +330,7 @@ end method;
 
 define method output-function-definition
     (be :: <harp-back-end>, builder :: <harp-coff-builder>, 
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      lambda :: <fully-compiled-lambda>,
      debug-info?)
     => (coff-symbol :: <coff-symbol>)
@@ -379,7 +379,7 @@ define constant pointer32-type = #x403;
 
 define method output-variable-scopes
     (be :: <harp-back-end>, builder :: <harp-coff-builder>, 
-     name :: <byte-string>, model-object,
+     name :: <string>, model-object,
      lambda :: <fully-compiled-lambda>)
     => ()
   // This method is for CodeView builders only.
@@ -469,7 +469,7 @@ end method;
 
 define method output-one-scope
      (be :: <harp-back-end>, builder :: <harp-coff-builder>, 
-      name :: <byte-string>, model-object,
+      name :: <string>, model-object,
       scope :: <debug-scope>,
       all-scopes :: <simple-object-vector>,
       all-names :: <simple-object-vector>) 
@@ -492,7 +492,7 @@ end method;
 
 define method output-nested-scopes
      (be :: <harp-back-end>, builder :: <harp-coff-builder>, 
-      name :: <byte-string>, model-object,
+      name :: <string>, model-object,
       scope :: <debug-scope>,
       all-scopes :: <simple-object-vector>,
       all-names :: <simple-object-vector>) 
@@ -505,7 +505,7 @@ end method;
 
 define method output-function-variable-scopes
      (be :: <harp-back-end>, builder :: <harp-coff-builder>, 
-      name :: <byte-string>, model-object,
+      name :: <string>, model-object,
       lambda :: <fully-compiled-lambda>)
      => ()
   let scopes :: <debug-scopes> = lambda.lambda-variable-scopes-internal;
@@ -544,7 +544,7 @@ define method insert-code-label
     (be :: <harp-back-end>, 
      builder :: <harp-coff-builder>, 
      item :: <relative-address-constant>,
-     name :: <byte-string>,
+     name :: <string>,
      model-object,
      pos :: <integer>)
   // Relative addressing as used by LEA
@@ -559,7 +559,7 @@ define method insert-code-label
     (be :: <harp-back-end>, 
      builder :: <harp-coff-builder>, 
      item :: <labelled-absolute-constant>,
-     name :: <byte-string>,
+     name :: <string>,
      model-object,
      pos :: <integer>)
   let ref = item.labelled-constant-reference;
@@ -601,7 +601,7 @@ define method insert-code-label
     (be :: <harp-back-end>, 
      builder :: <harp-coff-builder>, 
      item :: <labelled-relative-constant>,
-     name :: <byte-string>,
+     name :: <string>,
      model-object,
      pos :: <integer>)
   let ref = item.labelled-constant-reference;
@@ -617,7 +617,7 @@ define method insert-code-label
     (be :: <harp-back-end>, 
      builder :: <harp-coff-builder>, 
      item :: <labelled-constant-with-opcode>,
-     name :: <byte-string>,
+     name :: <string>,
      model-object,
      pos :: <integer>)
   let reloc-pos = pos + 1; // relocation is after the opcode

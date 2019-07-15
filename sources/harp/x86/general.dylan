@@ -407,7 +407,7 @@ end method;
 
 /* Not referenced or exported.  https://github.com/dylan-lang/opendylan/issues/561
 define method indirect-runtime-reference 
-    (name :: <byte-string>) => (c :: <constant-reference>)
+    (name :: <string>) => (c :: <constant-reference>)
   make(<constant-reference>, 
        refers-to: name,
        address-mode: #"indirect",
@@ -416,7 +416,7 @@ end method;
 */
 
 define method thread-local-runtime-reference
-(name :: <byte-string>) => (c :: <constant-reference>)
+(name :: <string>) => (c :: <constant-reference>)
   make(<i-thread-constant-reference>, 
        refers-to: name,
        const-offset: 0);
