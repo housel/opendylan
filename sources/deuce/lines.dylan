@@ -144,7 +144,7 @@ define open abstract class <text-line> (<basic-line>)
   sealed slot line-length :: <integer>,
     setter: %length-setter,
     required-init-keyword: length:;
-  sealed slot line-contents :: <byte-string>,
+  sealed slot line-contents :: <string>,
     setter: %contents-setter,
     required-init-keyword: contents:;
 end class <text-line>;
@@ -187,8 +187,8 @@ define sealed method line-length-setter
 end method line-length-setter;
 
 define sealed method line-contents-setter
-    (contents :: <byte-string>, line :: <text-line>)
- => (contents :: <byte-string>)
+    (contents :: <string>, line :: <text-line>)
+ => (contents :: <string>)
   line.%length   := size(contents);
   line.%contents := contents;
   note-line-changed(line);        // note the change!
@@ -309,7 +309,7 @@ define sealed method do-characters
      #key start: _start :: <integer> = 0, end: _end :: <integer> = line-length(line),
           from-end? = #f, skip-test) => ()
   ignore(skip-test);
-  let contents :: <byte-string> = line-contents(line);
+  let contents :: <string> = line-contents(line);
   range-check(contents, line-length(line), _start, _end);
   let (_start :: <integer>, _end :: <integer>, _step :: <integer>)
     = if (from-end?) values(_end - 1, _start - 1, -1)
@@ -326,10 +326,10 @@ end method do-characters;
 // Note that this does not include a trailing '\n' character!
 define method as
     (class :: subclass(<string>), line :: <text-line>)
- => (string :: <byte-string>)
+ => (string :: <string>)
   let length   = line-length(line);
   let contents = line-contents(line);
-  let string   = make(<byte-string>, size: length);
+  let string   = make(<string>, size: length);
   // Use the fastest method available to copy the line contents
   copy-bytes(string, 0, contents, 0, length);
   string
@@ -361,19 +361,19 @@ end method line-length;
 
 // The text contents of a diagram line is the null string
 define method line-contents
-    (line :: <diagram-line>) => (contents :: <byte-string>)
+    (line :: <diagram-line>) => (contents :: <string>)
   ""
 end method line-contents;
 
 define method line-contents-setter
-    (contents :: <byte-string>, line :: <diagram-line>)
- => (contents :: <byte-string>)
+    (contents :: <string>, line :: <diagram-line>)
+ => (contents :: <string>)
   error("There is no 'line-contents-setter' method for the diagram line %=", line)
 end method line-contents-setter;
 
 define method as
     (class :: subclass(<string>), line :: <diagram-line>)
- => (string :: <byte-string>)
+ => (string :: <string>)
   line-contents(line)
 end method as;
 

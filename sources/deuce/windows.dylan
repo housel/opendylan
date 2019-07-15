@@ -116,7 +116,7 @@ define open abstract class <basic-window> (<window>)
   sealed slot window-centering-fraction :: false-or(<real>) = #f;
   // For bracket matching
   sealed slot window-matching-bp     :: false-or(<basic-bp>) = #f;
-  sealed slot window-matching-string :: <byte-string> = make(<byte-string>, size: 2);
+  sealed slot window-matching-string :: <string> = make(<string>, size: 2);
   // Pointer from the window back to the owning frame
   sealed slot window-frame :: <editor-state-mixin> = $null-editor-frame,
     init-keyword: frame:;

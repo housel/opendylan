@@ -30,7 +30,7 @@ define open abstract class <shell-mode> (<major-mode>)
 end class <shell-mode>;
 
 define method mode-name
-    (mode :: <shell-mode>) => (name :: <byte-string>)
+    (mode :: <shell-mode>) => (name :: <string>)
   "Shell"
 end method mode-name;
 

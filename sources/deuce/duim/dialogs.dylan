@@ -568,7 +568,7 @@ define variable $search-string-field-width :: <integer> = 250;
 
 define sealed method string-search-dialog
     (window :: <deuce-pane>,
-     #key string :: false-or(<byte-string>) = #f,
+     #key string :: false-or(<string>) = #f,
           reverse? :: <boolean> = #f,
           case-sensitive? :: <boolean> = #f,
           whole-word? :: <boolean> = #f) => ()
@@ -699,8 +699,8 @@ end method string-search-dialog;
 
 define sealed method string-replace-dialog
     (window :: <deuce-pane>,
-     #key string  :: false-or(<byte-string>) = #f,
-          replace :: false-or(<byte-string>) = #f,
+     #key string  :: false-or(<string>) = #f,
+          replace :: false-or(<string>) = #f,
           reverse? :: <boolean> = #f,
           case-sensitive? :: <boolean> = #f,
           whole-word? :: <boolean> = #f) => ()

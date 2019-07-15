@@ -15,7 +15,7 @@ define constant <integer-vector> = limited(<vector>, of: <integer>);
 // to compute delimiters for whole-word searching.
 //--- Note that we don't presently support '\n' in the pattern string
 define method search
-    (bp :: <basic-bp>, string :: <byte-string>,
+    (bp :: <basic-bp>, string :: <string>,
      #key test = char-equal?, reverse? = #f, syntax-table = #f,
           skip-table         :: false-or(<integer-vector>) = #f,
           reoccurrence-table :: false-or(<integer-vector>) = #f)
@@ -167,7 +167,7 @@ end method search;
 
 // Note the default test function is _not_ case-sensitive!
 define method boyer-search
-    (pattern :: <byte-string>, source :: <byte-string>,
+    (pattern :: <string>, source :: <string>,
      #key test = char-equal?,
           start: _start :: <integer> = 0, end: _end :: <integer> = size(source))
  => (position :: false-or(<integer>))
@@ -178,7 +178,7 @@ define method boyer-search
 end method boyer-search;
 
 define sealed method compute-boyer-tables
-    (pattern :: <byte-string>,
+    (pattern :: <string>,
      #key skip-table, reoccurrence-table, test = char-equal?)
  => (skip-table :: <integer-vector>, reoccurrence-table :: <integer-vector>)
   let skip-table :: <integer-vector>
@@ -191,7 +191,7 @@ define sealed method compute-boyer-tables
 end method compute-boyer-tables;
 
 define sealed method cached-boyer-search
-    (pattern :: <byte-string>, source :: <byte-string>,
+    (pattern :: <string>, source :: <string>,
      skip-table :: <integer-vector>, reoccurrence-table :: <integer-vector>,
      #key test = char-equal?,
           start: _start :: <integer> = 0, end: _end :: <integer> = size(source))
@@ -239,7 +239,7 @@ end method cached-boyer-search;
 // otherwise skip(CH) is set to pattern-length.  If the table is passed in
 // as an argument, don't allocate it, just side-effect it.
 define sealed method fill-skip-table!
-    (pattern :: <byte-string>, skip-table :: <integer-vector>,
+    (pattern :: <string>, skip-table :: <integer-vector>,
      #key test = char-equal?)
  => (skip-table :: <integer-vector>)
   let length   :: <integer> = size(pattern);
@@ -283,15 +283,15 @@ end method fill-skip-table!;
 // convenient representation of the rightmost plausible reoccurrence of the
 // terminal substring of the pattern.
 define sealed method fill-reoccurrence-table!
-    (pattern :: <byte-string>, reoccurrence-table :: <integer-vector>,
+    (pattern :: <string>, reoccurrence-table :: <integer-vector>,
      #key test = char-equal?)
  => (reoccurrence-table :: <integer-vector>)
   let length   :: <integer> = size(pattern);
   let length-1 :: <integer> = length - 1;
   fill!(reoccurrence-table, length);
   local method unify
-            (str1 :: <byte-string>, from1 :: <integer>, to1 :: <integer>,
-             str2 :: <byte-string>, from2 :: <integer>, to2 :: <integer>)
+            (str1 :: <string>, from1 :: <integer>, to1 :: <integer>,
+             str2 :: <string>, from2 :: <integer>, to2 :: <integer>)
          => (match? :: <boolean>)
           // Like 'string-equal?', except that when the index is negative,
           // it matches.  NB: I1 will never be out of bounds, by definition
@@ -343,7 +343,7 @@ end method fill-reoccurrence-table!;
 
 // Note the default test function is _not_ case-sensitive!
 define sealed method string-search
-    (pattern :: <byte-string>, source :: <byte-string>,
+    (pattern :: <string>, source :: <string>,
      #key test = char-equal?,
           start: _start :: <integer> = 0, end: _end :: <integer> = size(source))
  => (index :: false-or(<integer>))
@@ -383,7 +383,7 @@ end method string-search;
 
 // Note the default test function is _not_ case-sensitive!
 define sealed method string-reverse-search
-    (pattern :: <byte-string>, source :: <byte-string>,
+    (pattern :: <string>, source :: <string>,
      #key test = char-equal?,
           start: _start :: <integer> = 0, end: _end :: <integer> = size(source))
  => (index :: false-or(<integer>))

@@ -240,7 +240,7 @@ define method do-complete-dynamically
       else
         let (bp1, bp2) = atom-under-bp(point());
         let word = (atom-syntax(bp-character(bp1)) == $atom-alphabetic
-                    & as(<byte-string>, make-interval(bp1, bp2, in-order?: #t)));
+                    & as(<string>, make-interval(bp1, bp2, in-order?: #t)));
         values(word, bp1, bp1, #t, word)
       end;
   state[0] := #f;                // assume failure
@@ -253,7 +253,7 @@ define method do-complete-dynamically
                 let (bp1, bp2) = atom-under-bp(bp);
                 bp := (if (reverse?) bp1 else bp2 end);
                 when (is-atom?)
-                  let string = as(<byte-string>, make-interval(bp1, bp2, in-order?: #t));
+                  let string = as(<string>, make-interval(bp1, bp2, in-order?: #t));
                   when (~string-equal?(string, completion) & ~string-equal?(string, word))
                     completion := string;
                     break()

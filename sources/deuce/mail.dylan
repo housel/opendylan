@@ -96,25 +96,25 @@ end method buffer-modified?;
 
 define sealed method parse-mail-buffer
     (buffer :: <mail-buffer>)
- => (from :: false-or(<byte-string>),
-     to :: false-or(<byte-string>),
-     cc :: false-or(<byte-string>),
-     subject :: false-or(<byte-string>), body :: false-or(<byte-string>),
+ => (from :: false-or(<string>),
+     to :: false-or(<string>),
+     cc :: false-or(<string>),
+     subject :: false-or(<string>), body :: false-or(<string>),
      other-headers :: <sequence>)
   let header-node = buffer-start-node(buffer);
   let body-node   = header-node & node-next(header-node);
   let header      = header-node & node-section(header-node);
   let body        = body-node   & node-section(body-node);
-  let from :: false-or(<byte-string>) = #f;
-  let to   :: false-or(<byte-string>) = #f;
-  let cc   :: false-or(<byte-string>) = #f;
-  let subj :: false-or(<byte-string>) = #f;
-  let body :: false-or(<byte-string>) = body & as(<byte-string>, body);
+  let from :: false-or(<string>) = #f;
+  let to   :: false-or(<string>) = #f;
+  let cc   :: false-or(<string>) = #f;
+  let subj :: false-or(<string>) = #f;
+  let body :: false-or(<string>) = body & as(<string>, body);
   let other-headers :: <stretchy-object-vector> = make(<stretchy-vector>);
   //--- I admit it, this is a pretty cheesy header parser
   when (header)
-    local method looking-at? (contents :: <byte-string>, length :: <integer>,
-                              string :: <byte-string>)
+    local method looking-at? (contents :: <string>, length :: <integer>,
+                              string :: <string>)
             let _start = 0;
             let _end   = min(size(string), length);
             string-equal?(contents, string, start1: _start, end1: _end)
@@ -173,7 +173,7 @@ define sealed method initialize-major-mode
 end method initialize-major-mode;
 
 define sealed method mode-name
-    (mode :: <mail-mode>) => (name :: <byte-string>)
+    (mode :: <mail-mode>) => (name :: <string>)
   "Mail"
 end method mode-name;
 

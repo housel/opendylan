@@ -615,7 +615,7 @@ define method do-undo
           let bp1 = line-start(line);
           let bp2 = forward-over(bp1, #[' ', '\t']);
           delete!(make-interval(bp1, bp2, in-order?: #t));
-          let spaces = make(<byte-string>, size: indentation, fill: ' ');
+          let spaces = make(<string>, size: indentation, fill: ' ');
           insert!(bp1, spaces)
         end method;
   do-lines(change-indentation, interval);
@@ -638,7 +638,7 @@ define method do-redo
           let bp1 = line-start(line);
           let bp2 = forward-over(bp1, #[' ', '\t']);
           delete!(make-interval(bp1, bp2, in-order?: #t));
-          let spaces = make(<byte-string>, size: indentation, fill: ' ');
+          let spaces = make(<string>, size: indentation, fill: ' ');
           insert!(bp1, spaces)
         end method;
   do-lines(change-indentation, interval);

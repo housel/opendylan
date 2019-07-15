@@ -7,7 +7,7 @@ License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 /// String and character functions
-/// Note that this assumes <byte-string> implements 7-bit ASCII encoding
+/// Note that this assumes <string> implements 7-bit ASCII encoding
 
 /// Utilities
 
@@ -67,7 +67,7 @@ end method char-greater?;
 /// Case-insensitive string comparisons
 
 define sealed method string-equal?
-    (string1 :: <byte-string>, string2 :: <byte-string>,
+    (string1 :: <string>, string2 :: <string>,
      #key start1 :: <integer> = 0, end1 :: <integer> = size(string1),
           start2 :: <integer> = 0, end2 :: <integer> = size(string2))
  => (true? :: <boolean>)
@@ -91,7 +91,7 @@ define sealed method string-equal?
 end method string-equal?;
 
 define sealed method string-less?
-    (string1 :: <byte-string>, string2 :: <byte-string>,
+    (string1 :: <string>, string2 :: <string>,
      #key start1 :: <integer> = 0, end1 :: <integer> = size(string1),
           start2 :: <integer> = 0, end2 :: <integer> = size(string2))
  => (true? :: <boolean>)
@@ -109,7 +109,7 @@ define sealed method string-less?
 end method string-less?;
 
 define sealed method string-greater?
-    (string1 :: <byte-string>, string2 :: <byte-string>,
+    (string1 :: <string>, string2 :: <string>,
      #key start1 :: <integer> = 0, end1 :: <integer> = size(string1),
           start2 :: <integer> = 0, end2 :: <integer> = size(string2))
  => (true? :: <boolean>)
@@ -127,8 +127,8 @@ define sealed method string-greater?
 end method string-greater?;
 
 define sealed method string-compare
-    (string1 :: <byte-string>, start1 :: <integer>,
-     string2 :: <byte-string>, start2 :: <integer>, count :: <integer>)
+    (string1 :: <string>, start1 :: <integer>,
+     string2 :: <string>, start2 :: <integer>, count :: <integer>)
  => (result :: <integer>)
   let subrange1 = size(string1) - start1;
   let subrange2 = size(string2) - start2;
@@ -251,7 +251,7 @@ end method any-whitespace-char?;
 
 // Trims everything from the end that doesn't match the "keep" predicate
 define sealed method string-trim
-    (string :: <byte-string>, predicate :: <function>) => (string :: <byte-string>)
+    (string :: <string>, predicate :: <function>) => (string :: <string>)
   let i = position-if(string, predicate);
   if (i)
     let j = position-if(string, predicate, from-end?: #t);
@@ -262,7 +262,7 @@ define sealed method string-trim
 end method string-trim;
 
 define sealed method trim-whitespace
-    (string :: <byte-string>) => (string :: <byte-string>)
+    (string :: <string>) => (string :: <string>)
   local method non-whitespace? (ch :: <character>)
           ~whitespace-char?(ch)
         end method;
@@ -278,9 +278,9 @@ define inline function string-capitalize
 end function string-capitalize;
 
 define sealed method string-capitalize!
-    (string :: <byte-string>,
+    (string :: <string>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = size(string))
- => (string :: <byte-string>)
+ => (string :: <string>)
   range-check(string, size(string), _start, _end);
   let state = #f;
   without-bounds-checks

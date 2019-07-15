@@ -159,7 +159,7 @@ define open abstract class <definition-browsing-buffer>
   // (in which case the subclass may supply a 'buffer-name' method)
   sealed constant slot %format-string :: false-or(<string>) = #f,
     init-keyword: format-string:;
-  sealed slot %browsing-buffer-name :: false-or(<byte-string>) = #f;
+  sealed slot %browsing-buffer-name :: false-or(<string>) = #f;
   // The generator applied to the definition produces a sequence of sections
   sealed constant slot browsing-buffer-generator :: <function>,
     required-init-keyword: generator:;

@@ -255,7 +255,7 @@ end method initialize-yank-state;
 /// Kill ring elements
 
 define method history-element-size
-    (elt :: <byte-string>) => (size :: <integer>)
+    (elt :: <string>) => (size :: <integer>)
   size(elt)
 end method history-element-size;
 
@@ -266,21 +266,21 @@ end method history-element-size;
 
 
 define method merge-history-elements
-    (elt1 :: <byte-string>, elt2 :: <byte-string>)
- => (result :: <byte-string>)
-  concatenate-as(<byte-string>, elt1, elt2)
+    (elt1 :: <string>, elt2 :: <string>)
+ => (result :: <string>)
+  concatenate-as(<string>, elt1, elt2)
 end method merge-history-elements;
 
 define method merge-history-elements
-    (elt1 :: <byte-string>, elt2 :: <interval>)
- => (result :: <byte-string>)
-  concatenate-as(<byte-string>, elt1, as(<byte-string>, elt2))
+    (elt1 :: <string>, elt2 :: <interval>)
+ => (result :: <string>)
+  concatenate-as(<string>, elt1, as(<string>, elt2))
 end method merge-history-elements;
 
 define method merge-history-elements
-    (elt1 :: <interval>, elt2 :: <byte-string>)
- => (result :: <byte-string>)
-  concatenate-as(<byte-string>, as(<byte-string>, elt1), elt2)
+    (elt1 :: <interval>, elt2 :: <string>)
+ => (result :: <string>)
+  concatenate-as(<string>, as(<string>, elt1), elt2)
 end method merge-history-elements;
 
 // Note that this doesn't copy the intervals!
@@ -316,7 +316,7 @@ define method add-to-kill-ring
       else
         let interval :: <basic-interval> = object;        // force tighter type...
         if (bp-line(interval-start-bp(interval)) == bp-line(interval-end-bp(interval)))
-          as(<byte-string>, interval)                        // more efficient for simple things...
+          as(<string>, interval)                        // more efficient for simple things...
         else
           copy-interval(interval)
         end
@@ -346,7 +346,7 @@ define method yank-from-kill-ring
  => (elt :: false-or(type-union(<basic-interval>, <string>)))
   let policy     = editor-policy(frame-editor(window-frame(window)));
   let clipboard? = clipboard-policy(policy);
-  let clipboard  = clipboard? & get-from-clipboard(window, <byte-string>);
+  let clipboard  = clipboard? & get-from-clipboard(window, <string>);
   let state      = kill-ring.%yank-state;
   case
     clipboard? & state == #"clipboard" & ~index =>

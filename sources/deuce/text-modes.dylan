@@ -16,7 +16,7 @@ begin
 end;
 
 define method mode-name
-    (mode :: <fundamental-mode>) => (name :: <byte-string>)
+    (mode :: <fundamental-mode>) => (name :: <string>)
   "Fundamental"
 end method mode-name;
 
@@ -32,7 +32,7 @@ begin
 end;
 
 define method mode-name
-    (mode :: <text-mode>) => (name :: <byte-string>)
+    (mode :: <text-mode>) => (name :: <string>)
   "Text"
 end method mode-name;
 

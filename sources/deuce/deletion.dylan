@@ -171,7 +171,7 @@ define method delete-across-lines
   let new-length = start-index;
   line-length(start-line) := new-length;
   // Copy the remainder of the end line into the start line
-  insert-into-line(start-line, new-length, as(<byte-string>, end-line),
+  insert-into-line(start-line, new-length, as(<string>, end-line),
                    start: end-index);
   // Unlink the intervening lines, including the original end-line
   let following-line = line-next(end-line);

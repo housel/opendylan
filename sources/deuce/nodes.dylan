@@ -175,7 +175,7 @@ define method count-lines
 end method count-lines;
 
 define method count-lines
-    (string :: <byte-string>,
+    (string :: <string>,
      #key skip-test = line-for-display-only?, cache-result? = #f)
  => (nlines :: <integer>)
   ignore(skip-test, cache-result?);
@@ -230,7 +230,7 @@ define method count-characters
 end method count-characters;
 
 define method count-characters
-    (string :: <byte-string>,
+    (string :: <string>,
      #key skip-test = line-for-display-only?, cache-result? = #f)
  => (nchars :: <integer>)
   ignore(skip-test, cache-result?);
@@ -241,8 +241,8 @@ end method count-characters;
 // Note that this _does_ include a '\n' character at the end of each line
 define method as
     (class :: subclass(<string>), interval :: <interval>)
- => (string :: <byte-string>)
-  let string = make(<byte-string>, size: count-characters(interval));
+ => (string :: <string>)
+  let string = make(<string>, size: count-characters(interval));
   let i :: <integer> = 0;
   do-lines(method (line, si, ei, last?)
              let n :: <integer> = ei - si;

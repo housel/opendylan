@@ -57,9 +57,9 @@ define open abstract class <basic-editor> (<editor>)
     init-keyword: policy:;
   sealed constant slot editor-lock :: <recursive-lock> = make(<recursive-lock>);
   // Cached tables for Boyer-Moore searching, shared by all frames
-  sealed slot editor-search-string  :: false-or(<byte-string>) = #f,
+  sealed slot editor-search-string  :: false-or(<string>) = #f,
     setter: %search-string-setter;
-  sealed slot editor-replace-string  :: false-or(<byte-string>) = #f;
+  sealed slot editor-replace-string  :: false-or(<string>) = #f;
   sealed slot editor-reverse-search?        :: <boolean> = #f;
   sealed slot editor-case-sensitive-search? :: <boolean> = #f;
   sealed slot editor-whole-word-search?     :: <boolean> = #f;
@@ -74,8 +74,8 @@ define sealed domain make (singleton(<simple-editor>));
 define sealed domain initialize (<simple-editor>);
 
 define sealed method editor-search-string-setter
-    (search-string :: false-or(<byte-string>), editor :: <basic-editor>)
- => (search-string :: false-or(<byte-string>))
+    (search-string :: false-or(<string>), editor :: <basic-editor>)
+ => (search-string :: false-or(<string>))
   unless (search-string = editor-search-string(editor))
     // Invalidate the Boyer-Moore search caches, but don't compute them
     // until we need them
@@ -90,7 +90,7 @@ end method editor-search-string-setter;
 
 
 define method find-buffer
-    (editor :: <basic-editor>, name :: <byte-string>)
+    (editor :: <basic-editor>, name :: <string>)
  => (buffer :: false-or(<basic-buffer>))
   find-buffer(editor, method (b) buffer-name(b) = name end)
 end method find-buffer;
@@ -177,7 +177,7 @@ define open abstract class <editor-state-mixin> (<editor-frame>)
   sealed slot frame-isearch-trail       :: <list> = #();
   sealed slot frame-isearch-direction   :: <incremental-search-direction> = #f;
   sealed slot frame-isearch-move-mark?  :: <boolean> = #f;
-  sealed slot frame-isearch-last-string :: false-or(<byte-string>) = #f;
+  sealed slot frame-isearch-last-string :: false-or(<string>) = #f;
   // Search&Replace state
   slot frame-search-string-found? :: false-or(<buffer>) = #f;        // _not_ sealed
   // Dynamic completion state

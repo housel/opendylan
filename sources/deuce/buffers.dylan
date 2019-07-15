@@ -129,7 +129,7 @@ end protocol <<buffer>>;
 // zero or more windows.  It contains a linked list of nodes which get
 // created by some sort of generating function.
 define open abstract primary class <basic-buffer> (<buffer>)
-  sealed slot buffer-name :: <byte-string> = "",
+  sealed slot buffer-name :: <string> = "",
     setter: %buffer-name-setter,
     init-keyword: name:;
   sealed slot buffer-start-node :: false-or(<basic-node>) = #f,
@@ -184,8 +184,8 @@ define method buffer-default-pathname
 end method buffer-default-pathname;
 
 define method buffer-name-setter
-    (name :: <byte-string>, buffer :: <basic-buffer>)
- => (name :: <byte-string>)
+    (name :: <string>, buffer :: <basic-buffer>)
+ => (name :: <string>)
   %buffer-name(buffer) := name;
   display-buffer-name-everywhere(buffer);
   name
@@ -611,7 +611,7 @@ define method initialize
 end method initialize;
 
 define function pathname->buffer-name
-    (pathname :: <pathname>) => (name :: <byte-string>)
+    (pathname :: <pathname>) => (name :: <string>)
   let locator = as(<file-locator>, pathname);
   let directory = locator-directory(locator);
   let name = locator-name(locator);
@@ -1056,11 +1056,11 @@ end method count-lines;
 
 define method as
     (class :: subclass(<string>), buffer :: <basic-buffer>)
- => (string :: <byte-string>)
+ => (string :: <string>)
   let bp1 = interval-start-bp(buffer);
   let bp2 = interval-end-bp(buffer);
   if (bp1 & bp2)
-    as(<byte-string>, make-interval(bp1, bp2, in-order?: #t))
+    as(<string>, make-interval(bp1, bp2, in-order?: #t))
   else
     ""
   end

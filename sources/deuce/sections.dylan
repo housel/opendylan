@@ -209,11 +209,11 @@ end method count-lines;
 // Note that this _does_ include a '\n' character at the end of each line
 define method as
     (class :: subclass(<string>), section :: <basic-section>)
- => (string :: <byte-string>)
+ => (string :: <string>)
   let bp1 = line-start(section-start-line(section));
   let bp2 = line-end(section-end-line(section));
   let interval = make-interval(bp1, bp2, in-order?: #t);
-  as(<byte-string>, interval)
+  as(<string>, interval)
 end method as;
 
 

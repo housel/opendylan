@@ -310,6 +310,6 @@ define sealed class <overwrite-mode> (<minor-mode>)
 end class <overwrite-mode>;
 
 define method mode-name
-    (mode :: <overwrite-mode>) => (name :: <byte-string>)
+    (mode :: <overwrite-mode>) => (name :: <string>)
   "Overwrite"
 end method mode-name;

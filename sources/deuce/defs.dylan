@@ -109,7 +109,7 @@ define sealed method position
 end method position;
 
 define sealed method position
-    (string :: <byte-string>, item,
+    (string :: <string>, item,
      #key test = \==,
           start: _start :: <integer> = 0, end: _end :: <integer> = size(string), from-end?)
  => (index :: false-or(<integer>))
@@ -167,7 +167,7 @@ define sealed method position-if
 end method position-if;
 
 define sealed method position-if
-    (string :: <byte-string>, predicate :: <function>,
+    (string :: <string>, predicate :: <function>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = size(string), from-end?)
  => (index :: false-or(<integer>))
   primitive-position-if(string, predicate,
@@ -220,7 +220,7 @@ define sealed method count
 end method count;
 
 define sealed method count
-    (string :: <byte-string>, item,
+    (string :: <string>, item,
      #key test = \==,
           start: _start :: <integer> = 0, end: _end :: <integer> = size(string))
  => (index :: false-or(<integer>))

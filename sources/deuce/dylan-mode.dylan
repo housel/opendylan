@@ -152,7 +152,7 @@ begin
 end;
 
 define method mode-name
-    (mode :: <dylan-mode>) => (name :: <byte-string>)
+    (mode :: <dylan-mode>) => (name :: <string>)
   "Dylan"
 end method mode-name;
 
@@ -222,7 +222,7 @@ define sealed domain make (singleton(<dylan-definition-node>));
 define sealed domain initialize (<dylan-definition-node>);
 
 define sealed class <dylan-header-node> (<header-node>)
-  sealed slot node-module-name :: false-or(<byte-string>) = #f,
+  sealed slot node-module-name :: false-or(<string>) = #f,
     init-keyword: module-name:;
 end class <dylan-header-node>;
 
@@ -1574,7 +1574,7 @@ define sealed method indent-dylan-line
             let old-n    = count-characters(interval);
             let new-n    = max(indentation, 0);
             delete!(interval);
-            let spaces = make(<byte-string>, size: new-n, fill: ' ');
+            let spaces = make(<string>, size: new-n, fill: ' ');
             values(insert-moving!(bp1, spaces), new-n - old-n)
           else
             values(bp1, 0)
@@ -1609,15 +1609,15 @@ define sealed method dylan-line-indentation
           end
         end method,
         method looking-at?
-            (contents :: <byte-string>, _start :: <integer>, _end :: <integer>,
-             string :: <byte-string>)
+            (contents :: <string>, _start :: <integer>, _end :: <integer>,
+             string :: <string>)
          => (true? :: <boolean>)
           let _end = min(_start + size(string), _end);
           string-equal?(contents, string, start1: _start, end1: _end)
         end method,
         method looking-at-atom?
-            (contents :: <byte-string>, _start :: <integer>, _end :: <integer>,
-             string :: <byte-string>)
+            (contents :: <string>, _start :: <integer>, _end :: <integer>,
+             string :: <string>)
          => (true? :: <boolean>)
           let _end = min(_start + size(string), _end);
           string-equal?(contents, string, start1: _start, end1: _end)
@@ -1625,7 +1625,7 @@ define sealed method dylan-line-indentation
                 | atom-syntax(contents[_end]) ~= $atom-alphabetic) */
         end method,
         method bp-looking-at-call?
-            (bp :: <basic-bp>, string :: <byte-string>)
+            (bp :: <basic-bp>, string :: <string>)
          => (true? :: <boolean>)
           bp-looking-at-atom?(bp, string)
           & begin
@@ -1924,7 +1924,7 @@ begin
 end;
 
 define method mode-name
-    (mode :: <dylan-shell-mode>) => (name :: <byte-string>)
+    (mode :: <dylan-shell-mode>) => (name :: <string>)
   "Dylan shell"
 end method mode-name;
 

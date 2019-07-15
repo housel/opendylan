@@ -123,7 +123,7 @@ begin
 end;
 
 define method mode-name
-    (mode :: <xml-mode>) => (name :: <byte-string>)
+    (mode :: <xml-mode>) => (name :: <string>)
   "XML"
 end method mode-name;
 
@@ -254,7 +254,7 @@ end method move-up-or-down-xml-tags;
 
 define sealed method xml-tag-name
     (bp :: <basic-bp>)
- => (tag-name :: false-or(<byte-string>),
+ => (tag-name :: false-or(<string>),
      empty-element? :: <boolean>, end-tag? :: <boolean>)
   select (bp-character(bp))
     '<' =>
@@ -271,7 +271,7 @@ define sealed method xml-tag-name
       when (end?)
         decrement-bp!(bp2)
       end;
-      values(as(<byte-string>, make-interval(bp1, bp2, in-order?: #t)), empty?, end?);
+      values(as(<string>, make-interval(bp1, bp2, in-order?: #t)), empty?, end?);
     '>' =>
       let bp = search(bp, "<", reverse?: #t);
       bp & xml-tag-name(bp);
@@ -343,7 +343,7 @@ define sealed method indent-xml-line
             let old-n    = count-characters(interval);
             let new-n    = max(indentation, 0);
             delete!(interval);
-            let spaces = make(<byte-string>, size: new-n, fill: ' ');
+            let spaces = make(<string>, size: new-n, fill: ' ');
             values(insert-moving!(bp1, spaces), new-n - old-n)
           else
             values(bp1, 0)

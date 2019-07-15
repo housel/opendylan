@@ -55,7 +55,7 @@ define constant <incremental-search-state>
 define sealed class <incremental-search-entry> (<object>)
   sealed constant slot %start-bp :: <basic-bp>,
     required-init-keyword: start-bp:;
-  sealed constant slot %string   :: <byte-string>,
+  sealed constant slot %string   :: <string>,
     required-init-keyword: string:;
   sealed slot %state :: <incremental-search-state> = #"input",
     init-keyword: state:;
@@ -97,7 +97,7 @@ define sealed method continue-incremental-search
   let (string, state)
     = if (entry) values(entry.%string, entry.%state) else values("", #f) end;
   let move-mark? = frame-isearch-move-mark?(frame);
-  local method add-entry (string :: <byte-string>) => ()
+  local method add-entry (string :: <string>) => ()
           let entry :: <incremental-search-entry>
             = make(<incremental-search-entry>,
                    start-bp: copy-bp(window-point(window)),
@@ -106,11 +106,11 @@ define sealed method continue-incremental-search
           trail := pair(entry, trail);
           frame-isearch-trail(frame) := trail;
         end method,
-        method add-to-search-string (new :: <byte-string>, #key prepend? = #f) => ()
+        method add-to-search-string (new :: <string>, #key prepend? = #f) => ()
           let offset = size(string);
           let string
-            = if (prepend?) concatenate-as(<byte-string>, new, string)
-              else concatenate-as(<byte-string>, string, new) end;
+            = if (prepend?) concatenate-as(<string>, new, string)
+              else concatenate-as(<string>, string, new) end;
           add-entry(string);
           unless (state == #"fail" | state == #"wrap-fail")
             incremental-search(frame, offset: offset)
@@ -119,7 +119,7 @@ define sealed method continue-incremental-search
         end method;
   case
     char & logand(bits, logior($control-key, $meta-key, $super-key)) = 0 =>
-      let new = make(<byte-string>, size: 1, fill: char);
+      let new = make(<string>, size: 1, fill: char);
       add-to-search-string(new);
       #f;
     keysym == #"backspace" =>
@@ -214,12 +214,12 @@ define sealed method continue-incremental-search
           let n   = if (frame-isearch-direction(frame) == #"backward") -1 else 1 end;
           let bp1 = window-point(window);
           let bp2 = (empty?(trail) & window-mark(window)) | move-over-words(bp1, n);
-          let new = as(<byte-string>, make-interval(bp1, bp2));
+          let new = as(<string>, make-interval(bp1, bp2));
           add-to-search-string(new, prepend?: n < 0);
           #f;
         'y' =>
           let elt = history-top(editor-kill-history(frame-editor(frame)));
-          let new = elt & as(<byte-string>, elt);
+          let new = elt & as(<string>, elt);
           if (new)
             add-to-search-string(new)
           else
@@ -228,7 +228,7 @@ define sealed method continue-incremental-search
           #f;
         'q' =>
           let char = read-character(window);
-          let new  = make(<byte-string>, size: 1, fill: char);
+          let new  = make(<string>, size: 1, fill: char);
           add-to-search-string(new);
           #f;
         'g' =>

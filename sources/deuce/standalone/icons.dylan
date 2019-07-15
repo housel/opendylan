@@ -12,7 +12,7 @@ define variable *icons-initialized?* :: <boolean> = #f;
 
 define macro initialize-icon
   { initialize-icon(?icon:name, ?resource-id:expression) }
-    => { let _id   = as(<byte-string>, ?resource-id);
+    => { let _id   = as(<string>, ?resource-id);
          let _icon = read-image-as(<win32-icon>, _id, #"small-icon");
          when (_icon)
            ?icon := _icon

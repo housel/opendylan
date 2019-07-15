@@ -234,7 +234,7 @@ define method insert-character
     let bp  = point();
     let bp2 = typing-replaces-selection?(editor-policy(frame-editor(frame))) & mark();
     check-read-only(bp);
-    let thing = if (n > 1) make(<byte-string>, size: n, fill: char)
+    let thing = if (n > 1) make(<string>, size: n, fill: char)
                 else char end;
     if (bp2)
       with-change-recording (buffer, <replace-change-record>,
@@ -343,7 +343,7 @@ define command editor-help (frame)
     "Show help for all the current key bindings."
   let window :: <basic-window> = frame-window(frame);
   local method get-command
-            (window :: <basic-window>, comtab :: <command-table>, message :: <byte-string>)
+            (window :: <basic-window>, comtab :: <command-table>, message :: <string>)
          => (command)
           block (return)
             while (#t)
@@ -1396,7 +1396,7 @@ end command copy-region;
 define command paste (frame)
     "Paste the most recent clipboard item at the current position."
   let window :: <basic-window> = frame-window(frame);
-  let elt      = get-from-clipboard(window, <byte-string>);
+  let elt      = get-from-clipboard(window, <string>);
   let temp?    = window-temporary-mark?(window);
   let replace? = mark() & typing-replaces-selection?(editor-policy(frame-editor(frame)));
   if (elt)
@@ -1580,7 +1580,7 @@ define command split-line (frame)
     let space-width = string-size(window, " ");
     let indentation = index->position(line, mode, window, bp-index(bp)) - line-margin(line, mode, window);
     let n-spaces = floor/(indentation, space-width);
-    let spaces = make(<byte-string>, size: n-spaces, fill: ' ');
+    let spaces = make(<string>, size: n-spaces, fill: ' ');
     insert-moving!(bp, '\n');
     insert-moving!(bp, spaces)
   end;
@@ -1751,9 +1751,9 @@ define method do-transpose-regions
   let interval3 = make-interval(start2, end2, in-order?: #t);
   check-read-only(interval1);
   check-read-only(interval2);
-  let s1 = as(<byte-string>, interval1);
-  let s2 = as(<byte-string>, interval2);
-  let s3 = as(<byte-string>, interval3);
+  let s1 = as(<string>, interval1);
+  let s2 = as(<string>, interval2);
+  let s3 = as(<string>, interval3);
   queue-region-redisplay(window, start1, end2);
   with-change-recording (buffer, <replace-change-record>,
                          start-bp: start1, end-bp: end2)
@@ -2147,7 +2147,7 @@ define method replace-next-or-previous-string
     (frame :: <editor-state-mixin>,
      #key reverse? = $unsupplied, replace-all? :: <boolean> = #f) => ()
   local method compare-strings
-            (char-test :: <function>, s1 :: <byte-string>, s2 :: <byte-string>)
+            (char-test :: <function>, s1 :: <string>, s2 :: <string>)
          => (equal? :: <boolean>)
           // Automatically not equal if they're not the same size.
           let equal? = (size(s1) = size(s2));
@@ -2252,8 +2252,8 @@ define command hack-matching-lines (frame)
 end command hack-matching-lines;
 
 define function do-hack-matching-lines
-    (frame :: <editor-state-mixin>, title :: <byte-string>,
-     string :: <byte-string>, filter :: <function>) => ()
+    (frame :: <editor-state-mixin>, title :: <string>,
+     string :: <string>, filter :: <function>) => ()
   let window :: <basic-window> = frame-window(frame);
   let buffer :: <basic-buffer> = frame-buffer(frame);
   let editor = frame-editor(frame);
@@ -2297,14 +2297,14 @@ define function do-hack-matching-lines
 end function do-hack-matching-lines;
 
 define command show-matching-lines
-    (frame, #key string :: false-or(<byte-string>) = #f)
+    (frame, #key string :: false-or(<string>) = #f)
     "Create a new buffer showing all the lines that match a given string."
   let window :: <basic-window> = frame-window(frame);
   let string = string | choose-string-dialog(window,
                                              title: "Show Matching Lines");
   when (string)
     local method filter-line
-              (string :: <byte-string>,
+              (string :: <string>,
                line :: <basic-line>, si :: <integer>, ei :: <integer>)
            => (keep? :: <boolean>)
             string-search(string, line-contents(line), start: si, end: ei) ~== #f
@@ -2315,14 +2315,14 @@ define command show-matching-lines
 end command show-matching-lines;
 
 define command show-non-matching-lines
-    (frame, #key string :: false-or(<byte-string>) = #f)
+    (frame, #key string :: false-or(<string>) = #f)
     "Create a new buffer showing all the lines that don't match a given string."
   let window :: <basic-window> = frame-window(frame);
   let string = string | choose-string-dialog(window,
                                              title: "Show Non-matching Lines");
   when (string)
     local method filter-line
-              (string :: <byte-string>,
+              (string :: <string>,
                line :: <basic-line>, si :: <integer>, ei :: <integer>)
            => (keep? :: <boolean>)
             string-search(string, line-contents(line), start: si, end: ei) == #f
@@ -2737,7 +2737,7 @@ define command indent-rigidly (frame)
       clear-mark!();
       queue-region-redisplay(window, bp1, bp2, centering: #f);
       if (n > 0)
-        let spaces = make(<byte-string>, size: n, fill: ' ');
+        let spaces = make(<string>, size: n, fill: ' ');
         local method indent (line :: <basic-line>, si, ei, last?)
                 ignore(last?);
                 // Indent the line only if the start index is zero and

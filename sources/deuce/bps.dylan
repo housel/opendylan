@@ -293,7 +293,7 @@ end method bp-character-after;
 // Intended only to compare against strings within a single line.
 // So don't bother comparing against strings with '\n' in them...
 define sealed method bp-looking-at?
-    (bp :: <basic-bp>, string :: <byte-string>) => (match? :: <boolean>)
+    (bp :: <basic-bp>, string :: <string>) => (match? :: <boolean>)
   let line  = bp-line(bp);
   let index = bp-index(bp);
   text-line?(line)
@@ -302,7 +302,7 @@ define sealed method bp-looking-at?
 end method bp-looking-at?;
 
 define sealed method bp-looking-at-word?
-    (bp :: <basic-bp>, string :: <byte-string>) => (match? :: <boolean>)
+    (bp :: <basic-bp>, string :: <string>) => (match? :: <boolean>)
   let line  = bp-line(bp);
   let index = bp-index(bp);
   when (text-line?(line))
@@ -315,7 +315,7 @@ define sealed method bp-looking-at-word?
 end method bp-looking-at-word?;
 
 define sealed method bp-looking-at-atom?
-    (bp :: <basic-bp>, string :: <byte-string>) => (match? :: <boolean>)
+    (bp :: <basic-bp>, string :: <string>) => (match? :: <boolean>)
   let line  = bp-line(bp);
   let index = bp-index(bp);
   when (text-line?(line))

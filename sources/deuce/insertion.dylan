@@ -31,7 +31,7 @@ define sealed method insert!
 end method insert!;
 
 define sealed method insert!
-    (bp :: <basic-bp>, string :: <byte-string>,
+    (bp :: <basic-bp>, string :: <string>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = size(string))
  => (new-bp :: <basic-bp>)
   let bp = insert-into-line(bp-line(bp), bp-index(bp), string,
@@ -51,7 +51,7 @@ define sealed method insert!
   let last  :: <basic-bp> = interval-end-bp(interval);
   if (bp-line(first) == bp-line(last))
     // Single-line interval, just insert it as a string
-    insert!(bp, as(<byte-string>, interval))
+    insert!(bp, as(<string>, interval))
   else
     // Otherwise split up the line we're inserting into
     let line  = bp-line(bp);
@@ -60,8 +60,8 @@ define sealed method insert!
     // Copy the text of the first and last lines of the interval...
     let first-line = bp-line(first);
     let last-line  = bp-line(last);
-    insert!(line-end(line), as(<byte-string>, first-line));
-    let ebp = insert!(line-start(new), as(<byte-string>, last-line));
+    insert!(line-end(line), as(<string>, first-line));
+    let ebp = insert!(line-start(new), as(<string>, last-line));
     // Then copy the rest of the interval in as lines
     unless (line-next(first-line) == last-line)
       let section = line-section(line);
@@ -137,7 +137,7 @@ define sealed method insert-into-line
 end method insert-into-line;
 
 define sealed method insert-into-line
-    (line :: <text-line>, index :: <integer>, string :: <byte-string>,
+    (line :: <text-line>, index :: <integer>, string :: <string>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = size(string))
  => (bp :: <basic-bp>)
   let nl = position(string, '\n', start: _start, end: _end);
@@ -211,7 +211,7 @@ define method insert-into-line
 end method insert-into-line;
 
 define method insert-into-line
-    (line :: <diagram-line>, index :: <integer>, string :: <byte-string>,
+    (line :: <diagram-line>, index :: <integer>, string :: <string>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = size(string))
  => (bp :: <basic-bp>)
   assert(index = 0,

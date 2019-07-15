@@ -138,12 +138,12 @@ define sealed method read
     move-bp!(bp1, bp-line(bp2), bp-index(bp2))
   end;
   if (n-read & n-read >= n)
-    as(<byte-string>, interval)
+    as(<string>, interval)
   else
     if (unsupplied?(on-end-of-stream))
       signal(make(<incomplete-read-error>,
                   stream: stream,
-                  sequence: if (interval) as(<byte-string>, interval) else "" end,
+                  sequence: if (interval) as(<string>, interval) else "" end,
                   count: n-read | 0))
     else
       on-end-of-stream
@@ -182,7 +182,7 @@ define sealed method read-into!
   else
     signal(make(<incomplete-read-error>,
                 stream: stream,
-                sequence: if (interval) as(<byte-string>, interval) else "" end,
+                sequence: if (interval) as(<string>, interval) else "" end,
                 count: n-read | 0))
   end
 end method read-into!;
@@ -211,7 +211,7 @@ define sealed method read-line
 end method read-line;
 
 define sealed method read-line-into!
-    (stream :: <interval-stream>, string :: <byte-string>,
+    (stream :: <interval-stream>, string :: <string>,
      #key start = 0, on-end-of-stream = $unsupplied, grow? = #f)
  => (string-or-eof :: <object>, newline? :: <boolean>)
   if (stream-at-end?(stream))
@@ -266,7 +266,7 @@ define sealed method write-element
 end;
 
 define sealed method write
-    (stream :: <interval-stream>, string :: <byte-string>,
+    (stream :: <interval-stream>, string :: <string>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = size(string)) => ()
   ensure-writable(stream);
   let bp :: <basic-bp> = stream.%current-position;
@@ -274,7 +274,7 @@ define sealed method write
 end method write;
 
 define sealed method write
-    (stream :: <repainting-interval-stream>, string :: <byte-string>,
+    (stream :: <repainting-interval-stream>, string :: <string>,
      #key start: _start :: <integer> = 0, end: _end :: <integer> = size(string)) => ()
   next-method();
   // ---*** The centering argument is a hack, and doesn't belong here
@@ -343,10 +343,10 @@ end method stream-size;
 
 define sealed method stream-contents
     (stream :: <interval-stream>, #key clear-contents? = #t)
- => (contents :: <byte-string>)
+ => (contents :: <string>)
   ignore(clear-contents?);
   let bp1 = stream.%start-bp;
   let bp2 = stream.%end-bp;
   let interval = make-interval(bp1, bp2, in-order?: #t);
-  as(<byte-string>, interval)
+  as(<string>, interval)
 end method stream-contents;

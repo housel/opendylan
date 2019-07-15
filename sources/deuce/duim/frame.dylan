@@ -36,16 +36,16 @@ define constant $modified?-label-index  :: <integer> = 2;
 define constant $read-only?-label-index :: <integer> = 3;
 
 // Documentation/ToolTips for status bar fields
-define constant $doc-message-label    :: <byte-string>        = "Message area";
-define constant $doc-mode-label       :: <byte-string>        = "Major mode";
-define constant $doc-modified?-label  :: <byte-string>        = "Buffer modified?";
-define constant $doc-read-only?-label :: <byte-string>        = "Buffer read-only?";
+define constant $doc-message-label    :: <string>        = "Message area";
+define constant $doc-mode-label       :: <string>        = "Major mode";
+define constant $doc-modified?-label  :: <string>        = "Buffer modified?";
+define constant $doc-read-only?-label :: <string>        = "Buffer read-only?";
 
 // Content strings for status bar fields
-define constant $modified?-label-Mod   :: <byte-string>        = "Mod";
-define constant $modified?-label-unMod :: <byte-string>        = "   ";
-define constant $read-only?-label-RW   :: <byte-string>        = "R/W";
-define constant $read-only?-label-RO   :: <byte-string>        = "R-O";
+define constant $modified?-label-Mod   :: <string>        = "Mod";
+define constant $modified?-label-unMod :: <string>        = "   ";
+define constant $read-only?-label-RW   :: <string>        = "R/W";
+define constant $read-only?-label-RO   :: <string>        = "R-O";
 
 define method make-deuce-status-bar
     (frame :: <basic-editor-frame>) => (status-bar :: <status-bar>)

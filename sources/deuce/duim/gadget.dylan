@@ -54,15 +54,15 @@ end method note-gadget-value-changed;
 
 
 define sealed method gadget-text
-    (window :: <deuce-pane>) => (value :: <byte-string>)
+    (window :: <deuce-pane>) => (value :: <string>)
   with-editor-state-bound (buffer = window)
-    as(<byte-string>, buffer)
+    as(<string>, buffer)
   end
 end method gadget-text;
 
 define sealed method gadget-text-setter
-    (value :: <byte-string>, window :: <deuce-pane>, #key do-callback?)
- => (value :: <byte-string>)
+    (value :: <string>, window :: <deuce-pane>, #key do-callback?)
+ => (value :: <string>)
   with-editor-state-bound (buffer = window)
     // "Read" the new contents into the buffer
     let section = make(<section>,
@@ -133,20 +133,20 @@ end method text-selection-setter;
 
 
 define sealed method selected-text
-    (window :: <deuce-pane>) => (string :: false-or(<byte-string>))
+    (window :: <deuce-pane>) => (string :: false-or(<string>))
   with-editor-state-bound (window)
     let bp1 = window-point(window);
     let bp2 = window-mark(window);
     when (bp2)
       let interval = make-interval(bp1, bp2);
-      as(<byte-string>, interval)
+      as(<string>, interval)
     end
   end
 end method selected-text;
 
 define sealed method selected-text-setter
-    (string :: false-or(<byte-string>), window :: <deuce-pane>)
- => (string :: false-or(<byte-string>))
+    (string :: false-or(<string>), window :: <deuce-pane>)
+ => (string :: false-or(<string>))
   with-editor-state-bound (window)
     let bp1 = window-point(window);
     let bp2 = window-mark(window);
@@ -190,7 +190,7 @@ end method text-field-size;
 
 define sealed method text-field-text
     (window :: <deuce-pane>, range :: <text-range>)
- => (string :: false-or(<byte-string>))
+ => (string :: false-or(<string>))
   with-editor-state-bound (window)
     //---*** Do this
   end
@@ -256,10 +256,10 @@ define sealed method line-length
 end method line-length;
 
 define sealed method get-line
-    (window :: <deuce-pane>, line :: <integer>) => (line :: false-or(<byte-string>))
+    (window :: <deuce-pane>, line :: <integer>) => (line :: false-or(<string>))
   with-editor-state-bound (buffer = window)
     let bp = line-index->bp(buffer, line);
-    bp & as(<byte-string>, bp-line(bp))
+    bp & as(<string>, bp-line(bp))
   end
 end method get-line;
 
@@ -308,7 +308,7 @@ end method text-range->interval;
 
 
 define sealed method find-text
-    (window :: <deuce-pane>, string :: <byte-string>) => (index :: false-or(<integer>))
+    (window :: <deuce-pane>, string :: <string>) => (index :: false-or(<integer>))
   with-editor-state-bound (window)
     //---*** Do this
   end
