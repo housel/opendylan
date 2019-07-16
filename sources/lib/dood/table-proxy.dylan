@@ -375,7 +375,7 @@ define dood-class <dood-lazy-symbol-table> (<dood-lazy-key-table>)
 end dood-class;
 
 define sealed method case-insensitive-less-than?
-    (string-1 :: <byte-string>, string-2 :: <byte-string>)
+    (string-1 :: <string>, string-2 :: <string>)
  => (well? :: <boolean>)
   let min-size :: <integer> = min(string-1.size, string-2.size);
   without-bounds-checks
@@ -398,7 +398,7 @@ end method;
 define inline function symbol-less-than?
     (x :: <symbol>, y :: <symbol>) => (well? :: <boolean>)
   case-insensitive-less-than?
-    (as(<byte-string>, x), as(<byte-string>, y))
+    (as(<string>, x), as(<string>, y))
 end function;
 
 define inline function symbol-equal?

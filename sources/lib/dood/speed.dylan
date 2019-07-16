@@ -202,7 +202,7 @@ define method read-object-using-class-at
     (dood :: <dood>, class == <symbol>, address :: <address>)
  => (res :: <symbol>)
   let size :: <integer>       = read-object(dood);
-  let string :: <byte-string> = make(<byte-string>, size: size);
+  let string :: <string> = make(<string>, size: size);
   dood-read-string-into!(dood, size, string);
   let sym :: <symbol> = as(<symbol>, string);
   dood-register-read-object(dood, sym, address); 
@@ -214,14 +214,14 @@ define method walk-slots
   if (object == #()) // HACK: EMU
     next-method()
   else
-    let string :: <byte-string> = as(<byte-string>, object);
+    let string :: <string> = as(<string>, object);
     walk-byte-string-slots(dood, info, dood-symbol-class(object), string);
   end if
 end method;
 
 define method dood-repeated-size 
     (dood :: <dood>, object :: <symbol>) => (res :: <integer>)
-  let string :: <byte-string> = as(<byte-string>, object);
+  let string :: <string> = as(<string>, object);
   size(string)
 end method;
 

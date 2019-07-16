@@ -25,7 +25,7 @@ define method dump-at (dood :: <dood>, address :: <address>) => (next-address)
   block () 
     let value = dood-read-at(dood, address);
     let value-at = dood-object(dood, address, default: #f);
-    if (instance?(value-at, <byte-string>) | instance?(value-at, <symbol>))
+    if (instance?(value-at, <string>) | instance?(value-at, <symbol>))
       format-out("%=\n", value-at);
       address + dood-instance-size(dood, value-at)
     else

@@ -66,7 +66,7 @@ define method open-log-stream () => (res :: false-or(<file-stream>))
 end method;
 
 // define inline method audit 
-//     (dood :: <dood>, format-string :: <byte-string>, #rest arguments)
+//     (dood :: <dood>, format-string :: <string>, #rest arguments)
 //   when ($auditing?)
 //     apply(format, dood-world-log-stream(dood-world(dood)), 
 // 	  format-string, dood-index(dood), arguments)

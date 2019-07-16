@@ -170,7 +170,7 @@ define dood-class <lazy-object> (<object>)
 end dood-class;
 
 define method lazy-slot-checks 
-    (class :: <class>, name :: <byte-string>, 
+    (class :: <class>, name :: <string>,
      getter :: <function>, private-getter :: <function>)
   check-true(concatenate(name, " SHALLOW LAZY"),
              begin 
