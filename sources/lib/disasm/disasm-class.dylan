@@ -45,7 +45,7 @@ define constant $no-external = make(<no-external>);
 
 define abstract class <some-external> (<external>)
   constant slot position-in-code-vector :: <integer>, required-init-keyword: ext-code-pos:;
-  constant slot label-name :: <byte-string>, required-init-keyword: init-label-name:;
+  constant slot label-name :: <string>, required-init-keyword: init-label-name:;
 end class <some-external>;
 
 define concrete class <labelled-external> (<some-external>)
@@ -93,7 +93,7 @@ define constant $zero-word-immediate-value = make(<word-immediate-value>, word-i
 
 define concrete-class <register> (<object>)
   constant slot register-integer-rep :: <integer>, required-init-keyword: register-integer-rep:;
-  constant slot register-name :: <byte-string>, required-init-keyword: register-name:;
+  constant slot register-name :: <string>, required-init-keyword: register-name:;
 end concrete-class <register>;
 
 define concrete-class <fp-register> (<object>)
@@ -117,7 +117,7 @@ define concrete-class <no-segment-override> (<segment-override>)
 end concrete-class <no-segment-override>;
 
 define concrete-class <segment-register> (<object>)
-  constant slot segment-register-name :: <byte-string>, required-init-keyword: segment-register-name:;
+  constant slot segment-register-name :: <string>, required-init-keyword: segment-register-name:;
 end concrete-class;
 
 define concrete-class <some-segment-override> (<segment-override>)
@@ -125,7 +125,7 @@ define concrete-class <some-segment-override> (<segment-override>)
 end concrete-class <some-segment-override>;
 
 define concrete-class <proper-opcode> (<general-opcode>)
-  constant slot proper-opcode-name :: <byte-string>,
+  constant slot proper-opcode-name :: <string>,
     required-init-keyword: proper-opcode-name:;
   constant slot proper-opcode-args :: <argument-vector>,
     required-init-keyword: proper-opcode-args:;

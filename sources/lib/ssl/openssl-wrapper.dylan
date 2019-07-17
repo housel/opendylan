@@ -286,7 +286,7 @@ end;
 
 define function ERR-error (#key prefix = "") => ()
   let eerr = ERR-get-error();
-  let mess = copy-sequence(as(<byte-string>, ERR-error-string(eerr, $nullp)));
+  let mess = copy-sequence(as(<string>, ERR-error-string(eerr, $nullp)));
   signal(make(<err-error>, format-string: "%s %s", format-arguments: list(prefix, mess)));
 end;
 

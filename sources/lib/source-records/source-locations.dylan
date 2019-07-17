@@ -100,14 +100,14 @@ define function source-location-end-column
 end function;
 
 define function source-location-string
-    (loc :: <source-location>) => (c :: <byte-string>)
+    (loc :: <source-location>) => (c :: <string>)
   let record = loc.source-location-source-record;
   // TODO: this walks the file twice counting cr's.  Should have a single
   // function that returns both start and end.
   let start-pos = loc.source-location-start-character;
   let end-pos = loc.source-location-end-character;
   let count = end-pos - start-pos;
-  let string = make(<byte-string>, size: count);
+  let string = make(<string>, size: count);
   copy-bytes(string, 0, source-record-contents(record), start-pos, count);
   string
 end;

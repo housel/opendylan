@@ -114,10 +114,10 @@ end method;
 
 define constant $max-error-string-size = 255;
 
-define method midi-error-string (id :: <integer>) => (message :: <byte-string>)
+define method midi-error-string (id :: <integer>) => (message :: <string>)
   with-stack-structure (buf :: <C-string>, element-count: $max-error-string-size)
     midiOutGetErrorText(id, buf, $max-error-string-size);
-    as(<byte-string>, buf);
+    as(<string>, buf);
   end;
 end method;
 

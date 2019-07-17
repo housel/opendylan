@@ -19,7 +19,7 @@ define method variable-value
                   variable-name, module-name, library-name);
           end if;
         end method;
-  let mangled-name :: <byte-string>
+  let mangled-name :: <string>
     = mangle-binding-spread(*mangler*, variable-name, module-name, library-name);
   let module :: <machine-word> = lookup-runtime-module(library-name);
   let val

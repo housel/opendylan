@@ -40,11 +40,11 @@ define generic token-size (t :: <ppml>) => (token-size :: <nat>);
 //   The simplest ppml token is just a string.  
 
 define class <ppml-string> (<ppml>)
-  constant slot the-string :: <byte-string>,
+  constant slot the-string :: <string>,
     required-init-keyword: string:;
 end class <ppml-string>;
 
-define function ppml-string (str :: <byte-string>) => (ppml :: <ppml-string>)
+define function ppml-string (str :: <string>) => (ppml :: <ppml-string>)
   make(<ppml-string>, string: str)
 end;
 
@@ -56,7 +56,7 @@ define class <ppml-quote-string> (<ppml-string>)
 end class <ppml-quote-string>;
 
 define function ppml-quote-string 
-    (str :: <byte-string>) => (ppml :: <ppml-quote-string>)
+    (str :: <string>) => (ppml :: <ppml-quote-string>)
   make(<ppml-quote-string>, string: str)
 end;
 
@@ -324,7 +324,7 @@ end;
 
 // <STRING> & <SYMBOL>
 
-define method as (class == <ppml>, string :: <byte-string>) 
+define method as (class == <ppml>, string :: <string>) 
     => (instance :: <ppml>);
   ppml-quote-string(string)
 end;
@@ -445,7 +445,7 @@ end method as;
 
 define thread variable *verbose-condition-output* = #f;
 
-define method ppml-format-string (string :: <byte-string>) => (f :: <function>)
+define method ppml-format-string (string :: <string>) => (f :: <function>)
   let arguments = make(<deque>);
   let constituents = make(<deque>);
   
@@ -536,7 +536,7 @@ define method ppml-format-string (string :: <byte-string>) => (f :: <function>)
 end method ppml-format-string;
 
 define method format-to-ppml
-    (string :: <byte-string>, #rest args) => (ppml :: <ppml>)
+    (string :: <string>, #rest args) => (ppml :: <ppml>)
   apply(ppml-format-string(string), args)
 end method format-to-ppml;
 

@@ -36,12 +36,12 @@ define function output-terminal-definitions
 end;
 
 define function output-action-definitions
-    (out :: <stream>, grammar :: <grammar>, prefix :: <byte-string>)
+    (out :: <stream>, grammar :: <grammar>, prefix :: <string>)
  => (action-codes :: <table>)
   let action-codes = make(<string-table>);
-  local method intern (prefix :: <byte-string>,
+  local method intern (prefix :: <string>,
 		       index :: <integer>,
-		       action :: <byte-string>)
+		       action :: <string>)
 	  unless (element(action-codes, action, default: #f))
 	    let name = concatenate(prefix, integer-to-string(index));
 	    format(out, "define function %s %s\nend %s;\n\n",
@@ -65,7 +65,7 @@ define function output-action-definitions
   action-codes
 end;
 
-define function canonicalize-body (nargs :: <integer>, body :: <byte-string>)
+define function canonicalize-body (nargs :: <integer>, body :: <string>)
   // TODO: strip indentation, strip begin/end
   concatenate("(", action-variables(nargs), ") => (value)\n  ", body)
 end;

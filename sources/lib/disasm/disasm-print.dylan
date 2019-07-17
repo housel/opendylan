@@ -7,7 +7,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 // A disassembler for i386, i486 and i586 code
 
-define method arg-pair-to-string(arg1 :: <byte-string>, arg2 :: <byte-string>) => (str :: <byte-string>)
+define method arg-pair-to-string(arg1 :: <string>, arg2 :: <string>) => (str :: <string>)
   concatenate(arg1, ", ", arg2);
 end method arg-pair-to-string;
 
@@ -24,11 +24,11 @@ define method hex-digit-to-byte(x :: <integer>) => (ch :: <character>)
   end
 end method hex-digit-to-byte;
 
-define method hex-byte-to-string(x :: <integer>) => (str :: <byte-string>)
+define method hex-byte-to-string(x :: <integer>) => (str :: <string>)
   if (x < 0 | x > 255)
-    make(<byte-string>, size: 2, fill: '?')
+    make(<string>, size: 2, fill: '?')
   else
-    let str = make(<byte-string>, size: 2);
+    let str = make(<string>, size: 2);
     let (hi, lo) = truncate/(x, 16);
     str[0] := hex-digit-to-byte(hi);
     str[1] := hex-digit-to-byte(lo);
@@ -37,14 +37,14 @@ define method hex-byte-to-string(x :: <integer>) => (str :: <byte-string>)
 end method hex-byte-to-string;
 
 define method hex-byte-to-string(x :: <character>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   hex-byte-to-string(as(<integer>, x));
 end method hex-byte-to-string;
 
 define method byte-sequence-to-string(code-vector :: <byte-vector>, from :: <integer>, to :: <integer>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   let size = if (to <= from) 0 else to - from end;
-  let out-string = make(<byte-string>, size: size * 2);
+  let out-string = make(<string>, size: size * 2);
   for (i from 0 below size)
     let str = hex-byte-to-string(code-vector[from + i]);
     let two-i = 2 * i;
@@ -54,7 +54,7 @@ define method byte-sequence-to-string(code-vector :: <byte-vector>, from :: <int
   out-string
 end method byte-sequence-to-string;
 
-define method immediate-value-to-string(imm :: <byte-immediate-value>) => (str :: <byte-string>)
+define method immediate-value-to-string(imm :: <byte-immediate-value>) => (str :: <string>)
 //  format-out("Entering immediate-value-to-string for byte-immediate-value 0x%x\n", imm.byte-immediate-value);
   let imm = imm.byte-immediate-value;
   let imm1 = if (imm < #x80) imm else #x100 - imm end;
@@ -62,24 +62,24 @@ define method immediate-value-to-string(imm :: <byte-immediate-value>) => (str :
   if (imm < #x80) hex else concatenate("-", hex) end
 end method immediate-value-to-string;
 
-define method immediate-value-to-string(imm :: <short-immediate-value>) => (str :: <byte-string>)
+define method immediate-value-to-string(imm :: <short-immediate-value>) => (str :: <string>)
 //  format-out("Entering immediate-value-to-string for short-immediate-value 0x%x\n", imm.short-immediate-value);
   let (hi, lo) = truncate/(imm.short-immediate-value, #x100);
   concatenate(hex-byte-to-string(hi), hex-byte-to-string(lo));
 end method immediate-value-to-string;
 
-define method word-imm-to-string(imm :: <four-byte-integer>) => (str :: <byte-string>)
+define method word-imm-to-string(imm :: <four-byte-integer>) => (str :: <string>)
   let lo = logand(imm, #xffff);
   let hi = ash(imm, -16);
   concatenate(immediate-value-to-string(make(<short-immediate-value>, short-immediate-value: hi)),
     immediate-value-to-string(make(<short-immediate-value>, short-immediate-value: lo)));
 end method word-imm-to-string;
 
-define method relocated-imm-to-string(ext :: <no-external>, i :: <four-byte-integer>) => (res :: <byte-string>)
+define method relocated-imm-to-string(ext :: <no-external>, i :: <four-byte-integer>) => (res :: <string>)
   word-imm-to-string(i);
 end method;
 
-define method relocated-word-imm-to-string(ext :: <some-external>, imm :: <four-byte-integer>) => (str :: <byte-string>)
+define method relocated-word-imm-to-string(ext :: <some-external>, imm :: <four-byte-integer>) => (str :: <string>)
   let label-str = ext.label-name;
   if (imm ~== 0)
     let val-str = word-imm-to-string(imm);
@@ -89,16 +89,16 @@ define method relocated-word-imm-to-string(ext :: <some-external>, imm :: <four-
   end
 end method relocated-word-imm-to-string;
 
-define method relocated-imm-to-string(ext :: <labelled-external>, imm :: <four-byte-integer>) => (res :: <byte-string>)
+define method relocated-imm-to-string(ext :: <labelled-external>, imm :: <four-byte-integer>) => (res :: <string>)
   relocated-word-imm-to-string(ext, imm);
 end method;
 
-define method relocated-imm-to-string(ext :: <relative-external>, imm :: <four-byte-integer>) => (res :: <byte-string>)
+define method relocated-imm-to-string(ext :: <relative-external>, imm :: <four-byte-integer>) => (res :: <string>)
   let val = imm + ext.offset;
   relocated-word-imm-to-string(ext, val);
 end method;
 
-define method immediate-value-to-string(imm :: <word-immediate-value>) => (str :: <byte-string>)
+define method immediate-value-to-string(imm :: <word-immediate-value>) => (str :: <string>)
 //  format-out("Entering immediate-value-to-string for word-immediate-value 0x%x\n", imm.word-immediate-value);
   let external = imm.word-relocation;
   let val = imm.word-immediate-value;
@@ -106,39 +106,39 @@ define method immediate-value-to-string(imm :: <word-immediate-value>) => (str :
 end method immediate-value-to-string;
 
 define method immediate-value-to-string-plus-sign(imm :: <byte-immediate-value>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   let str = immediate-value-to-string(imm);
   if (str[0] == '-') str else concatenate("+", str) end
 end method immediate-value-to-string-plus-sign;
 
 define method immediate-value-to-string-plus-sign(imm :: <immediate-value>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   concatenate("+", immediate-value-to-string(imm))
 end method immediate-value-to-string-plus-sign;
 
-define method register-to-string(register :: <register>) => (str :: <byte-string>)
+define method register-to-string(register :: <register>) => (str :: <string>)
   register.register-name;
 end method register-to-string;
 
-define method fp-register-to-string(fp-register :: <fp-register>) => (str :: <byte-string>)
+define method fp-register-to-string(fp-register :: <fp-register>) => (str :: <string>)
   let reg = fp-register.fp-register-pos;
   if (reg == 0) "ST" else format-to-string("ST(%d)", reg) end
 end method fp-register-to-string;
 
-define method add-offset-for-immediate(imm :: <word-immediate-value>, str :: <byte-string>) =>
-  (res :: <byte-string>)
+define method add-offset-for-immediate(imm :: <word-immediate-value>, str :: <string>) =>
+  (res :: <string>)
   select (imm.word-relocation by instance?)
     <no-external> => str;
       otherwise concatenate("offset ", str)
   end select;
 end method;
 
-define method add-offset-for-immediate(imm :: <immediate-value>, str :: <byte-string>) =>
-  (res :: <byte-string>)
+define method add-offset-for-immediate(imm :: <immediate-value>, str :: <string>) =>
+  (res :: <string>)
   str
 end method;
 
-define method arg-to-string(arg :: <immediate-arg>) => (str :: <byte-string>)
+define method arg-to-string(arg :: <immediate-arg>) => (str :: <string>)
 //  format-out("Entering arg-to-string for immediate-arg\n");
   let imm = arg.arg-immediate-value;
   let foo = immediate-value-to-string(imm);
@@ -146,21 +146,21 @@ define method arg-to-string(arg :: <immediate-arg>) => (str :: <byte-string>)
   add-offset-for-immediate(arg.arg-immediate-value, foo);
 end method arg-to-string;
 
-define method arg-to-string(arg :: <register-arg>) => (str :: <byte-string>)
+define method arg-to-string(arg :: <register-arg>) => (str :: <string>)
 //  format-out("Entering arg-to-string for register-arg\n");
   let foo = register-to-string(arg.register-arg);
 //  format-out("returning '%s'\n", foo);
   foo;
 end method arg-to-string;
 
-define method arg-to-string(arg :: <fp-register-arg>) => (str :: <byte-string>)
+define method arg-to-string(arg :: <fp-register-arg>) => (str :: <string>)
 //  format-out("Entering arg-to-string for fp-register-arg\n");
   let foo = fp-register-to-string(arg.fp-register-arg);
 //  format-out("returning '%s'\n", foo);
   foo;
 end method arg-to-string;
 
-define method scale-to-string(scale :: <integer>) => (str :: <byte-string>)
+define method scale-to-string(scale :: <integer>) => (str :: <string>)
   select(scale)
     1 => "2";
     2 => "4";
@@ -170,12 +170,12 @@ define method scale-to-string(scale :: <integer>) => (str :: <byte-string>)
 end method scale-to-string;
 
 define method memory-index-to-string(index :: <no-memory-index>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   error("memory-index-to-string called with no-memory-index\n");
 end method memory-index-to-string;
 
 define method memory-index-to-string(index :: <scaled-indexed-memory-index>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   let reg = register-to-string(index.indexed-memory-index-reg);
   if (index.indexed-memory-index-scale == 0)
     reg
@@ -184,35 +184,35 @@ define method memory-index-to-string(index :: <scaled-indexed-memory-index>)
   end
 end method memory-index-to-string;
 
-define method disp-base-index-to-string(disp :: <no-memory-displacement>, base :: <no-memory-base>, index :: <no-memory-index>) => (str :: <byte-string>)
+define method disp-base-index-to-string(disp :: <no-memory-displacement>, base :: <no-memory-base>, index :: <no-memory-index>) => (str :: <string>)
   error("memory-arg without base, displacement or index\n");
 end method disp-base-index-to-string;
 
-define method disp-base-index-to-string(disp :: <no-memory-displacement>, base :: <no-memory-base>, index :: <scaled-indexed-memory-index>) => (str :: <byte-string>)
+define method disp-base-index-to-string(disp :: <no-memory-displacement>, base :: <no-memory-base>, index :: <scaled-indexed-memory-index>) => (str :: <string>)
   error("memory-arg with index and no base or displacement\n");
 end method disp-base-index-to-string;
 
-define method disp-base-index-to-string(disp :: <no-memory-displacement>, base :: <some-memory-base>, index :: <scaled-indexed-memory-index>) => (str :: <byte-string>)
+define method disp-base-index-to-string(disp :: <no-memory-displacement>, base :: <some-memory-base>, index :: <scaled-indexed-memory-index>) => (str :: <string>)
   concatenate("[", register-to-string(base.memory-base-reg), "+", memory-index-to-string(index), "]");
 end method disp-base-index-to-string;
 
-define method disp-base-index-to-string( disp :: <no-memory-displacement>, base :: <some-memory-base>, index :: <no-memory-index>) => (str :: <byte-string>)
+define method disp-base-index-to-string( disp :: <no-memory-displacement>, base :: <some-memory-base>, index :: <no-memory-index>) => (str :: <string>)
   concatenate("[", register-to-string(base.memory-base-reg), "]");
 end method disp-base-index-to-string;
 
-define method disp-base-index-to-string(disp :: <some-memory-displacement>, base :: <no-memory-base>, index :: <no-memory-index>) => (str :: <byte-string>)
+define method disp-base-index-to-string(disp :: <some-memory-displacement>, base :: <no-memory-base>, index :: <no-memory-index>) => (str :: <string>)
   concatenate("[", immediate-value-to-string(disp.memory-displacement), "]");
 end method disp-base-index-to-string;
 
-define method disp-base-index-to-string(disp :: <some-memory-displacement>, base :: <some-memory-base>, index :: <no-memory-index>) => (str :: <byte-string>)
+define method disp-base-index-to-string(disp :: <some-memory-displacement>, base :: <some-memory-base>, index :: <no-memory-index>) => (str :: <string>)
   concatenate("[", register-to-string(base.memory-base-reg), immediate-value-to-string-plus-sign(disp.memory-displacement), "]");
 end method disp-base-index-to-string;
 
-define method disp-base-index-to-string(disp :: <some-memory-displacement>, base :: <no-memory-base>, index :: <scaled-indexed-memory-index>) => (str :: <byte-string>)
+define method disp-base-index-to-string(disp :: <some-memory-displacement>, base :: <no-memory-base>, index :: <scaled-indexed-memory-index>) => (str :: <string>)
   concatenate("[", memory-index-to-string(index), immediate-value-to-string-plus-sign(disp.memory-displacement), "]");
 end method disp-base-index-to-string;
 
-define method disp-base-index-to-string(disp :: <some-memory-displacement>, base :: <some-memory-base>, index :: <scaled-indexed-memory-index>) => (str :: <byte-string>)
+define method disp-base-index-to-string(disp :: <some-memory-displacement>, base :: <some-memory-base>, index :: <scaled-indexed-memory-index>) => (str :: <string>)
   concatenate("[", memory-index-to-string(index), "+", register-to-string(base.memory-base-reg), immediate-value-to-string-plus-sign(disp.memory-displacement), "]");
 end method disp-base-index-to-string;
 
@@ -246,7 +246,7 @@ define method disp-to-integer(disp :: <some-memory-displacement>) => (int :: <in
   imm-to-integer(disp.memory-displacement)
 end method disp-to-integer;
 
-define method address-to-string(address :: <integer>) => (str :: <byte-string>)
+define method address-to-string(address :: <integer>) => (str :: <string>)
   let hex1 = hex-byte-to-string(logand(address, #xff));
   let hex2 = hex-byte-to-string(logand(ash(address, -8), #xff));
   let hex3 = hex-byte-to-string(logand(ash(address, -16), #xff));
@@ -254,36 +254,36 @@ define method address-to-string(address :: <integer>) => (str :: <byte-string>)
   concatenate(hex4, hex3, hex2, hex1)
 end method address-to-string;
 
-define method memory-arg-size-to-string(arg :: <memory-arg-size-byte>) => (res :: <byte-string>)
+define method memory-arg-size-to-string(arg :: <memory-arg-size-byte>) => (res :: <string>)
   "byte ptr"
 end method memory-arg-size-to-string;
 
-define method memory-arg-size-to-string(arg :: <memory-arg-size-short>) => (res :: <byte-string>)
+define method memory-arg-size-to-string(arg :: <memory-arg-size-short>) => (res :: <string>)
   "word ptr"
 end method memory-arg-size-to-string;
 
-define method memory-arg-size-to-string(arg :: <memory-arg-size-word>) => (res :: <byte-string>)
+define method memory-arg-size-to-string(arg :: <memory-arg-size-word>) => (res :: <string>)
   "dword ptr"
 end method memory-arg-size-to-string;
 
-define method memory-arg-size-to-string(arg :: <memory-arg-size-double-word>) => (res :: <byte-string>)
+define method memory-arg-size-to-string(arg :: <memory-arg-size-double-word>) => (res :: <string>)
   "qword ptr"
 end method memory-arg-size-to-string;
 
-define method memory-arg-size-to-string(arg :: <memory-arg-size-word-real>) => (res :: <byte-string>)
+define method memory-arg-size-to-string(arg :: <memory-arg-size-word-real>) => (res :: <string>)
   "dword ptr"
 end method memory-arg-size-to-string;
 
-define method memory-arg-size-to-string(arg :: <memory-arg-size-double-word-real>) => (res :: <byte-string>)
+define method memory-arg-size-to-string(arg :: <memory-arg-size-double-word-real>) => (res :: <string>)
   "qword ptr"
 end method memory-arg-size-to-string;
 
-define method memory-arg-size-to-string(arg :: <memory-arg-size-extended-real>) => (res :: <byte-string>)
+define method memory-arg-size-to-string(arg :: <memory-arg-size-extended-real>) => (res :: <string>)
   "tbyte ptr"
 end method memory-arg-size-to-string;
 
 define method memory-arg-to-string(arg :: <memory-arg>, seg :: <segment-override>, table-lookup :: <function>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
 //  format-out("Entering arg-to-string for memory-arg\n");
   let disp = arg.memory-arg-disp;
   let base = arg.memory-arg-base;
@@ -321,7 +321,7 @@ define method get-offset-as-integer(offset :: <word-offset>) => (int :: <integer
 end method get-offset-as-integer;
 
 define method arg-plus-override-to-string(arg :: <opcode-argument>, seg :: <segment-override>, table-lookup :: <function>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
 //  format-out("Entering arg-plus-override-to-string\n");
   select (arg by instance?)
     <memory-arg> => memory-arg-to-string(arg, seg, table-lookup);
@@ -330,7 +330,7 @@ define method arg-plus-override-to-string(arg :: <opcode-argument>, seg :: <segm
 end method arg-plus-override-to-string;
 
 define method arg-plus-override-plus-table-plus-address-to-string(arg :: <opcode-argument>, seg :: <segment-override>, table :: <table>, end-index :: <integer>, address :: <integer>, table-lookup :: <function>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
 //  format-out("Entering arg-plus-override-to-string\n");
   select (arg by instance?)
     <memory-arg> => memory-arg-to-string(arg, seg, table-lookup);
@@ -366,10 +366,10 @@ define method arg-plus-override-plus-table-plus-address-to-string(arg :: <opcode
 end method arg-plus-override-plus-table-plus-address-to-string;
 
 define method opcode-to-string(table :: <table>, opcode :: <proper-opcode>, end-index :: <integer>, address :: <integer>, table-lookup :: <function>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   local
     method args-to-string(args :: <argument-vector>, seg :: <segment-override>)
-    => (str :: <byte-string>)
+    => (str :: <string>)
 //      format-out("Entering args-to-string with %d args\n", args.size);
       select (args.size)
         1 =>
@@ -392,16 +392,16 @@ define method opcode-to-string(table :: <table>, opcode :: <proper-opcode>, end-
 end method opcode-to-string;
 
 define method opcode-to-string(table :: <table>, opcode :: <unspecified-not-an-opcode>, end-index :: <integer>, address :: <integer>, table-lookup :: <function>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   "not an opcode (source unknown)";
 end method opcode-to-string;
 
 define method opcode-to-string(table :: <table>, opcode :: <not-an-opcode>, end-index :: <integer>, address :: <integer>, table-lookup :: <function>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   concatenate("The following byte sequence is not an opcode '", byte-sequence-to-string(opcode.bytes-read, 0, opcode.bytes-read.size), "'")
 end method opcode-to-string;
 
-define method pad(int :: <integer>) => (str :: <byte-string>)
+define method pad(int :: <integer>) => (str :: <string>)
   select (int)
     1 => " ";
     2 => "  ";
@@ -413,7 +413,7 @@ define method pad(int :: <integer>) => (str :: <byte-string>)
 end method pad;
 
 define method opcode-and-index-to-string(table :: <table>, opc :: <general-opcode-and-offsets>, address :: <integer>, table-lookup :: <function>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   let index = opc.general-opcode-offset;
   let end-index = opc.general-opcode-end-offset;
   let res = element(table, index, default: #f);

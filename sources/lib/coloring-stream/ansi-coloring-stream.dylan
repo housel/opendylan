@@ -16,7 +16,7 @@ define constant $ansi-bg-base = 40;
 
 define method attributes-to-ansi
     (attributes :: <text-attributes>)
- => (ansi-codes :: <byte-string>)
+ => (ansi-codes :: <string>)
   let fg = attributes.text-foreground-color;
   let bg = attributes.text-background-color;
   let intensity = attributes.text-intensity;

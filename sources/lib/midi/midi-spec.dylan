@@ -77,14 +77,14 @@ define constant <midi-balance>
 //// MIDI instruments
 
 define sealed concrete class <midi-instrument> (<object>)
-  constant slot midi-name :: <byte-string>,
+  constant slot midi-name :: <string>,
     required-init-keyword: name:;
   constant slot midi-number :: <integer>,
     required-init-keyword: number:;
 end class;
 
 define sealed concrete class <midi-instrument-family> (<object>)
-  constant slot midi-name :: <byte-string>,
+  constant slot midi-name :: <string>,
     required-init-keyword: name:;
   constant slot midi-members :: <simple-object-vector>,
     required-init-keyword: members:;
@@ -116,13 +116,13 @@ end method;
 define constant *midi-instrument-table* :: <object-table> = make(<object-table>);
 
 define method find-midi-instrument 
-    (instrument-name :: <byte-string>, #key default = #f) => (maybe-instrument)
+    (instrument-name :: <string>, #key default = #f) => (maybe-instrument)
   element(*midi-instrument-table*, as(<symbol>, instrument-name), default: #f)
     | default
 end method;
 
 define method do-define-midi-instrument-family 
-    (family-name :: <byte-string>, first-instrument-number :: <integer>,
+    (family-name :: <string>, first-instrument-number :: <integer>,
        #rest member-names)
   let members = map-as(<simple-object-vector>,
                        method (name, number) 
@@ -329,7 +329,7 @@ end midi-instrument-family;
 //// MIDI percussion
 
 define sealed concrete class <midi-percussion> (<object>)
-  constant slot midi-name :: <byte-string>,
+  constant slot midi-name :: <string>,
     required-init-keyword: name:;
   constant slot midi-number :: <integer>,
     required-init-keyword: number:;
@@ -359,7 +359,7 @@ define method find-midi-percussion
 end method;
 
 define method find-midi-percussion
-    (sound-name :: <byte-string>, #key default = #f) => (maybe-sound)
+    (sound-name :: <string>, #key default = #f) => (maybe-sound)
   element(*midi-percussion-table*, as(<symbol>, sound-name), default: #f)
     | default
 end method;

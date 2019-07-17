@@ -10,7 +10,7 @@ define method print-object (object :: <llvm-type>, stream :: <stream>) => ()
     let obj-class = object.object-class;
     let name = obj-class.debug-name;
     if (name)
-      write(stream, as-lowercase(as(<byte-string>, name)));
+      write(stream, as-lowercase(as(<string>, name)));
     else
       print(obj-class, stream);
     end if;

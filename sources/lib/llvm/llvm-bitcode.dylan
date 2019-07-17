@@ -2670,7 +2670,7 @@ define class <string-table-builder> (<object>)
 end class;
 
 define function add-string
-    (builder :: <string-table-builder>, string :: <byte-string>)
+    (builder :: <string-table-builder>, string :: <string>)
  => (offset :: <integer>);
   let offset = builder.builder-table-size;
   let new-size = builder.builder-table-size + string.size;

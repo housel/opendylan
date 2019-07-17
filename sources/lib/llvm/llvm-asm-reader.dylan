@@ -922,7 +922,7 @@ end function generic-string-to-integer;
 define constant $max-mantissa-digits = 18;
 
 define method atof
-    (string :: <byte-string>,
+    (string :: <string>,
      #key start :: <integer> = 0,
           end: finish :: <integer> = string.size)
  => (value :: <float>);

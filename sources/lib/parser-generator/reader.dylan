@@ -64,7 +64,7 @@ define function parse-buffer () => (buf :: <stretchy-vector>)
 end;
 
 define function read-token (inp :: <stream>)
- => (t :: false-or(<byte-string>))
+ => (t :: false-or(<string>))
   let c :: <character> = read-element(inp);
   if (c == '/')
     read-line(inp);
@@ -77,7 +77,7 @@ define function read-token (inp :: <stream>)
     iterate loop ()
       let c = read-element(inp, on-end-of-stream: #f);
       if (~c | whitespace-char?(c))
-	let string = as(<byte-string>, chars);
+	let string = as(<string>, chars);
 	if (string = $grammar-end)
 	  read-line(inp);
 	  #f
@@ -92,8 +92,8 @@ define function read-token (inp :: <stream>)
   end;
 end function read-token;
 
-define function read-until (inp :: <stream>, delim :: <byte-string>)
- => (s :: <byte-string>)
+define function read-until (inp :: <stream>, delim :: <string>)
+ => (s :: <string>)
   let ndelim = delim.size;
   let last-delim = delim[ndelim - 1];
   let chars = parse-buffer();
@@ -113,5 +113,5 @@ define function read-until (inp :: <stream>, delim :: <byte-string>)
     end;
     (c == last-delim & delim?(chars)) | loop()
   end;
-  as(<byte-string>, copy-sequence(chars, end: chars.size - ndelim))
+  as(<string>, copy-sequence(chars, end: chars.size - ndelim))
 end;

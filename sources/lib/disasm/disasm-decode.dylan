@@ -86,7 +86,7 @@ end method integer-to-segment-override;
 // end method immediate-size;
 
 define method integer-to-register-name(int :: <integer>, val :: <byte-immediate-value>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   select (int)
     0 => "al";
     1 => "cl";
@@ -101,7 +101,7 @@ define method integer-to-register-name(int :: <integer>, val :: <byte-immediate-
 end method integer-to-register-name;
 
 define method integer-to-register-name(int :: <integer>, val :: <short-immediate-value>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   select (int)
     0 => "ax";
     1 => "cx";
@@ -116,7 +116,7 @@ define method integer-to-register-name(int :: <integer>, val :: <short-immediate
 end method integer-to-register-name;
 
 define method integer-to-register-name(int :: <integer>, val :: <word-immediate-value>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   select (int)
     0 => "eax";
     1 => "ecx";
@@ -274,7 +274,7 @@ define method get-word-immediate(code-vector :: <byte-vector>, index :: <integer
   end
 end method get-word-immediate;
 
-define method fp-fun-name1(int :: <integer>) => (str :: <byte-string>)
+define method fp-fun-name1(int :: <integer>) => (str :: <string>)
   select (logand(int, 7))
     0 => "fadd";
     1 => "fmul";
@@ -287,7 +287,7 @@ define method fp-fun-name1(int :: <integer>) => (str :: <byte-string>)
   end select
 end method fp-fun-name1;
 
-define method fp-fun-name2(int :: <integer>) => (str :: <byte-string>)
+define method fp-fun-name2(int :: <integer>) => (str :: <string>)
   select (logand(int, 7))
     0 => "fiadd";
     1 => "fimul";
@@ -300,7 +300,7 @@ define method fp-fun-name2(int :: <integer>) => (str :: <byte-string>)
   end select
 end method fp-fun-name2;
 
-define method fp-fun-name3(int :: <integer>, index :: <integer>) => (str :: <byte-string>)
+define method fp-fun-name3(int :: <integer>, index :: <integer>) => (str :: <string>)
   select (logand(int, 7))
     0 => "fadd";
     1 => "fmul";
@@ -312,7 +312,7 @@ define method fp-fun-name3(int :: <integer>, index :: <integer>) => (str :: <byt
   end select
 end method fp-fun-name3;
 
-define method fp-fun-name4(int :: <integer>, index :: <integer>) => (str :: <byte-string>)
+define method fp-fun-name4(int :: <integer>, index :: <integer>) => (str :: <string>)
   select (logand(int, 7))
     0 => "faddp";
     1 => "fmulp";
@@ -442,7 +442,7 @@ end method full-decode-rm-arg-to-integer;
 define method decode-opcode-without-prefixes(code-vector :: <byte-vector>, index :: <integer>, end-index :: <integer>, external-table :: <simple-object-vector>, segment-override :: <segment-override>, is-16-bit-operands :: <is-16-bit-operands>, is-16-bit-addressing :: <is-16-bit-addressing>, repeater :: <repeater>)
   => (opc :: <general-opcode>, int :: false-or(<integer>))
   local
-    method make-proper-opcode(name :: <byte-string>, args :: <argument-vector>)
+    method make-proper-opcode(name :: <string>, args :: <argument-vector>)
       => (opc :: <proper-opcode>)
       make(<proper-opcode>, proper-opcode-name: name, proper-opcode-args: args, proper-opcode-seg: segment-override)
     end method make-proper-opcode,
@@ -465,7 +465,7 @@ define method decode-opcode-without-prefixes(code-vector :: <byte-vector>, index
       let (reg, arg, new-index) = decode-rm-arg-to-reg(index, eight-bit, memory-arg-size);
       values(vector(arg, register-to-arg(reg)), new-index);
     end method decode-rm-arg-to-rev-vector,
-    method decode-simple-add-type-opcode(index :: <integer>, initial-opcode :: <integer>, name :: <byte-string>)
+    method decode-simple-add-type-opcode(index :: <integer>, initial-opcode :: <integer>, name :: <string>)
       => (opc :: <general-opcode>, int :: <integer>)
       let (args, new-index) = select (initial-opcode)
         #x04, #x0c, #x14, #x1c, #x24, #x2c, #x34, #x3c =>
@@ -568,11 +568,11 @@ define method decode-opcode-without-prefixes(code-vector :: <byte-vector>, index
     if (index < end-index)
       let first-byte = code-vector[index];
       let new-index = index + 1;
-      local method simple-opcode(name :: <byte-string>)
+      local method simple-opcode(name :: <string>)
         => (opc :: <proper-opcode>, int :: <integer>)
         values(make-proper-opcode(name, $empty-vector), new-index)
       end method simple-opcode,
-      method simple-two-byte-opcode(name :: <byte-string>, byte2 :: <integer>)
+      method simple-two-byte-opcode(name :: <string>, byte2 :: <integer>)
         => (opc :: <proper-opcode>, int :: <integer>)
 	if (new-index < end-index & code-vector[new-index] = byte2)
 	  values(make-proper-opcode(name, $empty-vector), new-index + 1)
@@ -580,18 +580,18 @@ define method decode-opcode-without-prefixes(code-vector :: <byte-vector>, index
 	  error(make(<disassembly-unexpected-byte-error>, position: new-index))
 	end
       end method simple-two-byte-opcode,
-      method simple-opcode-with-index(name :: <byte-string>, index :: <integer>)
+      method simple-opcode-with-index(name :: <string>, index :: <integer>)
 	=> (opc :: <proper-opcode>, int :: <integer>)
         values(make-proper-opcode(name, $empty-vector), index)
       end method simple-opcode-with-index,
-      method decode-simple-inc-type(name :: <byte-string>)
+      method decode-simple-inc-type(name :: <string>)
         => (opc :: <proper-opcode>, int :: <integer>)
 	let reg-int = logand(first-byte, #x07);
 	let reg-arg = register-to-arg(integer-to-register(reg-int, if (is-16-bit-operands.is-16-bit) 2 else 4 end));
 	values(make-proper-opcode(name, vector(reg-arg)), new-index)
       end method decode-simple-inc-type,
       method decode-condition(byte :: <integer>)
-	=> (str :: <byte-string>)
+	=> (str :: <string>)
 	select(logand(byte, #x0f))
 	  0 => "o";
 	  1 => "no";
