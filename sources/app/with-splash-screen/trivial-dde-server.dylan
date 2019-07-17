@@ -7,7 +7,7 @@ License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 /// Name for DDE Service and Topic.
-define constant $service-and-topic-name :: <byte-string> = "FunctionalDeveloper";
+define constant $service-and-topic-name :: <string> = "FunctionalDeveloper";
 
 /// Default flags for DdeInitialize.
 define constant $allow-executes :: <integer> =

@@ -14,7 +14,7 @@ define function make-id () => ( id :: <REFGUID> );
   id-ptr
 end make-id;
 
-define function make-id-string () => ( id :: <byte-string> );
+define function make-id-string () => ( id :: <string> );
   let id = make-id();
   let result = as(<string>, id);
   destroy(id);

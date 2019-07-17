@@ -25,7 +25,7 @@ define method initialize (keyboard :: <keyboard>, #key) => ()
 end method;
 
 define method keyboard-instrument-setter
-    (name :: <byte-string>, keyboard :: <keyboard>) => (name :: <byte-string>)
+    (name :: <string>, keyboard :: <keyboard>) => (name :: <string>)
   let instrument = find-midi-instrument(name);
   select-midi-instrument
     (keyboard-midi-device(keyboard), keyboard-midi-channel(keyboard),
@@ -85,7 +85,7 @@ define method compute-qwerty-key-map () => (table :: <table>)
   let note = 0;
   let scale-cursor = $major-scale-naturals-cycle;
   local method symbolize (c :: <character>) => (sym :: <symbol>)
-    as(<symbol>, make(<byte-string>, size: 1, fill: c))
+    as(<symbol>, make(<string>, size: 1, fill: c))
   end method;
   local method do-row-pair (row1, row2)
     for (natural in row1, accidental in row2)

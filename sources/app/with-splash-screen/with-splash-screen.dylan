@@ -71,7 +71,7 @@ end method create-window;
 define variable *hBitmap* // splash-screen bitmap
     :: <HBITMAP> = null-handle(<HBITMAP>);
 
-define variable *version* :: false-or(<byte-string>) = #f;
+define variable *version* :: false-or(<string>) = #f;
 
 // Set up the global splash-screen bitmap and return its width and height
 // (or two zeros, if the bitmap couldn't be found).
@@ -125,7 +125,7 @@ define function paint-window (hWnd :: <HWND>) => ()
 	  else push(free-closures, method() SetBkMode(hdc, oldBkMode) end);
 	  end;
 	  with-stack-structure (lptm :: <LPTEXTMETRIC>)
-	    with-c-string (face = make(<byte-string>, size: $LF-FACESIZE + 1, fill: '\0'))
+	    with-c-string (face = make(<string>, size: $LF-FACESIZE + 1, fill: '\0'))
 	      when (GetTextFace(hdc, $LF-FACESIZE + 1, face) = 0) exit() end;
 	      when (GetTextMetrics(hdc, lptm) = 0) exit() end;
 	      let height
@@ -294,7 +294,7 @@ end function launch-app;
 
 /// Main Entry Point
 
-define inline function requote-if-needed (arg :: <byte-string>) => (arg :: <byte-string>)
+define inline function requote-if-needed (arg :: <string>) => (arg :: <string>)
   if (position(arg, ' ') | position(arg, '\t'))
     concatenate("\"", arg, "\"")
   else
