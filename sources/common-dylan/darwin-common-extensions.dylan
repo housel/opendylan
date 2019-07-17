@@ -13,12 +13,12 @@ define constant $KERN_PROCARGS2 = 49;
 // Wrap Darwin's sysctl() for the read-only case
 // This allocates an appropriately sized data buffer for you
 define function darwin-sysctl
-  (mib :: <vector>) => (ret :: false-or(<byte-string>))
+  (mib :: <vector>) => (ret :: false-or(<string>))
   let wsize = raw-as-integer(primitive-word-size());
   let mib-size :: <integer> = size(mib);
   let rmib-size :: <integer> = mib-size * 4;
-  let rmib = make(<byte-string>, size: rmib-size, fill: '\0');
-  let rosize = make(<byte-string>, size: wsize, fill: '\0');
+  let rmib = make(<string>, size: rmib-size, fill: '\0');
+  let rosize = make(<string>, size: wsize, fill: '\0');
 
   // create the real mib vector
   for (i from 0 below mib-size)
@@ -43,7 +43,7 @@ define function darwin-sysctl
     let osize = raw-as-integer(primitive-c-size-t-at
       (primitive-string-as-raw(rosize),
        integer-as-raw(0), integer-as-raw(0))) + 1;
-    let out = make(<byte-string>, size: osize, fill: '\0');
+    let out = make(<string>, size: osize, fill: '\0');
 
     primitive-c-size-t-at(primitive-string-as-raw(rosize),
                           integer-as-raw(0), integer-as-raw(0))
@@ -96,7 +96,7 @@ define inline-only function get-application-commandline
         _start := _start + 1;
       end;
 
-      let token = make(<byte-string>);
+      let token = make(<string>);
       while ((_start < _end) & cmdline[_start] ~= '\0')
         token := add(token, cmdline[_start]);
         _start := _start + 1;
@@ -109,10 +109,10 @@ define inline-only function get-application-commandline
     // tokens[0] is the command name, but we want the absolute path
     // for *application-filename* so we get that through other means
     // we used to get it here, but that was wrong.
-    let name = make(<byte-string>);
+    let name = make(<string>);
     for (x in tokens[1])
       if (x == '/')
-        name := make(<byte-string>);
+        name := make(<string>);
       else
         name := add(name, x);
       end;
@@ -130,7 +130,7 @@ define inline-only function get-application-filename () => (res :: <string>)
                                 ()
                              end);
 
-  let buffer = make(<byte-string>, size: length, fill: '\0');
+  let buffer = make(<string>, size: length, fill: '\0');
   let len = raw-as-integer(%call-c-function("application_filename_name")
                              (buffer :: <raw-byte-string>,
                               length :: <raw-c-unsigned-int>)

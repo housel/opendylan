@@ -178,7 +178,7 @@ define sealed copy-down-method position
  => (position :: false-or(<integer>));
 
 define sealed copy-down-method position
-    (sequence :: <byte-string>, target,
+    (sequence :: <string>, target,
      #key test :: <function> = \==,
           start: _start :: <integer> = 0,
           end: _end :: <integer> = sequence.size,

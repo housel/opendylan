@@ -172,7 +172,7 @@ end method profiling-type-result;
 /// Allocation profiling statistics
 
 define constant $buffer-max = 8192;
-define thread variable dylan-string-buffer :: <byte-string> = "";
+define thread variable dylan-string-buffer :: <string> = "";
 
 define method start-profiling-type
     (state :: <profiling-state>, keyword == #"allocation-stats") => ()
@@ -189,7 +189,7 @@ define method profiling-type-result
      #key description :: <string> = "")
  => (allocation-stats)
   if (dylan-string-buffer.empty?)
-    dylan-string-buffer := make(<byte-string>, size: $buffer-max, fill: '\0');
+    dylan-string-buffer := make(<string>, size: $buffer-max, fill: '\0');
   end if;
   let actual-buffer-size :: <integer> =
     raw-as-integer(primitive-end-heap-alloc-stats(primitive-string-as-raw(dylan-string-buffer)));

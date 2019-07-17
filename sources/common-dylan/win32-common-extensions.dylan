@@ -12,8 +12,8 @@ define constant $STD_OUTPUT_HANDLE = -11;
 define variable *console* :: false-or(<machine-word>) = #f;
 
 /// Large enough to hold a Win32 DWORD ...
-define thread variable *actual-count-buffer* :: <byte-string>
-  = make(<byte-string>, size: ash($machine-word-size, -3));
+define thread variable *actual-count-buffer* :: <string>
+  = make(<string>, size: ash($machine-word-size, -3));
 
 define function ensure-console () => ()
   local method call-succeeded? (result :: <machine-word>) => (success :: <boolean>)
@@ -80,8 +80,8 @@ end function write-console;
 
 
 /// Large enough to hold a Win32 FILETIME ...
-define thread variable *filetime-buffer* :: <byte-string>
-  = make(<byte-string>, size: 2 * ash($machine-word-size, -3));
+define thread variable *filetime-buffer* :: <string>
+  = make(<string>, size: 2 * ash($machine-word-size, -3));
 
 define function default-random-seed () => (seed :: <integer>)
   %call-c-function ("GetSystemTimeAsFileTime", c-modifiers: "__stdcall")
@@ -101,8 +101,8 @@ end function default-random-seed;
 
 /// Application information
 
-define variable *application-name* :: false-or(<byte-string>) = #f;
-define variable *application-filename* :: false-or(<byte-string>) = #f;
+define variable *application-name* :: false-or(<string>) = #f;
+define variable *application-filename* :: false-or(<string>) = #f;
 define variable *application-arguments* :: <simple-object-vector> = #[];
 
 define inline-only function ensure-application-name-filename-and-arguments () => ()
@@ -118,8 +118,8 @@ define inline-only function ensure-application-name-filename-and-arguments () =>
     *application-arguments* := apply(vector, arguments);
     //
     let path-buffer-size :: <integer> = 1024;
-    let path-buffer :: <byte-string>
-      = make(<byte-string>, size: path-buffer-size, fill: '\0');
+    let path-buffer :: <string>
+      = make(<string>, size: path-buffer-size, fill: '\0');
     let path-size :: <integer>
       = raw-as-integer(%call-c-function ("GetModuleFileNameA", c-modifiers: "__stdcall")
                            (hModule :: <raw-c-pointer>,
@@ -134,7 +134,7 @@ define inline-only function ensure-application-name-filename-and-arguments () =>
       // The documentation for GetModuleFileName doesn't state whether it returns
       // the actual size even if it won't fit in the buffer.  Let's hope it does ...
       let path-buffer-size :: <integer> = path-size + 1;
-      path-buffer := make(<byte-string>, size: path-buffer-size, fill: '\0');
+      path-buffer := make(<string>, size: path-buffer-size, fill: '\0');
       path-size :=
         raw-as-integer(%call-c-function ("GetModuleFileNameA", c-modifiers: "__stdcall")
                            (hModule :: <raw-c-pointer>,
@@ -152,12 +152,12 @@ define inline-only function ensure-application-name-filename-and-arguments () =>
   end
 end function ensure-application-name-filename-and-arguments;
 
-define function application-name () => (name :: <byte-string>)
+define function application-name () => (name :: <string>)
   ensure-application-name-filename-and-arguments();
   *application-name*
 end function application-name;
 
-define function application-filename () => (filename :: false-or(<byte-string>))
+define function application-filename () => (filename :: false-or(<string>))
   ensure-application-name-filename-and-arguments();
   *application-filename*
 end function application-filename;
@@ -176,7 +176,7 @@ define inline-only function whitespace? (c :: <character>) => (whitespace? :: <b
 end function whitespace?;
 
 define inline-only function skip-whitespace
-    (string :: <byte-string>, _start :: <integer>, _end :: <integer>)
+    (string :: <string>, _start :: <integer>, _end :: <integer>)
  => (_new-start :: <integer>)
   while (_start < _end & whitespace?(string[_start]))
     _start := _start + 1
@@ -197,13 +197,13 @@ end function add-escapes;
 /// in the section "Parsing C Command-Line Arguments".  Basically, the
 /// rules are simple except for the treatment of the escape character (\)
 /// which is also the pathname delimiter character.
-define function tokenize-command-line (line :: <byte-string>)
- => (command :: <byte-string>, #rest arguments :: <byte-string>)
+define function tokenize-command-line (line :: <string>)
+ => (command :: <string>, #rest arguments :: <string>)
   let tokens = #();
   let _start :: <integer> = 0;
   let _end :: <integer> = size(line);
   let token :: <stretchy-vector> = make(<stretchy-vector>);
-  local method next-token () => (token :: false-or(<byte-string>))
+  local method next-token () => (token :: false-or(<string>))
           _start := skip-whitespace(line, _start, _end);
           if (_start < _end)
             let escaped? :: false-or(<integer>) = #f;
@@ -251,7 +251,7 @@ define function tokenize-command-line (line :: <byte-string>)
               let n-escapes :: <integer> = escaped?;
               add-escapes(token, n-escapes)
             end;
-            concatenate-as(<byte-string>, token)
+            concatenate-as(<string>, token)
           else
             #f
           end

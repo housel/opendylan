@@ -14,15 +14,15 @@ define constant <string-buffer> = limited(<stretchy-vector>, of: <character>);
 
 //---*** Is there a more efficient way to do this?
 define function print-string
-    (buffer :: <string-buffer>, string :: <byte-string>) => ()
+    (buffer :: <string-buffer>, string :: <string>) => ()
   for (character :: <character> in string)
     add!(buffer, character)
   end
 end function print-string;
 
 define function buffer-contents
-    (buffer :: <string-buffer>) => (contents :: <byte-string>)
-  as(<byte-string>, buffer)
+    (buffer :: <string-buffer>) => (contents :: <string>)
+  as(<string>, buffer)
 end function buffer-contents;
 
 
@@ -117,7 +117,7 @@ define function object-name
     (object :: <object>) => (name :: <string>)
   let maybe-name = debug-name(object);
   if (maybe-name)
-    as(<byte-string>, maybe-name);
+    as(<string>, maybe-name);
   else
     "???"
   end;
@@ -160,7 +160,7 @@ define method print-unique-name
           as-lowercase(as(<string>, symbol))
         end method symbol-name;
   select (object by instance?)
-    <byte-string>  => print-format(buffer, "\"%s\"", object);
+    <string>  => print-format(buffer, "\"%s\"", object);
     <symbol>       => print-format(buffer, "#\"%s\"", symbol-name(object));
     <character>    => print-format(buffer, "'%c'", object);
     <collection>   => print-collection(buffer, object);
@@ -183,8 +183,8 @@ end function object-unique-name;
 define function primitive-name
     (object :: <object>) => (name :: false-or(<string>))
   select (object by instance?)
-    <byte-string>  => object;
-    <character>    => make(<byte-string>, size: 1, fill: object);
+    <string>  => object;
+    <character>    => make(<string>, size: 1, fill: object);
     <condition>    => condition-to-string(object);
     <locator>      => as(<string>, object);
     <class>        => object-name(object);
@@ -249,7 +249,7 @@ define function integer-to-string
      #key base :: <integer> = 10,
           size: string-size :: <integer> = 0,
           fill :: <character> = '0')
- => (string :: <byte-string>)
+ => (string :: <string>)
   user-assert(2 <= base & base <= 36,
               "Base %d is not between 2 and 36",
               base);
@@ -281,7 +281,7 @@ define function integer-to-string
     buffer := add!(buffer, '-');
   end;
   let buffer-size = buffer.size;
-  let string = make(<byte-string>, size: buffer-size);
+  let string = make(<string>, size: buffer-size);
   for (digit in buffer, index :: <integer> from buffer-size - 1 to 0 by -1)
     string[index] := digit;
   end for;

@@ -50,7 +50,7 @@ define class <test-error> (<error>)
 end class <test-error>;
 
 define method condition-to-string
-    (error :: <test-error>) => (string :: <byte-string>)
+    (error :: <test-error>) => (string :: <string>)
   $test-error-message
 end method condition-to-string;
 
@@ -443,8 +443,8 @@ define common-extensions function-test subclass ()
                   new-type := subclass(<string>));
   check-instance?(format-to-string("<string> is subclass(<string>)"),
                   new-type, <string>);
-  check-instance?(format-to-string("<byte-string> is subclass(<string>)"),
-                  new-type, <byte-string>);
+  check-instance?(format-to-string("<string> is subclass(<string>)"),
+                  new-type, <string>);
   check-false(format-to-string("<object> is not subclass(<string>)"),
               instance?(<object>, new-type));
 end function-test subclass;

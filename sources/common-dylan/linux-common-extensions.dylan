@@ -11,7 +11,7 @@ define inline-only function get-application-commandline
  () => (res :: <string>, arguments == #f)
   let cmdline-path = "/proc/self/cmdline";
   let cmdline-fd = -1;
-  let cmdline :: <byte-string> = "";
+  let cmdline :: <string> = "";
   block ()
     cmdline-fd
       := raw-as-integer(%call-c-function ("open")
@@ -26,7 +26,7 @@ define inline-only function get-application-commandline
     if (cmdline-fd > 0)
       let count :: <integer> = 1;
       while (count > 0)
-        let buffer = make(<byte-string>, size: 8192, fill: '\0');
+        let buffer = make(<string>, size: 8192, fill: '\0');
         count
           := raw-as-integer(%call-c-function ("read")
                               (fd :: <raw-c-signed-int>,
@@ -54,9 +54,9 @@ define inline-only function get-application-commandline
 end;
 
 define inline-only function get-application-filename
-    () => (filename :: false-or(<byte-string>))
+    () => (filename :: false-or(<string>))
   let exe-path = "/proc/self/exe";
-  let buffer = make(<byte-string>, size: 8192, fill: '\0');
+  let buffer = make(<string>, size: 8192, fill: '\0');
   let count
     = raw-as-integer(%call-c-function ("readlink")
                        (path :: <raw-byte-string>,

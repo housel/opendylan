@@ -263,7 +263,7 @@ end method adjust-stream-position;
 // Test input stream
 
 define class <test-input-stream> (<test-stream>)
-  slot stream-test-sequence :: <byte-string>,
+  slot stream-test-sequence :: <string>,
     required-init-keyword: test-sequence:;
 end class <test-input-stream>;
 

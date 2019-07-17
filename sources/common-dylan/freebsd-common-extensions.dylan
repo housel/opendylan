@@ -13,7 +13,7 @@ define inline-only function get-application-commandline
   let buffer = #f;
   while (len >= cursize)
     cursize := cursize * 2;
-    buffer := make(<byte-string>, size: cursize, fill: '\0');
+    buffer := make(<string>, size: cursize, fill: '\0');
     len := raw-as-integer(%call-c-function("application_arguments")
                              (buffer :: <raw-byte-string>,
                               length :: <raw-c-unsigned-int>)
@@ -32,7 +32,7 @@ define inline-only function get-application-filename () => (res :: <string>)
                                 ()
                              end);
 
-  let buffer = make(<byte-string>, size: length, fill: '\0');
+  let buffer = make(<string>, size: length, fill: '\0');
   let len = raw-as-integer(%call-c-function("application_filename_name")
                              (buffer :: <raw-byte-string>,
                               length :: <raw-c-unsigned-int>)

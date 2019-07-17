@@ -55,6 +55,7 @@ define open method copy-bytes
   end
 end method;
 
+/*
 define open method copy-bytes
     (dst :: <string>, dst-start :: <integer>,
      src :: <string>, src-start :: <integer>, n :: <integer>)
@@ -63,6 +64,7 @@ define open method copy-bytes
     dst[dst-start + i] := src[src-start + i]
   end
 end method;
+*/
 
 define open method copy-bytes
     (dst :: <string>, dst-start :: <integer>,
@@ -105,7 +107,7 @@ define sealed method copy-bytes
 end method;
 
 define sealed method copy-bytes
-    (dst :: <byte-string>, dst-start :: <integer>,
+    (dst :: <string>, dst-start :: <integer>,
      src :: <byte-vector>, src-start :: <integer>, n :: <integer>) => ()
   let src-end :: <integer> = src-start + n;
   let dst-end :: <integer> = dst-start + n;
@@ -121,7 +123,7 @@ end method;
 
 define sealed method copy-bytes
     (dst :: <byte-vector>, dst-start :: <integer>,
-     src :: <byte-string>, src-start :: <integer>, n :: <integer>) => ()
+     src :: <string>, src-start :: <integer>, n :: <integer>) => ()
   let src-end :: <integer> = src-start + n;
   let dst-end :: <integer> = dst-start + n;
   if (n >= 0 & src-start >= 0 & dst-start >= 0 & src-end <= size(src) & dst-end <= size(dst))
@@ -135,8 +137,8 @@ define sealed method copy-bytes
 end method;
 
 define sealed method copy-bytes
-    (dst :: <byte-string>, dst-start :: <integer>,
-     src :: <byte-string>, src-start :: <integer>, n :: <integer>) => ()
+    (dst :: <string>, dst-start :: <integer>,
+     src :: <string>, src-start :: <integer>, n :: <integer>) => ()
   let src-end :: <integer> = src-start + n;
   let dst-end :: <integer> = dst-start + n;
   if (n >= 0 & src-start >= 0 & dst-start >= 0 & src-end <= size(src) & dst-end <= size(dst))
@@ -192,7 +194,7 @@ define open generic byte-storage-offset-address
     (the-buffer, data-offset :: <integer>)
  => (result-offset :: <machine-word>);
 
-define constant <byte-vector-like> = type-union(<byte-string>, <byte-vector>);
+define constant <byte-vector-like> = type-union(<string>, <byte-vector>);
 
 define sealed inline method byte-storage-address
     (the-buffer :: <byte-vector-like>)
@@ -213,7 +215,7 @@ define sealed inline method byte-storage-offset-address
               (the-buffer, primitive-repeated-slot-offset(the-buffer)))))
 end method;
 
-define sealed method from-hexstring (string :: <byte-string>)
+define sealed method from-hexstring (string :: <string>)
   => (result :: <byte-vector>)
   if (odd?(string.size))
     error("String size must be multiple of 2.");
@@ -235,8 +237,8 @@ define sealed method from-hexstring (string :: <byte-string>)
 end method;
 
 define sealed method hexstring (data :: <byte-vector>)
-  => (result :: <byte-string>)
-  let result :: <byte-string> = make(<byte-string>, size: data.size * 2);
+  => (result :: <string>)
+  let result :: <string> = make(<string>, size: data.size * 2);
 
   without-bounds-checks
     for (i :: <integer> from 0 below data.size)

@@ -34,8 +34,8 @@ define inline function write-console
 end function write-console;
 
 
-define thread variable *time-buffer* :: <byte-string>
-  = make(<byte-string>, size: ash($machine-word-size, -3), fill: '\0');
+define thread variable *time-buffer* :: <string>
+  = make(<string>, size: ash($machine-word-size, -3), fill: '\0');
 
 define function default-random-seed () => (seed :: <integer>)
   %call-c-function ("time")
@@ -51,8 +51,8 @@ end function default-random-seed;
 
 /// Application information
 
-define variable *application-name* :: false-or(<byte-string>) = #f;
-define variable *application-filename* :: false-or(<byte-string>) = #f;
+define variable *application-name* :: false-or(<string>) = #f;
+define variable *application-filename* :: false-or(<string>) = #f;
 define variable *application-arguments* :: <simple-object-vector> = #[];
 
 define inline-only function ensure-application-name-filename-and-arguments () => ()
@@ -83,12 +83,12 @@ define inline-only function ensure-application-name-filename-and-arguments () =>
   end;
 end function ensure-application-name-filename-and-arguments;
 
-define function application-name () => (name :: <byte-string>)
+define function application-name () => (name :: <string>)
   ensure-application-name-filename-and-arguments();
   *application-name*
 end function application-name;
 
-define function application-filename () => (filename :: false-or(<byte-string>))
+define function application-filename () => (filename :: false-or(<string>))
   ensure-application-name-filename-and-arguments();
   *application-filename*
 end function application-filename;
@@ -108,7 +108,7 @@ define inline-only function whitespace? (c :: <character>) => (whitespace? :: <b
 end function whitespace?;
 
 define inline-only function skip-whitespace
-    (string :: <byte-string>, _start :: <integer>, _end :: <integer>)
+    (string :: <string>, _start :: <integer>, _end :: <integer>)
  => (_new-start :: <integer>)
   while (_start < _end & whitespace?(string[_start]))
     _start := _start + 1
@@ -116,13 +116,13 @@ define inline-only function skip-whitespace
   _start
 end function skip-whitespace;
 
-define function tokenize-command-line (line :: <byte-string>)
- => (command :: <byte-string>, #rest arguments :: <byte-string>)
+define function tokenize-command-line (line :: <string>)
+ => (command :: <string>, #rest arguments :: <string>)
   let tokens = #();
   let _start :: <integer> = 0;
   let _end :: <integer> = size(line);
   let token = make(<stretchy-vector>);
-  local method next-token () => (token :: false-or(<byte-string>))
+  local method next-token () => (token :: false-or(<string>))
           _start := skip-whitespace(line, _start, _end);
           if (_start < _end)
             let escaped? :: <boolean> = #f;
@@ -150,7 +150,7 @@ define function tokenize-command-line (line :: <byte-string>)
               end;
               _start := _start + 1
             end;
-            concatenate-as(<byte-string>, token)
+            concatenate-as(<string>, token)
           else
             #f
           end
