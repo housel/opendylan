@@ -34,12 +34,12 @@ define inline-only constant $HKEY-LOCAL-MACHINE         = as(<HKEY>, #x80000002)
 define inline-only constant $HKEY-USERS                 = as(<HKEY>, #x80000003);
 
 define inline-only function RegQueryValueEx
-    (hKey :: <HKEY>, value-name :: <byte-string>)
- => (data :: <byte-string>, type :: <LONG>, status :: <LONG>)
-  let type-buffer :: <byte-string>
-    = make(<byte-string>, size: $DWORD-SIZE, fill: '\0');
-  let buffer-size-buffer :: <byte-string>
-    = make(<byte-string>, size: $DWORD-SIZE, fill: '\0');
+    (hKey :: <HKEY>, value-name :: <string>)
+ => (data :: <string>, type :: <LONG>, status :: <LONG>)
+  let type-buffer :: <string>
+    = make(<string>, size: $DWORD-SIZE, fill: '\0');
+  let buffer-size-buffer :: <string>
+    = make(<string>, size: $DWORD-SIZE, fill: '\0');
   let status
     = primitive-wrap-machine-word
         (%call-c-function ("RegQueryValueExA", c-modifiers: "__stdcall")
@@ -60,8 +60,8 @@ define inline-only function RegQueryValueEx
           (primitive-c-unsigned-long-at
             (primitive-cast-raw-as-pointer(primitive-string-as-raw(buffer-size-buffer)),
              integer-as-raw(0), integer-as-raw(0)));
-    let buffer :: <byte-string>
-      = make(<byte-string>, size: buffer-size, fill: '\0');
+    let buffer :: <string>
+      = make(<string>, size: buffer-size, fill: '\0');
     let status
       = primitive-wrap-machine-word
           (%call-c-function ("RegQueryValueExA", c-modifiers: "__stdcall")
@@ -104,7 +104,7 @@ define inline-only function RegQueryValueEx
 end function RegQueryValueEx;
 
 define inline-only function RegSetValueEx
-    (hKey :: <HKEY>, value-name :: <byte-string>, type :: <LONG>, data :: <byte-string>)
+    (hKey :: <HKEY>, value-name :: <string>, type :: <LONG>, data :: <string>)
  => (status :: <LONG>)
   primitive-wrap-machine-word
     (%call-c-function ("RegSetValueExA", c-modifiers: "__stdcall")
@@ -121,7 +121,7 @@ define inline-only function RegSetValueEx
      end)
 end function RegSetValueEx;
 
-define inline-only function RegDeleteValue (hKey :: <HKEY>, value-name :: <byte-string>)
+define inline-only function RegDeleteValue (hKey :: <HKEY>, value-name :: <string>)
  => (status :: <LONG>)
   primitive-wrap-machine-word
     (%call-c-function ("RegDeleteValueA", c-modifiers: "__stdcall")
@@ -133,10 +133,10 @@ define inline-only function RegDeleteValue (hKey :: <HKEY>, value-name :: <byte-
 end function RegDeleteValue;
 
 define inline-only function RegOpenKeyEx
-    (hKey :: <HKEY>, subkey-name :: <byte-string>, desired-sam :: <LONG>)
+    (hKey :: <HKEY>, subkey-name :: <string>, desired-sam :: <LONG>)
  => (hSubKey :: <HKEY>, status :: <LONG>)
-  let hSubKey-buffer :: <byte-string>
-    = make(<byte-string>, size: $DWORD-SIZE, fill: '\0');
+  let hSubKey-buffer :: <string>
+    = make(<string>, size: $DWORD-SIZE, fill: '\0');
   let status
     = primitive-wrap-machine-word
         (%call-c-function ("RegOpenKeyExA", c-modifiers: "__stdcall")
@@ -158,13 +158,13 @@ define inline-only function RegOpenKeyEx
 end function RegOpenKeyEx;
 
 define inline-only function RegCreateKeyEx
-    (hKey :: <HKEY>, subkey-name :: <byte-string>, class :: <byte-string>,
+    (hKey :: <HKEY>, subkey-name :: <string>, class :: <string>,
      options :: <LONG>, desired-sam :: <LONG>)
  => (hSubKey :: <HKEY>, status :: <LONG>)
-  let hSubKey-buffer :: <byte-string>
-    = make(<byte-string>, size: $DWORD-SIZE, fill: '\0');
-  let disposition-buffer :: <byte-string>
-    = make(<byte-string>, size: $DWORD-SIZE, fill: '\0');
+  let hSubKey-buffer :: <string>
+    = make(<string>, size: $DWORD-SIZE, fill: '\0');
+  let disposition-buffer :: <string>
+    = make(<string>, size: $DWORD-SIZE, fill: '\0');
   let status
     = primitive-wrap-machine-word
         (%call-c-function ("RegCreateKeyExA", c-modifiers: "__stdcall")
@@ -200,7 +200,7 @@ define inline-only function RegCloseKey (hKey :: <HKEY>) => (status :: <LONG>)
      end)
 end function RegCloseKey;
 
-define inline-only function RegDeleteKey (hKey :: <HKEY>, subkey-name :: <byte-string>)
+define inline-only function RegDeleteKey (hKey :: <HKEY>, subkey-name :: <string>)
  => (status :: <LONG>)
   primitive-wrap-machine-word
     (%call-c-function ("RegDeleteKeyA", c-modifiers: "__stdcall")
@@ -233,7 +233,7 @@ define macro reading-value
            if (_result ~= $ERROR-SUCCESS | _type ~= $REG-SZ)
              values(#f, #f)
            else
-             let ?data = as(<byte-string>, _buffer);
+             let ?data = as(<string>, _buffer);
              values(begin ?body end, #t)
            end
          else
@@ -248,7 +248,7 @@ define macro writing-value
       ?:body
     end }
   => { begin
-         let _string :: <byte-string> = begin ?body end;
+         let _string :: <string> = begin ?body end;
          let _hKey = settings-key-handle(?settings);
          if (_hkey)
            let _result = RegSetValueEx(_hKey, ?key, $REG-SZ, _string);
@@ -264,7 +264,7 @@ end macro writing-value;
 
 
 define sealed method get-value
-    (settings :: <settings>, key :: <byte-string>, type == <string>)
+    (settings :: <settings>, key :: <string>, type == <string>)
  => (value :: false-or(<string>), found? :: <boolean>)
   reading-value (data = settings, key)
     data
@@ -272,7 +272,7 @@ define sealed method get-value
 end method get-value;
 
 define sealed method set-value
-    (value :: <string>, settings :: <settings>, key :: <byte-string>, type == <string>)
+    (value :: <string>, settings :: <settings>, key :: <string>, type == <string>)
  => (success? :: <boolean>)
   writing-value (settings, key)
     value
@@ -281,7 +281,7 @@ end method set-value;
 
 
 define sealed method get-value
-    (settings :: <settings>, key :: <byte-string>, type == <symbol>)
+    (settings :: <settings>, key :: <string>, type == <symbol>)
  => (value :: false-or(<symbol>), found? :: <boolean>)
   reading-value (data = settings, key)
     as(<symbol>, data)
@@ -289,16 +289,16 @@ define sealed method get-value
 end method get-value;
 
 define sealed method set-value
-    (value :: <symbol>, settings :: <settings>, key :: <byte-string>, type == <symbol>)
+    (value :: <symbol>, settings :: <settings>, key :: <string>, type == <symbol>)
  => (success? :: <boolean>)
   writing-value (settings, key)
-    as(<byte-string>, value)
+    as(<string>, value)
   end
 end method set-value;
 
 
 define sealed method get-value
-    (settings :: <settings>, key :: <byte-string>, type == <integer>)
+    (settings :: <settings>, key :: <string>, type == <integer>)
  => (value :: false-or(<integer>), found? :: <boolean>)
   reading-value (data = settings, key)
     string-to-integer(data)
@@ -306,7 +306,7 @@ define sealed method get-value
 end method get-value;
 
 define sealed method set-value
-    (value :: <integer>, settings :: <settings>, key :: <byte-string>, type == <integer>)
+    (value :: <integer>, settings :: <settings>, key :: <string>, type == <integer>)
  => (success? :: <boolean>)
   writing-value (settings, key)
     integer-to-string(value)
@@ -315,7 +315,7 @@ end method set-value;
 
 
 define sealed method get-value
-    (settings :: <settings>, key :: <byte-string>, type == <boolean>)
+    (settings :: <settings>, key :: <string>, type == <boolean>)
  => (value :: false-or(<boolean>), found? :: <boolean>)
   reading-value (data = settings, key)
     let value = as-lowercase!(data);
@@ -328,7 +328,7 @@ define sealed method get-value
 end method get-value;
 
 define sealed method set-value
-    (value :: <boolean>, settings :: <settings>, key :: <byte-string>, type == <boolean>)
+    (value :: <boolean>, settings :: <settings>, key :: <string>, type == <boolean>)
  => (success? :: <boolean>)
   writing-value (settings, key)
     if (value) "yes" else "no" end
@@ -337,7 +337,7 @@ end method set-value;
 
 
 define sealed method get-value
-    (settings :: <settings>, key :: <byte-string>, type == <machine-word>)
+    (settings :: <settings>, key :: <string>, type == <machine-word>)
  => (value :: false-or(<machine-word>), found? :: <boolean>)
   reading-value (data = settings, key)
     string-to-machine-word(data)
@@ -346,7 +346,7 @@ end method get-value;
 
 define sealed method set-value
     (value :: <machine-word>,
-     settings :: <settings>, key :: <byte-string>, type == <machine-word>)
+     settings :: <settings>, key :: <string>, type == <machine-word>)
  => (success? :: <boolean>)
   writing-value (settings, key)
     machine-word-to-string(value)
@@ -355,7 +355,7 @@ end method set-value;
 
 
 define sealed method do-remove-value!
-    (settings :: <settings>, key :: <byte-string>) => ()
+    (settings :: <settings>, key :: <string>) => ()
   let hKey = settings-key-handle(settings);
   when (hKey)
     RegDeleteValue(hKey, key)
@@ -366,7 +366,7 @@ end method do-remove-value!;
 /// Creating keys
 
 define sealed method settings-key-name
-    (settings :: <system-settings>) => (key-name :: <byte-string>)
+    (settings :: <system-settings>) => (key-name :: <string>)
   "HKEY_CLASSES_ROOT"
 end method settings-key-name;
 
@@ -382,18 +382,18 @@ end method settings-writable?;
 
 
 define sealed method settings-key-name
-    (settings :: <site-settings>) => (key-name :: <byte-string>)
+    (settings :: <site-settings>) => (key-name :: <string>)
   error("Site settings not supported under Windows")
 end method settings-key-name;
 
 define sealed method settings-key-name
-    (settings :: <site-software-settings>) => (key-name :: <byte-string>)
+    (settings :: <site-software-settings>) => (key-name :: <string>)
   error("Site settings not supported under Windows")
 end method settings-key-name;
 
 
 define sealed method settings-key-name
-    (settings :: <local-settings>) => (key-name :: <byte-string>)
+    (settings :: <local-settings>) => (key-name :: <string>)
   "HKEY_LOCAL_MACHINE"
 end method settings-key-name;
 
@@ -408,18 +408,18 @@ define sealed method settings-writable?
 end method settings-writable?;
 
 define sealed method settings-key-name
-    (settings :: <local-software-settings>) => (key-name :: <byte-string>)
+    (settings :: <local-software-settings>) => (key-name :: <string>)
   "Software"
 end method settings-key-name;
 
 define sealed method settings-key-name
-    (settings :: <local-hardware-settings>) => (key-name :: <byte-string>)
+    (settings :: <local-hardware-settings>) => (key-name :: <string>)
   "Hardware"
 end method settings-key-name;
 
 
 define sealed method settings-key-name
-    (settings :: <default-user-settings>) => (key-name :: <byte-string>)
+    (settings :: <default-user-settings>) => (key-name :: <string>)
   "HKEY_USERS"
 end method settings-key-name;
 
@@ -434,13 +434,13 @@ define sealed method settings-writable?
 end method settings-writable?;
 
 define sealed method settings-key-name
-    (settings :: <default-user-software-settings>) => (key-name :: <byte-string>)
+    (settings :: <default-user-software-settings>) => (key-name :: <string>)
   "Software"
 end method settings-key-name;
 
 
 define sealed method settings-key-name
-    (settings :: <current-user-settings>) => (key-name :: <byte-string>)
+    (settings :: <current-user-settings>) => (key-name :: <string>)
   "HKEY_CURRENT_USER"
 end method settings-key-name;
 
@@ -455,7 +455,7 @@ define sealed method settings-writable?
 end method settings-writable?;
 
 define sealed method settings-key-name
-    (settings :: <current-user-software-settings>) => (key-name :: <byte-string>)
+    (settings :: <current-user-software-settings>) => (key-name :: <string>)
   "Software"
 end method settings-key-name;
 
@@ -508,8 +508,8 @@ define sealed method initialize-settings
 end method initialize-settings;
 
 define sealed method register-key
-    (settings :: <settings>, key-name :: <byte-string>, for-writing? :: <boolean>)
- => (key :: <byte-string>)
+    (settings :: <settings>, key-name :: <string>, for-writing? :: <boolean>)
+ => (key :: <string>)
   // No need to do anything except ensure that all the parent
   // settings have been initialized
   //---*** This should transmogrify '?' and '*' characters
@@ -518,7 +518,7 @@ define sealed method register-key
 end method register-key;
 
 define sealed method unregister-key
-    (settings :: <settings>, key-name :: <byte-string>) => ()
+    (settings :: <settings>, key-name :: <string>) => ()
   initialize-settings(settings, #t);
   let hKey = settings-key-handle(settings);
   when (hKey)

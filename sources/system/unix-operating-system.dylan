@@ -91,7 +91,7 @@ end function owner-organization;
 define constant $environment-variable-delimiter = ':';
 
 define function environment-variable
-    (name :: <byte-string>) => (value :: false-or(<byte-string>))
+    (name :: <string>) => (value :: false-or(<string>))
   let value = primitive-wrap-machine-word
                 (primitive-cast-pointer-as-raw
                    (%call-c-function ("system_getenv")
@@ -100,7 +100,7 @@ define function environment-variable
                     end));
   if (primitive-machine-word-not-equal?(primitive-unwrap-machine-word(value),
                                         integer-as-raw(0)))
-    let value :: <byte-string>
+    let value :: <string>
       = primitive-raw-as-string
           (primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(value)));
     value.size > 0
@@ -111,8 +111,8 @@ define function environment-variable
 end function environment-variable;
 
 define function environment-variable-setter
-    (new-value :: false-or(<byte-string>), name :: <byte-string>)
- => (new-value :: false-or(<byte-string>))
+    (new-value :: false-or(<string>), name :: <string>)
+ => (new-value :: false-or(<string>))
   if (new-value)
     //---*** Should we signal something if this call fails?
     %call-c-function ("system_setenv")
@@ -222,7 +222,7 @@ define function run-application
           close-fds := add(close-fds, read-fd);
           read-fd;
         otherwise =>
-          let pathstring = as(<byte-string>, expand-pathname(input));
+          let pathstring = as(<string>, expand-pathname(input));
           let mode-code
             = if (if-input-does-not-exist == #"create")
                 logior($O_RDONLY, $O_CREAT);
@@ -256,7 +256,7 @@ define function run-application
         #"output" =>
           output-fd;
         otherwise =>
-          let pathstring = as(<byte-string>, expand-pathname(key));
+          let pathstring = as(<string>, expand-pathname(key));
           let mode-code
             = select (if-exists)
                 #"signal" =>
@@ -288,9 +288,9 @@ define function run-application
     close-fds := add(close-fds, write-fd);
   end if;
 
-  let dir = working-directory & as(<byte-string>, working-directory);
+  let dir = working-directory & as(<string>, working-directory);
 
-  let (program :: <byte-string>, argv-size :: <integer>)
+  let (program :: <string>, argv-size :: <integer>)
     = if (under-shell?)
         if (instance?(command, <string>))
           values($posix-shell, 4)
@@ -317,25 +317,25 @@ define function run-application
           if (instance?(command, <string>))
             primitive-c-pointer-at(primitive-unwrap-c-pointer(argv),
                                    integer-as-raw(2), integer-as-raw(0))
-              := primitive-string-as-raw(as(<byte-string>, command));
+              := primitive-string-as-raw(as(<string>, command));
           else
             for (i from 0 below command.size)
               primitive-c-pointer-at(primitive-unwrap-c-pointer(argv),
                                      integer-as-raw(2 + i),
                                      integer-as-raw(0))
-                := primitive-string-as-raw(as(<byte-string>, command[i]));
+                := primitive-string-as-raw(as(<string>, command[i]));
             end for;
           end if
         else
           if (instance?(command, <string>))
             primitive-c-pointer-at(primitive-unwrap-c-pointer(argv),
                                    integer-as-raw(0), integer-as-raw(0))
-              := primitive-string-as-raw(as(<byte-string>, command));
+              := primitive-string-as-raw(as(<string>, command));
           else
             for (i from 0 below command.size)
               primitive-c-pointer-at(primitive-unwrap-c-pointer(argv),
                                      integer-as-raw(i), integer-as-raw(0))
-                := primitive-string-as-raw(as(<byte-string>, command[i]));
+                := primitive-string-as-raw(as(<string>, command[i]));
             end for;
           end if
         end if;
@@ -417,7 +417,7 @@ define constant $BUFFER-MAX = 4096;
 
 define function run-outputter
     (outputter :: <function>, outputter-read-fd :: <integer>) => ();
-  let dylan-output-buffer = make(<byte-string>, size: $BUFFER-MAX, fill: '\0');
+  let dylan-output-buffer = make(<string>, size: $BUFFER-MAX, fill: '\0');
   let output-buffer
     = primitive-wrap-machine-word
         (primitive-cast-pointer-as-raw

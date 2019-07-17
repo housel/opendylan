@@ -25,7 +25,7 @@ define sideways method accessor-open
      #all-keys) => ()
   block (return)
     let locator = expand-pathname(locator);
-    let pathstring = as(<byte-string>, locator);
+    let pathstring = as(<string>, locator);
     let exists = unix-file-exists?(pathstring);
     let (mode-code, if-exists, if-does-not-exist)
       = select (direction)

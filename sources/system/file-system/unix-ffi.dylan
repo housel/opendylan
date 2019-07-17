@@ -91,14 +91,14 @@ define inline-only function st-ctime (st :: <machine-word>) => (ctime :: <abstra
 end function st-ctime;
 
 
-define inline-only function passwd-name (passwd :: <machine-word>) => (name :: <byte-string>)
+define inline-only function passwd-name (passwd :: <machine-word>) => (name :: <string>)
   primitive-raw-as-string
     (primitive-c-pointer-at(primitive-unwrap-machine-word(passwd),
                             integer-as-raw(0),
                             integer-as-raw($pw-name-offset)))
 end function passwd-name;
 
-define inline-only function passwd-dir (passwd :: <machine-word>) => (dir :: <byte-string>)
+define inline-only function passwd-dir (passwd :: <machine-word>) => (dir :: <string>)
   primitive-raw-as-string
     (primitive-c-pointer-at(primitive-unwrap-machine-word(passwd),
                             integer-as-raw(0),
@@ -106,7 +106,7 @@ define inline-only function passwd-dir (passwd :: <machine-word>) => (dir :: <by
 end function passwd-dir;
 
 
-define inline-only function group-name (group :: <machine-word>) => (name :: <byte-string>)
+define inline-only function group-name (group :: <machine-word>) => (name :: <string>)
   primitive-raw-as-string
     (primitive-c-pointer-at(primitive-unwrap-machine-word(group),
                             integer-as-raw($gr-name-offset),
@@ -114,7 +114,7 @@ define inline-only function group-name (group :: <machine-word>) => (name :: <by
 end function group-name;
 
 
-define inline-only function dirent-name (dirent :: <machine-word>) => (name :: <byte-string>)
+define inline-only function dirent-name (dirent :: <machine-word>) => (name :: <string>)
   primitive-raw-as-string
     (%call-c-function ("system_dirent_name")
        (dirent :: <raw-c-pointer>) => (name :: <raw-byte-string>)
@@ -131,7 +131,7 @@ define function unix-errno () => (errno :: <integer>)
 end function;
 
 define function unix-last-error-message () => (message :: <string>)
-  let message :: <byte-string>
+  let message :: <string>
     = primitive-raw-as-string
        (%call-c-function ("strerror")
             (errno :: <raw-c-signed-int>) => (message :: <raw-byte-string>)

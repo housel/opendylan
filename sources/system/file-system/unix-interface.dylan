@@ -23,7 +23,7 @@ end macro;
 /// LOW LEVEL FFI
 
 define function unix-open
-    (path :: <byte-string>, mode :: <integer>, create-flags :: <integer>) => (fd :: <integer>)
+    (path :: <string>, mode :: <integer>, create-flags :: <integer>) => (fd :: <integer>)
   with-interrupt-repeat
     raw-as-integer
       (%call-c-function ("open")
@@ -78,7 +78,7 @@ end function unix-raw-read;
 
 define thread variable *stat-buffer* = make(<byte-vector>, size: $stat-size, fill: as(<byte>, '\0'));
 
-define function unix-file-exists? (path :: <byte-string>) => (exists? :: <boolean>)
+define function unix-file-exists? (path :: <string>) => (exists? :: <boolean>)
   ~primitive-raw-as-boolean
     (%call-c-function ("system_stat")
        (path :: <raw-byte-string>, statbuf :: <raw-pointer>)
@@ -88,7 +88,7 @@ define function unix-file-exists? (path :: <byte-string>) => (exists? :: <boolea
      end)
 end function unix-file-exists?;
 
-define function unix-delete-file (path :: <byte-string>) => (ok :: <boolean>)
+define function unix-delete-file (path :: <string>) => (ok :: <boolean>)
   with-interrupt-repeat
     raw-as-integer(%call-c-function ("unlink")
                        (path :: <raw-byte-string>) => (result :: <raw-c-signed-int>)

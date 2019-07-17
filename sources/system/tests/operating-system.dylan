@@ -201,7 +201,7 @@ define operating-system function-test run-application ()
 
     let contents = "";
     local
-      method outputter (msg :: <byte-string>, #key end: _end)
+      method outputter (msg :: <string>, #key end: _end)
         contents := concatenate(contents, copy-sequence(msg, end: _end));
       end;
 

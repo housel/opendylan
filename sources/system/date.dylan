@@ -338,18 +338,18 @@ define constant $short-month-names =
 
 define constant $digits = "0123456789";
 
-define method format-date (format :: <byte-string>, date :: <date>)
+define method format-date (format :: <string>, date :: <date>)
  => (date-string :: <string>);
-  let format :: <byte-string> = format;
+  let format :: <string> = format;
   let (year, month, day, hours, minutes, seconds,
        day-of-week, time-zone-offset) = decode-date(date);
   let absolute-time-zone-offset :: <integer> = abs(time-zone-offset);
-  local method wrap (wrap :: <byte-string>, i :: <integer>) => (string :: <byte-string>)
+  local method wrap (wrap :: <string>, i :: <integer>) => (string :: <string>)
       if (i < 10) concatenate(wrap, integer-to-string(i));
         else integer-to-string(i) end;
     end;
-  local method format-integer (integer :: <integer>, length :: <integer>) => (string :: <byte-string>)
-      let string = make(<byte-string>, size: length, fill: '0');
+  local method format-integer (integer :: <integer>, length :: <integer>) => (string :: <string>)
+      let string = make(<string>, size: length, fill: '0');
       for (position from 0 below length)
         string[length - position - 1] := $digits[modulo(integer, 10)];
         integer := floor/(integer, 10);
@@ -357,7 +357,7 @@ define method format-date (format :: <byte-string>, date :: <date>)
       string
     end;
   let date-stream = make(<byte-string-stream>,
-                         contents: make(<byte-string>, size: 64),
+                         contents: make(<string>, size: 64),
                          direction: #"output");
   let format? :: <boolean> = #f;
   let use-dots? :: <boolean> = #f;

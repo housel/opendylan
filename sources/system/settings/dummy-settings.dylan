@@ -30,7 +30,7 @@ end macro writing-value;
 
 
 define sealed method get-value
-    (settings :: <settings>, key :: <byte-string>, type == <string>)
+    (settings :: <settings>, key :: <string>, type == <string>)
  => (value :: false-or(<string>), found? :: <boolean>)
   reading-value (data = settings, key)
     data
@@ -38,7 +38,7 @@ define sealed method get-value
 end method get-value;
 
 define sealed method set-value
-    (value :: <string>, settings :: <settings>, key :: <byte-string>, type == <string>)
+    (value :: <string>, settings :: <settings>, key :: <string>, type == <string>)
  => (success? :: <boolean>)
   writing-value (settings, key)
     value
@@ -47,7 +47,7 @@ end method set-value;
 
 
 define sealed method get-value
-    (settings :: <settings>, key :: <byte-string>, type == <symbol>)
+    (settings :: <settings>, key :: <string>, type == <symbol>)
  => (value :: false-or(<symbol>), found? :: <boolean>)
   reading-value (data = settings, key)
     as(<symbol>, data)
@@ -55,16 +55,16 @@ define sealed method get-value
 end method get-value;
 
 define sealed method set-value
-    (value :: <symbol>, settings :: <settings>, key :: <byte-string>, type == <symbol>)
+    (value :: <symbol>, settings :: <settings>, key :: <string>, type == <symbol>)
  => (success? :: <boolean>)
   writing-value (settings, key)
-    as(<byte-string>, value)
+    as(<string>, value)
   end
 end method set-value;
 
 
 define sealed method get-value
-    (settings :: <settings>, key :: <byte-string>, type == <integer>)
+    (settings :: <settings>, key :: <string>, type == <integer>)
  => (value :: false-or(<integer>), found? :: <boolean>)
   reading-value (data = settings, key)
     string-to-integer(data)
@@ -72,7 +72,7 @@ define sealed method get-value
 end method get-value;
 
 define sealed method set-value
-    (value :: <integer>, settings :: <settings>, key :: <byte-string>, type == <integer>)
+    (value :: <integer>, settings :: <settings>, key :: <string>, type == <integer>)
  => (success? :: <boolean>)
   writing-value (settings, key)
     integer-to-string(value)
@@ -81,7 +81,7 @@ end method set-value;
 
 
 define sealed method get-value
-    (settings :: <settings>, key :: <byte-string>, type == <boolean>)
+    (settings :: <settings>, key :: <string>, type == <boolean>)
  => (value :: false-or(<boolean>), found? :: <boolean>)
   reading-value (data = settings, key)
     let value = as-lowercase!(data);
@@ -94,7 +94,7 @@ define sealed method get-value
 end method get-value;
 
 define sealed method set-value
-    (value :: <boolean>, settings :: <settings>, key :: <byte-string>, type == <boolean>)
+    (value :: <boolean>, settings :: <settings>, key :: <string>, type == <boolean>)
  => (success? :: <boolean>)
   writing-value (settings, key)
     if (value) "yes" else "no" end
@@ -102,7 +102,7 @@ define sealed method set-value
 end method set-value;
 
 define sealed method get-value
-    (settings :: <settings>, key :: <byte-string>, type == <machine-word>)
+    (settings :: <settings>, key :: <string>, type == <machine-word>)
  => (value :: false-or(<machine-word>), found? :: <boolean>)
   reading-value (data = settings, key)
     string-to-machine-word(data)
@@ -111,7 +111,7 @@ end method get-value;
 
 define sealed method set-value
     (value :: <machine-word>,
-     settings :: <settings>, key :: <byte-string>, type == <machine-word>)
+     settings :: <settings>, key :: <string>, type == <machine-word>)
  => (success? :: <boolean>)
   writing-value (settings, key)
     machine-word-to-string(value)
@@ -119,7 +119,7 @@ define sealed method set-value
 end method set-value;
 
 define sealed method do-remove-value!
-    (settings :: <settings>, key :: <byte-string>) => ()
+    (settings :: <settings>, key :: <string>) => ()
   //---*** Do this by deleting the file named by the key
 end method do-remove-value!;
 
@@ -127,81 +127,81 @@ end method do-remove-value!;
 /// Creating keys
 
 define sealed method settings-key-name
-    (settings :: <system-settings>) => (key-name :: <byte-string>)
+    (settings :: <system-settings>) => (key-name :: <string>)
   "System"
 end method settings-key-name;
 
 define sealed method settings-handle
-    (settings :: <system-settings>) => (handle :: <byte-string>)
+    (settings :: <system-settings>) => (handle :: <string>)
   "~/.settings/System"
 end method settings-handle;
 
 
 define sealed method settings-key-name
-    (settings :: <site-settings>) => (key-name :: <byte-string>)
+    (settings :: <site-settings>) => (key-name :: <string>)
   "Site"
 end method settings-key-name;
 
 define sealed method settings-handle
-    (settings :: <site-settings>) => (handle :: <byte-string>)
+    (settings :: <site-settings>) => (handle :: <string>)
   "~/.settings/Site"
 end method settings-handle;
 
 define sealed method settings-key-name
-    (settings :: <site-software-settings>) => (key-name :: <byte-string>)
+    (settings :: <site-software-settings>) => (key-name :: <string>)
   "Software"
 end method settings-key-name;
 
 
 define sealed method settings-key-name
-    (settings :: <local-settings>) => (key-name :: <byte-string>)
+    (settings :: <local-settings>) => (key-name :: <string>)
   "Local"
 end method settings-key-name;
 
 define sealed method settings-handle
-    (settings :: <local-settings>) => (handle :: <byte-string>)
+    (settings :: <local-settings>) => (handle :: <string>)
   "~/.settings/Local"
 end method settings-handle;
 
 define sealed method settings-key-name
-    (settings :: <local-software-settings>) => (key-name :: <byte-string>)
+    (settings :: <local-software-settings>) => (key-name :: <string>)
   "Software"
 end method settings-key-name;
 
 define sealed method settings-key-name
-    (settings :: <local-hardware-settings>) => (key-name :: <byte-string>)
+    (settings :: <local-hardware-settings>) => (key-name :: <string>)
   "Hardware"
 end method settings-key-name;
 
 
 define sealed method settings-key-name
-    (settings :: <default-user-settings>) => (key-name :: <byte-string>)
+    (settings :: <default-user-settings>) => (key-name :: <string>)
   "Users"
 end method settings-key-name;
 
 define sealed method settings-handle
-    (settings :: <default-user-settings>) => (handle :: <byte-string>)
+    (settings :: <default-user-settings>) => (handle :: <string>)
   "~/.settings/Users"
 end method settings-handle;
 
 define sealed method settings-key-name
-    (settings :: <default-user-software-settings>) => (key-name :: <byte-string>)
+    (settings :: <default-user-software-settings>) => (key-name :: <string>)
   "Software"
 end method settings-key-name;
 
 
 define sealed method settings-key-name
-    (settings :: <current-user-settings>) => (key-name :: <byte-string>)
+    (settings :: <current-user-settings>) => (key-name :: <string>)
   "User"
 end method settings-key-name;
 
 define sealed method settings-handle
-    (settings :: <current-user-settings>) => (handle :: <byte-string>)
+    (settings :: <current-user-settings>) => (handle :: <string>)
   "~/.settings/Users"
 end method settings-handle;
 
 define sealed method settings-key-name
-    (settings :: <current-user-software-settings>) => (key-name :: <byte-string>)
+    (settings :: <current-user-software-settings>) => (key-name :: <string>)
   "Software"
 end method settings-key-name;
 
@@ -215,7 +215,7 @@ define sealed method initialize-settings
         initialize-settings(parent, for-writing?);
     let handle  = settings-handle(parent);
     let key     = settings-key-name(settings);
-    let path    = concatenate-as(<byte-string>, handle, "/", key);
+    let path    = concatenate-as(<string>, handle, "/", key);
     //---*** Create the directory given by 'path'
         settings-writable?(settings) := for-writing?;
     settings-handle(settings) := path
@@ -223,8 +223,8 @@ define sealed method initialize-settings
 end method initialize-settings;
 
 define sealed method register-key
-    (settings :: <settings>, key-name :: <byte-string>, for-writing? :: <boolean>)
- => (key :: <byte-string>)
+    (settings :: <settings>, key-name :: <string>, for-writing? :: <boolean>)
+ => (key :: <string>)
   // No need to do anything except ensure that all the parent
   // settings have been initialized
   //---*** This should transmogrify '?' and '*' characters
@@ -233,7 +233,7 @@ define sealed method register-key
 end method register-key;
 
 define sealed method unregister-key
-    (settings :: <settings>, key-name :: <byte-string>) => ()
+    (settings :: <settings>, key-name :: <string>) => ()
   initialize-settings(settings, #t);
   //---*** What should this do?
 end method unregister-key;

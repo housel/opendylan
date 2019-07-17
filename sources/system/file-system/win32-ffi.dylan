@@ -32,7 +32,7 @@ define constant $SHGFI_EXETYPE                = #x00002000;
 define macro with-stack-path
   { with-stack-path (?path:name) ?:body end }
   => { begin
-         let ?path :: <byte-string> = make(<byte-string>, size: $MAX_PATH + 1, fill: '\0');
+         let ?path :: <string> = make(<string>, size: $MAX_PATH + 1, fill: '\0');
          ?body
        end }
 end macro with-stack-path;
@@ -97,7 +97,7 @@ define inline-only function win32-find-data-attributes
 end function win32-find-data-attributes;
 
 define inline-only function win32-find-data-filename
-    (win32-find-data :: <machine-word>) => (filename :: <byte-string>)
+    (win32-find-data :: <machine-word>) => (filename :: <string>)
   primitive-raw-as-string
     (primitive-cast-raw-as-pointer
        (primitive-machine-word-add
@@ -143,7 +143,7 @@ define function do-with-file-attributes (file :: <locator>, f :: <function>)
                           (lpFileName :: <raw-byte-string>,
                            lpFindFileData :: <raw-c-pointer>)
                        => (hFindFile :: <raw-c-pointer>)
-                        (primitive-string-as-raw(as(<byte-string>, file)),
+                        (primitive-string-as-raw(as(<string>, file)),
                          primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(fa)))
                       end));
       if (primitive-machine-word-equal?

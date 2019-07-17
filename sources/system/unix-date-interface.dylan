@@ -68,7 +68,7 @@ define inline-only function tm-tz-offset (tm :: <machine-word>) => (tz-offset ::
             60)                        // UNIX returns time zone offset in seconds
 end function tm-tz-offset;
 
-define inline-only function tm-tz-name (tm :: <machine-word>) => (tz-name :: <byte-string>)
+define inline-only function tm-tz-name (tm :: <machine-word>) => (tz-name :: <string>)
   primitive-raw-as-string
   (primitive-c-pointer-at(primitive-unwrap-machine-word(tm),
                           integer-as-raw(0),

@@ -26,37 +26,37 @@ define open generic invalidate-settings-caches
 
 // Back-end functions for reading and writing a value
 define generic get-value
-    (settings :: <settings>, key :: <byte-string>, type :: <type>)
+    (settings :: <settings>, key :: <string>, type :: <type>)
  => (value, found? :: <boolean>);
 define generic set-value
-    (value, settings :: <settings>, key :: <byte-string>, type :: <type>)
+    (value, settings :: <settings>, key :: <string>, type :: <type>)
  => (success? :: <boolean>);
 
 // Front- and back-end functions for removing a value
 define open generic remove-value!
     (settings :: <settings>, key :: <symbol>) => ();
 define generic do-remove-value!
-    (settings :: <settings>, key :: <byte-string>) => ();
+    (settings :: <settings>, key :: <string>) => ();
 
 // The key name for a <settings>
 define open generic settings-key-name
-    (settings :: <settings>) => (key-name :: <byte-string>);
+    (settings :: <settings>) => (key-name :: <string>);
 define open generic settings-key-name-setter
-    (key-name :: <byte-string>, settings :: <settings>) => (key-name :: <byte-string>);
+    (key-name :: <string>, settings :: <settings>) => (key-name :: <string>);
 ///---*** BOOTSTRAP: Change to dynamic and remove export after 2.1a1 is released...
 define open generic %settings-key-name-setter
-    (key-name :: <byte-string>, settings :: <settings>) => (key-name :: <byte-string>);
+    (key-name :: <string>, settings :: <settings>) => (key-name :: <string>);
 
 // The key name for a single "slot" within a <settings>
 define open generic make-key
     (settings :: <settings>, key :: <symbol>, for-writing? :: <boolean>)
- => (key :: <byte-string>);
+ => (key :: <string>);
 
 define generic register-key
-    (settings :: <settings>, key :: <byte-string>, for-writing? :: <boolean>)
- => (key :: <byte-string>);
+    (settings :: <settings>, key :: <string>, for-writing? :: <boolean>)
+ => (key :: <string>);
 define generic unregister-key
-    (settings :: <settings>, key :: <byte-string>) => ();
+    (settings :: <settings>, key :: <string>) => ();
 
 
 /// Settings defining macro
@@ -111,25 +111,25 @@ define macro settings-class-definer
   { ?slot:*; ... } => { ?slot ... }
  slot:
   { slot ?slot-name:name :: ?type:expression }
-    => { slot "%" ## ?slot-name ## "-key"     :: false-or(<byte-string>) = #f;
+    => { slot "%" ## ?slot-name ## "-key"     :: false-or(<string>) = #f;
          slot "%" ## ?slot-name ## "-value"   /* :: uninitialized-or(?type) */ = $uninitialized;
          constant slot "%" ## ?slot-name ## "-default" /* :: uninitialized-or(?type) */ = $uninitialized; }
   { slot ?slot-name:name :: ?type:expression, key: ?key:token }
-    => { slot "%" ## ?slot-name ## "-key"     :: false-or(<byte-string>) = #f;
+    => { slot "%" ## ?slot-name ## "-key"     :: false-or(<string>) = #f;
          slot "%" ## ?slot-name ## "-value"   /* :: uninitialized-or(?type) */ = $uninitialized;
          constant slot "%" ## ?slot-name ## "-default" /* :: uninitialized-or(?type) */ = $uninitialized; }
   { slot ?slot-name:name :: ?type:expression = ?default:expression }
-    => { slot "%" ## ?slot-name ## "-key"     :: false-or(<byte-string>) = #f;
+    => { slot "%" ## ?slot-name ## "-key"     :: false-or(<string>) = #f;
          slot "%" ## ?slot-name ## "-value"   /* :: uninitialized-or(?type) */ = $uninitialized;
          constant slot "%" ## ?slot-name ## "-default" /* :: uninitialized-or(?type) */ = begin ?default end; }
   { slot ?slot-name:name :: ?type:expression = ?default:expression, key: ?key:token }
-    => { slot "%" ## ?slot-name ## "-key"     :: false-or(<byte-string>) = #f;
+    => { slot "%" ## ?slot-name ## "-key"     :: false-or(<string>) = #f;
          slot "%" ## ?slot-name ## "-value"   /* :: uninitialized-or(?type) */ = $uninitialized;
          constant slot "%" ## ?slot-name ## "-default" /* :: uninitialized-or(?type) */ = begin ?default end; }
   { key-name ?key-name:expression }
-    => { constant slot settings-key-name :: <byte-string> = ?key-name; }
+    => { constant slot settings-key-name :: <string> = ?key-name; }
   { variable key-name ?key-name:expression }
-    => { slot settings-key-name :: <byte-string> = ?key-name,
+    => { slot settings-key-name :: <string> = ?key-name,
            setter: %settings-key-name-setter; }
 end macro settings-class-definer;
 
@@ -160,7 +160,7 @@ define macro settings-key-definer
       variable key-name ?key-name:expression; ?more-slots:*
     end }
     => { define method settings-key-name-setter
-             (key-name :: <byte-string>, _settings :: ?name) => (key-name :: <byte-string>)
+             (key-name :: <string>, _settings :: ?name) => (key-name :: <string>)
            invalidate-settings-caches(_settings);
            %settings-key-name(_settings) := key-name
          end method settings-key-name-setter;
@@ -260,7 +260,7 @@ define macro settings-slot-definer
          end method remove-value!;
          define sealed method make-key
              (_settings :: ?name, _slot == ?#"slot-name", for-writing? :: <boolean>)
-          => (key :: <byte-string>)
+          => (key :: <string>)
            (if (for-writing?) settings-writable?(_settings) else #t end)
              & _settings."%" ## ?slot-name ## "-key"
            | begin

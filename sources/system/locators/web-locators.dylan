@@ -233,7 +233,7 @@ define sealed method locator-default-port
 end method locator-default-port;
 
 define method http-parser
-    (text :: <byte-string>) => (locator :: <url>)
+    (text :: <string>) => (locator :: <url>)
   string-as-url(text, protocol: $http-protocol)
 end method http-parser;
 
@@ -249,7 +249,7 @@ define sealed method locator-default-port
 end method locator-default-port;
 
 define method https-parser
-    (text :: <byte-string>) => (locator :: <url>)
+    (text :: <string>) => (locator :: <url>)
   string-as-url(text, protocol: $https-protocol)
 end method https-parser;
 
@@ -260,7 +260,7 @@ end class <ftp-server>;
 register-web-protocol-class($ftp-protocol, <ftp-server>);
 
 define method ftp-parser
-    (text :: <byte-string>) => (locator :: <url>)
+    (text :: <string>) => (locator :: <url>)
   string-as-url(text, protocol: $ftp-protocol)
 end method ftp-parser;
 
@@ -276,7 +276,7 @@ define sealed method locator-default-port
 end method locator-default-port;
 
 define method file-parser
-    (text :: <byte-string>) => (locator :: <url>)
+    (text :: <string>) => (locator :: <url>)
   string-as-url(text, protocol: $file-protocol)
 end method file-parser;
 
@@ -557,7 +557,7 @@ define sealed method locator-as-string
 end method locator-as-string;
 
 define method mailto-parser
-    (text :: <byte-string>) => (locator :: <mail-to-locator>)
+    (text :: <string>) => (locator :: <mail-to-locator>)
   make(<mail-to-locator>, address: text)
 end method mailto-parser;
 
@@ -775,18 +775,3 @@ define sealed method parse-url
   values(class, host, port, username, password, path, relative?, base,
          extension, cgi-string, index)
 end method parse-url;
-
-//---*** It is a pity we need this method for efficiency...
-define sealed copy-down-method parse-url
-    (string :: <byte-string>, #key protocol :: false-or(<string>) = #f)
- => (class :: subclass(<server-url>),
-     host :: false-or(<string>),
-     port :: false-or(<integer>),
-     username :: false-or(<string>),
-     password :: false-or(<string>),
-     path :: false-or(<sequence>),
-     relative? :: <boolean>,
-     base :: false-or(<string>),
-     extension :: false-or(<string>),
-     cgi-string :: false-or(<string>),
-     index :: false-or(<string>));

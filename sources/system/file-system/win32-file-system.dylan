@@ -19,7 +19,7 @@ define function %expand-pathname
                                 bufferPtr :: <raw-c-pointer>,
                                 filePartPtrPtr :: <raw-c-pointer>)
                             => (bufferUsed :: <raw-c-unsigned-long>)
-                             (primitive-string-as-raw(as(<byte-string>, path)),
+                             (primitive-string-as-raw(as(<string>, path)),
                               integer-as-raw($MAX_PATH),
                               primitive-string-as-raw(path-buffer),
                               primitive-cast-raw-as-pointer
@@ -46,7 +46,7 @@ define function %shorten-pathname
                             bufferPtr :: <raw-c-pointer>,
                             bufferSize :: <raw-c-unsigned-long>)
                            => (bufferUsed :: <raw-c-unsigned-long>)
-                           (primitive-string-as-raw(as(<byte-string>, path)),
+                           (primitive-string-as-raw(as(<string>, path)),
                             primitive-string-as-raw(path-buffer),
                             integer-as-raw($MAX_PATH))
                         end);
@@ -73,7 +73,7 @@ define function %file-exists?
         (%call-c-function ("GetFileAttributesA", c-modifiers: "__stdcall")
              (path :: <raw-byte-string>)
           => (exists? :: <raw-c-unsigned-long>)
-           (primitive-string-as-raw(as(<byte-string>, file)))
+           (primitive-string-as-raw(as(<string>, file)))
          end,
          integer-as-raw($INVALID_HANDLE_VALUE)))
     #t
@@ -131,7 +131,7 @@ define function %delete-file
             (%call-c-function ("DeleteFileA", c-modifiers: "__stdcall")
                  (path :: <raw-byte-string>)
               => (deleted? :: <raw-c-signed-int>)
-               (primitive-string-as-raw(as(<byte-string>, file)))
+               (primitive-string-as-raw(as(<string>, file)))
              end))
     win32-file-system-error("delete", "%s", file)
   end
@@ -155,8 +155,8 @@ define function %copy-file
                  (sourcePath :: <raw-byte-string>, destPath :: <raw-byte-string>,
                   failIfExists :: <raw-c-signed-int>)
               => (copied? :: <raw-c-signed-int>)
-               (primitive-string-as-raw(as(<byte-string>, source)),
-                primitive-string-as-raw(as(<byte-string>, destination)),
+               (primitive-string-as-raw(as(<string>, source)),
+                primitive-string-as-raw(as(<string>, destination)),
                 integer-as-raw
                   (select (if-exists)
                      #"signal" => -1;
@@ -186,8 +186,8 @@ define function %rename-file
             (%call-c-function ("MoveFileA", c-modifiers: "__stdcall")
                  (sourcePath :: <raw-byte-string>, destPath :: <raw-byte-string>)
               => (moved? :: <raw-c-signed-int>)
-               (primitive-string-as-raw(as(<byte-string>, source)),
-                primitive-string-as-raw(as(<byte-string>, destination)))
+               (primitive-string-as-raw(as(<string>, source)),
+                primitive-string-as-raw(as(<string>, destination)))
              end))
     win32-file-system-error("rename", "%s to %s", source, destination)
   end
@@ -280,7 +280,7 @@ define method %file-property
                      (%call-c-function ("GetFileAttributesA", c-modifiers: "__stdcall")
                           (path :: <raw-byte-string>)
                        => (attributes :: <raw-c-unsigned-long>)
-                        (primitive-string-as-raw(as(<byte-string>, file)))
+                        (primitive-string-as-raw(as(<string>, file)))
                       end);
   if (primitive-machine-word-not-equal?
         (primitive-unwrap-machine-word(attributes),
@@ -299,7 +299,7 @@ define method %file-property-setter
                      (%call-c-function ("GetFileAttributesA", c-modifiers: "__stdcall")
                           (path :: <raw-byte-string>)
                        => (attributes :: <raw-c-unsigned-long>)
-                        (primitive-string-as-raw(as(<byte-string>, file)))
+                        (primitive-string-as-raw(as(<string>, file)))
                       end);
   if (primitive-machine-word-not-equal?
         (primitive-unwrap-machine-word(attributes),
@@ -310,7 +310,7 @@ define method %file-property-setter
                 (%call-c-function ("SetFileAttributesA", c-modifiers: "__stdcall")
                      (path :: <raw-byte-string>, attributes :: <raw-c-unsigned-long>)
                   => (success? :: <raw-c-signed-int>)
-                   (primitive-string-as-raw(as(<byte-string>, file)),
+                   (primitive-string-as-raw(as(<string>, file)),
                     primitive-machine-word-logxor
                       (primitive-unwrap-machine-word(attributes),
                        integer-as-raw($FILE_ATTRIBUTE_READONLY)))
@@ -336,7 +336,7 @@ define method %file-property
                             cbFileInfo :: <raw-c-unsigned-int>,
                             uFlags :: <raw-c-unsigned-int>)
                         => (result :: <raw-c-unsigned-long>)
-                         (primitive-string-as-raw(as(<byte-string>, file)),
+                         (primitive-string-as-raw(as(<string>, file)),
                           integer-as-raw(0),
                           primitive-cast-raw-as-pointer(integer-as-raw(0)),
                           integer-as-raw(0),
@@ -377,7 +377,7 @@ define function %do-directory
                                (lpFileName :: <raw-byte-string>,
                                 lpFindFileData :: <raw-c-pointer>)
                             => (hFindFile :: <raw-c-pointer>)
-                             (primitive-string-as-raw(as(<byte-string>, wild-file)),
+                             (primitive-string-as-raw(as(<string>, wild-file)),
                               primitive-cast-raw-as-pointer
                                 (primitive-unwrap-machine-word(wfd)))
                            end));
@@ -389,7 +389,7 @@ define function %do-directory
       let have-file? :: <boolean> = #t;
       while (have-file?)
         let attributes :: <machine-word> = win32-find-data-attributes(wfd);
-        let filename :: <byte-string> = win32-find-data-filename(wfd);
+        let filename :: <string> = win32-find-data-filename(wfd);
         let type :: <file-type> = attributes-to-file-type(attributes);
         unless (type == #"directory" & (filename = "." | filename = ".."))
           f(directory,
@@ -434,7 +434,7 @@ define function %create-directory
         (%call-c-function ("CreateDirectoryA", c-modifiers: "__stdcall")
              (dirPathname :: <raw-byte-string>, securityAttributes :: <raw-c-pointer>)
           => (created? :: <raw-c-signed-int>)
-           (primitive-string-as-raw(as(<byte-string>, directory)),
+           (primitive-string-as-raw(as(<string>, directory)),
             primitive-cast-raw-as-pointer(integer-as-raw(0)))
          end))
     directory                           // Return the fully expanded pathname
@@ -452,7 +452,7 @@ define function %delete-directory
             (%call-c-function ("RemoveDirectoryA", c-modifiers: "__stdcall")
                  (dirPathname :: <raw-byte-string>)
               => (deleted? :: <raw-c-signed-int>)
-               (primitive-string-as-raw(as(<byte-string>, directory)))
+               (primitive-string-as-raw(as(<string>, directory)))
              end))
     win32-file-system-error("delete", "%s", directory)
   end
@@ -489,7 +489,7 @@ end function %home-directory;
 define function %working-directory
     () => (working-directory :: false-or(<microsoft-directory-locator>))
   let cdb-size :: <integer> = 1024;
-  let curdir-buffer :: <byte-string> = make(<byte-string>, size: cdb-size, fill: '\0');
+  let curdir-buffer :: <string> = make(<string>, size: cdb-size, fill: '\0');
   let curdir-size :: <integer>
     = raw-as-integer(%call-c-function ("GetCurrentDirectoryA", c-modifiers: "__stdcall")
                          (nBufferLength :: <raw-c-unsigned-long>,
@@ -502,7 +502,7 @@ define function %working-directory
     // Value was too large to fit in our initial buffer but GetCurrentDirectoryA
     // tells us how long it actually is so we can just make a buffer large enough
     let cdb-size :: <integer> = curdir-size + 1;
-    curdir-buffer := make(<byte-string>, size: cdb-size, fill: '\0');
+    curdir-buffer := make(<string>, size: cdb-size, fill: '\0');
     curdir-size :=
       raw-as-integer(%call-c-function ("GetCurrentDirectoryA", c-modifiers: "__stdcall")
                          (nBufferLength :: <raw-c-unsigned-long>,
@@ -529,7 +529,7 @@ define function %working-directory-setter
             (%call-c-function ("SetCurrentDirectoryA", c-modifiers: "__stdcall")
                  (lpPathName :: <raw-byte-string>)
               => (currentDirectorySet? :: <raw-c-signed-int>)
-               (primitive-string-as-raw(as(<byte-string>, directory)))
+               (primitive-string-as-raw(as(<string>, directory)))
              end))
     win32-file-system-error("set the current directory", "to %s", directory)
   end;

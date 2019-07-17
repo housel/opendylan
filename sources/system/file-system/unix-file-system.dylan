@@ -88,7 +88,7 @@ define function %file-exists?
     ~primitive-raw-as-boolean
        (%call-c-function ("system_stat") (path :: <raw-byte-string>, st :: <raw-c-pointer>)
          => (failed? :: <raw-c-signed-int>)
-          (primitive-string-as-raw(as(<byte-string>, file)),
+          (primitive-string-as-raw(as(<string>, file)),
            primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(st)))
         end)
   end
@@ -104,7 +104,7 @@ define function %file-type
     if (primitive-raw-as-boolean
           (%call-c-function ("lstat") (path :: <raw-byte-string>, st :: <raw-c-pointer>)
             => (failed? :: <raw-c-signed-int>)
-             (primitive-string-as-raw(as(<byte-string>, file)),
+             (primitive-string-as-raw(as(<string>, file)),
               primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(st)))
            end))
       if (unix-errno() = $ENOENT & if-not-exists)
@@ -128,13 +128,13 @@ define function %link-target
     (link :: <posix-file-system-locator>) => (target :: <posix-file-system-locator>)
   let link = %expand-pathname(link);
   while (%file-type(link, if-not-exists: #"file") == #"link")
-    let buffer = make(<byte-string>, size: 8192, fill: '\0');
+    let buffer = make(<string>, size: 8192, fill: '\0');
     let count
       = raw-as-integer(%call-c-function ("readlink")
                            (path :: <raw-byte-string>, buffer :: <raw-byte-string>,
                             bufsize :: <raw-c-size-t>)
                         => (count :: <raw-c-ssize-t>)
-                           (primitive-string-as-raw(as(<byte-string>, link)),
+                           (primitive-string-as-raw(as(<string>, link)),
                             primitive-string-as-raw(buffer),
                             integer-as-raw(8192))
                        end);
@@ -158,7 +158,7 @@ define function %delete-file
   if (primitive-raw-as-boolean
         (%call-c-function ("unlink")
              (path :: <raw-byte-string>) => (failed? :: <raw-c-signed-int>)
-           (primitive-string-as-raw(as(<byte-string>, file)))
+           (primitive-string-as-raw(as(<string>, file)))
          end))
     unix-file-error("delete", "%s", file)
   end
@@ -214,8 +214,8 @@ define function %rename-file
   if (primitive-raw-as-boolean
         (%call-c-function ("rename") (from :: <raw-byte-string>, to :: <raw-byte-string>)
           => (failed? :: <raw-c-signed-int>)
-           (primitive-string-as-raw(as(<byte-string>, source)),
-            primitive-string-as-raw(as(<byte-string>, destination)))
+           (primitive-string-as-raw(as(<string>, source)),
+            primitive-string-as-raw(as(<string>, destination)))
          end))
     unix-file-error("rename", "%s to %s", source, destination)
   end
@@ -232,7 +232,7 @@ define function %file-properties
     if (primitive-raw-as-boolean
           (%call-c-function ("system_stat") (path :: <raw-byte-string>, st :: <raw-c-pointer>)
             => (failed? :: <raw-c-signed-int>)
-             (primitive-string-as-raw(as(<byte-string>, file)),
+             (primitive-string-as-raw(as(<string>, file)),
               primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(st)))
            end))
       unix-file-error("get attributes of", "%s", file)
@@ -265,7 +265,7 @@ define method %file-property
     if (primitive-raw-as-boolean
           (%call-c-function ("system_stat") (path :: <raw-byte-string>, st :: <raw-c-pointer>)
             => (failed? :: <raw-c-signed-int>)
-             (primitive-string-as-raw(as(<byte-string>, file)),
+             (primitive-string-as-raw(as(<string>, file)),
               primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(st)))
            end))
       unix-file-error("get the author of", "%s", file)
@@ -293,7 +293,7 @@ define method %file-property
     if (primitive-raw-as-boolean
           (%call-c-function ("system_stat") (path :: <raw-byte-string>, st :: <raw-c-pointer>)
             => (failed? :: <raw-c-signed-int>)
-             (primitive-string-as-raw(as(<byte-string>, file)),
+             (primitive-string-as-raw(as(<string>, file)),
               primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(st)))
            end))
       unix-file-error("get the size of", "%s", file)
@@ -329,7 +329,7 @@ define method %file-property
     if (primitive-raw-as-boolean
           (%call-c-function ("system_stat") (path :: <raw-byte-string>, st :: <raw-c-pointer>)
             => (failed? :: <raw-c-signed-int>)
-             (primitive-string-as-raw(as(<byte-string>, file)),
+             (primitive-string-as-raw(as(<string>, file)),
               primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(st)))
            end))
       unix-file-error("get the access date of", "%s", file)
@@ -347,7 +347,7 @@ define method %file-property
     if (primitive-raw-as-boolean
           (%call-c-function ("system_stat") (path :: <raw-byte-string>, st :: <raw-c-pointer>)
             => (failed? :: <raw-c-signed-int>)
-             (primitive-string-as-raw(as(<byte-string>, file)),
+             (primitive-string-as-raw(as(<string>, file)),
               primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(st)))
            end))
       unix-file-error("get the modification date of", "%s", file)
@@ -364,7 +364,7 @@ define function accessible?
   if (primitive-raw-as-boolean
         (%call-c-function ("access") (path :: <raw-byte-string>, mode :: <raw-c-signed-int>)
           => (failed? :: <raw-c-signed-int>)
-           (primitive-string-as-raw(as(<byte-string>, file)), abstract-integer-as-raw(mode))
+           (primitive-string-as-raw(as(<string>, file)), abstract-integer-as-raw(mode))
          end))
     let errno = unix-errno();
     unless (errno = $EACCES | errno = $EROFS | errno = $ETXTBSY)
@@ -384,7 +384,7 @@ define function accessible?-setter
     if (primitive-raw-as-boolean
           (%call-c-function ("system_stat") (path :: <raw-byte-string>, st :: <raw-c-pointer>)
             => (failed? :: <raw-c-signed-int>)
-             (primitive-string-as-raw(as(<byte-string>, file)),
+             (primitive-string-as-raw(as(<string>, file)),
               primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(st)))
            end))
       unix-file-error("get permissions for", "%s", file)
@@ -399,7 +399,7 @@ define function accessible?-setter
             (%call-c-function ("chmod")
                   (path :: <raw-byte-string>, mode :: <raw-c-unsigned-int>)
                => (failed? :: <raw-c-signed-int>)
-               (primitive-string-as-raw(as(<byte-string>, file)),
+               (primitive-string-as-raw(as(<string>, file)),
                 abstract-integer-as-raw(mode))
              end))
         unix-file-error("set permissions for", "%s", file)
@@ -471,7 +471,7 @@ define function %do-directory
                       (primitive-cast-pointer-as-raw
                          (%call-c-function ("system_opendir")
                               (path :: <raw-byte-string>) => (dir-fd :: <raw-c-pointer>)
-                            (primitive-string-as-raw(as(<byte-string>, directory)))
+                            (primitive-string-as-raw(as(<string>, directory)))
                           end));
     if (primitive-machine-word-equal?
           (primitive-unwrap-machine-word(directory-fd),
@@ -488,7 +488,7 @@ define function %do-directory
     while (primitive-machine-word-not-equal?
              (primitive-unwrap-machine-word(dirent),
               integer-as-raw($NO_MORE_DIRENTRIES)))
-      let filename :: <byte-string> = dirent-name(dirent);
+      let filename :: <string> = dirent-name(dirent);
       let type :: <file-type>
         = %file-type(make(<posix-file-locator>,
                           directory: directory,
@@ -535,7 +535,7 @@ define function %create-directory
         (%call-c-function ("mkdir")
              (path :: <raw-byte-string>, mode :: <raw-c-unsigned-int>)
           => (failed? :: <raw-c-signed-int>)
-           (primitive-string-as-raw(as(<byte-string>, directory)),
+           (primitive-string-as-raw(as(<string>, directory)),
             // Let the process' UMASK restrict access to the directory as desired
             abstract-integer-as-raw(logior($S_IRWXU, $S_IRWXG, $S_IRWXO)))
          end))
@@ -553,7 +553,7 @@ define function %delete-directory
   if (primitive-raw-as-boolean
         (%call-c-function ("rmdir")
             (path :: <raw-byte-string>) => (failed? :: <raw-c-signed-int>)
-           (primitive-string-as-raw(as(<byte-string>, directory)))
+           (primitive-string-as-raw(as(<string>, directory)))
          end))
     unix-file-error("delete", "%s", directory)
   end
@@ -594,7 +594,7 @@ define function %working-directory
   let errno :: <integer> = $ERANGE;
   block (return)
     while (errno = $ERANGE)
-      let buffer = make(<byte-string>, size: bufsiz, fill: '\0');
+      let buffer = make(<string>, size: bufsiz, fill: '\0');
       if (primitive-machine-word-equal?
             (primitive-cast-pointer-as-raw(primitive-string-as-raw(buffer)),
              primitive-cast-pointer-as-raw
@@ -624,7 +624,7 @@ define function %working-directory-setter
   if (primitive-raw-as-boolean
         (%call-c-function ("chdir")
              (path :: <raw-byte-string>) => (failed? :: <raw-c-signed-int>)
-           (primitive-string-as-raw(as(<byte-string>, directory)))
+           (primitive-string-as-raw(as(<string>, directory)))
          end))
     unix-file-error("chdir", "%s", directory)
   end;

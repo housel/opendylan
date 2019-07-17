@@ -73,7 +73,7 @@ end method make;
 
 define sealed method locator-volume
     (locator :: <microsoft-volume-locator>) => (volume :: <string>)
-  make(<byte-string>, size: 1, fill: locator.locator-drive)
+  make(<string>, size: 1, fill: locator.locator-drive)
 end method locator-volume;
 
 define sealed method locator-name
@@ -92,7 +92,7 @@ define sealed method locator-as-string
     (class :: subclass(<string>), locator :: <microsoft-volume-locator>)
  => (string :: <string>)
   concatenate-as(class,
-                 make(<byte-string>, size: 1, fill: locator.locator-drive),
+                 make(<string>, size: 1, fill: locator.locator-drive),
                  delimiter-to-string($volume-separator))
 end method locator-as-string;
 

@@ -25,8 +25,8 @@ end method prefix-equal?;
 /// Delimiter handling
 
 define inline function delimiter-to-string
-    (character :: <character>) => (string :: <byte-string>)
-  make(<byte-string>, size: 1, fill: character)
+    (character :: <character>) => (string :: <string>)
+  make(<string>, size: 1, fill: character)
 end function delimiter-to-string;
 
 define method find-delimiter
@@ -133,20 +133,11 @@ define method parse-path
   values(as(<simple-object-vector>, path), relative?)
 end method parse-path;
 
-//---*** It is a pity that we need this for efficiency...
-define sealed copy-down-method parse-path
-    (string :: <byte-string>,
-     #key start :: <integer> = 0,
-          end: stop :: <integer> = string.size,
-          test :: <function> = curry(\==, $default-path-separator),
-          separators :: <sequence> = #[])
- => (path :: <simple-object-vector>, relative? :: <boolean>);
-
 define method path-to-string
     (path :: <sequence>,
      #key relative? :: <boolean> = #f,
           separator :: <character> = $default-path-separator,
-          class :: subclass(<string>) = <byte-string>)
+          class :: subclass(<string>) = <string>)
  => (string :: <string>)
   local method item-name
             (item :: type-union(<string>, <symbol>)) => (name :: <string>)

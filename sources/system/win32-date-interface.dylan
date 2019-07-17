@@ -142,7 +142,7 @@ define inline-only function tz-standard-name (tz :: <machine-word>)
 end function tz-standard-name;
 
 define inline-only function tz-daylight-name (tz :: <machine-word>)
- => (name :: <byte-string>)
+ => (name :: <string>)
   extract-string(tz, raw-as-integer(primitive-word-size())
                      + (2 * 32)
                      + $SYSTEMTIME_SIZE
@@ -188,7 +188,7 @@ define function timezone-info () => (bias :: <integer>, name :: <string>, dst? :
              tz-daylight-name(tz)
            else
              local method format-integer (x :: <integer>, n :: <integer>) => (s :: <string>)
-                     let s = make(<byte-string>, size: n, fill: '0');
+                     let s = make(<string>, size: n, fill: '0');
                      for (i from 0 below n)
                        s[n - i - 1] := $digits[modulo(x, 10)];
                        x := floor/(x, 10);

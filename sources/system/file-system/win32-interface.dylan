@@ -79,7 +79,7 @@ define function win32-set-file-position (handle :: <machine-word>, position :: <
     & raw-as-integer(primitive-unwrap-machine-word(newpos))
 end function win32-set-file-position;
 
-define function win32-file-exists? (path :: <byte-string>) => (exists? :: <boolean>)
+define function win32-file-exists? (path :: <string>) => (exists? :: <boolean>)
   let attributes = primitive-wrap-machine-word
                      (%call-c-function ("GetFileAttributesA", c-modifiers: "__stdcall")
                           (path :: <raw-byte-string>)
@@ -90,7 +90,7 @@ define function win32-file-exists? (path :: <byte-string>) => (exists? :: <boole
 end function win32-file-exists?;
 
 define method win32-open/create
-    (path :: <byte-string>, access :: <integer>, share-mode :: <integer>,
+    (path :: <string>, access :: <integer>, share-mode :: <integer>,
      create-mode :: <integer>, #key overlapped? :: <boolean> = #f)
  => (handle :: false-or(<machine-word>))
   let attributes-high-bits :: <integer> =

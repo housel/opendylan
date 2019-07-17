@@ -55,7 +55,7 @@ end macro with-stack-dword;
 
 define constant $osversioninfo
   = method ()
-      let buffer :: <byte-string> = make(<byte-string>, size: $OSVERSIONINFO-SIZE,
+      let buffer :: <string> = make(<string>, size: $OSVERSIONINFO-SIZE,
                                                         fill: '\0');
       primitive-c-unsigned-long-at
           (primitive-cast-raw-as-pointer(primitive-string-as-raw(buffer)),
@@ -167,12 +167,12 @@ define constant $os-version
               as(<string>, buffer)
             end
           end;
-      let version = concatenate-as(<byte-string>,
+      let version = concatenate-as(<string>,
                                    integer-to-string(majorversion), ".",
                                    integer-to-string(minorversion), ".",
                                    integer-to-string(buildnumber));
       if (size(additionalinfo) > 0)
-        concatenate-as(<byte-string>, version, " ", additionalinfo)
+        concatenate-as(<string>, version, " ", additionalinfo)
       else
         version
       end
@@ -187,8 +187,8 @@ define function command-line-option-prefix
 end function command-line-option-prefix;
 
 define function login-name () => (name :: false-or(<string>))
-  let buffer :: <byte-string> = make(<byte-string>, size: $UNLEN + 1, fill: '\0');
-  let length :: <byte-string> = make(<byte-string>, size: $DWORD_SIZE, fill: '\0');
+  let buffer :: <string> = make(<string>, size: $UNLEN + 1, fill: '\0');
+  let length :: <string> = make(<string>, size: $DWORD_SIZE, fill: '\0');
   primitive-c-unsigned-long-at(primitive-cast-raw-as-pointer(primitive-string-as-raw(length)),
                                integer-as-raw(0), integer-as-raw(0))
     := integer-as-raw($UNLEN + 1);
@@ -214,13 +214,13 @@ define function login-group () => (group :: false-or(<string>))
   if (os-platform() == $VER_PLATFORM_WIN32_NT)
     let name = login-name();
     if (name)
-      let sid-buffer :: <byte-string> = make(<byte-string>, size: 1024, fill: '\0');
-      let sid-buffer-length :: <byte-string>
-        = make(<byte-string>, size: $DWORD_SIZE, fill: '\0');
-      let sid-use :: <byte-string> = make(<byte-string>, size: $DWORD_SIZE, fill: '\0');
-      let domain-name :: <byte-string> = make(<byte-string>, size: 1024, fill: '\0');
-      let domain-name-length :: <byte-string>
-        = make(<byte-string>, size: $DWORD_SIZE, fill: '\0');
+      let sid-buffer :: <string> = make(<string>, size: 1024, fill: '\0');
+      let sid-buffer-length :: <string>
+        = make(<string>, size: $DWORD_SIZE, fill: '\0');
+      let sid-use :: <string> = make(<string>, size: $DWORD_SIZE, fill: '\0');
+      let domain-name :: <string> = make(<string>, size: 1024, fill: '\0');
+      let domain-name-length :: <string>
+        = make(<string>, size: $DWORD_SIZE, fill: '\0');
       primitive-c-unsigned-long-at
           (primitive-cast-raw-as-pointer(primitive-string-as-raw(sid-buffer-length)),
            integer-as-raw(0), integer-as-raw(0))
@@ -277,11 +277,11 @@ define constant $ERROR_SUCCESS   = 0;
 define constant $ERROR_HANDLE_EOF = 38;
 define constant $ERROR_BROKEN_PIPE = 109;
 
-define inline-only function current-version-key (name :: <byte-string>)
+define inline-only function current-version-key (name :: <string>)
  => (value :: false-or(<string>))
   block (return)
-    local method doit (key :: <machine-word>, subKey :: <byte-string>, f :: <function>) => ()
-            let handle :: <byte-string> = make(<byte-string>, size: $DWORD_SIZE, fill: '\0');
+    local method doit (key :: <machine-word>, subKey :: <string>, f :: <function>) => ()
+            let handle :: <string> = make(<string>, size: $DWORD_SIZE, fill: '\0');
             let valid? :: <boolean> = #f;
             block ()
               let status
@@ -337,10 +337,10 @@ define inline-only function current-version-key (name :: <byte-string>)
                          doit(handle,
                               "CurrentVersion",
                               method (handle :: <machine-word>) => ()
-                                let type-buffer :: <byte-string>
-                                  = make(<byte-string>, size: $DWORD_SIZE, fill: '\0');
-                                let buffer-size-buffer :: <byte-string>
-                                  = make(<byte-string>, size: $DWORD_SIZE, fill: '\0');
+                                let type-buffer :: <string>
+                                  = make(<string>, size: $DWORD_SIZE, fill: '\0');
+                                let buffer-size-buffer :: <string>
+                                  = make(<string>, size: $DWORD_SIZE, fill: '\0');
                                 let status
                                   = raw-as-integer
                                       (%call-c-function ("RegQueryValueExA",
@@ -371,8 +371,8 @@ define inline-only function current-version-key (name :: <byte-string>)
                                             integer-as-raw(0), integer-as-raw(0)));
                                   // NOTE: For registry entries, the returned buffer-size
                                   //       includes the trailing NUL character ...
-                                  let buffer :: <byte-string>
-                                    = make(<byte-string>, size: buffer-size, fill: '\0');
+                                  let buffer :: <string>
+                                    = make(<string>, size: buffer-size, fill: '\0');
                                   let status
                                     = raw-as-integer
                                         (%call-c-function ("RegQueryValueExA",
@@ -421,9 +421,9 @@ end function owner-organization;
 define constant $environment-variable-delimiter = ';';
 
 define function environment-variable
-    (name :: <byte-string>) => (value :: false-or(<byte-string>))
+    (name :: <string>) => (value :: false-or(<string>))
   let eb-size :: <integer> = 1024;
-  let envvar-buffer :: <byte-string> = make(<byte-string>, size: eb-size, fill: '\0');
+  let envvar-buffer :: <string> = make(<string>, size: eb-size, fill: '\0');
   let envvar-size :: <integer>
     = raw-as-integer(%call-c-function ("GetEnvironmentVariableA", c-modifiers: "__stdcall")
                          (lpName :: <raw-byte-string>,
@@ -438,7 +438,7 @@ define function environment-variable
     // Value was too large to fit in our initial buffer but GetEnvironmentVariableA
     // tells us how long it actually is so we can just make a buffer large enough
     let eb-size :: <integer> = envvar-size + 1;
-    envvar-buffer := make(<byte-string>, size: eb-size, fill: '\0');
+    envvar-buffer := make(<string>, size: eb-size, fill: '\0');
     envvar-size :=
       raw-as-integer(%call-c-function ("GetEnvironmentVariableA", c-modifiers: "__stdcall")
                          (lpName :: <raw-byte-string>,
@@ -462,8 +462,8 @@ define function environment-variable
 end function environment-variable;
 
 define function environment-variable-setter
-    (new-value :: false-or(<byte-string>), name :: <byte-string>)
- => (new-value :: false-or(<byte-string>))
+    (new-value :: false-or(<string>), name :: <string>)
+ => (new-value :: false-or(<string>))
   //---*** Should we signal an error here if this call fails?
   %call-c-function ("SetEnvironmentVariableA", c-modifiers: "__stdcall")
       (lpName :: <raw-byte-string>, lpValue :: <raw-byte-string>)
@@ -510,7 +510,7 @@ define constant $WAIT_FAILED   = -1;
 // define constant $WAIT_TIMEOUT  = #x102;
 
 define inline-only function startupinfo-cb-setter
-    (cb :: <integer>, startupinfo :: <byte-string>) => (cb :: <integer>)
+    (cb :: <integer>, startupinfo :: <string>) => (cb :: <integer>)
   primitive-c-unsigned-long-at
       (primitive-cast-raw-as-pointer(primitive-string-as-raw(startupinfo)),
        integer-as-raw(0), integer-as-raw(0))
@@ -519,7 +519,7 @@ define inline-only function startupinfo-cb-setter
 end function startupinfo-cb-setter;
 
 define inline-only function startupinfo-dwFlags
-    (startupinfo :: <byte-string>) => (dwFlags :: <integer>)
+    (startupinfo :: <string>) => (dwFlags :: <integer>)
   raw-as-integer
     (primitive-c-unsigned-long-at
        (primitive-cast-raw-as-pointer(primitive-string-as-raw(startupinfo)),
@@ -527,7 +527,7 @@ define inline-only function startupinfo-dwFlags
 end function startupinfo-dwFlags;
 
 define inline-only function startupinfo-dwFlags-setter
-    (dwFlags :: <integer>, startupinfo :: <byte-string>) => (dwFlags :: <integer>)
+    (dwFlags :: <integer>, startupinfo :: <string>) => (dwFlags :: <integer>)
   primitive-c-unsigned-long-at
       (primitive-cast-raw-as-pointer(primitive-string-as-raw(startupinfo)),
        integer-as-raw(11), integer-as-raw(0))
@@ -536,7 +536,7 @@ define inline-only function startupinfo-dwFlags-setter
 end function startupinfo-dwFlags-setter;
 
 define inline-only function startupinfo-wShowWindow-setter
-    (wShowWindow :: <integer>, startupinfo :: <byte-string>) => (wShowWindow :: <integer>)
+    (wShowWindow :: <integer>, startupinfo :: <string>) => (wShowWindow :: <integer>)
   primitive-c-unsigned-short-at
       (primitive-cast-raw-as-pointer(primitive-string-as-raw(startupinfo)),
        integer-as-raw(24), integer-as-raw(0))
@@ -545,7 +545,7 @@ define inline-only function startupinfo-wShowWindow-setter
 end function startupinfo-wShowWindow-setter;
 
 define function startupinfo-StdInput-setter
-    (input-pipe :: <machine-word>, startupinfo :: <byte-string>) => ();
+    (input-pipe :: <machine-word>, startupinfo :: <string>) => ();
   let input-pipe-ptr
     = primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(input-pipe));
   let startupinfo-ptr
@@ -556,7 +556,7 @@ define function startupinfo-StdInput-setter
 end function startupinfo-StdInput-setter;
 
 define function startupinfo-StdOutput-setter
-    (output-pipe :: <machine-word>, startupinfo :: <byte-string>) => ();
+    (output-pipe :: <machine-word>, startupinfo :: <string>) => ();
   let output-pipe-ptr
     = primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(output-pipe));
   let startupinfo-ptr
@@ -567,7 +567,7 @@ define function startupinfo-StdOutput-setter
 end function startupinfo-StdOutput-setter;
 
 define function startupinfo-StdError-setter
-    (error-pipe :: <machine-word>, startupinfo :: <byte-string>) => ();
+    (error-pipe :: <machine-word>, startupinfo :: <string>) => ();
   let error-pipe-ptr
     = primitive-cast-raw-as-pointer(primitive-unwrap-machine-word(error-pipe));
   let startupinfo-ptr
@@ -580,7 +580,7 @@ end function startupinfo-StdError-setter;
 define constant $PROCESS_INFORMATION_SIZE = 4 * $DWORD_SIZE;
 
 define inline-only function process-information-hProcess
-    (process-information :: <byte-string>) => (hProcess :: <machine-word>)
+    (process-information :: <string>) => (hProcess :: <machine-word>)
   primitive-wrap-machine-word
     (primitive-c-unsigned-long-at
        (primitive-cast-raw-as-pointer
@@ -589,7 +589,7 @@ define inline-only function process-information-hProcess
 end function process-information-hProcess;
 
 define inline-only function process-information-hThread
-    (process-information :: <byte-string>) => (hThread :: <machine-word>)
+    (process-information :: <string>) => (hThread :: <machine-word>)
   primitive-wrap-machine-word
     (primitive-c-unsigned-long-at
        (primitive-cast-raw-as-pointer
@@ -640,10 +640,10 @@ define function run-application
                                     #"truncate") = #"replace")
  => (exit-code :: <integer>, signal :: false-or(<integer>),
      child :: false-or(<application-process>), #rest streams);
-  let startupInfo :: <byte-string>
-    = make(<byte-string>, size: $STARTUPINFO_SIZE, fill: '\0');
-  let processInfo :: <byte-string>
-    = make(<byte-string>, size: $PROCESS_INFORMATION_SIZE, fill: '\0');
+  let startupInfo :: <string>
+    = make(<string>, size: $STARTUPINFO_SIZE, fill: '\0');
+  let processInfo :: <string>
+    = make(<string>, size: $PROCESS_INFORMATION_SIZE, fill: '\0');
   let command
     = if (under-shell?)
         concatenate-as(<string>, environment-variable("COMSPEC"), " /c ",
@@ -690,7 +690,7 @@ define function run-application
            close-handles := add(close-handles, input-p);
            input-p;
          otherwise =>
-           let pathstring = as(<byte-string>, expand-pathname(input));
+           let pathstring = as(<string>, expand-pathname(input));
            let fdwCreate
              = if (if-input-does-not-exist == #"create")
                  $CREATE_ALWAYS
@@ -746,7 +746,7 @@ define function run-application
           #"output" =>
             output-handle;
           otherwise =>
-            let pathstring = as(<byte-string>, expand-pathname(key));
+            let pathstring = as(<string>, expand-pathname(key));
             let fdwCreate
               = select (if-exists)
                   #"signal" =>
@@ -814,7 +814,7 @@ define function run-application
             primitive-cast-raw-as-pointer
               (primitive-unwrap-machine-word(envp)),
             if (working-directory)
-              primitive-string-as-raw(as(<byte-string>, working-directory))
+              primitive-string-as-raw(as(<string>, working-directory))
             else
               integer-as-raw(0)
             end,
@@ -998,7 +998,7 @@ end function;
 define function run-outputter
     (outputter :: <function>, input-pipe :: <machine-word>) => ();
   // String storing data read from the pipe
-  let dylan-win32-buffer = make(<byte-string>, size: $BUFFER-MAX, fill: '\0');
+  let dylan-win32-buffer = make(<string>, size: $BUFFER-MAX, fill: '\0');
   // Pointer to the repeated slot portion of the string
   let win32-buffer
     = primitive-wrap-machine-word
@@ -1042,7 +1042,7 @@ end function;
 
 define inline-only function Win32CreatePipe()
  => (input-pipe :: <machine-word>, output-pipe :: <machine-word>)
-  let PipeSecurity :: <byte-string> = make(<byte-string>, size: $SECURITY_ATTRIBUTES_SIZE, fill: '\0');
+  let PipeSecurity :: <string> = make(<string>, size: $SECURITY_ATTRIBUTES_SIZE, fill: '\0');
   let PipeSecurity-pointer = primitive-cast-raw-as-pointer(primitive-string-as-raw(PipeSecurity));
 
   primitive-c-unsigned-long-at
