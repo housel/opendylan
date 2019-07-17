@@ -47,7 +47,7 @@ define method buffered-write
 end method buffered-write;
 
 define method format
-    (stream :: <buffered-stream>, control-string :: <byte-string>, #rest args) => ()
+    (stream :: <buffered-stream>, control-string :: <string>, #rest args) => ()
   let control-len :: <integer> = control-string.size;
   block (exit)
     let start :: <integer> = 0;
@@ -86,7 +86,7 @@ define method format
           // Capture output in string and compute padding.
           // Assume the output is very small in length.
           let s = make(<byte-string-stream>,
-                       contents: make(<byte-string>, size: 80),
+                       contents: make(<string>, size: 80),
                        direction: #"output");
           if (do-dispatch(control-string[field-spec-end], s,
                           element(args, arg-i, default: #f)))
@@ -99,11 +99,11 @@ define method format
             (padding < 0) =>
               buffered-write(stream, sb, output);
             (field > 0) =>
-              buffered-write(stream, sb, make(<byte-string>, size: padding, fill: ' '));
+              buffered-write(stream, sb, make(<string>, size: padding, fill: ' '));
               buffered-write(stream, sb, output);
             otherwise =>
               buffered-write(stream, sb, output);
-              buffered-write(stream, sb, make(<byte-string>, size: padding, fill: ' '));
+              buffered-write(stream, sb, make(<string>, size: padding, fill: ' '));
           end;
           start := field-spec-end + 1        // Add one to skip dispatch char.
         else
@@ -125,7 +125,7 @@ define method buffered-do-dispatch
  => (consumed-arg? :: <boolean>)
   select (char by \==)
     ('s'), ('S') =>
-      if (instance?(arg, <byte-string>))
+      if (instance?(arg, <string>))
         // Simulate "write-message" upon the argument.  This code must be
         // changed if the semantics of "write-message" changes.
         buffered-write(stream, sb, arg)

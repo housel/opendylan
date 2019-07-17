@@ -140,11 +140,11 @@ define inline sealed method empty? (buffer :: <buffer>)
   size(buffer) = 0
 end method;
 
-/// Special <buffer> <-> <byte-string> coercions
+/// Special <buffer> <-> <string> coercions
 
-define sealed method as (bsc == <byte-string>,  buffer :: <buffer>)
- => (bs :: <byte-string>)
-  let bs :: <byte-string> = make(<byte-string>, size: buffer.size);
+define sealed method as (bsc == <string>,  buffer :: <buffer>)
+ => (bs :: <string>)
+  let bs :: <string> = make(<string>, size: buffer.size);
   without-bounds-checks
     for (i :: <integer> from 0 below buffer.size)
       element(bs, i) := as(<character>, element(buffer, i));
@@ -153,7 +153,7 @@ define sealed method as (bsc == <byte-string>,  buffer :: <buffer>)
   bs
 end method;
 
-define sealed method as (buffer-class == <buffer>, bs :: <byte-string>)
+define sealed method as (buffer-class == <buffer>, bs :: <string>)
  => (buffer :: <buffer>)
   let buffer :: <buffer> = make(<buffer>, size: bs.size);
   without-bounds-checks
@@ -249,7 +249,7 @@ define function copy-bytes-range-error
 end function;
 
 define sealed method copy-bytes
-    (dst :: <byte-string>, dst-start :: <integer>,
+    (dst :: <string>, dst-start :: <integer>,
      src :: <buffer>, src-start :: <integer>, n :: <integer>) => ()
   let src-end :: <integer> = src-start + n;
   let dst-end :: <integer> = dst-start + n;
@@ -265,7 +265,7 @@ end method;
 
 define sealed method copy-bytes
     (dst :: <buffer>, dst-start :: <integer>,
-     src :: <byte-string>, src-start :: <integer>, n :: <integer>) => ()
+     src :: <string>, src-start :: <integer>, n :: <integer>) => ()
   let src-end :: <integer> = src-start + n;
   let dst-end :: <integer> = dst-start + n;
   if (n >= 0 & src-start >= 0 & dst-start >= 0 & src-end <= size(src)

@@ -25,7 +25,7 @@ end function byte-to-byte;
 
 define open abstract class <typed-stream> (<basic-stream>)
   // Assume that
-  slot sequence-type /* ---*** :: subclass(<sequence>) */ = <byte-string>;
+  slot sequence-type /* ---*** :: subclass(<sequence>) */ = <string>;
   slot to-element-mapper    :: <function> = byte-to-byte-char;
   slot from-element-mapper  :: <function> = byte-char-to-byte;
   constant slot to-sequence-mapper   :: <function> =

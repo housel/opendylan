@@ -59,10 +59,10 @@ end class;
 
 /*---*** andrewa: how can we get these to work?
 define copy-down-buffered-stream <byte-char-file-stream>
-   element <byte-character> sequence <byte-string>;
+   element <byte-character> sequence <string>;
 
 define copy-down-buffered-stream <byte-file-stream>
-   element <byte> sequence <byte-string>;
+   element <byte> sequence <string>;
 */
 
 /// Creating file streams

@@ -254,7 +254,7 @@ define method read-text
     (stream :: <stream>, n :: <integer>,
      #key on-end-of-stream = unsupplied())
  => (string-or-eof)
-  let text = make(<byte-string>, size: n);
+  let text = make(<string>, size: n);
   let value = read-text-into!(stream, n, text, on-end-of-stream: on-end-of-stream);
   if (value == on-end-of-stream)
     value

@@ -118,7 +118,7 @@ define function unix-isatty
 end function unix-isatty;
 
 define function get-unix-error (errno :: <integer>) => (message :: <string>)
-  let message :: <byte-string>
+  let message :: <string>
     = primitive-raw-as-string
        (%call-c-function ("strerror")
             (errno :: <raw-c-signed-int>) => (message :: <raw-byte-string>)

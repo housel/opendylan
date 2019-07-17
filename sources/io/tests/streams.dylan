@@ -273,8 +273,8 @@ define sideways method make-stream-tests-of-size
         end method add-stream-test-info;
   add-stream-test-info(<range>, integer-sequence, <integer>, #"input");
   add-stream-test-info(<range>, integer-sequence, <integer>, #"output");
-  add-stream-test-info(<byte-string>, character-sequence, <character>, #"input");
-  add-stream-test-info(<byte-string>, character-sequence, <character>, #"output");
+  add-stream-test-info(<string>, character-sequence, <character>, #"input");
+  add-stream-test-info(<string>, character-sequence, <character>, #"output");
   for (collection-class :: <class> in vector(<list>, <vector>, <deque>))
     let integer-contents = as(collection-class, integer-sequence);
     add-stream-test-info(collection-class, integer-sequence,   <integer>,   #"input");

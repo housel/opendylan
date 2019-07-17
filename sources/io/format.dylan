@@ -43,13 +43,13 @@ Copyright: See below.
 define generic format-to-string (control-string :: <string>, #rest args)
     => result :: <string>;
 
-define method format-to-string (control-string :: <byte-string>, #rest args)
-    => result :: <byte-string>;
+define method format-to-string (control-string :: <string>, #rest args)
+    => result :: <string>;
   // Format-to-string is typically used for small amounts of output, so
   // use a smaller string to collect the contents.
   let s :: <byte-string-stream>
     = make(<byte-string-stream>,
-           contents: make(<byte-string>, size: 32), direction: #"output");
+           contents: make(<string>, size: 32), direction: #"output");
   apply(format, s, control-string, args);
   s.stream-contents
 end method;
@@ -117,7 +117,7 @@ define generic format (stream :: <stream>, control-string :: <string>,
                        #rest args)
     => ();
 
-define method format (stream :: <stream>, control-string :: <byte-string>,
+define method format (stream :: <stream>, control-string :: <string>,
                       #rest args)
     => ();
   let control-len :: <integer> = control-string.size;
@@ -153,24 +153,24 @@ define method format (stream :: <stream>, control-string :: <byte-string>,
           // Assume the output is very small in length.
           let s :: <byte-string-stream>
             = make(<byte-string-stream>,
-                   contents: make(<byte-string>, size: 80),
+                   contents: make(<string>, size: 80),
                    direction: #"output");
           if (do-dispatch(control-string[field-spec-end], s,
                           element(args, arg-i, default: #f)))
             arg-i := arg-i + 1;
           end;
-          let output :: <byte-string> = s.stream-contents;
+          let output :: <string> = s.stream-contents;
           let output-len :: <integer> = output.size;
           let padding :: <integer> = (abs(field) - output-len);
           case
             (padding < 0) =>
               write(stream, output);
             (field > 0) =>
-              write(stream, make(<byte-string>, size: padding, fill: ' '));
+              write(stream, make(<string>, size: padding, fill: ' '));
               write(stream, output);
             otherwise =>
               write(stream, output);
-              write(stream, make(<byte-string>, size: padding, fill: ' '));
+              write(stream, make(<string>, size: padding, fill: ' '));
           end;
           start := field-spec-end + 1;  // Add one to skip dispatch char.
         else
@@ -233,7 +233,7 @@ end method;
 /// a decimal digit.  It returns the integer parsed and the index
 /// immediately following the last decimal digit.
 ///
-define method parse-integer (input :: <byte-string>, index :: <integer>)
+define method parse-integer (input :: <string>, index :: <integer>)
     => (result :: false-or(<integer>), index :: <integer>);
   let result :: <integer> = 0;
   let negative? = if (input[index] = '-')

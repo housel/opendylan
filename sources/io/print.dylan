@@ -117,7 +117,7 @@ define sealed class <print-reference> (<object>)
   // This slot holds the object's ID for circular references.  The object
   // prints as its ID after the first time.  Before the first time the object
   // is printed, this slot is #f.
-  slot print-reference-id :: false-or(<byte-string>) = #f;
+  slot print-reference-id :: false-or(<string>) = #f;
   //
   // This slot counts the number of references to the object.
   slot print-reference-count :: <integer> = 0;
@@ -158,7 +158,7 @@ end method;
 ///
 define method new-print-reference-id
     (stream :: <circular-print-stream>, ref :: <print-reference>)
- => (ID :: <byte-string>)
+ => (ID :: <string>)
   let id = stream.circular-next-id;
   stream.circular-next-id := id + 1;
   ref.print-reference-id := integer-to-string(id);
@@ -173,15 +173,15 @@ end method;
 /// What to print when the current depth exceeds the users requested print
 /// level limit.
 ///
-define constant $print-level-exceeded-string :: <byte-string> = "#";
+define constant $print-level-exceeded-string :: <string> = "#";
 
 /// What to print before a circular print ID.
 ///
-define constant $circular-id-prestring :: <byte-string> = "#";
+define constant $circular-id-prestring :: <string> = "#";
 
 /// What to print after a circular print ID.
 ///
-define constant $circular-id-poststring :: <byte-string> = "#";
+define constant $circular-id-poststring :: <string> = "#";
 
 
 /// Print -- Exported.
@@ -398,7 +398,7 @@ define method print-object-slots
               exit();
             end if;
             write(stream,
-                  as(<byte-string>, desc.debug-name));
+                  as(<string>, desc.debug-name));
             write(stream, ": ");
             // pprint-tab(#"section-relative", 0, 0, stream);
             pprint-newline(#"fill", stream);
@@ -417,7 +417,7 @@ end method print-object;
 */
 
 
-/// Print-object <byte-string> and <character> methods.
+/// Print-object <string> and <character> methods.
 ///
 
 /// Characters.
@@ -483,7 +483,7 @@ end method print-object;
 
 /// write-string-escaped -- Internal Interface.
 ///
-/// Utility used by <byte-string> and <symbol> print-object
+/// Utility used by <string> and <symbol> print-object
 /// methods to print the string with appropriate characters escaped.
 ///
 define generic write-string-escaped (stream :: <stream>, object :: <string>)
@@ -496,8 +496,9 @@ define generic write-string-escaped (stream :: <stream>, object :: <string>)
 /// string for the next character that required special processing and then
 /// write all the skipped over characters in one chunk.
 ///
+/*
 define method write-string-escaped
-    (stream :: <stream>, object :: <byte-string>) => ()
+    (stream :: <stream>, object :: <string>) => ()
   let len :: <integer> = object.size;
   local
 
@@ -532,6 +533,7 @@ define method write-string-escaped
   write-guts(0);
   write-element(stream, '"');
 end method write-string-escaped;
+*/
 
 /// write-string-escaped -- Method for Internal Interface.
 ///
@@ -671,7 +673,7 @@ define sealed method print-object
     if (name)
       write-element(stream, ' ');
       pprint-newline(#"fill", stream);
-      write(stream, as-lowercase(as(<byte-string>, name)));
+      write(stream, as-lowercase(as(<string>, name)));
     end;
     write-element(stream, ' ');
     pprint-newline(#"fill", stream);
@@ -686,7 +688,7 @@ define sealed method print-object (object :: <method>, stream :: <stream>) => ()
     if (name)
       write-element(stream, ' ');
       pprint-newline(#"fill", stream);
-      write(stream, as(<byte-string>, name));
+      write(stream, as(<string>, name));
     end;
     write-element(stream, ' ');
     pprint-newline(#"fill", stream);
@@ -824,7 +826,7 @@ end method;
 define method print-specializer (type :: <class>, stream :: <stream>) => ()
   let name = type.debug-name;
   if (name)
-    write(stream, as-lowercase(as(<byte-string>, name)));
+    write(stream, as-lowercase(as(<string>, name)));
   else
     print(type, stream);
   end if;
@@ -962,7 +964,7 @@ end method print-object;
 define method class-name (obj-class :: <class>) => (name :: false-or(<string>))
   let cname = obj-class.debug-name;
   if (cname)
-    as-lowercase(as(<byte-string>, cname));
+    as-lowercase(as(<string>, cname));
   end if;
 end method;
 
@@ -1054,9 +1056,9 @@ define sealed method print-object
     (object :: <symbol>, stream :: <stream>) => ()
   if (*print-escape?*)
     write-element(stream, '#');
-    write-string-escaped(stream, as-lowercase(as(<byte-string>, object)))
+    write-string-escaped(stream, as-lowercase(as(<string>, object)))
   else
-    write(stream, as-lowercase(as(<byte-string>, object)))
+    write(stream, as-lowercase(as(<string>, object)))
   end
 end method;
 
@@ -1119,7 +1121,7 @@ define method print-to-string
     (object, #rest args,
      #key level :: false-or(<integer>), length :: false-or(<integer>),
           circle? :: <boolean>, pretty? :: <boolean>, escape? :: <boolean>)
- => (result :: <byte-string>);
+ => (result :: <string>);
   // Assume it is a small amount of printing.
   let s = make(<byte-string-stream>, contents: "", direction: #"output");
   apply(print, object, s, args);
@@ -1240,9 +1242,9 @@ end method;
 ///
 define sealed method pprint-logical-block
     (stream :: <circular-print-stream>,
-     #key column :: <integer> = 0, prefix :: false-or(<byte-string>),
-          per-line-prefix :: false-or(<byte-string>),
-          body :: <function>, suffix :: false-or(<byte-string>)) => ()
+     #key column :: <integer> = 0, prefix :: false-or(<string>),
+          per-line-prefix :: false-or(<string>),
+          body :: <function>, suffix :: false-or(<string>)) => ()
   if (prefix & per-line-prefix)
     error("Can't specify both a prefix: and a per-line-prefix:");
   end;
@@ -1327,13 +1329,13 @@ define method do-printing-object
   printing-logical-block (stream, prefix: "{", suffix: "}")
     case
       type? & identity? =>
-        write(stream, as-lowercase(as(<byte-string>, class.debug-name)));
+        write(stream, as-lowercase(as(<string>, class.debug-name)));
         write(stream, " ");
         continuation(stream);
         //--- write(stream, " ");
         //--- write(stream, integer-to-string(object-address(object), base: 16));
       type? =>
-        write(stream, as-lowercase(as(<byte-string>, class.debug-name)));
+        write(stream, as-lowercase(as(<string>, class.debug-name)));
         write(stream, " ");
         continuation(stream);
       identity? =>

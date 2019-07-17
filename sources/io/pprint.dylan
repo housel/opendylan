@@ -51,8 +51,8 @@ define constant $newline = as(<integer>, '\n');
 //// Tame byte copying utility.
 
 define method copy-maybe-overlapping-bytes
-    (src :: <byte-string>, src-start :: <integer>,
-     dst :: <byte-string>, dst-start :: <integer>, n :: <integer>)
+    (src :: <string>, src-start :: <integer>,
+     dst :: <string>, dst-start :: <integer>, n :: <integer>)
  => ()
   case
     src ~== dst
@@ -122,8 +122,8 @@ define class <pretty-stream> (<sequence-stream>)
 
   //
   // Buffer holding pending output.
-  slot pretty-stream-buffer :: <byte-string>
-    = make(<byte-string>, size: $initial-buffer-size);
+  slot pretty-stream-buffer :: <string>
+    = make(<string>, size: $initial-buffer-size);
   //
   // The index into the buffer where more text should be put.
   slot pretty-stream-buffer-fill-pointer :: <index> = 0;
@@ -158,15 +158,15 @@ define class <pretty-stream> (<sequence-stream>)
   // Buffer holding the per-line prefix active at the buffer start.
   // Indentation is included in this.  The amount of this currently in use
   // is stored in the logical block stack.
-  slot pretty-stream-prefix :: <byte-string>
-    = make(<byte-string>, size: $initial-buffer-size);
+  slot pretty-stream-prefix :: <string>
+    = make(<string>, size: $initial-buffer-size);
   //
   // Buffer holding the total remaining suffix active at the buffer start.
   // The characters are right-justified in the buffer to make it easier
   // to output the buffer.  The length is stored in the logical block
   // stack.
-  slot pretty-stream-suffix :: <byte-string>
-    = make(<byte-string>, size: $initial-buffer-size);
+  slot pretty-stream-suffix :: <string>
+    = make(<string>, size: $initial-buffer-size);
   //
   // Deque of pending operations (indents, newlines, tabs, etc.).  Entries
   // are push-last'ed onto the end, and pop'ed from the front.
@@ -284,7 +284,7 @@ define method append-output
 end;
 
 define method append-output
-    (stream :: <pretty-stream>, buffer :: <byte-string>, start :: <buffer-index>,
+    (stream :: <pretty-stream>, buffer :: <string>, start :: <buffer-index>,
      stop :: <buffer-index>) => ()
   local
     method repeat (chunk-start, index)
@@ -314,7 +314,7 @@ end;
 // so we might have to iterate.
 //
 define method append-raw-output
-    (stream :: <pretty-stream>, stuff :: type-union(<buffer>, <byte-string>),
+    (stream :: <pretty-stream>, stuff :: type-union(<buffer>, <string>),
      start :: <buffer-index>, stop :: <buffer-index>) => ()
   let chars = stop - start;
   let available = assure-space-in-buffer(stream, chars);
@@ -413,7 +413,7 @@ define method really-start-logical-block
       let new-total-suffix-len
         = max(total-suffix-len * 2,
               suffix-length + floor/(additional * 5, 4));
-      let new-total-suffix = make(<byte-string>, size: new-total-suffix-len);
+      let new-total-suffix = make(<string>, size: new-total-suffix-len);
       copy-bytes(new-total-suffix, new-total-suffix-len - suffix-length,
                  total-suffix, total-suffix-len - suffix-length,
      suffix-length);
@@ -444,7 +444,7 @@ define method set-indentation
   if (column > prefix-len)
     let new-prefix-len
       = max(prefix-len * 2, prefix-len + floor/((column - prefix-len) * 5, 4));
-    let new-prefix = make(<byte-string>, size: new-prefix-len);
+    let new-prefix = make(<string>, size: new-prefix-len);
     copy-bytes(new-prefix, 0, prefix, 0, current);
     prefix := stream.pretty-stream-prefix := new-prefix;
   end;
@@ -622,11 +622,11 @@ define class <block-start> (<section-start>)
   slot block-start-block-end :: false-or(<block-end>) = #f;
   //
   // The per-line-prefix, if there is one.
-  constant slot block-start-prefix :: false-or(<byte-string>),
+  constant slot block-start-prefix :: false-or(<string>),
     required-init-keyword: prefix:;
   //
   // The suffix, if there is one.
-  constant slot block-start-suffix :: false-or(<byte-string>),
+  constant slot block-start-suffix :: false-or(<string>),
     required-init-keyword: suffix:;
 end;
 
@@ -640,8 +640,8 @@ define sealed domain make (singleton(<block-start>));
 // of the buffer.
 //
 define method start-logical-block
-    (stream :: <pretty-stream>, prefix :: false-or(<byte-string>),
-     per-line? :: <boolean>, suffix :: false-or(<byte-string>)) => ()
+    (stream :: <pretty-stream>, prefix :: false-or(<string>),
+     per-line? :: <boolean>, suffix :: false-or(<string>)) => ()
   if (prefix)
     append-raw-output(stream, prefix, 0, prefix.size);
   end;
@@ -662,7 +662,7 @@ define class <block-end> (<queued-op>)
   /*---*** andrewa: this isn't used...
   //
   // The suffix for the block this block-end is ending.
-  constant slot block-end-suffix :: false-or(<byte-string>),
+  constant slot block-end-suffix :: false-or(<string>),
     required-init-keyword: suffix:;
   */
 end;
@@ -836,7 +836,7 @@ define method expand-tabs
     let stop = fill-ptr;
     if (new-fill-ptr > len)
       let new-len = max(len * 2, fill-ptr + floor/(additional * 5, 4));
-      new-buffer := make(<byte-string>, size: new-len);
+      new-buffer := make(<string>, size: new-len);
       stream.pretty-stream-buffer := new-buffer;
     end;
     stream.pretty-stream-buffer-fill-pointer := new-fill-ptr;
@@ -884,7 +884,7 @@ define method assure-space-in-buffer
     assure-space-in-buffer(stream, want);
   else
     let new-length = max(length * 2, length + floor/(want * 5, 4));
-    let new-buffer = make(<byte-string>, size: new-length);
+    let new-buffer = make(<string>, size: new-length);
     stream.pretty-stream-buffer := new-buffer;
     copy-bytes(new-buffer, 0, buffer, 0, fill-ptr);
     new-length - fill-ptr;
@@ -1095,7 +1095,7 @@ define method output-line (stream :: <pretty-stream>, newline :: <newline>) => (
   let buffer-length = buffer.size;
   if (new-fill-ptr > buffer-length)
     let extra = new-fill-ptr - buffer-length;
-    new-buffer := make(<byte-string>,
+    new-buffer := make(<string>,
                        size: max(buffer-length * 2,
                                  buffer-length + floor/(extra * 5, 4)));
     stream.pretty-stream-buffer := new-buffer;
@@ -1158,10 +1158,10 @@ end macro printing-logical-block;
 define open generic pprint-logical-block
     (stream :: <stream>,
      #key column :: <integer>,
-          prefix :: false-or(<byte-string>),
-          per-line-prefix :: false-or(<byte-string>),
+          prefix :: false-or(<string>),
+          per-line-prefix :: false-or(<string>),
           body :: <function>,
-          suffix :: false-or(<byte-string>)) => ();
+          suffix :: false-or(<string>)) => ();
 
 //
 // When called on a regular stream, create <pretty-stream> and use it instead.
@@ -1169,10 +1169,10 @@ define open generic pprint-logical-block
 define method pprint-logical-block
     (stream :: <stream>,
      #key column :: <integer> = 0,
-          prefix :: false-or(<byte-string>),
-          per-line-prefix :: false-or(<byte-string>),
+          prefix :: false-or(<string>),
+          per-line-prefix :: false-or(<string>),
           body :: <function>,
-          suffix :: false-or(<byte-string>)) => ()
+          suffix :: false-or(<string>)) => ()
   if (prefix & per-line-prefix)
     error("Can't specify both a prefix: and a per-line-prefix:");
   end;
@@ -1199,10 +1199,10 @@ end;
 define sealed method pprint-logical-block
     (stream :: <pretty-stream>,
      #key column :: <integer> = 0,
-          prefix :: false-or(<byte-string>),
-          per-line-prefix :: false-or(<byte-string>),
+          prefix :: false-or(<string>),
+          per-line-prefix :: false-or(<string>),
           body :: <function>,
-          suffix :: false-or(<byte-string>)) => ()
+          suffix :: false-or(<string>)) => ()
   if (prefix & per-line-prefix)
     error("Can't specify both a prefix: and a per-line-prefix:");
   end;

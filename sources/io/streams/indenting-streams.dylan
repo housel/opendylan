@@ -55,9 +55,9 @@ end;
 define sealed domain make(singleton(<indenting-stream>));
 define sealed domain initialize(<indenting-stream>);
 
-define constant $spaces :: <byte-string>
+define constant $spaces :: <string>
   = "                                                                "; // 64
-define constant $tabs :: <byte-string>
+define constant $tabs :: <string>
   = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"; // 32
 
 define function write-indent
@@ -170,7 +170,7 @@ define method write
 end method write;
 
 define sealed copy-down-method write
-    (stream :: <indenting-stream>, elements :: <byte-string>,
+    (stream :: <indenting-stream>, elements :: <string>,
      #key start: _start :: <integer> = 0,
           end: _end :: <integer> = elements.size) => ();
 

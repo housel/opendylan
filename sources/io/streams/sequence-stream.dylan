@@ -22,7 +22,7 @@ define open primary class <string-stream> (<sequence-stream>)
 end class <string-stream>;
 
 define sealed class <byte-string-stream> (<string-stream>)
-  inherited slot stream-sequence = make(<byte-string>);
+  inherited slot stream-sequence = make(<string>);
 end class <byte-string-stream>;
 
 define sealed domain lock-stream (<byte-string-stream>);
@@ -109,11 +109,6 @@ end method type-for-sequence-stream;
 define method type-for-sequence-stream
     (contents :: <string>) => (type :: singleton(<string-stream>))
   <string-stream>
-end method type-for-sequence-stream;
-
-define method type-for-sequence-stream
-    (contents :: <byte-string>) => (type :: singleton(<byte-string-stream>))
-  <byte-string-stream>
 end method type-for-sequence-stream;
 
 

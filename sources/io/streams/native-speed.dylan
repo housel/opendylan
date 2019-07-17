@@ -80,7 +80,7 @@ define macro copy-down-buffered-stream-definer
 end macro;
 
 define copy-down-stream <byte-string-stream>
-   element <character> sequence <byte-string>;
+   element <character> sequence <string>;
 
 /*
          define copy-down-method coerce-to-element

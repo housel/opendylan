@@ -128,9 +128,9 @@ define open generic buffer-subsequence
  => (result :: <mutable-sequence>);
 
 define sealed method buffer-subsequence
-    (buffer :: <buffer>, class == <byte-string>,
+    (buffer :: <buffer>, class == <string>,
      start-index :: <buffer-index>, end-index :: <buffer-index>)
- => (result :: <byte-string>)
+ => (result :: <string>)
   let count = end-index - start-index;
   let seq = make(class, size: count);
   copy-bytes(seq, 0, buffer, start-index, count);
@@ -156,7 +156,7 @@ define open generic copy-into-buffer!
 
 define sealed method copy-into-buffer!
     (buffer :: <buffer>, buffer-start-index :: <buffer-index>,
-     sequence :: <byte-string>,
+     sequence :: <string>,
      #key start: start-index = 0, end: end-index = sequence.size) => ()
   copy-bytes(buffer, buffer-start-index, sequence, start-index, end-index - start-index)
 end method copy-into-buffer!;
@@ -184,7 +184,7 @@ define open generic copy-from-buffer!
 
 define sealed method copy-from-buffer!
     (buffer :: <buffer>, buffer-start-index :: <buffer-index>,
-     sequence :: <byte-string>,
+     sequence :: <string>,
      #key start: start-index = 0, end: end-index = sequence.size) => ()
   copy-bytes(sequence, start-index, buffer, buffer-start-index, end-index - start-index)
 end method copy-from-buffer!;
