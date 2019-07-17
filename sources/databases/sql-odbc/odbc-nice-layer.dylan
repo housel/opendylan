@@ -47,8 +47,8 @@ define method nice-SQLError(environment-handle :: <environment-handle>,
                  sql-state,
                  error-message,
                  size(error-message));
-      let return-state = as(<byte-string>, sql-state);
-      let return-message = as(<byte-string>, error-message);
+      let return-state = as(<string>, sql-state);
+      let return-message = as(<string>, error-message);
       values(return-code, return-state, native-error, return-message);
     end with-stack-structure;
   end with-stack-structure;
@@ -273,7 +273,7 @@ define method nice-SQLDescribeCol(statement-handle :: <statement-handle>,
                      raw-column-name,
                      name-length);
 
-      values(return-code, as(<byte-string>, raw-column-name), data-type,
+      values(return-code, as(<string>, raw-column-name), data-type,
              precision, scale, nullable);
   end with-stack-structure;
 end method;
@@ -332,8 +332,8 @@ define method nice-SQLGetDiagRec(handle-type :: <object>,
       let (return-code, native-error, text-length) =
         SQLGetDiagRec(handle-type, handle, rec-number,
                       sql-state, message, message-length);
-      values(return-code, as(<byte-string>, sql-state),
-             native-error, as(<byte-string>,message));
+      values(return-code, as(<string>, sql-state),
+             native-error, as(<string>,message));
     end with-stack-structure;
   end with-stack-structure;
 end method;
@@ -382,7 +382,7 @@ define method nice-SQLGetDiagField(handle-type :: <object>,
       let (return-code, diag-info-actual-length) =
         SQLGetDiagField(handle-type, handle, rec-number, diag-identifier,
                           diag-info-ptr, diag-info-max-size);
-      values (return-code, as(<byte-string>, diag-info-ptr));
+      values (return-code, as(<string>, diag-info-ptr));
     end with-stack-structure;
   end if;
 end method;
@@ -584,7 +584,7 @@ define method nice-SQLGetInfo(connection-handle :: <object>,
                                                   info-type,
                                                   info-value-ptr,
                                                   $max-string-size);
-    values(return-code, as(<byte-string>, info-value-ptr));
+    values(return-code, as(<string>, info-value-ptr));
   end with-stack-structure;
 end method;
 

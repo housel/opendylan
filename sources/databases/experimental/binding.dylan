@@ -262,7 +262,7 @@ define not-inline method create-storage(sql-data-type == $sql-numeric,
   let storage-size = instance-size * element-count;
   let storage = make(<C-string>, size: storage-size);
   if (initial-value ~= #f)
-    let target-value = as(<byte-string>, initial-value);
+    let target-value = as(<string>, initial-value);
     for (element-index :: <integer> from 0 below element-count)
       for (char-index :: <integer> from 0 below instance-size - 1)
         storage[element-index * char-index] := target-value[char-index];
@@ -289,7 +289,7 @@ define not-inline method create-storage(sql-data-type == $sql-decimal,
   let storage-size = instance-size * element-count;
   let storage = make(<C-char*>, element-count: storage-size);
   if (initial-value ~= #f)
-    let target-value = as(<byte-string>, initial-value);
+    let target-value = as(<string>, initial-value);
     for (element-index :: <integer> from 0 below element-count)
       for (char-index :: <integer> from 0 below instance-size - 1)
         storage[element-index * char-index] := target-value[char-index];
@@ -471,7 +471,7 @@ define not-inline method create-storage(sql-data-type == $sql-varchar,
   let storage-size = instance-size * element-count;
   let storage = make(<C-char*>, element-count: storage-size);
   if (initial-value ~= #f)
-    let target-value = as(<byte-string>, initial-value);
+    let target-value = as(<string>, initial-value);
     for (element-index :: <integer> from 0 below element-count)
       for (char-index :: <integer> from 0 below instance-size)
         storage[char-index * element-index] := target-value[char-index];

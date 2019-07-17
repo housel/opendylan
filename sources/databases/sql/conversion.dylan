@@ -16,8 +16,8 @@ end method;
 
 
 define method default-conversion(value :: <C-string>)
- => (converted-value :: <byte-string>)
-  as(<byte-string>, value)
+ => (converted-value :: <string>)
+  as(<string>, value)
 end method;
 
 
@@ -73,14 +73,14 @@ define sideways method as(type == <integer>, value :: <C-signed-short*>)
 end method;
 
 define method default-conversion(value :: <C-char*>)
- => (converted-value :: <byte-string>)
+ => (converted-value :: <string>)
   // This is really dumb but I don't know how to do it otherwise.
-  as(<byte-string>, make(<C-string>, address: value.pointer-address));
+  as(<string>, make(<C-string>, address: value.pointer-address));
 end method;
 
-define sideways method as(type == <byte-string>, value :: <c-char*>)
- => (as-value :: <byte-string>)
-  as(<byte-string>, make(<C-string>, address: value.pointer-address));
+define sideways method as(type == <string>, value :: <c-char*>)
+ => (as-value :: <string>)
+  as(<string>, make(<C-string>, address: value.pointer-address));
 end method;
 
 define constant $default-coercion = #"default-coercion";

@@ -35,7 +35,7 @@ define test explicit-coercion-query-test()
       block ()
         query := make(<sql-statement>,
                       text: "select col_1, col_2 from dwsql",
-                      coercion-policy: vector(curry(as, <byte-string>),
+                      coercion-policy: vector(curry(as, <string>),
                                               curry(as, <integer>)));
         let result-set = execute(query);
         check-true("Explicit coercion result-set test: "
@@ -56,7 +56,7 @@ define test explicit-coercion-query-test()
                             instance?(record, <simple-object-vector>) &
                               col-1 ~== not-found
                               & col-2 ~== not-found &
-                              instance?(col-1, <byte-string>) &
+                              instance?(col-1, <string>) &
                               instance?(col-2, <integer>)
                           end method,
                           result-set));
@@ -98,7 +98,7 @@ define test default-coercion-query-test()
                             instance?(record, <simple-object-vector>) &
                               col-1 ~== not-found &
                               col-2 ~== not-found &
-                              instance?(col-1, <byte-string>) &
+                              instance?(col-1, <string>) &
                               instance?(col-2, <number>)
                           end method,
                           result-set));

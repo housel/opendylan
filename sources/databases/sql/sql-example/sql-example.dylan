@@ -16,7 +16,7 @@ define constant $user-password :: <string>  = "";
 // function will be the copy-sequence generic function.
 // - Default coercion: the 'C objects' are converted to the appropriate
 //   Dylan object. For this particular query, instances of <C-String> are
-//   converted to <byte-string>.
+//   converted to <string>.
 // - Forward-only result-sets: these result-sets (collections) can only be
 //   traversed once and must be done in increasing order.
 // - Liaison: the copy-sequence generic function will be used as the liaison
@@ -52,7 +52,7 @@ end function;
 // efficient but it does demonstrate multiple queries
 // - Default coercion: the 'C objects' are converted to the appropriate
 //   Dylan object. For this particular query, instances of <C-String>
-//   (lastName and firstName) are converted to <byte-string> and instances of
+//   (lastName and firstName) are converted to <string> and instances of
 //   <C-int*> (employeeId) are converted to <integer>. (<C-int*> may be wrong)
 // - Scrollable result-sets: these result-sets (collections) may be traversed
 //   in any direction any number of times.
