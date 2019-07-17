@@ -9,7 +9,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 //// Icon loading.
 
 define method load-taskbar-icon 
-    (name :: <byte-string>) => (handle :: <HANDLE>)
+    (name :: <string>) => (handle :: <HANDLE>)
   LoadImage
     (application-instance-handle(), name, $IMAGE-ICON, 16, 16, $LR-DEFAULTCOLOR);
 end method;

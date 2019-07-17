@@ -12,7 +12,7 @@ define constant $dbms :: <odbc-dbms> = make(<odbc-dbms>);
 // TODO: Implement open-database. Whatever you return is passed in to query-database
 // and close-database.
 define method open-database 
-    (name :: <byte-string>, user-name :: <byte-string>, password :: <byte-string>)
+    (name :: <string>, user-name :: <string>, password :: <string>)
  => (dbd :: <connection>)
   with-dbms ($dbms)
     let db = make(<database>, datasource-name: name);
@@ -25,7 +25,7 @@ end method;
 // TODO: Implement query-interface. Use compute-column-headings on the result
 // sequence to generate the headings for you.
 define method query-database 
-    (dbd :: <connection>, query :: <byte-string>) 
+    (dbd :: <connection>, query :: <string>) 
  => (headings :: <sequence>, rows :: <sequence>)
   with-connection (dbd)
     let results = map-as(<simple-object-vector>, identity, execute(query));

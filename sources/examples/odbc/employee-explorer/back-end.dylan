@@ -54,8 +54,8 @@ define method compute-subordinates (boss :: <employee>) => (subs :: <sequence>)
 end method;
 
 define method do-with-open-database 
-    (datasource :: <byte-string>, 
-       user-name :: <byte-string>, user-password :: <byte-string>,
+    (datasource :: <string>, 
+       user-name :: <string>, user-password :: <string>,
        f :: <function>) 
   with-dbms (make(<odbc-dbms>))
     with-database(make(<database>, datasource-name: datasource),

@@ -10,18 +10,18 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 define constant $dbms :: <odbc-dbms> = make(<odbc-dbms>);
 
 define class <database-data> (<object>)
-  constant slot name-data :: <byte-string>,
+  constant slot name-data :: <string>,
     required-init-keyword: name:;
-  constant slot user-name-data :: <byte-string>,
+  constant slot user-name-data :: <string>,
     required-init-keyword: user-name:;
-  constant slot password-data :: <byte-string>,
+  constant slot password-data :: <string>,
     required-init-keyword: password:;
 end class;
 
 // TODO: Implement open-database. Whatever you return is passed in to query-database
 // and close-database.
 define method open-database 
-    (name :: <byte-string>, user-name :: <byte-string>, password :: <byte-string>)
+    (name :: <string>, user-name :: <string>, password :: <string>)
  => (dbd :: <database-data>)
   make(<database-data>, name: name, user-name: user-name, password: password);
 end method;
@@ -29,7 +29,7 @@ end method;
 // TODO: Implement query-interface. Use compute-column-headings on the result
 // sequence to generate the headings for you.
 define method query-database 
-    (dbd :: <database-data>, query :: <byte-string>) 
+    (dbd :: <database-data>, query :: <string>) 
  => (headings :: <sequence>, rows :: <sequence>)
   with-dbms ($dbms)
     let db = make(<database>, datasource-name: name-data(dbd));

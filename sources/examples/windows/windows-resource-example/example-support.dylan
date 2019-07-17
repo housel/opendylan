@@ -91,7 +91,7 @@ define function
 	let my-id = as(<integer>, win-struct.hMenu-value.pointer-address);
 
 	debug-out("About to create gadget window : %s hMenu: %=\n", 
-		  as(<byte-string>, win-struct.lpszName-value),
+		  as(<string>, win-struct.lpszName-value),
 		  my-id);
 	// register message table if there is one
 	// assume no command table for drawing_area
@@ -149,7 +149,7 @@ define function duim-frame-function(
 	// This would be the place to initialize duim gadget structures
 	// using resource-database, lookup-control(...)
 	debug-out("About to create frame window : %s id %=\n", 
-		  as(<byte-string>, win-struct.lpszName-value), my-id);
+		  as(<string>, win-struct.lpszName-value), my-id);
 	if(my-id = 0) // ??? $null-handle
 	  ErrorHandler("We are having problems, WM-NCCRETAE: id = 0");
 	else

@@ -13,7 +13,7 @@ define constant <database-data> = <object>;
 // TODO: Implement open-database. Whatever you return is passed in to query-database
 // and close-database.
 define method open-database 
-    (name :: <byte-string>, user-name :: <byte-string>, password :: <byte-string>)
+    (name :: <string>, user-name :: <string>, password :: <string>)
  => (dbd :: <database-data>)
   #t
 end method;
@@ -21,7 +21,7 @@ end method;
 // TODO: Implement query-interface. Use compute-column-headings on the result
 // sequence to generate the headings for you.
 define method query-database 
-    (dbd :: <database-data>, query :: <byte-string>) 
+    (dbd :: <database-data>, query :: <string>) 
  => (headings :: <sequence>, rows :: <sequence>)
   let results 
     = #[#["Clanger", "Tiny",  "Eats soup"],

@@ -15,11 +15,11 @@ define constant $default-select-viewer-height = 250;
 //// Back-end protocol.
 
 define generic open-database
-    (name :: <byte-string>, user-name :: <byte-string>, password :: <byte-string>)
+    (name :: <string>, user-name :: <string>, password :: <string>)
  => (db :: <object>);
 
 define generic query-database
-    (db :: <object>, query :: <byte-string>) 
+    (db :: <object>, query :: <string>) 
  => (headings :: <sequence>, results :: <sequence>);
 
 define generic close-database (db :: <object>) => ();
@@ -95,7 +95,7 @@ define method sql-entry-callback (pane :: <combo-box>) => ()
 end method;
 
 define method display-query-results
-    (frame :: <select-viewer>, pane :: <table-control>, query :: <byte-string>,
+    (frame :: <select-viewer>, pane :: <table-control>, query :: <string>,
        headings :: <sequence>, results :: <sequence>) 
  => ()
   // Remove the existing columns.

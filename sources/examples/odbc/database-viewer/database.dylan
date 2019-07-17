@@ -20,7 +20,7 @@ define method open-database
 end method open-database;
 
 define method query-database 
-    (connection :: <connection>, query :: <byte-string>) 
+    (connection :: <connection>, query :: <string>) 
  => (headings :: <sequence>, rows :: <sequence>)
   with-connection (connection)
     let statement = make(<sql-statement>, text: query);

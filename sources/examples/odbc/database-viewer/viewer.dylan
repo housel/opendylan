@@ -167,7 +167,7 @@ define method sql-entry-callback (pane :: <combo-box>) => ()
 end method sql-entry-callback;
 
 define method display-query-results
-    (frame :: <database-viewer>, pane :: <table-control>, query :: <byte-string>,
+    (frame :: <database-viewer>, pane :: <table-control>, query :: <string>,
        headings :: <sequence>, results :: <sequence>) 
  => ()
   // Remove the existing columns.
