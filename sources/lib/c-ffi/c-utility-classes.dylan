@@ -10,7 +10,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 /// notice that import-map is not needed since the default import for
 /// any pointer is itself
 define open abstract simple-c-mapped-subtype <c-string>
-      (<c-raw-unsigned-char*>, <string>)
+      (<c-raw-unsigned-char*>, <mutable-sequence>)
   export-map type-union(<string>, <c-string>),
     export-function: export-c-string;
   pointer-type <c-string*>;
@@ -300,7 +300,7 @@ end method;
 /// notice that import-map is not needed since the default import for
 /// any pointer is itself
 define open /* abstract */ simple-c-mapped-subtype <c-unicode-string>
-      (<c-unsigned-short*>, <string>)
+      (<c-unsigned-short*>, <mutable-sequence>)
   pointer-type <c-unicode-string*>;
 end;
 

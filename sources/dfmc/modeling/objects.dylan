@@ -326,7 +326,7 @@ end &class <simple-object-vector>;
 // HACK: SHOULDN'T GENERATE THESE IN THE FIRST PLACE
 ignore(^vector-element-values); ignore(^vector-element-values-setter);
 
-define open abstract &class <string> (<mutable-sequence>) end;
+define sealed abstract &class <string> (<mutable-sequence>) end;
 
 define generic ^string-element (object, index);
 
