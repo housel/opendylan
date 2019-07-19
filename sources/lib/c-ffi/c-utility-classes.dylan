@@ -11,7 +11,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 /// any pointer is itself
 define open abstract simple-c-mapped-subtype <c-string>
       (<c-raw-unsigned-char*>, <string>)
-  export-map type-union(<byte-string>, <c-string>),
+  export-map type-union(<string>, <c-string>),
     export-function: export-c-string;
   pointer-type <c-string*>;
 end;
@@ -98,7 +98,7 @@ end method;
 // TODO: CORRECTNESS: Make a macro?
 
 define function C-string-constant
-    (string :: <byte-string>) => (value :: <C-string>)
+    (string :: <string>) => (value :: <C-string>)
   make(<C-string>,
        address: primitive-wrap-machine-word
                   (primitive-cast-pointer-as-raw
@@ -159,7 +159,7 @@ define method export-c-string (obj :: <c-pointer>) => (obj :: <C-pointer>);
   obj
 end;
 
-define method export-c-string (obj :: <byte-string>)
+define method export-c-string (obj :: <string>)
  => (p :: <c-raw-unsigned-char*>);
   make-c-pointer(<c-raw-unsigned-char*>,
                  primitive-cast-pointer-as-raw(primitive-string-as-raw(obj)),
@@ -349,7 +349,7 @@ define method make
 end;
 
 define method C-unicode-string-constant
-    (string :: <byte-string>) => (value :: <C-unicode-string>)
+    (string :: <string>) => (value :: <C-unicode-string>)
   as(<C-unicode-string>, string);
 end method;
 
@@ -396,17 +396,6 @@ define method pointer-value
     (c-str :: <c-unicode-string>, #key index :: <integer> = 0)
  => (c :: <character>);
   as(<character>, pointer-integer-value(c-str, index: index))
-end;
-
-define method pointer-value-setter
-    (c :: <character>, c-str :: <c-unicode-string>, #key index :: <integer> = 0)
- => (c :: <character>);
-  primitive-c-unsigned-short-at-setter
-    (integer-as-raw(as(<integer>, c)),
-     primitive-unwrap-c-pointer(c-str),
-     integer-as-raw(index),
-     integer-as-raw(0));
-  c
 end;
 
 define method pointer-value-setter

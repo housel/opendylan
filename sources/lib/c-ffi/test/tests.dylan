@@ -383,12 +383,12 @@ end;
 
 /// c-string-test
 /// make sure that <C-string>s behave as strings and collections, and that
-/// views onto a <byte-string> as a <c-string> from a foreign function
+/// views onto a <string> as a <c-string> from a foreign function
 /// all correspond.
 define test c-string-test ()
   format-out("Running c-string tests\n");
   let a-string = shallow-copy("This is a test string");
-  check-a-c-string("<byte-string>", a-string, 'A');
+  check-a-c-string("<string>", a-string, 'A');
   let c-string = #f;
   check-true("Create a C-string with map-as",
              instance?(c-string := map-as(<c-string>, identity, a-string),

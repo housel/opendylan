@@ -16,7 +16,6 @@ end;
 
 define module c-ffi-test
   use common-dylan;
-  use dylan-extensions, import: { <byte-character> };
   use testworks;
   use machine-words;
   use c-ffi;
