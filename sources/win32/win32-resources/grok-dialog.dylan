@@ -60,7 +60,7 @@ define function grok-dialog
       let (font-name, font-name-size)
 	= grok-resource-string(font-name-pointer);
       dialog-font-name(dialog) := encode-resource(font-name);
-      debug-message("    Font name %s", as(<byte-string>, font-name));
+      debug-message("    Font name %s", as(<string>, font-name));
       offset := offset + font-name-size;
     end;
     let addr = \%+(resource-address, offset);
@@ -156,7 +156,7 @@ define method grok-resource-string
     = make(<C-unicode-string>, address: pointer-address(p));
   //---*** (size(resource-string) + 1) * size-of(referenced-type(resource-string));
   let resource-size :: <integer> = (size(resource-string) + 1) * 2;
-  debug-message("    String %s, size %d", as(<byte-string>, resource-string), resource-size);
+  debug-message("    String %s, size %d", as(<string>, resource-string), resource-size);
   values(resource-string, resource-size)
 end method grok-resource-string;
 

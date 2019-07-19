@@ -22,7 +22,7 @@ end method get-module-file-name;
 
 // Copy `data' into `buffer', and return the buffer address following the 
 // last character.  (Note: does not store terminating nul.)
-define method append-c-string ( buffer :: <LPTSTR>, data :: <byte-string> )
+define method append-c-string ( buffer :: <LPTSTR>, data :: <string> )
  => (end-pointer :: <LPTSTR>);
   let i :: <integer> = 0;
   for ( char :: <character> in data )
@@ -32,8 +32,8 @@ define method append-c-string ( buffer :: <LPTSTR>, data :: <byte-string> )
   pointer-value-address(buffer, index: i) // buffer + i
 end append-c-string;
 
-define method register-item(subkey1 :: <byte-string>, subkey2 :: <byte-string>,
-			    subkey3 :: <byte-string>, value :: <string>)
+define method register-item(subkey1 :: <string>, subkey2 :: <string>,
+			    subkey3 :: <string>, value :: <string>)
   let max-key-size = min(reduce1(\+, map(size, list(subkey1, subkey2, subkey3))) + 1, 1000);
   with-stack-structure( key-buf :: <LPTSTR>, size: max-key-size)
     let start-id = append-c-string(key-buf, subkey1 );
@@ -55,9 +55,9 @@ end register-item;
 
 
 
-define method get-registry-item(subkey1 :: <byte-string>,
-				subkey2 :: <byte-string>,
-				subkey3 :: <byte-string>)
+define method get-registry-item(subkey1 :: <string>,
+				subkey2 :: <string>,
+				subkey3 :: <string>)
  => (value :: false-or(<string>));
   let max-key-size = min(reduce1(\+, map(size, list(subkey1, subkey2, subkey3))) + 1, 1000);
   with-stack-structure( key-buf :: <LPTSTR>, size: max-key-size)
@@ -72,9 +72,9 @@ define method get-registry-item(subkey1 :: <byte-string>,
     let code = RegQueryValue(hkey, key-buf, value-buf, size-ptr);
     if ( code = $ERROR-SUCCESS )
       // Want to do this if it were supported:
-      //   copy-sequence-as(<byte-string>, value-buf,
+      //   copy-sequence-as(<string>, value-buf,
       //                    end: pointer-value(size-ptr) - 1);
-      as(<byte-string>, value-buf)
+      as(<string>, value-buf)
     else
       #f
     end if;

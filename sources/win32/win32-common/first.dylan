@@ -332,7 +332,7 @@ end method initialize;
 
 define generic TEXT (string :: <string>) => (value :: <C-string>);
 
-define inline method TEXT (string :: <byte-string>) => (value :: <C-string>)
+define inline method TEXT (string :: <string>) => (value :: <C-string>)
   C-string-constant(string)
 end method;
 

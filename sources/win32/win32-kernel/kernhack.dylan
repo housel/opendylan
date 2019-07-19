@@ -56,7 +56,7 @@ define constant <PVOID64> = <C-void*>;
 
 define function win32-error-message
     (error-code :: type-union(<integer>, <machine-word>))
- => (message :: false-or(<byte-string>));
+ => (message :: false-or(<string>));
   let buf-size :: <integer> = 600;
   with-stack-structure (buffer :: <LPTSTR>, size: buf-size)
     let length :: <integer> =
@@ -76,7 +76,7 @@ define function win32-error-message
 	buffer[last] := '\0';
 	last := last - 1;
       end while;
-      as(<byte-string>, buffer)
+      as(<string>, buffer)
     end if
   end with-stack-structure;
 end;

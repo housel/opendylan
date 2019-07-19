@@ -111,7 +111,7 @@ define sealed method store-resource-name
 end method store-resource-name;
 
 define sealed method store-resource-name
-    (database :: <win32-resource-database>, name :: <byte-string>) => ()
+    (database :: <win32-resource-database>, name :: <string>) => ()
   store-new-resource(database, encode-resource(name))
 end method store-resource-name;
 

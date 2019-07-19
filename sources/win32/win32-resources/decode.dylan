@@ -15,7 +15,7 @@ define sealed method decode-resource
   if (zero?(%logand(as(<machine-word>, #xFFFF0000), value)))
     as(<integer>, value)
   else
-    as(<byte-string>, raw-id)
+    as(<string>, raw-id)
   end
 end method decode-resource;
 
@@ -38,7 +38,7 @@ define sealed method encode-resource
 end method encode-resource;
 
 define sealed method encode-resource
-    (resource-id :: <byte-string>) => (raw-id :: <raw-resource-id>)
+    (resource-id :: <string>) => (raw-id :: <raw-resource-id>)
   as(<raw-resource-id>, as(<C-string>, resource-id))
 end method encode-resource;
 
@@ -49,7 +49,7 @@ define generic print-resource-id
     (id :: <resource-id>, name :: <string>) => ();
 
 define sealed method print-resource-id
-    (id :: <unsigned-int>, name :: <byte-string>) => ()
+    (id :: <unsigned-int>, name :: <string>) => ()
   if (id = 0)
     format-out("No %s resource present\n", name)
   else
@@ -58,12 +58,12 @@ define sealed method print-resource-id
 end method print-resource-id;
 
 define sealed method print-resource-id
-    (id :: <string>, name :: <byte-string>) => ()
-  format-out("%s resource id = %s\n", name, as(<byte-string>, id))
+    (id :: <string>, name :: <string>) => ()
+  format-out("%s resource id = %s\n", name, as(<string>, id))
 end method print-resource-id;
 
 define sealed method print-resource-id
-    (id :: <raw-resource-id>, name :: <byte-string>) => ()
+    (id :: <raw-resource-id>, name :: <string>) => ()
   print-resource-id(decode-resource(id), name)
 end method print-resource-id;
 
@@ -72,7 +72,7 @@ define generic print-resource-id-to-string
     (id :: <resource-id>, name :: <string>) => ();
 
 define sealed method print-resource-id-to-string
-    (id :: <unsigned-int>, name :: <byte-string>) => ()
+    (id :: <unsigned-int>, name :: <string>) => ()
   if (id = 0)
     format-to-string("No %s resource present\n", name)
   else
@@ -81,11 +81,11 @@ define sealed method print-resource-id-to-string
 end method print-resource-id-to-string;
 
 define sealed method print-resource-id-to-string
-    (id :: <string>, name :: <byte-string>) => ()
-  format-to-string("%s resource id = %s\n", name, as(<byte-string>, id))
+    (id :: <string>, name :: <string>) => ()
+  format-to-string("%s resource id = %s\n", name, as(<string>, id))
 end method print-resource-id-to-string;
 
 define sealed method print-resource-id-to-string
-    (id :: <raw-resource-id>, name :: <byte-string>) => ()
+    (id :: <raw-resource-id>, name :: <string>) => ()
   print-resource-id-to-string(decode-resource(id), name)
 end method print-resource-id-to-string;

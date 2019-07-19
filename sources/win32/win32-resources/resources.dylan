@@ -148,7 +148,7 @@ define sealed method register-child
 end method register-child;
 
 define sealed method register-child
-    (dialog :: <dialog-resource>, child :: <control-resource>, id :: <byte-string>) => ()
+    (dialog :: <dialog-resource>, child :: <control-resource>, id :: <string>) => ()
   control-parent(child) := dialog;
   dialog-children(dialog)[encode-resource(id)] := child
 end method register-child;
