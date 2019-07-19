@@ -26,7 +26,7 @@ define method struct-field-name
     (slotd.^debug-name | format-to-string("anon-slot-%d", position))
 end method;
 
-define method glue-name-raw (name :: <byte-string>)
+define method glue-name-raw (name :: <string>)
   concatenate("_Init_", name)
 end method;
 

@@ -426,13 +426,13 @@ end method;
 
 define method settings-executable 
     (#key executable = #f, #all-keys)
- => (executable :: false-or(<byte-string>))
+ => (executable :: false-or(<string>))
   executable
 end method;
 
 
 define method cache-import-in-library
-    (back-end :: <harp-back-end>, name :: <byte-string>, model-library) => ()
+    (back-end :: <harp-back-end>, name :: <string>, model-library) => ()
   unless (*compiling-dylan?*)
     let imports = imports-in-library(back-end, name, model-library);
     
@@ -441,7 +441,7 @@ define method cache-import-in-library
 end method;
 
 define method imports-in-library
-    (back-end :: <harp-back-end>, name :: <byte-string>, model-library)
+    (back-end :: <harp-back-end>, name :: <string>, model-library)
  => (imports :: <table>);
   let entries = 
     element(back-end.cg-variables.imports, model-library, default: #f);
@@ -485,7 +485,7 @@ end method;
 
 
 define sideways method string-emitter
-    (back-end :: <harp-back-end>, stream, name :: <byte-string>)
+    (back-end :: <harp-back-end>, stream, name :: <string>)
   name
 end method;
 
@@ -512,7 +512,7 @@ end method;
 
 define sideways method emit-name-internal
     (back-end :: <harp-back-end>, stream, o :: <&iep>)
- => (name  :: <byte-string>)
+ => (name  :: <string>)
   emit-iep-name(back-end, stream, o.function)
 end method;
 
@@ -590,7 +590,7 @@ end method emit-name-internal;
 define method emit-iep-name
     (back-end :: <harp-back-end>, stream, o :: <&function>)
  => (name :: <string>);
-  concatenate-as(<byte-string>, emit-name(back-end, stream, o), $iep-suffix)
+  concatenate-as(<string>, emit-name(back-end, stream, o), $iep-suffix)
 end method;
 
 define method emit-iep-name
@@ -836,7 +836,7 @@ define method apropo-model-object (o :: <vector>) => (o);
   canonical-model-object(o)
 end method;
 
-define method apropo-model-object (o :: <byte-string>) => (o);
+define method apropo-model-object (o :: <string>) => (o);
   let o = canonical-model-object(o);
   if (*emitting-data?*)
     o
@@ -912,7 +912,7 @@ define method model-library-description (object :: <module-binding>)
 end method;
 
 define method emit-extern
-  (back-end :: <harp-back-end>, stream, name :: <byte-string>,
+  (back-end :: <harp-back-end>, stream, name :: <string>,
    object, import?,
    #key derived-model-object,
         model-library,

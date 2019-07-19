@@ -17,7 +17,7 @@ define variable *permit-leaf-frames?* = #t;
 
 define sideways method compiled-lambda-symbolic-name 
     (context :: dfmc-<library-description>, compiled-lambda :: <harp-compiled-lambda>) 
-    => (name :: false-or(<byte-string>))
+    => (name :: false-or(<string>))
   compiled-lambda.lambda-name;
 end method;
 
@@ -25,7 +25,7 @@ end method;
 define sideways method back-end-symbolic-name-compiled-lambda
     (back-end :: <harp-back-end>, 
      context :: dfmc-<library-description>, 
-     name :: <byte-string>,
+     name :: <string>,
      #key file-name) 
     => (compiled-lambda :: false-or(<compiled-lambda>))
   let leaf-name = file-name.file-name-leaf-stem;
@@ -168,7 +168,7 @@ end method;
 
 define constant $init-code-marker = "_Init_";
 
-define method init-lambda?(name :: <byte-string>) => (init-lambda? :: <boolean>)
+define method init-lambda?(name :: <string>) => (init-lambda? :: <boolean>)
   subsequence-position(name, $init-code-marker) = 0
 end method;
 
@@ -293,8 +293,8 @@ define constant $demangler = make(dfmc-<demangler>);
 define sideways method back-end-local-variable-debug-name-dylan-name
     (back-end :: <harp-back-end>, 
      context :: dfmc-<library-description>, 
-     symbolic-name :: <byte-string>) 
-    => (dylan-name :: <byte-string>)
+     symbolic-name :: <string>)
+    => (dylan-name :: <string>)
   dfmc-demangle-name-locally($demangler, symbolic-name);
 end method;
 
@@ -303,13 +303,13 @@ end method;
 
 define sideways method local-variable-debug-name 
     (context :: dfmc-<library-description>, var :: <named-variable>)
-    => (name :: <byte-string>)
+    => (name :: <string>)
   var.unique-variable-name;
 end method;
 
 define sideways method local-variable-debug-name 
     (context :: dfmc-<library-description>, var :: <variable-indirections>)
-    => (name :: <byte-string>)
+    => (name :: <string>)
   var.unique-variable-name;
 end method;
 
@@ -464,12 +464,12 @@ end method;
 
 
 define method unique-variable-name 
-    (var :: <named-variable>) => (name :: <byte-string>)
+    (var :: <named-variable>) => (name :: <string>)
   var.harp-variable-name;
 end method;
 
 define method unique-variable-name 
-    (var :: <variable-indirections>) => (name :: <byte-string>)
+    (var :: <variable-indirections>) => (name :: <string>)
   unique-variable-name(var.variable-indirections[0]);
 end method;
 
@@ -517,9 +517,9 @@ end method;
 define sideways method back-end-compilation-context-initializer-symbolic-name
     (back-end :: <harp-back-end>, 
      context :: dfmc-<library-description>)
-    => (symbolic-name :: <byte-string>, component-name :: <byte-string>)
+    => (symbolic-name :: <string>, component-name :: <string>)
   let plain-name = context.dfmc-library-description-emit-name;
-  let emit-name = as-lowercase(as(<byte-string>, plain-name));
+  let emit-name = as-lowercase(as(<string>, plain-name));
   let component-name = context.compilation-context-component-name;
   values(concatenate($init-code-marker, dfmc-raw-mangle(back-end, emit-name), "_"),
          component-name);
@@ -532,10 +532,10 @@ end method;
 
 
 define generic file-name-leaf-stem 
-    (file-name) => (leaf-name :: false-or(<byte-string>));
+    (file-name) => (leaf-name :: false-or(<string>));
 
 define method file-name-leaf-stem 
-    (file-name :: <byte-string>) => (leaf-name :: <byte-string>)
+    (file-name :: <string>) => (leaf-name :: <string>)
   // Not sure whether there's a utility for doing this short of 
   // using the locators library. Here's a home grown version with
   // only limited portability
@@ -559,7 +559,7 @@ end method;
 
 
 define function file-name-stem-limits
-    (file-name :: <byte-string>) 
+    (file-name :: <string>)
     => (leaf-start :: <integer>,
         ext-start :: <integer>)
   let name-size = file-name.size;
@@ -588,7 +588,7 @@ define generic matching-file-name?
     (name1, name2) => (matching? :: <boolean>);
 
 define method matching-file-name?
-    (name1 :: <byte-string>, name2 :: <byte-string>) => (matching? :: <boolean>)
+    (name1 :: <string>, name2 :: <string>) => (matching? :: <boolean>)
   case-insensitive-equal(name1, name2);
 end method;
 

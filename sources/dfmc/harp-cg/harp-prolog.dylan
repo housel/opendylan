@@ -355,7 +355,7 @@ end method arguments-passed-in-registers%;
 define constant *value-cell-value-offset* = 4;
 
 define method make-closure-indirection 
-    (back-end :: <harp-back-end>, name :: <byte-string>, 
+    (back-end :: <harp-back-end>, name :: <string>, 
      offset :: <integer>, value-cell? :: <boolean>)
  => (indirection)
   if (value-cell?)
@@ -375,8 +375,8 @@ define method closure-indirections
   let len = closure-size(env);
   let inds = make(<vector>, size: len);
   let *names* = make(<vector>, size: len, fill: #f);
-  local method unique-name(name :: <byte-string>, i :: <integer>)
-         => (unique-name :: <byte-string>)
+  local method unique-name(name :: <string>, i :: <integer>)
+         => (unique-name :: <string>)
 	  let ambiguous? = member?(name, *names*, test: \=);
 	  let unique-name =
 	    if (ambiguous?) format-to-string("%s%d", name, i)

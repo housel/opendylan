@@ -76,7 +76,7 @@ define inline function compilation-record-downloaded?
 end;
 
 define class <library-compilation-record> (<compilation-record>)
-  constant slot compilation-record-name :: <byte-string>,
+  constant slot compilation-record-name :: <string>,
     required-init-keyword: name:;
 end;
 
@@ -145,7 +145,7 @@ define method immutable-model (object) => model;
   mapped-model(object)
 end;
 
-define method immutable-model (object :: <byte-string>) => model;
+define method immutable-model (object :: <string>) => model;
   // let object = mapped-model(object);
   read-only-model-properties(object);
   object

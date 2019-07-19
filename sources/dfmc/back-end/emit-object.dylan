@@ -40,20 +40,20 @@ end method;
 /// EMIT-NAME
 
 define function emit-name
-  (back-end :: <back-end>, stream, o) => (name :: <byte-string>)
+  (back-end :: <back-end>, stream, o) => (name :: <string>)
   string-emitter(back-end, stream, emit-namestring(back-end, stream, o));
 end function;
 
 define function emit-namestring
   (back-end :: <back-end>, stream, o) => (name)
   let name = o.emitted-name;
-  if (instance?(name, <byte-string>)) name
+  if (instance?(name, <string>)) name
   else
     o.emitted-name := emit-name-internal(back-end, stream, o)
   end if
 end function;
 
-define method string-emitter (back-end :: <back-end>, stream, name :: <byte-string>)
+define method string-emitter (back-end :: <back-end>, stream, name :: <string>)
   write(stream, name);
   name
 end method;
@@ -63,7 +63,7 @@ define method emitted-name? (name) => (emitted? :: <boolean>)
   #f
 end method;
 
-define method emitted-name? (name :: <byte-string>) => (emitted? :: <boolean>)
+define method emitted-name? (name :: <string>) => (emitted? :: <boolean>)
   #t
 end method;
 */

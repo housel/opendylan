@@ -6,9 +6,9 @@ License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define compiler-open generic local-mangle (back-end :: <back-end>, name)
- => (res :: <byte-string>);
+ => (res :: <string>);
 define compiler-open generic global-mangle (back-end :: <back-end>, name)
- => (res :: <byte-string>);
+ => (res :: <string>);
 
 
 // "R" is for recursive disambiguation by following string, with
@@ -33,7 +33,7 @@ end method;
 
 define function module-mangled-name (back-end :: <back-end>,
                                      module :: <module>)
- => (name :: <byte-string>)
+ => (name :: <string>)
   module.emitted-name
    | begin
        let mangler = mangler-reset(back-end.mangler);
@@ -52,7 +52,7 @@ define method mangleable (name :: <variable-name-fragment>) => (name)
 end method;
 
 define method local-mangle
-    (back-end :: <back-end>, name) => (res :: <byte-string>)
+    (back-end :: <back-end>, name) => (res :: <string>)
   mangle-name-locally(mangler(back-end), mangleable(name))
 end method;
 
@@ -63,7 +63,7 @@ end method;
 
 define method global-mangle-with-module
     (back-end :: <back-end>, name, module :: <module>)
- => (res :: <byte-string>)
+ => (res :: <string>)
   let mangler = mangler-reset(back-end.mangler);
   mangle-name-into(mangler, name);
   mangle-namespace-into(mangler, module);
@@ -72,20 +72,20 @@ end method;
 
 define method global-mangle
     (back-end :: <back-end>, name :: <variable-name-fragment>)
- => (res :: <byte-string>)
+ => (res :: <string>)
   global-mangle(back-end, lookup-binding(name, reference?: #f))
 end method;
 
 define method global-mangle
-    (back-end :: <back-end>, o :: <module-binding>) => (res :: <byte-string>)
+    (back-end :: <back-end>, o :: <module-binding>) => (res :: <string>)
   global-mangle-with-module(back-end, o.binding-identifier, o.binding-home)
 end method;
 
 define function binding-mangled-name (back-end :: <back-end>,
                                       binding :: <module-binding>)
- => (name :: <byte-string>)
+ => (name :: <string>)
   let name = binding.emitted-name;
-  if (instance?(name, <byte-string>))
+  if (instance?(name, <string>))
     name
   else
     binding.emitted-name := global-mangle(back-end, binding);
@@ -94,12 +94,12 @@ end;
 
 define method global-mangle
     (back-end :: <back-end>, o :: <variable-defining-form>)
- => (res :: <byte-string>)
+ => (res :: <string>)
   global-mangle(back-end, lookup-binding(o.form-variable-name, reference?: #f))
 end method;
 
 define method global-mangle
-    (back-end :: <back-end>, o :: <&object>) => (res :: <byte-string>)
+    (back-end :: <back-end>, o :: <&object>) => (res :: <string>)
   global-mangle(back-end, model-definition(o))
 end method;
 
@@ -108,7 +108,7 @@ end method;
 // is done.
 
 define method global-mangle
-    (back-end :: <back-end>, name :: <byte-string>) => (res :: <byte-string>)
+    (back-end :: <back-end>, name :: <string>) => (res :: <string>)
   let mangler = mangler-reset(back-end.mangler);
   mangle-name-into(mangler, name);
   mangle-namespace-spread-into(mangler, "dylan", "dylan");

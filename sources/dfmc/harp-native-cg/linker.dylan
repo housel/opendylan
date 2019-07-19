@@ -26,7 +26,7 @@ end method;
 
 
 define sideways method output-compilation-record-data
-  (back-end :: <harp-native-back-end>, name :: <byte-string>, compiled-lambda) => ()
+  (back-end :: <harp-native-back-end>, name :: <string>, compiled-lambda) => ()
   case 
     *current-compilation* =>
       let compiled-lambda =
@@ -49,7 +49,7 @@ define sideways method emit-library-initializer
      emit-call-used :: <method>,
      emit-call-crs :: <method>,
      emit-branch-on-init :: <method>,
-     init-name :: <byte-string>,
+     init-name :: <string>,
      harp-output?, debug-info?)
  => ();
   let initializer
@@ -75,7 +75,7 @@ define sideways method emit-library-initializer
      emit-call-used :: <method>,
      emit-call-crs :: <method>,
      emit-branch-on-init :: <method>,
-     init-name :: <byte-string>,
+     init-name :: <string>,
      harp-output?, debug-info?) => ()
 
   let local-init-name = concatenate(init-name, "_local_");

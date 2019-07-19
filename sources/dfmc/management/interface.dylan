@@ -4,7 +4,7 @@ Copyright:    Original Code is Copyright (c) 1995-2004 Functional Objects, Inc.
 License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-define constant <interface-identifier> = <byte-string>;
+define constant <interface-identifier> = <string>;
 define constant <symbol-vector> = <simple-object-vector>;
 define constant <identifier-vector> = <simple-object-vector>;
 

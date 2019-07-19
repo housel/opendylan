@@ -96,7 +96,7 @@ define method cr-init-names (ld, cr-names)
          cr-names))
 end method;
 
-define method glue-name-raw (name :: <byte-string>)
+define method glue-name-raw (name :: <string>)
   concatenate("_Init_", name)
 end method;
 

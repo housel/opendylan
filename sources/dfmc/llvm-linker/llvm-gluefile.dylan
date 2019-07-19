@@ -321,7 +321,7 @@ end;
 
 /// Compilation record init function naming
 
-define method glue-name-raw (name :: <byte-string>)
+define method glue-name-raw (name :: <string>)
   concatenate("_Init_", name)
 end method;
 

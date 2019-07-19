@@ -16,7 +16,7 @@ end method;
 
 define method indentd-format
     (stream :: <stream>, depth :: <integer>,
-     format-string :: <byte-string>, #rest arguments)
+     format-string :: <string>, #rest arguments)
   indentd(stream, depth);
   apply(format, stream, format-string, arguments);
 end method;

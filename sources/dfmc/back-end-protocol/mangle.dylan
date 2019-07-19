@@ -7,6 +7,6 @@ License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-define method raw-mangle (back-end :: <back-end>, name) => (res :: <byte-string>)
+define method raw-mangle (back-end :: <back-end>, name) => (res :: <string>)
   mangle-name-raw(mangler(back-end), name)
 end method;

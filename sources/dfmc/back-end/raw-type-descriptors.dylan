@@ -23,7 +23,7 @@ define symbolic-class <&raw-type-descriptor> (<object>) using dylan-value
   symbolic slot raw-type-unboxer,
     required-init-keyword: unboxer-name:;
   // c only
-  constant slot raw-type-c-name :: <byte-string>, init-keyword: c-name:;
+  constant slot raw-type-c-name :: <string>, init-keyword: c-name:;
 end symbolic-class <&raw-type-descriptor>;
 
 define method compute-size (size :: type-union(<integer>, singleton(#"w")))

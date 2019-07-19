@@ -51,10 +51,10 @@ define inline function extract-string
     (loc :: <lexer-source-location>,
      #key start: the-start :: <integer> = loc.start-posn,
           end:   the-end   :: <integer> = loc.end-posn)
- => (string :: <byte-string>)
+ => (string :: <string>)
   let bytes = the-end - the-start;
-  let string :: <byte-string>
-    = make(<byte-string>, size: bytes);
+  let string :: <string>
+    = make(<string>, size: bytes);
   let sr :: <compilation-record> = loc.source-location-record;
   copy-bytes
     (string, 0, sr.contents, the-start, bytes);
@@ -76,9 +76,9 @@ define function extract-token-text
             = loc.source-location-start-character,
           end: the-end :: <integer>
             = loc.source-location-end-character)
- => (string :: <byte-string>)
+ => (string :: <string>)
   let bytes = the-end - the-start;
-  let string :: <byte-string> = make(<byte-string>, size: bytes);
+  let string :: <string> = make(<string>, size: bytes);
   copy-bytes
     (string, 0, loc.source-location-record.contents, the-start, bytes);
   string

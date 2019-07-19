@@ -191,9 +191,9 @@ end function;
 // IO library
 
 define function display-integer(number :: <integer>, field :: <integer>)
- => (mangled-number :: <byte-string>)
-  let number-characters :: <byte-string> = "0123456789";
-  let result :: <byte-string> = make(<byte-string>, size: field);
+ => (mangled-number :: <string>)
+  let number-characters :: <string> = "0123456789";
+  let result :: <string> = make(<string>, size: field);
 
   iterate process-integer (num :: <integer> = number, exponent :: <integer> = 1)
     let (quotient :: <integer>, remainder :: <integer>) = truncate/(num, 10);

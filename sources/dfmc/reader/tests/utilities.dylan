@@ -2,7 +2,7 @@ Module: dfmc-reader-test-suite
 License: See License.txt in this distribution for details.
 
 define function make-compilation-record
-    (source :: <byte-string>)
+    (source :: <string>)
  => (cr :: <compilation-record>)
   let sr = make(<interactive-source-record>,
                 project: #f,
@@ -15,7 +15,7 @@ define function make-compilation-record
 end function make-compilation-record;
 
 define function read-fragment
-    (source :: <byte-string>) => (fragment :: false-or(<fragment>))
+    (source :: <string>) => (fragment :: false-or(<fragment>))
   let cr = make-compilation-record(source);
   let (fragment, new-state) = read-top-level-fragment(cr, #f);
   fragment

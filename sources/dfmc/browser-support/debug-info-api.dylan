@@ -18,12 +18,12 @@ define function context-back-end
 end function;
 
 
-define function not-yet-implemented (api :: <byte-string>)
+define function not-yet-implemented (api :: <string>)
   error("Debug lookup protocol error: the function %s is not yet implemented", api);
 end function;
 
 
-define function no-default-error (api :: <byte-string>)
+define function no-default-error (api :: <string>)
   error("Debug lookup protocol error: the function %s has no default implementation", api);
 end function;
 
@@ -87,13 +87,13 @@ end macro;
 
 define defaulted-generic source-form-symbolic-name
     (context :: dfmc-<library-description>, source-form :: <source-form>)
-    => (name :: false-or(<byte-string>))
+    => (name :: false-or(<string>))
    not-yet-implemented("source-form-symbolic-name");
 end defaulted-generic;
 
 
 define function symbolic-name-source-form
-    (context :: dfmc-<library-description>, name :: <byte-string>)
+    (context :: dfmc-<library-description>, name :: <string>)
     => (sf :: false-or(<source-form>))
    not-yet-implemented("symbolic-name-source-form");
 end function;
@@ -102,13 +102,13 @@ end function;
 
 define function variable-symbolic-name
     (context :: dfmc-<library-description>, variable :: <variable>)
-    => (name :: false-or(<byte-string>))
+    => (name :: false-or(<string>))
    not-yet-implemented("variable-symbolic-name");
 end function;
 
 
 define function symbolic-name-variable
-    (context :: dfmc-<library-description>, name :: <byte-string>)
+    (context :: dfmc-<library-description>, name :: <string>)
     => (variable :: false-or(<variable>))
    not-yet-implemented("symbolic-name-variable");
 end function;
@@ -117,27 +117,27 @@ end function;
 
 define defaulted-generic compiled-lambda-symbolic-name
     (context :: dfmc-<library-description>, compiled-lambda :: <compiled-lambda>)
-    => (name :: false-or(<byte-string>))
+    => (name :: false-or(<string>))
   #f;
 end defaulted-generic;
 
 
 define back-ended-function symbolic-name-compiled-lambda
-    (context :: dfmc-<library-description>, name :: <byte-string>, #key file-name)
+    (context :: dfmc-<library-description>, name :: <string>, #key file-name)
     => (compiled-lambda :: false-or(<compiled-lambda>))
   #f;
 end back-ended-function;
 
 
 define function symbolic-name-component-name
-    (context :: dfmc-<library-description>, name :: <byte-string>)
-    => (component-name :: false-or(<byte-string>))
+    (context :: dfmc-<library-description>, name :: <string>)
+    => (component-name :: false-or(<string>))
   not-yet-implemented("symbolic-name-component-name");
 end function;
 
 
 define function component-name-context
-    (context :: dfmc-<library-description>, debug-target, name :: <byte-string>)
+    (context :: dfmc-<library-description>, debug-target, name :: <string>)
     => (context :: false-or(dfmc-<library-description>))
    let name = as-lowercase(name);
    block (found)
@@ -153,7 +153,7 @@ define function component-name-context
 end function;
 
 define function library-name-context
-    (context :: dfmc-<library-description>, debug-target, name :: <byte-string>)
+    (context :: dfmc-<library-description>, debug-target, name :: <string>)
     => (context :: false-or(dfmc-<library-description>))
    let name = as-lowercase(name);
    block (found)
@@ -208,13 +208,13 @@ end defaulted-generic;
 
 define back-ended-function source-form-compiled-lambda-symbolic-name
     (context :: dfmc-<library-description>, source-form :: <source-form>)
-    => (name :: false-or(<byte-string>))
+    => (name :: false-or(<string>))
   not-yet-implemented("source-form-compiled-lambda-symbolic-name");
 end back-ended-function;
 
 
 define back-ended-function compiled-lambda-symbolic-name-source-form
-    (context :: dfmc-<library-description>, name :: <byte-string>)
+    (context :: dfmc-<library-description>, name :: <string>)
     => (source-form :: false-or(<source-form>))
   not-yet-implemented("compiled-lambda-symbolic-name-source-form");
 end back-ended-function;
@@ -284,14 +284,14 @@ end defaulted-generic;
 
 define open generic local-variable-debug-name
     (context :: dfmc-<library-description>, var :: <local-variable>)
-    => (name :: <byte-string>);
+    => (name :: <string>);
 
 
 
 
 define back-ended-function local-variable-debug-name-dylan-name
-    (context :: dfmc-<library-description>, symbolic-name :: <byte-string>)
-    => (dylan-name :: <byte-string>)
+    (context :: dfmc-<library-description>, symbolic-name :: <string>)
+    => (dylan-name :: <string>)
   symbolic-name;
 end back-ended-function;
 
@@ -332,22 +332,22 @@ end defaulted-generic;
 
 define back-ended-function compilation-context-initializer-symbolic-name
     (context :: dfmc-<library-description>)
-    => (symbolic-name :: <byte-string>, component-name :: <byte-string>)
+    => (symbolic-name :: <string>, component-name :: <string>)
   no-default-error("compilation-context-initializer-symbolic-name");
 end back-ended-function;
 
 
 define function compilation-context-library-name
     (context :: dfmc-<library-description>)
-  => (component-name :: false-or(<byte-string>))
+  => (component-name :: false-or(<string>))
   let name = context.dfmc-library-description-emit-name;
-  if (name) as-lowercase(as(<byte-string>, name)) else #f end;
+  if (name) as-lowercase(as(<string>, name)) else #f end;
 end function;
 
 
 define function settings-executable
     (#key executable = #f, #all-keys)
-    => (executable :: false-or(<byte-string>))
+    => (executable :: false-or(<string>))
   executable
 end function;
 
@@ -355,7 +355,7 @@ end function;
 
 define function compilation-context-component-name
     (context :: dfmc-<library-description>)
-  => (component-name :: false-or(<byte-string>))
+  => (component-name :: false-or(<string>))
   apply(settings-executable, context.dfmc-library-description-build-settings)
     | context.compilation-context-library-name;
 end function;
@@ -363,7 +363,7 @@ end function;
 
 define function compilation-context-dylan-component-name
     (context :: dfmc-<library-description>)
-  => (component-name :: <byte-string>)
+  => (component-name :: <string>)
   let dyl = context.dfmc-library-description-dylan-library;
   if (dyl)
     dyl.compilation-context-component-name;
@@ -374,7 +374,7 @@ end function;
 
 define function compilation-context-runtime-component-name
     (context :: dfmc-<library-description>)
-  => (component-name :: <byte-string>)
+  => (component-name :: <string>)
   context.compilation-context-dylan-component-name;
 end function;
 

@@ -66,12 +66,12 @@ end method;
 define constant <fragment-or-template> = type-union(<fragment>, <template>);
 
 define method stringify
-    (f :: <fragment-or-template>) => (string :: <byte-string>)
+    (f :: <fragment-or-template>) => (string :: <string>)
   format-to-string("%s", f);
 end method;
 
 define method stringify
-    (f :: <variable-name-fragment>) => (string :: <byte-string>)
+    (f :: <variable-name-fragment>) => (string :: <string>)
   fragment-name-string(f)
 end method;
 

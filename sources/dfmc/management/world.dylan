@@ -427,62 +427,9 @@ define sideways method strip-incremental-slots (heap :: <model-heap>)
   do(strip-incremental-slots, heap.heap-root-init-code);
 end method;
 
-/*
-define method string-size (s :: <byte-string>)
-  if (size(s) <= 6)
-    0
-  else
-    format-out("%=\n", s);
-    round/(size(s), 4) + 2
-  end if;
-end method;
-
-define method string-size (s)
-  0
-end method;
-
-define method emitted-name-size (ld :: <compilation-context>)
-  let total = 0;
-  with-program-conditions
-    with-library-context (ld)
-      let library = language-definition(ld);
-      let library-def = namespace-definition(library);
-      for (module in defined-modules-in(library))
-        let module-def
-          = if (instance?(module, <dylan-user-module>))
-              // no explicit definition, so use the library...
-              library-def
-            else
-              module.namespace-definition
-            end;
-        with-dependent ($compilation of module-def)
-          for (binding in module.namespace-local-bindings)
-            total := total + string-size(emitted-name(binding));
-          end for;
-        end;
-      end for;
-      with-dependent ($compilation of library-def)
-        do-imported-bindings(library,
-                             method (binding)
-                               total
-                                 := total + string-size(emitted-name(binding))
-                             end);
-      end;
-      for (cr in library-description-compilation-records(ld))
-        let heap = compilation-record-model-heap(cr);
-        for (literal in heap.heap-defined-object-sequence)
-          total := total + string-size(emitted-name(literal));
-        end for;
-      end for;
-    end;
-  end;
-  total * 4
-end method;
-*/
-
 /// ENSURE EXPORTED ONLY
 
-define method slow-instance? (object, class-name :: <byte-string>)
+define method slow-instance? (object, class-name :: <string>)
   let class = object-class(object);
   debug-name(class) = class-name
 end method;

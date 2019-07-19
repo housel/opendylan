@@ -10,7 +10,7 @@ define constant $initial-string-stream-contents-size = 10000;
 define class <c-back-end> (<back-end>)
   constant slot lambda-stream
     = make(<string-stream>, direction: #"output",
-           contents: make(<byte-string>,
+           contents: make(<string>,
                           size: $initial-string-stream-contents-size));
 end;
 
@@ -128,7 +128,7 @@ end method;
 
 define function format-emit
     (b :: <c-back-end>, s :: <stream>,  d :: <integer>,
-     format-string :: <byte-string>, #rest arguments)
+     format-string :: <string>, #rest arguments)
   let i :: <integer> = 0;
   for (c in format-string)
     select (c)
@@ -158,7 +158,7 @@ end method;
 
 define inline function format-emit*
     (b :: <c-back-end>, s :: <stream>,
-     format-string :: <byte-string>, #rest arguments)
+     format-string :: <string>, #rest arguments)
   apply(format-emit, b, s, 1, format-string, arguments)
 end function;
 

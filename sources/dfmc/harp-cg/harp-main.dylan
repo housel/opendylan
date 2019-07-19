@@ -2403,7 +2403,7 @@ end function;
 define function emit-module-name
     (back-end :: <harp-back-end>, stream, o :: <module-binding>) => (reference :: <string>)
   let name = o.emitted-name;
-  if (instance?(name, <byte-string>)) name
+  if (instance?(name, <string>)) name
   else
     o.emitted-name := global-mangle(back-end, o)
   end if

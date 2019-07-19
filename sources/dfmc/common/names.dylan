@@ -18,9 +18,9 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 // namespace code. A variable-name fragment contains an instance of
 // <name>.
 
-// HACK: LOOSENED IT UP TO ALLOW BYTE_STRINGS FOR NOW
+// HACK: LOOSENED IT UP TO ALLOW STRINGS FOR NOW
 
-define constant <name> = type-union(<symbol>, <byte-string>);
+define constant <name> = type-union(<symbol>, <string>);
 
 define method coerce-name (x) => (res :: <symbol>)
   as(<symbol>, x)

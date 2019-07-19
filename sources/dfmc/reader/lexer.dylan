@@ -60,7 +60,7 @@ end method print-object;
 //
 define method add-transition
     (table :: <simple-object-vector>,
-     on :: type-union(<integer>, <character>, <byte-string>),
+     on :: type-union(<integer>, <character>, <string>),
      new-state :: <symbol>)
  => ()
   select (on by instance?)
@@ -73,7 +73,7 @@ define method add-transition
       end if;
     <character> =>
       add-transition(table, as(<integer>, on), new-state);
-    <byte-string> =>
+    <string> =>
       let last = #f;
       let range = #f;
       for (char :: <character> in on)
@@ -898,7 +898,7 @@ define method decode-string
     (source-location :: <lexer-source-location>,
      #key start :: <integer> = source-location.start-posn + 1,
      end: finish :: <integer> = source-location.end-posn - 1)
- => (res :: <byte-string>)
+ => (res :: <string>)
   let contents = source-location.source-location-record.contents;
   local method skip-hex-escape (contents, posn)
     if (contents[posn] == as(<integer>, '>'))
@@ -1178,7 +1178,7 @@ define constant <default-float> = <single-float>;
 define constant $max-mantissa-digits = 18;
 
 define method atof
-    (string :: <byte-string>,
+    (string :: <string>,
      #key start :: <integer> = 0,
           end: finish :: <integer> = string.size)
  => (class :: one-of(#f, #"single", #"double", #"extended"),
@@ -1341,8 +1341,8 @@ define method parse-fp-literal
        value: as-fragment-float-value(class, value));
 end method parse-fp-literal;
 
-define constant $hash-data-start-delimiters :: <byte-string> = "\"{[(|`'";
-define constant $hash-data-end-delimiters   :: <byte-string> = "\"}])|`'";
+define constant $hash-data-start-delimiters :: <string> = "\"{[(|`'";
+define constant $hash-data-end-delimiters   :: <string> = "\"}])|`'";
 define constant $escape-code = as(<integer>, '\\');
 
 // The lexer has just seen the second colon in "#:foo:{bar}" or
@@ -1362,7 +1362,7 @@ define method make-hash-literal
     let delimiter = contents[data-start];
     let delimiter-index
       = position($hash-data-start-delimiters, as(<character>, delimiter));
-    let data :: <byte-string> = "";
+    let data :: <string> = "";
     if (delimiter-index)
       // Read until the matching delimiter
       let start-delimiter = delimiter;

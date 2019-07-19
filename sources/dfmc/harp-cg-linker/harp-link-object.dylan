@@ -95,7 +95,7 @@ define method emit-forward
     (back-end :: <harp-back-end>, stream, o :: <&generic-function>)
  => ();
   if (o.model-has-definition?)
-    let name :: <byte-string> = emit-name(back-end, stream, o);
+    let name :: <string> = emit-name(back-end, stream, o);
     let export? = model-externally-visible?(o);
     emit-public(back-end, stream, o, name: name,
 		export?: export? & model-externally-visible??(o));
@@ -552,15 +552,15 @@ define constant $generic-methods-suffix    = "GFML";
 define method emit-generic-methods-name
     (back-end :: <harp-back-end>, stream, o :: <&generic-function>)
  => (name :: <string>);
-  concatenate-as(<byte-string>,
+  concatenate-as(<string>,
                  emit-name(back-end, stream, o),
                  $generic-methods-suffix)
 end method;
 
 define method emit-generic-methods-name
-    (back-end :: <harp-back-end>, stream, name :: <byte-string>)
+    (back-end :: <harp-back-end>, stream, name :: <string>)
  => (name :: <string>);
-    concatenate-as(<byte-string>,
+    concatenate-as(<string>,
 		   name,
 		   $generic-methods-suffix);
 end method;

@@ -35,8 +35,8 @@ end method;
 
 
 define method glue-unit-name
-    (lib-name, interactive?) => (name :: <byte-string>)
-  let simple-name :: <byte-string> = "_glue";
+    (lib-name, interactive?) => (name :: <string>)
+  let simple-name :: <string> = "_glue";
   if (interactive?)
     concatenate("_interactive_", simple-name)
   else
@@ -45,8 +45,8 @@ define method glue-unit-name
 end method;
 
 define method main-unit-name 
-    (lib-name, interactive?) => (name :: <byte-string>)
-  let simple-name :: <byte-string> = "_main";
+    (lib-name, interactive?) => (name :: <string>)
+  let simple-name :: <string> = "_main";
   if (interactive?)
     concatenate("_interactive_", simple-name)
   else
@@ -66,7 +66,7 @@ define open generic emit-library-initializer
      emit-call-used :: <method>,
      emit-call-crs :: <method>,
      emit-branch-on-init :: <method>,
-     init-name :: <byte-string>,
+     init-name :: <string>,
      harp-output?, debug-info?)
  => ();
 
@@ -246,7 +246,7 @@ define method cr-init-names (ld, cr-names)
          cr-names))
 end method;
 
-define method glue-name-raw (name :: <byte-string>)
+define method glue-name-raw (name :: <string>)
   concatenate("_Init_", name)
 end method;
 
@@ -556,7 +556,7 @@ define emit-import-method emit-imported-data (<&method>)
       let method-number :: <integer> = method-number?;
       let name = emit-imported-name(back-end, stream, o);
       let gf :: <&generic-function> = internal?;
-      let gf-name :: <byte-string> = emit-name(back-end, stream, gf);
+      let gf-name :: <string> = emit-name(back-end, stream, gf);
       let gf-sealed? = gf.^generic-function-sealed?;
       let gf-root =
 	if (gf-sealed?) gf-name
@@ -690,7 +690,7 @@ end emit-import-method;
 
 define method output-imported-data
     (back-end :: <harp-back-end>, stream,
-     name :: <byte-string>, import :: <byte-string>, offset :: <integer>)
+     name :: <string>, import :: <string>, offset :: <integer>)
  => ();
   output-external(back-end, stream, import, import?: #t);
 

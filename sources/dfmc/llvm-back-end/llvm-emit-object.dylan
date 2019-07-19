@@ -8,7 +8,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 // emit-name support
 
 define sealed method string-emitter
-    (back-end :: <llvm-back-end>, stream, name :: <byte-string>)
+    (back-end :: <llvm-back-end>, stream, name :: <string>)
   name
 end method;
 

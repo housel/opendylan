@@ -107,8 +107,8 @@ define class <mangler-with-options> (<mangler>)
   // suffixes to the basic mangle. This are stored as
   // strings, which is convenient because they can be zero
   // or more characters in each case.
-  slot mangler-prefix-options :: <byte-string> = "";
-  slot mangler-suffix-options :: <byte-string> = "";
+  slot mangler-prefix-options :: <string> = "";
+  slot mangler-suffix-options :: <string> = "";
 end class;
 
 define method mangler-position (mangler :: <mangler>) => (res :: <integer>)
@@ -171,18 +171,18 @@ end method;
 
 define method mangler-as-string
     (mangler :: <abstract-mangler>, #key start :: <integer> = 0)
- => (res :: <byte-string>)
+ => (res :: <string>)
   // if (start = 0)
-  //   as(<byte-string>, mangler-buffer(mangler))
+  //   as(<string>, mangler-buffer(mangler))
   // else
-  //   as(<byte-string>, copy-sequence(mangler-buffer(mangler), start: start))
+  //   as(<string>, copy-sequence(mangler-buffer(mangler), start: start))
   // end if
   let buffer :: <stretchy-vector>
     = mangler-buffer(mangler);
   let buffer-size :: <integer>
     = size(buffer);
-  let string :: <byte-string>
-    = make(<byte-string>, size: buffer-size - start);
+  let string :: <string>
+    = make(<string>, size: buffer-size - start);
   // without-bounds-checks
     for (i :: <integer> from start below buffer-size,
          j :: <integer> from 0)
@@ -199,7 +199,7 @@ end method;
 
 define method mangler-as-string
     (mangler :: <mangler-with-options>, #key start :: <integer> = 0)
- => (res :: <byte-string>)
+ => (res :: <string>)
   concatenate
      (mangler.mangler-prefix-options,
       next-method(),
@@ -218,18 +218,18 @@ define inline method mangle-raw-into
 end method;
 
 define inline method mangle-raw-into
-    (mangler :: <abstract-mangler>, name :: <byte-string>)
+    (mangler :: <abstract-mangler>, name :: <string>)
   concatenate!(mangler-buffer(mangler), name);
 end method;
 
 define inline method mangle-raw-into
     (mangler :: <abstract-mangler>, name :: <symbol>)
   concatenate!
-    (mangler-buffer(mangler), as-lowercase(as(<byte-string>, name)));
+    (mangler-buffer(mangler), as-lowercase(as(<string>, name)));
 end method;
 
 define method mangle-name-into
-    (mangler :: <mangler>, name :: <byte-string>)
+    (mangler :: <mangler>, name :: <string>)
   for (c in name)
     mangle-raw-into(mangler, mangler-table(mangler)[as(<integer>, c)]);
   end for;
@@ -237,18 +237,18 @@ end method;
 
 define method mangle-name-into
     (mangler :: <mangler>, name)
-  mangle-name-into(mangler, as-lowercase(as(<byte-string>, name)))
+  mangle-name-into(mangler, as-lowercase(as(<string>, name)))
 end method;
 
 define method mangle-name-raw
-   (mangler :: <mangler>, name) => (res :: <byte-string>)
+   (mangler :: <mangler>, name) => (res :: <string>)
   mangler-reset(mangler);
   mangle-name-into(mangler, name);
   mangler-as-string(mangler)
 end method;
 
 define method mangle-name-locally
-   (mangler :: <mangler>, name) => (res :: <byte-string>)
+   (mangler :: <mangler>, name) => (res :: <string>)
   mangler-reset(mangler);
   mangle-name-into(mangler, name);
   mangle-raw-into(mangler, $local-suffix);
@@ -257,7 +257,7 @@ end method;
 
 define method mangle-name-hygienically
     (mangler :: <mangler>, name, marker :: <integer>)
- => (res :: <byte-string>)
+ => (res :: <string>)
   mangler-reset(mangler);
   mangle-name-into(mangler, name);
   concatenate
@@ -266,7 +266,7 @@ end method;
 
 define method mangle-binding-spread
     (mangler :: <mangler>, variable-name, module-name, library-name)
- => (res :: <byte-string>)
+ => (res :: <string>)
   mangler-reset(mangler);
   mangle-name-into(mangler, variable-name);
   mangle-namespace-spread-into(mangler, module-name, library-name);
@@ -300,20 +300,20 @@ end method;
 
 
 
-define constant $number-characters :: <byte-string> = "0123456789";
+define constant $number-characters :: <string> = "0123456789";
 
-define method mangle-integer (number :: <integer>) => (mangled-number :: <byte-string>)
+define method mangle-integer (number :: <integer>) => (mangled-number :: <string>)
 
   iterate process-integer (number :: <integer> = number, index :: <integer> = 1)
     let (quotient :: <integer>, remainder :: <integer>) = truncate/(number, 10);
     let digit :: <character> = $number-characters[remainder];
 
     if (quotient = 0)
-      let result :: <byte-string> = make(<byte-string>, size: index);
+      let result :: <string> = make(<string>, size: index);
       result[0] := digit;
       result
     else
-      let result :: <byte-string> = process-integer(quotient, index + 1);
+      let result :: <string> = process-integer(quotient, index + 1);
       result[result.size - index] := digit;
       result
     end if;

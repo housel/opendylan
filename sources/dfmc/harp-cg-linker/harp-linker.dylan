@@ -88,7 +88,7 @@ define sideways method link-and-download
   let coff-files = make(<vector>, size: crs.size + 1);
   let ld = il.interactive-layer-base;
   let component-name
-    = as-lowercase(as(<byte-string>, ld.library-description-emit-name));
+    = as-lowercase(as(<string>, ld.library-description-emit-name));
   let init-function-name = glue-name(component-name);
   let flags = vector(harp-output?: harp-output?, 
 		     assembler-output?: assembler-output?,

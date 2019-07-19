@@ -47,7 +47,7 @@ end method;
 
 /*
 // Demangler handler functions have the following signature:-
-   (name :: <byte-string>,   // string being demangled
+   (name :: <string>,   // string being demangled
     pos :: <integer>,        // position of character being considered
     char :: <character>)     // the character
    =>
@@ -58,7 +58,7 @@ end method;
 
 
 define function demangle-escape
-    (name :: <byte-string>, pos :: <integer>, char :: <character>)
+    (name :: <string>, pos :: <integer>, char :: <character>)
     => (res :: <character>, new-pos :: <integer>)
   let code = 0;
   let limit = name.size;
@@ -82,7 +82,7 @@ define function demangle-escape
 end function;
 
 define function default-demangler-handler-function
-    (name :: <byte-string>, pos :: <integer>, ch :: <character>)
+    (name :: <string>, pos :: <integer>, ch :: <character>)
     => (data, pos)
   if (member?(ch, $all-decoration-markers))
     values("", pos + 1)
@@ -93,7 +93,7 @@ define function default-demangler-handler-function
 end function;
 
 define method demangle-name-into
-    (mangler :: <demangler>, name :: <byte-string>, handler-function :: <function>)
+    (mangler :: <demangler>, name :: <string>, handler-function :: <function>)
   let pos = 0;
   let limit = name.size;
   while (pos < limit)
@@ -116,9 +116,9 @@ end method;
 
 
 define method demangle-name-raw
-   (mangler :: <demangler>, name :: <byte-string>,
+   (mangler :: <demangler>, name :: <string>,
      #key handler-function = default-demangler-handler-function)
-    => (res :: <byte-string>)
+    => (res :: <string>)
   mangler-reset(mangler);
   demangle-name-into(mangler, name, handler-function);
   mangler-as-string(mangler)
@@ -126,9 +126,9 @@ end method;
 
 
 define method demangle-name-locally
-   (mangler :: <demangler>, name :: <byte-string>,
+   (mangler :: <demangler>, name :: <string>,
      #key handler-function = default-demangler-handler-function)
-    => (res :: <byte-string>, hygienic-marker :: false-or(<integer>))
+    => (res :: <string>, hygienic-marker :: false-or(<integer>))
   let boundary = name.size - $local-suffix.size;
   let marker = #f;
   let stripped-name =
@@ -149,11 +149,11 @@ end method;
 
 
 define method demangle-binding-spread
-   (mangler :: <demangler>, name :: <byte-string>,
+   (mangler :: <demangler>, name :: <string>,
      #key handler-function = default-demangler-handler-function)
-    => (var-name :: <byte-string>,
-        module-name :: false-or(<byte-string>),
-        library-name :: false-or(<byte-string>))
+    => (var-name :: <string>,
+        module-name :: false-or(<string>),
+        library-name :: false-or(<string>))
   let lsep        = find-key(name, $library-separator-id?);
   let binding-end = find-key(name, $method-mangled-marker-id?) | name.size;
   if (lsep & (binding-end > (lsep + 1)))
@@ -198,7 +198,7 @@ end method;
 //    Returns various interesting details about a mangled name.
 
 define method demangler-extract-characteristics
-    (demangler :: <demangler>, name :: <byte-string>)
+    (demangler :: <demangler>, name :: <string>)
   => (constant? :: <boolean>,
       wrapper? :: <boolean>,
       iep? :: <boolean>,
@@ -219,8 +219,8 @@ end method;
 //    responsible for emitting it.
 
 define method demangler-extract-library-name
-    (demangler :: <demangler>, name :: <byte-string>)
-  => (extracted-name :: false-or(<byte-string>))
+    (demangler :: <demangler>, name :: <string>)
+  => (extracted-name :: false-or(<string>))
   let (constant?, wrapper?, iep?, method?)
     = demangler-extract-characteristics(demangler, name);
   if (method?)
@@ -240,9 +240,9 @@ end method;
 //    entry point), extract out the details about the method.
 
 define method demangler-extract-method-details
-    (demangler :: <demangler>, name :: <byte-string>)
-  => (method-library :: false-or(<byte-string>),
-      method-index :: false-or(<byte-string>))
+    (demangler :: <demangler>, name :: <string>)
+  => (method-library :: false-or(<string>),
+      method-index :: false-or(<string>))
   let cname = demangler-extract-callable-object-name(demangler, name);
   let mm = find-key(cname, $method-mangled-marker-id?);
   if (mm)
@@ -277,8 +277,8 @@ end method;
 //    generic function.
 
 define method demangler-extract-generic-function-name
-    (demangler :: <demangler>, name :: <byte-string>)
-  => (extracted-name :: <byte-string>)
+    (demangler :: <demangler>, name :: <string>)
+  => (extracted-name :: <string>)
   // Look for a mangled method marker.
   let mm = find-key(name, $method-mangled-marker-id?);
   if (mm)
@@ -296,8 +296,8 @@ end method;
 //                 trailing $IEP-MARKER character.
 
 define method demangler-extract-callable-object-name
-    (demangler :: <demangler>, name :: <byte-string>)
-  => (extracted-name :: <byte-string>)
+    (demangler :: <demangler>, name :: <string>)
+  => (extracted-name :: <string>)
   let (constant?, wrapper?, iep?, method?)
     = demangler-extract-characteristics(demangler, name);
   if (iep?)

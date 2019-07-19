@@ -764,7 +764,7 @@ end class;
 ignore(^entry-point-number-keys); // HACK: STAYING OR GOING?
 
 
-define method ^entry-point-name (ep :: <&shared-entry-point>) => (res :: <byte-string>)
+define method ^entry-point-name (ep :: <&shared-entry-point>) => (res :: <string>)
   ""
 end method;
 
@@ -845,7 +845,7 @@ define method ^make-xep (function :: <&lambda>) => (res :: <&lambda-xep>)
 end method;
 
 define abstract class <&slot-accessor-xep> (<&method-xep>)
-  constant slot ^entry-point-name :: <byte-string> = "";
+  constant slot ^entry-point-name :: <string> = "";
 end class;
 
 define class <&slot-getter-xep> (<&slot-accessor-xep>)

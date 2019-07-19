@@ -195,7 +195,7 @@ define inline function do-emit-name-using-emitter
      emitted-name :: <function>, emitted-name-setter :: <function>,
      emitter :: <function>)
  => (name)
-  unless (instance?(o.emitted-name, <byte-string>))
+  unless (instance?(o.emitted-name, <string>))
     o.emitted-name := emitter(back-end);
   end unless;
   write(stream, o.emitted-name);
@@ -219,7 +219,7 @@ define macro emit-name-using-emitter
        (?back-end:expression, ?stream:expression, ?object:expression,
         ?emitted-name:expression, ?emitted-name-setter:expression,
         ?emit-value:expression) }
- => { unless (instance?(?emitted-name(?object), <byte-string>))
+ => { unless (instance?(?emitted-name(?object), <string>))
         ?emitted-name-setter(?emit-value, ?object);
       end unless;
       write(?stream, ?emitted-name(?object)) }
@@ -492,7 +492,7 @@ define method emit-engine-node-ep-reference
     (back-end :: <c-back-end>, stream :: <stream>,
      e :: <&engine-node>, o :: <&function-linked-engine-node-ep>)
  => ()
-  let epstr :: <byte-string> = raw-mangle(back-end, ^entry-point-name(o));
+  let epstr :: <string> = raw-mangle(back-end, ^entry-point-name(o));
   let req-size :: <integer> = ^engine-node-ep-number-required(o);
   let mepargs :: <integer> = if (^engine-node-ep-optionals?(o)) req-size + 1 else req-size end;
   if (mepargs > $special-gf-engine-max-args)
@@ -507,7 +507,7 @@ define method emit-engine-node-ep-reference
      e :: <&discriminator>, ep :: <&discriminator-ep>)
  => ()
   let epname :: <symbol> = ^entry-point-name(ep);
-  let epstr :: false-or(<byte-string>)
+  let epstr :: false-or(<string>)
     = select (epname)
         #"discriminate-on-argument" => "discriminate";
         #"if-type" => "if_type_discriminator";
@@ -698,12 +698,12 @@ define method emit-lambda-body
 end;
 
 define method capture-environment-string
-    (m :: <&method>) => (res :: <byte-string>)
+    (m :: <&method>) => (res :: <string>)
   $capture-environment-string
 end method;
 
 define method capture-environment-string
-    (m :: <&keyword-closure-method>) => (res :: <byte-string>)
+    (m :: <&keyword-closure-method>) => (res :: <string>)
   $capture-keyword-environment-string
 end method;
 
@@ -778,7 +778,7 @@ define method emit-code (back-end :: <c-back-end>, o :: <&iep>)
     clear-contents(stream);
     allocate-registers(o.function);
     emit-lambda(back-end, stream, o);
-    o.code := stream-contents-as(<byte-string>, stream);
+    o.code := stream-contents-as(<string>, stream);
     // format-out("%s\n", o.code);
     if (*retract-dfm?*)
       if (lambda-top-level?(o))
@@ -807,6 +807,6 @@ define method emit-init-code (back-end :: <c-back-end>, o :: <&iep>)
     end dynamic-bind;
     emit-init-code-label(stream, o.function);
     write(stream, ":\n");
-    o.code := stream-contents-as(<byte-string>, stream);
+    o.code := stream-contents-as(<string>, stream);
   end unless;
 end method emit-init-code;
