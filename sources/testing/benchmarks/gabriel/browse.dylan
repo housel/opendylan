@@ -24,7 +24,7 @@ define macro browse-char1
   { browse-char1(?x:expression) }
     =>
   { begin
-      let s :: <byte-string> = as(<byte-string>, ?x);
+      let s :: <string> = as(<string>, ?x);
       s[0]
     end
   }

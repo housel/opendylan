@@ -33,7 +33,7 @@ define class <word-wrap-stream> (<wrapper-stream>)
 
   slot line-position :: <integer> = 0;
   slot word-buffer :: <character-vector> = make(<character-vector>);
-  slot offset-string :: <byte-string>;
+  slot offset-string :: <string>;
 end class <word-wrap-stream>;
 
 
@@ -41,7 +41,7 @@ define method initialize (this :: <word-wrap-stream>,
 			  #rest rest, #key #all-keys) => ()
   ignore(rest);
   next-method();
-  this.offset-string := make(<byte-string>, size: this.wrap-offset, fill: ' ');
+  this.offset-string := make(<string>, size: this.wrap-offset, fill: ' ');
 end method initialize;
 
 

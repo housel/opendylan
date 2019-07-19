@@ -112,7 +112,7 @@ define method make(type :: subclass(<GTypeInstance>), #rest args,
       let dylan-type = find-gtype(g-type) | find-closest-gtype(g-type);
       unless (dylan-type)
         error("Unknown GType %= encountered. Re-run melange or implement dynamic class generation.\n",
-              as(<byte-string>, g-type-name(g-type)));
+              as(<string>, g-type-name(g-type)));
       end;
       let result = next-method(dylan-type, address: address);
       g-object-ref-sink(result);
@@ -155,7 +155,7 @@ define function find-gtype-by-name(name :: <string>)
         return(i)
       end if;
 //    finally
-//      error("Unknown GType %= encountered.", as(<byte-string>, name))
+//      error("Unknown GType %= encountered.", as(<string>, name))
     end for;
   end block;
 end function find-gtype-by-name;

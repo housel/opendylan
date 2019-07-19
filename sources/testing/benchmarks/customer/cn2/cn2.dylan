@@ -14,7 +14,7 @@ define inline function whitespace?
 end function whitespace?;
 
 define inline function skip-whitespace
-    (string :: <byte-string>, _start :: <integer>, _end :: <integer>)
+    (string :: <string>, _start :: <integer>, _end :: <integer>)
  => (_start :: <integer>)
   while (_start < _end & whitespace?(string[_start]))
     _start := _start + 1
@@ -23,13 +23,13 @@ define inline function skip-whitespace
 end function skip-whitespace;
 
 define function tokenize
-    (line :: <byte-string>)
+    (line :: <string>)
  => (tokens :: <stretchy-object-vector>)
   let tokens :: <stretchy-object-vector> = make(<stretchy-vector>);
   let _start :: <integer> = 0;
   let _end   :: <integer> = size(line);
   let token  :: <stretchy-object-vector> = make(<stretchy-vector>);
-  local method next-token () => (token :: false-or(<byte-string>))
+  local method next-token () => (token :: false-or(<string>))
 	  _start := skip-whitespace(line, _start, _end);
 	  if (_start < _end)
 	    let quoted? :: false-or(<character>) = #f;
@@ -51,7 +51,7 @@ define function tokenize
               end;
               _start := _start + 1
             end;
-            concatenate-as(<byte-string>, token)
+            concatenate-as(<string>, token)
           else
             #f
           end
@@ -131,7 +131,7 @@ define function load-cn2
          until: stream-at-end?(fin))
       let tokens :: <list> = as(<list>, tokenize(line));
       when (~empty?(tokens))
-        let first-token :: <byte-string> = first(tokens);
+        let first-token :: <string> = first(tokens);
 	let first-token-end = first-token.size - 1;
 	if (first-token[first-token-end] == ':')
           let first-token 
@@ -151,7 +151,7 @@ define function load-cn2
          until: stream-at-end?(fin))
       let tokens :: <list> = as(<list>, tokenize(line));
       when (~empty?(tokens))
-        let last-token :: <byte-string> = last(tokens);
+        let last-token :: <string> = last(tokens);
 	let last-token-end = last-token.size - 1;
 	if (last-token[last-token-end] == ';')
           let last-token 
