@@ -52,7 +52,7 @@ end method print-object;
 
 // Make as many entries as necessary to represent the transitions
 // from 'on' to new-state.  'on' can be an integer, a character, or
-// a byte-string.  If a byte-string, then it supports ranges:
+// a string.  If a string, then it supports ranges:
 //   "-abc-gz" = match on dash, a, b, c through g, and z
 //
 // Also check to see if this entry clashes with any earlier entries.

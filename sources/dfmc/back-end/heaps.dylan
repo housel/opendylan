@@ -166,7 +166,7 @@ end;
 define method dbg? (model)
   *dbg?* &
   select (model by instance?)
-    <byte-string> => dbg?(as(<symbol>, model));
+    <string> => dbg?(as(<symbol>, model));
     <pair> => dbg?(model.head) | dbg?(model.tail);
     <vector> => any?(dbg?, model);
     <variable-name-fragment> => dbg?(model.fragment-identifier);
@@ -1202,7 +1202,7 @@ end;
 define method do-export (heap :: <model-heap>, e :: <uninterned-symbol>)
 end;
 
-define method do-export (heap :: <model-heap>, e :: <byte-string>)
+define method do-export (heap :: <model-heap>, e :: <string>)
   when (empty?(e)) next-method() end; // other strings never exported
 end;
 
@@ -2004,10 +2004,10 @@ define function claim-instance-slot-value
 end claim-instance-slot-value;
 
 
-// An optimization for byte-strings.
+// An optimization for strings.
 
 define method maybe-claim-heap-element-references-internal
-    (heap :: <model-heap>, element :: <byte-string>, ct?) => ()
+    (heap :: <model-heap>, element :: <string>, ct?) => ()
   // Everything else is immediate.
   maybe-claim-heap-element(heap, element, &object-class(element), ct?);
 end method;

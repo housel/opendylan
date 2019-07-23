@@ -549,7 +549,7 @@ define method spawn-interactive-thread
   local method download-byte-string (str :: <string>)
                     => (address-we-hope :: false-or(<remote-value>))
           let wrapper-field =
-            lookup-static-wrapper(application, "<byte-string>", "dylan");
+            lookup-static-wrapper(application, "<string>", "dylan");
           let size-field =
             integer-as-tagged-remote-value(str.size);
           let word-fields = vector(wrapper-field, size-field);

@@ -15,7 +15,7 @@ define sealed method table-protocol (table :: <symbol-table>)
 end method table-protocol;
 
 define function case-insensitive-string-equal
-    (string1 :: <byte-string>, string2 :: <byte-string>)
+    (string1 :: <string>, string2 :: <string>)
   case-insensitive-string-equal-2(string1,
                                   string2,
                                   0,
@@ -23,8 +23,8 @@ define function case-insensitive-string-equal
 end case-insensitive-string-equal;
 
 define inline method case-insensitive-string-equal-2
-    (string1 :: <byte-string>,
-     string2 :: <byte-string>, s2 :: <integer>, e2 :: <integer>)
+    (string1 :: <string>,
+     string2 :: <string>, s2 :: <integer>, e2 :: <integer>)
   when (string1.size == e2 - s2)
     iterate loop (i :: <integer> = s2)
       (i == e2) | begin
@@ -38,7 +38,7 @@ define inline method case-insensitive-string-equal-2
 end case-insensitive-string-equal-2;
 
 define method case-insensitive-string-equal-2
-    (string1 :: <byte-string>,
+    (string1 :: <string>,
      string2 :: <simple-byte-vector>, s2 :: <integer>, e2 :: <integer>)
   when (string1.size == e2 - s2)
     iterate loop (i :: <integer> = s2)
@@ -61,7 +61,7 @@ define constant *symbols* :: <symbol-table>
 
 // TODO: Belongs with tables when more general purpose.
 
-define sealed method gethash-or-set (table :: <symbol-table>, key :: <byte-string>, new-value)
+define sealed method gethash-or-set (table :: <symbol-table>, key :: <string>, new-value)
  => new-or-old-value;
   let len :: <integer> = key.size;
   let tv = table-vector(table);
@@ -72,7 +72,7 @@ define sealed method gethash-or-set (table :: <symbol-table>, key :: <byte-strin
   // string-tables, even when we may be adding entries.
   let id = case-insensitive-string-hash-2(key, 0, len);
   let (index, fkey) = do-search(fkey in (tv, id))
-                       let fkey :: <byte-string> = fkey;
+                       let fkey :: <string> = fkey;
                        case-insensitive-string-equal-2(fkey, key, 0, len)
                       end;
   let vals = entry-values(tv);
@@ -122,7 +122,7 @@ define function %install-boot-symbols () => ()
 end function;
 
 define sealed method make
-    (class == <symbol>, #key name :: <byte-string>) => (object :: <symbol>)
+    (class == <symbol>, #key name :: <string>) => (object :: <symbol>)
   if (*symbols-booted?*)
     make-symbol(name)
   else
@@ -145,7 +145,7 @@ define method make-symbol (str :: <sequence>,
     let id = case-insensitive-string-hash-2(str, s, e);
     let (index, fkey)
       = do-search(fkey in (tv, id))
-          let fkey :: <byte-string> = fkey;
+          let fkey :: <string> = fkey;
           case-insensitive-string-equal-2(fkey, str, s, e);
         end;
     // Fetch value vector early to allow better scheduling of the loads.
@@ -172,7 +172,7 @@ define method make-symbol (str :: <sequence>,
       rehash-table(table, tv, #f);
       gethash(#f);        // try again
     else
-      let name = copy-byte-string(str, s, e);
+      let name = copy-string(str, s, e);
       let value = system-allocate-simple-instance(<symbol>, fill: name);
       if (try-to-puthash-new(tv, token, hash-state(tv), index, name, value))
         value
@@ -184,7 +184,7 @@ define method make-symbol (str :: <sequence>,
 end make-symbol;
 
 define sealed copy-down-method make-symbol
-    (str :: <byte-string>, #key start: s :: <integer>, end: e :: <integer>)
+    (str :: <string>, #key start: s :: <integer>, end: e :: <integer>)
  => (sym :: <symbol>);
 
 define sealed copy-down-method make-symbol
@@ -193,26 +193,26 @@ define sealed copy-down-method make-symbol
  => (sym :: <symbol>);
 
 
-define sealed method copy-byte-string
-    (src :: <byte-string>, s :: <integer>, e :: <integer>)
-  => (str :: <byte-string>)
+define sealed method copy-string
+    (src :: <string>, s :: <integer>, e :: <integer>)
+  => (str :: <string>)
   let len :: <integer> = e - s;
-  let str :: <byte-string> = make(<byte-string>, size: len);
+  let str :: <string> = make(<string>, size: len);
   primitive-replace-bytes!
     (str, primitive-repeated-slot-offset(str), integer-as-raw(0),
      src, primitive-repeated-slot-offset(src), integer-as-raw(s),
      integer-as-raw(len));
   str
-end method copy-byte-string;
+end method copy-string;
 
-define sealed method copy-byte-string
+define sealed method copy-string
     (src :: <simple-byte-vector>, s :: <integer>, e :: <integer>)
-  => (str :: <byte-string>)
+  => (str :: <string>)
   let len :: <integer> = e - s;
-  let str :: <byte-string> = make(<byte-string>, size: len);
+  let str :: <string> = make(<string>, size: len);
   primitive-replace-bytes!
     (str, primitive-repeated-slot-offset(str), integer-as-raw(0),
      src, primitive-repeated-slot-offset(src), integer-as-raw(s),
      integer-as-raw(len));
   str
-end method copy-byte-string;
+end method copy-string;

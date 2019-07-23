@@ -42,7 +42,7 @@ define method inlineable?
 end method;
 
 define method inlineable?
-    (object :: <byte-string>) => (inlineable? :: <boolean>, value)
+    (object :: <string>) => (inlineable? :: <boolean>, value)
   if (empty?(object))
     values(#t, "")
   else

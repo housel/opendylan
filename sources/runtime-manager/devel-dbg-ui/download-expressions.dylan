@@ -273,7 +273,7 @@ define method download-object-into-runtime
         let lib = core-name-to-library(application, "DYLAN");
         application.runtime-byte-string-wrapper :=
            find-symbol(application.debug-target-access-path,
-                       mangle-in-context("<byte-string>", $dylan-namespace,
+                       mangle-in-context("<string>", $dylan-namespace,
                                          as-wrapper?: #t),
                        library: lib);
       end unless;

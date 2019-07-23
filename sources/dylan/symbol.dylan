@@ -9,18 +9,13 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define sealed inline method as (class == <symbol>, string :: <string>)
  => (result :: <symbol>)
-  make(<symbol>, name: as(<byte-string>, string))
+  make(<symbol>, name: string)
 end method as;
-
-define sealed inline method as (class == <byte-string>, symbol :: <symbol>)
- => (result :: <byte-string>)
-  symbol.symbol-name
-end method;
 
 define sealed inline method as (class == <string>, symbol :: <symbol>)
  => (result :: <string>)
-  as(<byte-string>, symbol);
-end method as;
+  symbol.symbol-name
+end method;
 
 define sealed inline method \=
     (symbol-1 :: <symbol>, symbol-2 :: <symbol>) => (well? :: <boolean>)

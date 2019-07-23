@@ -2326,7 +2326,7 @@ define method resolve-dylan-keyword
   // We need to construct a byte-string object to pass to our spy function.
 
   let string-wrapper =
-    lookup-static-wrapper(application, "<byte-string>", "dylan");
+    lookup-static-wrapper(application, "<string>", "dylan");
 
   if (application.temporary-download-block)
 

@@ -132,13 +132,10 @@ end method;
 define compiler-sideways method debug-name (class == <boolean>) "<boolean>" end;
 define compiler-sideways method debug-name (class == <integer>) "<integer>" end;
 define compiler-sideways method debug-name (class == <string>) "<string>" end;
-define compiler-sideways method debug-name (class == <byte-string>) "<byte-string>" end;
 
 define method panic-debug-name(o :: <object>) => (dn :: <string>)
   // Last-ditch attempt: just print it to a string.
-  let str = make(<byte-string-stream>, direction: #"output");
-  format(str, "%s", o);
-  stream-contents(str)
+  format-to-string("%s", o)
 end;
 
 

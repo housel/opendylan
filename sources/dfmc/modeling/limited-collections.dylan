@@ -139,8 +139,8 @@ define method lookup-any-limited-collection-element-type
 end method;
 
 define limited-element-type-mappings (<string>)
-  <character>         => <byte-string>;
-  otherwise           => <byte-string>;
+  <character>         => <string>;
+  otherwise           => <string>;
 end limited-element-type-mappings;
 
 define method select-limited-string (of, size)

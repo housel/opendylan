@@ -28,7 +28,8 @@ BOOTSTRAP_1_COMPILER = @DYLANCOMPILER@
 # primitive-* functions.
 BOOTSTRAP_1_PRIMITIVE_LIBS = \
 	dylan common-dylan collections io system \
-	generic-arithmetic big-integers
+	generic-arithmetic big-integers \
+	walker dood
 
 .PHONY: 3-stage-bootstrap \
 	bootstrap-stage-1 bootstrap-stage-1-dirs bootstrap-stage-1-compiler \

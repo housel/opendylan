@@ -13,7 +13,7 @@ define constant $wrapper-classes
       #"<double-float>",
       #"<boolean>",
       #"<simple-object-vector>",
-      #"<byte-string>",
+      #"<string>",
       #"<empty-list>",
       #"<unbound>",
       #"<traceable-value-cell>",
@@ -67,7 +67,7 @@ define constant $runtime-referenced-classes
       #"<read-write-lock>",
       #"<notification>",
       #"<simple-object-vector>",
-      #"<byte-string>"];
+      #"<string>"];
 
 define constant $debug-producer = "Open Dylan LLVM Runtime Generator";
 

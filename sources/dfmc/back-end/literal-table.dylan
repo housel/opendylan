@@ -184,20 +184,20 @@ define method literal-hash (pair :: <pair>, depth :: <integer>, state :: <hash-s
 end;
 
 
-// <byte-string>
+// <string>
 
-define method literal-mergable? (object :: <byte-string>) => (well?)
+define method literal-mergable? (object :: <string>) => (well?)
   #t
 end method;
 
-// Merge all byte strings.  All compiler-generated strings are immutable
+// Merge all strings.  All compiler-generated strings are immutable
 // and user strings are all source-literals and hence immutable too.
-define method literal-equal? (object1 :: <byte-string>, object2 :: <byte-string>)
+define method literal-equal? (object1 :: <string>, object2 :: <string>)
  => (well?);
   object1 = object2
 end method;
 
-define method literal-hash (str :: <byte-string>, depth :: <integer>, state :: <hash-state>)
+define method literal-hash (str :: <string>, depth :: <integer>, state :: <hash-state>)
  => (id :: <integer>, state :: <hash-state>);
   ignore(depth);
   string-hash(str, state)

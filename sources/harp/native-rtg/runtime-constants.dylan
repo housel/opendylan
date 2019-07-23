@@ -37,7 +37,7 @@ define dylan-wrapper runtime-external object-class-wrapper    = "<object>";
 define dylan-wrapper runtime-external single-float-class      = "<single-float>";
 define dylan-wrapper runtime-external double-float-class      = "<double-float>";
 define dylan-wrapper runtime-external dylan-sov-class         = "<simple-object-vector>";
-define dylan-wrapper runtime-external dylan-byte-string-class = "<byte-string>";
+define dylan-wrapper runtime-external dylan-string-class      = "<string>";
 define dylan-wrapper runtime-external dylan-method-class      = "<method>";
 define dylan-library runtime-external dylan-error-function    = "error";
 

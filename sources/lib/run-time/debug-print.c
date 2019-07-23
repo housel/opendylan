@@ -122,13 +122,13 @@ bool dylan_vector_p (dylan_value instance) {
 
 #include <string.h>
 
-extern dylan_value Lbyte_stringGVKd;
+extern dylan_value LstringGVKd;
 
 bool dylan_string_p (dylan_value instance) {
-  return dylan_object_class(instance) == Lbyte_stringGVKd;
+  return dylan_object_class(instance) == LstringGVKd;
 }
 
-char* dylan_string_data (dylan_byte_string* instance) {
+char* dylan_string_data (dylan_string* instance) {
   return instance->data;
 }
 
@@ -143,8 +143,8 @@ bool dylan_simple_condition_p (dylan_value instance) {
   return DTRUE == CALL2(&KinstanceQVKd, instance, Lsimple_conditionGVKe);
 }
 
-dylan_byte_string* dylan_simple_condition_format_string (dylan_value instance) {
-  return (dylan_byte_string*)CALL1(&Kcondition_format_stringVKd, instance);
+dylan_string* dylan_simple_condition_format_string (dylan_value instance) {
+  return (dylan_string*)CALL1(&Kcondition_format_stringVKd, instance);
 }
 
 dylan_simple_object_vector* dylan_simple_condition_format_args (dylan_value instance) {
@@ -205,7 +205,7 @@ enum dylan_type_enum {
 };
 
 static void print_object (STREAM, dylan_value, BOOL, int);
-void dylan_format (STREAM, dylan_byte_string*, dylan_simple_object_vector*);
+void dylan_format (STREAM, dylan_string*, dylan_simple_object_vector*);
 
 static enum dylan_type_enum
 dylan_get_type (dylan_value instance) {
@@ -278,7 +278,7 @@ static void print_float (STREAM stream, dylan_value instance, BOOL escape_p, int
   }
 }
 
-static void print_string (STREAM stream, dylan_byte_string* instance, BOOL escape_p, int print_depth) {
+static void print_string (STREAM stream, dylan_string* instance, BOOL escape_p, int print_depth) {
   ignore(print_depth);
   if (escape_p) {
     format(stream, "\"%s\"", dylan_string_data(instance))
@@ -287,7 +287,7 @@ static void print_string (STREAM stream, dylan_byte_string* instance, BOOL escap
   }
 }
 
-static void print_string_data (STREAM stream, dylan_byte_string* instance, BOOL escape_p, int print_depth) {
+static void print_string_data (STREAM stream, dylan_string* instance, BOOL escape_p, int print_depth) {
   ignore(escape_p); ignore(print_depth);
   format(stream, "%s", dylan_string_data(instance));
 }
@@ -387,7 +387,7 @@ static void print_boolean (STREAM stream, dylan_value instance, BOOL escape_p, i
 }
 
 static void print_simple_condition (STREAM stream, dylan_value instance, BOOL escape_p, int print_depth) {
-  dylan_byte_string* format_string = dylan_simple_condition_format_string(instance);
+  dylan_string* format_string = dylan_simple_condition_format_string(instance);
   dylan_simple_object_vector* format_args = dylan_simple_condition_format_args(instance);
   ignore(print_depth);
   if (escape_p) put_char('"', stream);
@@ -398,7 +398,7 @@ static void print_simple_condition (STREAM stream, dylan_value instance, BOOL es
 static void print_class_debug_name (STREAM stream, dylan_value instance, BOOL escape_p, int print_depth) {
   dylan_value name = dylan_class_debug_name(instance);
   ignore(escape_p);
-  print_string_data(stream, (dylan_byte_string*)name, TRUE, print_depth);
+  print_string_data(stream, (dylan_string*)name, TRUE, print_depth);
 }
 
 static void print_class (STREAM stream, dylan_value instance, BOOL escape_p, int print_depth) {
@@ -453,7 +453,7 @@ static void print_object (STREAM stream, dylan_value instance, BOOL escape_p, in
   }
 }
 
-void dylan_format (STREAM stream, dylan_byte_string* dylan_string, dylan_simple_object_vector* dylan_arguments) {
+void dylan_format (STREAM stream, dylan_string* dylan_string, dylan_simple_object_vector* dylan_arguments) {
   BOOL  percent_p = false;
   char* string = dylan_string_data(dylan_string);
   dylan_value*    arguments = vector_data(dylan_arguments);

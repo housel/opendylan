@@ -129,7 +129,7 @@ define execution-test double-float-multiplication
 end;
 
 define execution-test string-size
-  "define not-inline method f (x :: <byte-string>)\n"
+  "define not-inline method f (x :: <string>)\n"
   "  size(x)\n"
   "end;\n"
   "f(\"abc\")"
@@ -137,7 +137,7 @@ define execution-test string-size
 end;
 
 define execution-test string-index
-  "define not-inline method f (x :: <byte-string>)\n"
+  "define not-inline method f (x :: <string>)\n"
   "  x[0]\n"
   "end;\n"
   "f(\"abc\")"
@@ -145,7 +145,7 @@ define execution-test string-index
 end;
 
 define execution-test string-concatenate
-  "define not-inline method f (fun :: <function>, x :: <byte-string>, y :: <byte-string>)\n"
+  "define not-inline method f (fun :: <function>, x :: <string>, y :: <string>)\n"
   "  apply(fun, vector(x, y))\n"
   "end;\n"
   "f(concatenate, \"abc\", \"def\")"

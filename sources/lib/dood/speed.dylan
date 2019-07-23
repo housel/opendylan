@@ -165,17 +165,17 @@ define inline function read-byte-string-object-using-class-at
 end function;
 
 define method read-object-using-class-at
-    (dood :: <dood>, class == <byte-string>, address :: <address>)
- => (res :: <byte-string>)
-  read-byte-string-object-using-class-at(dood, <byte-string>, address)
+    (dood :: <dood>, class == <string>, address :: <address>)
+ => (res :: <string>)
+  read-byte-string-object-using-class-at(dood, <string>, address)
 end method;
 
 define method walk-slots 
-    (dood :: <dood>, info :: <walk-info>, object :: <byte-string>)
-  walk-byte-string-slots(dood, info, <byte-string>, object);
+    (dood :: <dood>, info :: <walk-info>, object :: <string>)
+  walk-byte-string-slots(dood, info, <string>, object);
 end method;
 
-define method dood-repeated-byte-slot? (dood :: <dood>, class == <byte-string>)
+define method dood-repeated-byte-slot? (dood :: <dood>, class == <string>)
   #t
 end method;
 

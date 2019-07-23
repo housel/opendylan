@@ -27,13 +27,13 @@ define method op--lookup-symbol
   let word-size = back-end-word-size(be);
 
   // Obtain the looked-up name string and its length
-  let name-cast = op--object-pointer-cast(be, name, #"<byte-string>");
+  let name-cast = op--object-pointer-cast(be, name, #"<string>");
   let size-slot-ptr
-    = op--getslotptr(be, name-cast, #"<byte-string>", #"size");
+    = op--getslotptr(be, name-cast, #"<string>", #"size");
   let name-len = ins--load(be, size-slot-ptr, alignment: word-size);
   let name-len-raw = op--untag-integer(be, name-len);
   let name-string
-    = op--getslotptr(be, name-cast, #"<byte-string>", #"string-element", 0);
+    = op--getslotptr(be, name-cast, #"<string>", #"string-element", 0);
 
   // Retrieve the oblist vector and the cursor index value
   let oblist
@@ -57,11 +57,11 @@ define method op--lookup-symbol
         = op--getslotptr(be, sym, #"<symbol>", #"symbol-name");
       let sym-name = ins--load(be, sym-name-ptr, alignment: word-size);
       let sym-name-cast
-        = op--object-pointer-cast(be, sym-name, #"<byte-string>");
+        = op--object-pointer-cast(be, sym-name, #"<string>");
 
       // Retrieve the oblist symbol
       let sym-name-size-ptr
-        = op--getslotptr(be, sym-name-cast, #"<byte-string>", #"size");
+        = op--getslotptr(be, sym-name-cast, #"<string>", #"size");
       let sym-name-len = ins--load(be, sym-name-size-ptr, alignment: word-size);
 
       // Compare name lengths
@@ -69,7 +69,7 @@ define method op--lookup-symbol
       ins--if (be, name-len-cmp)
         // Compare name strings
         let sym-name-string
-          = op--getslotptr(be, sym-name-cast, #"<byte-string>",
+          = op--getslotptr(be, sym-name-cast, #"<string>",
                            #"string-element", 0);
         let name-strcmp
           = call-primitive(be, primitive-strncasecmp-descriptor,
@@ -201,7 +201,7 @@ define side-effecting stateless indefinite-extent &runtime-primitive-descriptor 
     = op--getslotptr(be, symbol-cast, #"<symbol>", #"symbol-name");
   let name-obj
     = ins--load(be, symbol-name-slot-ptr, alignment: back-end-word-size(be));
-  let name = op--object-pointer-cast(be, name-obj, #"<byte-string>");
+  let name = op--object-pointer-cast(be, name-obj, #"<string>");
 
   // Look to see if we already have the symbol
   let interned-obj = op--lookup-symbol(be, name);
@@ -217,7 +217,7 @@ define side-effecting stateless indefinite-extent &runtime-primitive-descriptor 
 end;
 
 define side-effect-free stateless dynamic-extent &runtime-primitive-descriptor primitive-string-as-symbol
-    (string :: <byte-string>) => (symbol :: <symbol>);
+    (string :: <string>) => (symbol :: <symbol>);
   let header-words = dylan-value(#"$number-header-words");
   let symbol-class :: <&class> = dylan-value(#"<symbol>");
   let m = be.llvm-builder-module;

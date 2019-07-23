@@ -107,7 +107,7 @@ define sealed method initialize
   wrappers-in-dylan-module["<double-float>"]
     := pair(#"not-located", $double-float-type);
 
-  wrappers-in-dylan-module["<byte-string>"]
+  wrappers-in-dylan-module["<string>"]
     := pair(#"not-located", $string-type);
 
   wrappers-in-dylan-module["<simple-object-vector>"]

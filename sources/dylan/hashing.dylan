@@ -132,9 +132,9 @@ define function string-hash
  => (hi :: <integer>, hash-state :: <hash-state>)
   let len = collection.size;
   if (len <= 30)
-    if (instance?(collection, <byte-string>))
+    if (instance?(collection, <string>))
       // copy-down for efficiency.
-      let collection :: <byte-string> = collection;
+      let collection :: <string> = collection;
       for (c :: <character> in collection,
            hash :: <integer> = len
              then modulo(ash(hash, 6) + as(<integer>, c), 970747))
@@ -161,7 +161,7 @@ end function;
 
 /*
 define function case-insensitive-string-hash
-    (collection :: <byte-string>, hash-state :: <hash-state>)
+    (collection :: <string>, hash-state :: <hash-state>)
  => (hi :: <integer>, hash-state :: <hash-state>)
   local method next-hash (hash, index)
     merge-hash-ids(hash, object-hash(as-lowercase(collection[index]), hash-state),
@@ -172,14 +172,14 @@ end function;
 */
 
 define function case-insensitive-string-hash
-    (str :: <byte-string>, hash-state :: <hash-state>)
+    (str :: <string>, hash-state :: <hash-state>)
  => (hash :: <integer>, hash-state :: <hash-state>)
   values(case-insensitive-string-hash-2(str, 0, str.size),
          hash-state);
 end;
 
 define inline method case-insensitive-string-hash-2
-    (str :: <byte-string>, s :: <integer>, e :: <integer>) => (h :: <integer>)
+    (str :: <string>, s :: <integer>, e :: <integer>) => (h :: <integer>)
   for (i :: <integer> from s below e,
        hash :: <integer> = 0 then
          modulo(ash(hash, 6) + logand(as(<integer>, str[i]), #x9F), 970747))

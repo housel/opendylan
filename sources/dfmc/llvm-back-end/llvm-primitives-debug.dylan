@@ -33,13 +33,13 @@ end;
 */
 
 define side-effecting stateful dynamic-extent &runtime-primitive-descriptor primitive-invoke-debugger
-    (format-string :: <byte-string>, arguments :: <simple-object-vector>)
+    (format-string :: <string>, arguments :: <simple-object-vector>)
  => ();
   ins--call-intrinsic(be, "llvm.debugtrap", vector())
 end;
 
 define side-effecting stateless dynamic-extent &runtime-primitive-descriptor primitive-debug-message
-    (format-string :: <byte-string>, arguments :: <simple-object-vector>)
+    (format-string :: <string>, arguments :: <simple-object-vector>)
  => ()
   let inside-cmp = op--inside-debugger?(be);
   ins--if (be, inside-cmp)

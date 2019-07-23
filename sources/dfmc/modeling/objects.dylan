@@ -107,7 +107,7 @@ define sealed concrete primary &class <symbol> (<object>)
 end &class;
 
 define sealed concrete primary &class <namespace> (<object>)
-  runtime-constant &slot namespace-name :: <byte-string>, required-init-keyword: name:;
+  runtime-constant &slot namespace-name :: <string>, required-init-keyword: name:;
 end &class;
 
 define sealed abstract &class <library-version> (<object>)
@@ -326,16 +326,14 @@ end &class <simple-object-vector>;
 // HACK: SHOULDN'T GENERATE THESE IN THE FIRST PLACE
 ignore(^vector-element-values); ignore(^vector-element-values-setter);
 
-define sealed abstract &class <string> (<mutable-sequence>) end;
-
-define generic ^string-element (object, index);
-
-define primary &class <byte-string> (<string>, <vector>)
+define sealed abstract &class <string> (<mutable-sequence>)
   compiler-constant repeated &slot string-element :: <raw-byte>,
     size-getter: size,
     size-init-keyword: size:,
     size-init-value: 0;
-end &class <byte-string>;
+end;
+
+define generic ^string-element (object, index);
 
 // HACK: SHOULDN'T GENERATE THESE IN THE FIRST PLACE
 ignore(^string-element-values); ignore(^string-element-setter);
@@ -385,7 +383,7 @@ end;
 
 define compile-time-collection-functions-for <simple-object-vector>;
 define compile-time-collection-functions-for <list>;
-define compile-time-collection-functions-for <byte-string>;
+define compile-time-collection-functions-for <string>;
 
 define method ^size (collection :: <list>)
  => (result :: <integer>);
@@ -620,8 +618,8 @@ type:
     => { <integer> }
   { <single-float> }
     => { <single-float> }
-  { <byte-string> }
-    => { <byte-string> }
+  { <string> }
+    => { <string> }
   { <character> }
     => { <character> }
   { <boolean> }
@@ -1202,15 +1200,15 @@ define method make-compile-time-literal (object :: <simple-object-vector>)
   map-as(<simple-object-vector>, make-compile-time-literal, object)
 end method;
 
-define constant &empty-byte-string = "";
+define constant &empty-string = "";
 
-define ^mapping <byte-string> => <byte-string>
-  &instance %empty-string       => &empty-byte-string;
+define ^mapping <string> => <string>
+  &instance %empty-string       => &empty-string;
   constant &slot size                    => size;
   repeated &slot string-element => element;
 end ^mapping;
 
-define method make-compile-time-literal (object :: <byte-string>)
+define method make-compile-time-literal (object :: <string>)
   copy-sequence(object)
 end method;
 
@@ -1226,9 +1224,9 @@ define compiler-sideways method standard-model-object
 end method;
 
 define compiler-sideways method standard-model-object
-    (object :: <byte-string>) => (standard :: <byte-string>)
+    (object :: <string>) => (standard :: <string>)
   if (empty?(object))
-    &empty-byte-string
+    &empty-string
   else
     object
   end

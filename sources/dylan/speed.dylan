@@ -19,5 +19,5 @@ end method;
 
 /*
 define copy-down-method \=
-    (x :: <byte-string>, y :: <byte-string>) => (result :: <boolean>);
+    (x :: <string>, y :: <string>) => (result :: <boolean>);
 */

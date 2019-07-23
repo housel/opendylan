@@ -218,7 +218,7 @@ end method;
 //    Turns a string into a keyword...
 
 define method spy-resolve-keyword
-   (keyword-string :: <byte-string>) => (sym :: <symbol>)
+   (keyword-string :: <string>) => (sym :: <symbol>)
   as(<symbol>, keyword-string);
 end method;
 
@@ -252,13 +252,13 @@ end method;
 //    The thread object itself will be returned by this function.
 
 define method spy-create-application-thread
-    (name :: <byte-string>)
+    (name :: <string>)
   => (new-thread :: <thread>)
   make(<synchronous-thread>,
        name: name,
        function: method ()
                    block ()
-                     let message :: <byte-string> = "Beginning %=";
+                     let message :: <string> = "Beginning %=";
                      while (#t)
                        %break(message, name);
                        message :=

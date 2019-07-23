@@ -10,7 +10,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 //
 
 define sealed method member?
-    (ch :: <character>, big :: <byte-string>,
+    (ch :: <character>, big :: <string>,
      #key test :: <function> = \==)
  => (found? :: <boolean>)
   let sz = big.size;
@@ -34,7 +34,7 @@ end method member?;
 //
 
 define sealed method subsequence-position
-    (big :: <byte-string>, pat :: <byte-string>,
+    (big :: <string>, pat :: <string>,
      #key test :: <function> = \==, count :: <integer> = 1)
  => (index :: false-or(<integer>));
   let sz :: <integer> = size(big);
@@ -125,12 +125,12 @@ end method subsequence-position;
 //
 
 define sealed method copy-sequence
-    (source :: <byte-string>,
+    (source :: <string>,
      #key start: first :: <integer> = 0, end: last = source.size)
- => (result-sequence :: <byte-string>);
+ => (result-sequence :: <string>);
   let last :: <integer> = check-start-compute-end(source, first, last);
   let sz :: <integer> = last - first;
-  let target :: <byte-string> = make(<byte-string>, size: sz);
+  let target :: <string> = make(<string>, size: sz);
   primitive-replace-bytes!
     (target, primitive-repeated-slot-offset(target), integer-as-raw(0),
      source, primitive-repeated-slot-offset(source), integer-as-raw(first),
@@ -143,14 +143,14 @@ end method copy-sequence;
 //
 
 define sealed method concatenate-as
-    (class == <byte-string>, vector :: <byte-string>,
-     #rest more-vectors) => (result :: <byte-string>)
+    (class == <string>, vector :: <string>,
+     #rest more-vectors) => (result :: <string>)
   block (return)
     let total-sz :: <integer> = vector.size;
     let num-non-empty :: <integer> = if (total-sz = 0) 0 else 1 end;
 
     for (v in more-vectors)
-      if (~instance?(v, <byte-string>)) return(next-method()) end;
+      if (~instance?(v, <string>)) return(next-method()) end;
       let sz :: <integer> = v.size;
       if (sz ~= 0)
         total-sz := total-sz + sz;
@@ -159,20 +159,20 @@ define sealed method concatenate-as
     end for;
 
     select (num-non-empty)
-      0 => make(<byte-string>);
+      0 => make(<string>);
       1 => if (vector.size > 0) vector
            else
              for (i :: <integer> from 0 below more-vectors.size,
                   while: more-vectors[i].size = 0) finally more-vectors[i] end
            end;
       otherwise =>
-        let result = make(<byte-string>, size: total-sz);
+        let result = make(<string>, size: total-sz);
         let sz :: <raw-integer> = integer-as-raw(vector.size);
         primitive-replace-bytes!
           (result, primitive-repeated-slot-offset(result), integer-as-raw(0),
            vector, primitive-repeated-slot-offset(vector), integer-as-raw(0), sz);
         let result-index :: <raw-integer> = sz;
-        for (v :: <byte-string> in more-vectors)
+        for (v :: <string> in more-vectors)
           let vsz :: <raw-integer> = integer-as-raw(v.size);
           primitive-replace-bytes!
             (result, primitive-repeated-slot-offset(result), result-index,

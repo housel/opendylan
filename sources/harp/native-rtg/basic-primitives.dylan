@@ -93,7 +93,7 @@ define runtime-primitive raw-as-string
   ins--move(be, rep-size, len);
   
   // call MM primitive
-  op--allocate-byte-repeated-unfilled(be, new, total-size, dylan-byte-string-class, 
+  op--allocate-byte-repeated-unfilled(be, new, total-size, dylan-string-class,
 				      rep-size, rep-size-slot);
 
   ins--add(be, start, new, base-size);

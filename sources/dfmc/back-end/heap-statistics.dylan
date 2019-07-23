@@ -18,7 +18,7 @@ define method heap-required-instance-size
 end method;
 
 define method heap-required-instance-size
-    (class == <byte-string>) => (res :: <integer>)
+    (class == <string>) => (res :: <integer>)
   2
 end method;
 
@@ -49,7 +49,7 @@ define method heap-instance-size (element) => (res :: <integer>)
 end method;
 
 define method heap-instance-size
-    (element :: <byte-string>) => (res :: <integer>)
+    (element :: <string>) => (res :: <integer>)
   round/(size(element), 4) + 2
 end method;
 

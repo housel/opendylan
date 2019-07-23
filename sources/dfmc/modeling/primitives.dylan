@@ -88,12 +88,12 @@ end;
 
 define side-effecting stateful dynamic-extent &primitive primitive-break () => ();
 define side-effecting stateful dynamic-extent &primitive primitive-invoke-debugger
-    (format-string :: <byte-string>, arguments :: <simple-object-vector>)
+    (format-string :: <string>, arguments :: <simple-object-vector>)
  => ();
 define side-effecting stateless dynamic-extent &primitive primitive-inside-debugger? ()
  => (debugging? :: <boolean>);
 define side-effecting stateless dynamic-extent &primitive primitive-debug-message
-    (format-string :: <byte-string>, arguments :: <simple-object-vector>)
+    (format-string :: <string>, arguments :: <simple-object-vector>)
  => ();
 
 /// MACHINE
@@ -476,9 +476,9 @@ define side-effect-free stateless dynamic-extent &primitive-and-override primiti
 end;
 
 define side-effect-free stateless indefinite-extent &primitive primitive-string-as-raw
-    (x :: <byte-string>) => (r :: <raw-byte-string>);
+    (x :: <string>) => (r :: <raw-byte-string>);
 define side-effect-free stateless indefinite-extent &primitive primitive-raw-as-string
-    (r :: <raw-byte-string>) => (x :: <byte-string>);
+    (r :: <raw-byte-string>) => (x :: <string>);
 
 /// INSTANCE
 
@@ -574,7 +574,7 @@ define side-effecting stateless indefinite-extent &primitive primitive-resolve-s
     (uninterned-symbol :: <symbol>) => (canonical-symbol :: <symbol>);
 
 define side-effect-free stateless dynamic-extent &primitive primitive-string-as-symbol
-    (string :: <byte-string>) => (symbol :: <symbol>);
+    (string :: <string>) => (symbol :: <symbol>);
 
 define side-effect-free stateless dynamic-extent &primitive primitive-preboot-symbols
     () => (res :: <simple-object-vector>);

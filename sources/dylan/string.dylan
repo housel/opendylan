@@ -17,53 +17,29 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 // STRING
 
 //
-// AS
-//
-
-define sealed inline method as (class == <string>, string :: <string>)
- => (s :: <string>)
-  string
-end method as;
-
-define method as (class == <string>, collection :: <collection>)
- => (bs :: <byte-string>)
-  as(<byte-string>, collection)
-end method as;
-
-
-//
 // MAKE
 //
 
-define sealed inline method make (class == <string>, #key size = 0, fill = ' ')
- => (result :: <byte-string>)
-  make(<byte-string>, size: size, fill: fill)
-end method make;
-
-//
-// SHARED STRING
-//
-
 define method make
-    (class == <byte-string>,
+    (class == <string>,
      #key fill :: <character> = ' ', size :: <integer> = 0)
- => (res :: <byte-string>)
+ => (res :: <string>)
   if (size = 0)
     empty(class)
   else
     system-allocate-repeated-instance
-      (<byte-string>, <character>, unbound(), size, fill);
+      (<string>, <character>, unbound(), size, fill);
   end if
 end method;
 
 define sealed inline method concrete-limited-string-class
     (of == <character>)
- => (type :: singleton(<byte-string>))
-  <byte-string>
+ => (type :: singleton(<string>))
+  <string>
 end method;
 
 define inline sealed method element
-    (string :: <byte-string>, index :: <integer>,
+    (string :: <string>, index :: <integer>,
      #key default = unsupplied())
  => (character :: <character>)
   if (element-range-check(index, size(string)))
@@ -79,14 +55,14 @@ define inline sealed method element
 end method element;
 
 define inline sealed method element-no-bounds-check
-    (string :: <byte-string>, index :: <integer>, #key default)
+    (string :: <string>, index :: <integer>, #key default)
  => (character :: <character>)
   primitive-raw-as-character(string-element(string, index))
 end method element-no-bounds-check;
 
 define inline sealed method element-setter
     (new-value :: <character>,
-     string :: <byte-string>, index :: <integer>)
+     string :: <string>, index :: <integer>)
  => (character :: <character>)
   if (element-range-check(index, size(string)))
     string-element(string, index)
@@ -99,7 +75,7 @@ end method element-setter;
 
 define inline sealed method element-no-bounds-check-setter
     (new-value :: <character>,
-     string :: <byte-string>, index :: <integer>)
+     string :: <string>, index :: <integer>)
  => (character :: <character>)
   string-element(string, index)
     := primitive-cast-machine-word(<raw-byte>, primitive-character-as-raw(new-value));
@@ -107,37 +83,37 @@ define inline sealed method element-no-bounds-check-setter
 end method element-no-bounds-check-setter;
 
 define sealed inline method type-for-copy
-    (object :: <byte-string>) => (c :: <class>)
-  <byte-string>
+    (object :: <string>) => (c :: <class>)
+  <string>
 end method type-for-copy;
 
 define sealed inline method element-type
-    (t :: <byte-string>) => (type :: <type>)
+    (t :: <string>) => (type :: <type>)
   <character>
 end method;
 
 define sealed inline method as
-    (class == <byte-string>, string :: <byte-string>)
- => (s :: <byte-string>)
+    (class == <string>, string :: <string>)
+ => (s :: <string>)
   string
 end method as;
 
 define method as
-    (class == <byte-string>, collection :: <collection>)
- => (s :: <byte-string>);
-  let new-string :: <byte-string>
-    = make(<byte-string>, size: collection.size);
+    (class == <string>, collection :: <collection>)
+ => (s :: <string>);
+  let new-string :: <string>
+    = make(<string>, size: collection.size);
   replace-subsequence!(new-string, collection);
   new-string
 end method as;
 
-define inline function byte-string-current-element
-    (string :: <byte-string>, state :: <integer>)
+define inline function string-current-element
+    (string :: <string>, state :: <integer>)
   primitive-raw-as-character(string-element(string, state))
 end function;
 
-define inline function byte-string-current-element-setter
-    (new-value :: <character>, string :: <byte-string>,
+define inline function string-current-element-setter
+    (new-value :: <character>, string :: <string>,
      state :: <integer>)
   string-element(string, state)
     := primitive-cast-machine-word(<raw-byte>, primitive-character-as-raw(as(<character>, new-value)));
@@ -145,7 +121,7 @@ define inline function byte-string-current-element-setter
 end function;
 
 define sealed inline method forward-iteration-protocol
-    (sequence :: <byte-string>)
+    (sequence :: <string>)
  => (initial-state :: <integer>, limit :: <integer>,
      next-state :: <function>, finished-state? :: <function>,
      current-key :: <function>,
@@ -156,13 +132,13 @@ define sealed inline method forward-iteration-protocol
          sequence-next-state,
          sequence-finished-state?,
          sequence-current-key,
-         byte-string-current-element,
-         byte-string-current-element-setter,
+         string-current-element,
+         string-current-element-setter,
          identity-copy-state)
 end method forward-iteration-protocol;
 
 define sealed inline method backward-iteration-protocol
-    (sequence :: <byte-string>)
+    (sequence :: <string>)
  => (final-state :: <integer>,
      limit :: <integer>,
      previous-state :: <function>,
@@ -176,22 +152,22 @@ define sealed inline method backward-iteration-protocol
          sequence-previous-state,
          sequence-finished-state?,
          sequence-current-key,
-         byte-string-current-element,
-         byte-string-current-element-setter,
+         string-current-element,
+         string-current-element-setter,
          identity-copy-state)
 end method backward-iteration-protocol;
 
-define sealed domain size (<byte-string>);
-define sealed domain make (singleton(<byte-string>));
-define sealed domain initialize (<byte-string>);
+define sealed domain size (<string>);
+define sealed domain make (singleton(<string>));
+define sealed domain initialize (<string>);
 
 define inline sealed method empty?
-    (string :: <byte-string>) => (result :: <boolean>)
+    (string :: <string>) => (result :: <boolean>)
   string.size = 0
 end method empty?;
 
 define sealed method \<
-    (string-1 :: <byte-string>, string-2 :: <byte-string>)
+    (string-1 :: <string>, string-2 :: <string>)
   => (well? :: <boolean>)
   let min-size :: <integer> = min(string-1.size, string-2.size);
   iterate grovel (index :: <integer> = 0)
@@ -210,7 +186,7 @@ define sealed method \<
 end method \<;
 
 define sealed method \=
-    (string-1 :: <byte-string>, string-2 :: <byte-string>)
+    (string-1 :: <string>, string-2 :: <string>)
  => (eq :: <boolean>)
   unless (string-1.size ~= string-2.size)
     for (c1 :: <character> in string-1,
@@ -224,7 +200,7 @@ define sealed method \=
 end;
 
 define sealed method case-insensitive-equal
-    (string-1 :: <byte-string>, string-2 :: <byte-string>)
+    (string-1 :: <string>, string-2 :: <string>)
  => (eq :: <boolean>)
   unless (string-1.size ~= string-2.size)
     for (c1 :: <character> in string-1,
@@ -237,10 +213,10 @@ define sealed method case-insensitive-equal
   end
 end;
 
-define sealed method as-lowercase (string :: <byte-string>)
-  => (new-string :: <byte-string>)
-  let new-string :: <byte-string>
-    = make(<byte-string>, size: string.size);
+define sealed method as-lowercase (string :: <string>)
+  => (new-string :: <string>)
+  let new-string :: <string>
+    = make(<string>, size: string.size);
   for (i :: <integer> from 0 below string.size)
     string-element(new-string, i)
       := primitive-cast-machine-word(<raw-byte>, primitive-character-as-raw(as-lowercase(primitive-raw-as-character(string-element(string, i)))));
@@ -248,8 +224,8 @@ define sealed method as-lowercase (string :: <byte-string>)
   new-string
 end method as-lowercase;
 
-define sealed method as-lowercase! (string :: <byte-string>)
- => (string :: <byte-string>)
+define sealed method as-lowercase! (string :: <string>)
+ => (string :: <string>)
   for (i :: <integer> from 0 below string.size)
     string-element(string, i)
       := primitive-cast-machine-word(<raw-byte>, primitive-character-as-raw(as-lowercase(primitive-raw-as-character(string-element(string, i)))));
@@ -257,10 +233,10 @@ define sealed method as-lowercase! (string :: <byte-string>)
   string
 end method as-lowercase!;
 
-define sealed method as-uppercase (string :: <byte-string>)
-  => (new-string :: <byte-string>)
-  let new-string :: <byte-string>
-    = make(<byte-string>, size: string.size);
+define sealed method as-uppercase (string :: <string>)
+  => (new-string :: <string>)
+  let new-string :: <string>
+    = make(<string>, size: string.size);
   for (i :: <integer> from 0 below string.size)
     string-element(new-string, i)
       := primitive-cast-machine-word(<raw-byte>, primitive-character-as-raw(as-uppercase(primitive-raw-as-character(string-element(string, i)))));
@@ -268,14 +244,26 @@ define sealed method as-uppercase (string :: <byte-string>)
   new-string
 end method as-uppercase;
 
-define sealed method as-uppercase! (string :: <byte-string>)
- => (string :: <byte-string>)
+define sealed method as-uppercase! (string :: <string>)
+ => (string :: <string>)
   for (i :: <integer> from 0 below string.size)
     string-element(string, i)
       := primitive-cast-machine-word(<raw-byte>, primitive-character-as-raw(as-uppercase(primitive-raw-as-character(string-element(string, i)))));
   end for;
   string
 end method as-uppercase!;
+
+define sealed method add (string :: <string>, object) => (s :: <string>)
+  let new-string :: <string>
+    = make(<string>, size: string.size + 1, fill: object);
+  without-bounds-checks
+    for (i :: <integer> from 0 below string.size)
+      new-string[i] := string[i]
+    end;
+    //new-string[string.size] := object;
+  end without-bounds-checks;
+  new-string
+end method add;
 
 define constant <string-type>
   = type-union(subclass(<string>), <limited-string-type>);
@@ -295,23 +283,16 @@ define method limited-string
   end if;
 end method;
 
-//
-// BYTE-STRING
-//
-
-// BOOTED: define ... class <byte-string> ... end;
-
-
 define sealed method empty
-    (class == <byte-string>) => (res :: <byte-string>)
+    (class == <string>) => (res :: <string>)
  ""
 end method;
 
 define inline method system-allocate-repeated-instance
-    (class == <byte-string>, type == <character>, fill,
+    (class == <string>, type == <character>, fill,
      repeated-size :: <integer>, repeated-fill :: <character>)
- => (instance :: <byte-string>)
+ => (instance :: <string>)
   system-allocate-repeated-byte-instance-terminated
-    (<byte-string>, repeated-size, repeated-fill);
+    (<string>, repeated-size, repeated-fill);
 end method;
 

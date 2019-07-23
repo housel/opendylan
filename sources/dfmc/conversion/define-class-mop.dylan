@@ -516,7 +516,7 @@ define method ^make-mm-wrapper (class :: <&class>)
         else                                  // traceable
           if (non-word?)
             let bias
-              = if (class == dylan-value(#"<byte-string>"))
+              = if (class == dylan-value(#"<string>"))
                   #x00010000;     // null-terminated
                 else
                   0

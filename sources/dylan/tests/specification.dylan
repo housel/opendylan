@@ -89,10 +89,8 @@ define protocol-spec collections ()
       <empty-list> (<list>);
   open abstract instantiable primary class 
       <range> (<sequence>);
-  open abstract instantiable class 
+  sealed instantiable class
       <string> (<mutable-sequence>);
-  sealed instantiable class 
-      <byte-string> (<string>, <vector>);
   open abstract instantiable primary class 
       <table> (<mutable-explicit-key-collection>, <stretchy-collection>);
   open abstract instantiable class 

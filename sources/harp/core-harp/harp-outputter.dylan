@@ -115,7 +115,7 @@ define method dynamic-linking-protocol(outputter :: <harp-outputter>) => ()
 end method;
 
 
-// Byte-string model-objects have to be modelled properly by clients
+// String model-objects have to be modelled properly by clients
 // for consistency;
 // Harp References to bare strings will consistently be interpreted as names
 // of model-objects only

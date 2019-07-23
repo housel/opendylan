@@ -63,11 +63,11 @@ define limited-vector <double-float>  (fill: as(<double-float>, 0.0));
 // SIMPLE-BYTE-VECTOR
 //
 
-/// Special <byte-vector> <-> <byte-string> coercions
+/// Special <byte-vector> <-> <string> coercions
 
-define method as (bsc == <byte-string>, bv :: <simple-byte-vector>)
- => (bs :: <byte-string>)
-  let bs :: <byte-string> = make(<byte-string>, size: bv.size);
+define method as (bsc == <string>, bv :: <simple-byte-vector>)
+ => (bs :: <string>)
+  let bs :: <string> = make(<string>, size: bv.size);
   without-bounds-checks
     for (i :: <integer> from 0 below bv.size)
       bs[i] := as(<character>, bv[i]);
@@ -77,7 +77,7 @@ define method as (bsc == <byte-string>, bv :: <simple-byte-vector>)
 end method;
 
 define method as
-    (bvc == <simple-byte-vector>, bs :: <byte-string>) => (bv :: <simple-byte-vector>)
+    (bvc == <simple-byte-vector>, bs :: <string>) => (bv :: <simple-byte-vector>)
   let bv :: <simple-byte-vector> = make(<simple-byte-vector>, size: bs.size);
   without-bounds-checks
     for (i :: <integer> from 0 below bs.size)
@@ -85,11 +85,6 @@ define method as
     end;
   end without-bounds-checks;
   bv
-end method;
-
-define method as
-    (class == <string>, x :: <simple-byte-vector>) => (string :: <byte-string>)
-  as(<byte-string>, x)
 end method;
 
 // already is a vector.  Maybe want method for simple object vector?

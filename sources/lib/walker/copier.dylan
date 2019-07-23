@@ -228,7 +228,7 @@ define method do-deep-copy
 end method;
 
 define method do-deep-copy
-    (copier :: <copier>, object :: <byte-string>) => (value)
+    (copier :: <copier>, object :: <string>) => (value)
   let copy = copy-sequence(object);
   copier-register-copied(copier, object, copy); 
   copy

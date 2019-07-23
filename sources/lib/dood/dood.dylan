@@ -454,7 +454,7 @@ define method boot-predefines (dood :: <dood>) => ()
   register-predefine($dood-unbound,       $dood-unbound-id);
   register-predefine(#(),                 $dood-empty-list-id);
   register-predefine($dood-empty-vector,  $dood-empty-vector-id);
-  register-predefine(<byte-string>,       $dood-string-class-id);
+  register-predefine(<string>,            $dood-string-class-id);
   register-predefine(<pair>,              $dood-pair-class-id);
   register-predefine(<symbol>,            $dood-symbol-class-id);
   register-predefine

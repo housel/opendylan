@@ -183,8 +183,8 @@ type:
     => { <integer> }
   { <single-float> }
     => { <single-float> }
-  { <byte-string> }
-    => { <byte-string> }
+  { <string> }
+    => { <string> }
   { <character> }
     => { <character> }
   { <boolean> }

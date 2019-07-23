@@ -1587,7 +1587,6 @@ define &module dylan
    range,
 
    <string>,
-   <byte-string>,
 
    as-lowercase,
    as-lowercase!,
@@ -2531,7 +2530,7 @@ define &module internal
     $signature-<type>-types,
     $signature-<number>-types,
     $signature-<simple-vector>-types,
-    $signature-<byte-string>-types;
+    $signature-<string>-types;
 
   export
     augment-class-known-joint,

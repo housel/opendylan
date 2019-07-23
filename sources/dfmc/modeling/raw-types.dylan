@@ -376,7 +376,7 @@ define method make-raw-literal (object :: <character>)
   ^make(<&raw-character>, value: object)
 end method;
 
-define method make-raw-literal (object :: <byte-string>)
+define method make-raw-literal (object :: <string>)
   ^make(<&raw-byte-string>, value: object)
 end method;
 

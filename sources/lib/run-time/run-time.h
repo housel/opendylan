@@ -356,11 +356,11 @@ static inline dylan_value vector_ref(dylan_simple_object_vector* vector, int off
   return(vector_data((dylan_simple_object_vector*)vector)[offset]);
 }
 
-typedef struct _dylan_byte_string {
+typedef struct _dylan_string {
   dylan_value class;
   dylan_value size;
   char data[1];
-} dylan_byte_string;
+} dylan_string;
 
 typedef struct _dylan_symbol {
   dylan_value   class;
@@ -1888,7 +1888,7 @@ extern dylan_value VECTOR_REF_OR_F(dylan_value v, int offset);
 /* STRING PRIMITIVES */
 
 #define primitive_strlen(s)                     (strlen((DBSTR)s))
-#define primitive_string_as_raw(v)              (((dylan_byte_string*)v)->data)
+#define primitive_string_as_raw(v)              (((dylan_string*)v)->data)
 extern dylan_value primitive_raw_as_string(DBSTR buffer);
 
 /* CALLING CONVENTION PRIMITIVES */

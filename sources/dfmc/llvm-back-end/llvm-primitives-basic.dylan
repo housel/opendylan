@@ -459,15 +459,15 @@ define side-effect-free stateless dynamic-extent &runtime-primitive-descriptor p
 end;
 
 define side-effect-free stateless indefinite-extent mapped-parameter &primitive-descriptor primitive-string-as-raw
-    (x :: <byte-string>) => (r :: <raw-byte-string>);
-  op--getslotptr(be, x, #"<byte-string>", #"string-element", 0)
+    (x :: <string>) => (r :: <raw-byte-string>);
+  op--getslotptr(be, x, #"<string>", #"string-element", 0)
 end;
 
 define side-effect-free stateless indefinite-extent mapped &runtime-primitive-descriptor primitive-raw-as-string
-    (r :: <raw-byte-string>) => (x :: <byte-string>);
+    (r :: <raw-byte-string>) => (x :: <string>);
   let word-size = back-end-word-size(be);
   let module = be.llvm-builder-module;
-  let class :: <&class> = dylan-value(#"<byte-string>");
+  let class :: <&class> = dylan-value(#"<string>");
 
   let wrapper = emit-reference(be, module, ^class-mm-wrapper(class));
   let base-size = instance-storage-bytes(be, class);
@@ -489,15 +489,15 @@ define side-effect-free stateless indefinite-extent mapped &runtime-primitive-de
                      len, rep-size-slot);
 
   // Copy the string (including the NUL)
-  let byte-string = op--object-pointer-cast(be, ptr, class);
+  let string = op--object-pointer-cast(be, ptr, class);
   let string-element-ptr
-    = op--getslotptr(be, byte-string, class, #"string-element", 0);
+    = op--getslotptr(be, string, class, #"string-element", 0);
   let terminated-len = ins--add(be, len, 1);
   ins--call-intrinsic(be, "llvm.memcpy",
                       vector(string-element-ptr, r, terminated-len,
                              $llvm-false));
 
-  byte-string
+  string
 end;
 
 /// Repeated

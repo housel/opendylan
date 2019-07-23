@@ -77,7 +77,7 @@ define method output-literal (be :: <harp-back-end>,
                 else given-section
                 end if;
   output-definition(be, outputter, ref, section: section);
-  output-data-item(be, outputter, dylan-byte-string-class);
+  output-data-item(be, outputter, dylan-string-class);
   output-data-item(be, outputter, tag-as-integer(be, lit.size));
   output-data-byte(be, outputter, lit);
   // Don't forget to allow for the zero termination ...

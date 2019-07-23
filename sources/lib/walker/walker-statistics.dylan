@@ -18,7 +18,7 @@ define method walker-required-instance-size (class == <simple-object-vector>)
   2
 end method;
 
-define method walker-required-instance-size (class == <byte-string>)
+define method walker-required-instance-size (class == <string>)
   2
 end method;
 
@@ -52,7 +52,7 @@ define method walker-debug-name (element :: <class>)
   debug-name(element)
 end method;
 
-define method walker-instance-size (element :: <byte-string>)
+define method walker-instance-size (element :: <string>)
   round/(size(element), 4) + 2
 end method;
 

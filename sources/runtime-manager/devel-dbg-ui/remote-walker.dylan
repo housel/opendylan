@@ -242,7 +242,7 @@ define method add-new-wrapper-record
     end select;
   end unless;
 
-  if ((presented-name = "<BYTE-STRING>") | (presented-name = "<BYTE-VECTOR>"))
+  if ((presented-name = "<STRING>") | (presented-name = "<BYTE-VECTOR>"))
     terminal? := #t;
     repeat-information := #"byte-repeat";
     format-out(" (byte repeated) ");

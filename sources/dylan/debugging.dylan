@@ -42,7 +42,7 @@ end method debugging-part?;
 /// so that it can be used at any point in time, including inside
 /// dispatch.
 define function debug-message
-    (format-string :: <byte-string>, #rest format-args) => ()
+    (format-string :: <string>, #rest format-args) => ()
   primitive-debug-message(format-string, format-args);
 end function debug-message;
 

@@ -107,15 +107,15 @@ define runtime-primitive invoke-debugger
   // 
   result result;
   stack stack;
-  nreg data, size-in-words, size-in-bytes, raw-string;
+  nreg data, size-in-words, size-in-bytes, raw-byte-string;
   reg string, arg-vector;
   tag shared-dbg;
 
   op--load-arguments(be, string, arg-vector);
   ins--bne(be, shared-dbg, under-debugger, 0);
 
-  ins--add(be, raw-string, string, 8);
-  op--output-debug-string(be, raw-string);
+  ins--add(be, raw-byte-string, string, 8);
+  op--output-debug-string(be, raw-byte-string);
 
   ins--tag(be, shared-dbg);
   op--vector-size(be, size-in-words, arg-vector);

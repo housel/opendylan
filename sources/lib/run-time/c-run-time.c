@@ -170,15 +170,15 @@ void primitive_replaceX
 
 dylan_value primitive_compare_bytes(dylan_value base1, DSINT offset1,
                           dylan_value base2, DSINT offset2, DSINT size) {
-  return (RAWASBOOL(memcmp(&((((dylan_byte_string*)base1)->data)[offset1]),
-                           &((((dylan_byte_string*)base2)->data)[offset2]),
+  return (RAWASBOOL(memcmp(&((((dylan_string*)base1)->data)[offset1]),
+                           &((((dylan_string*)base2)->data)[offset2]),
                            (size_t)size)));
 }
 
 dylan_value primitive_compare_words(dylan_value base1, DSINT offset1,
                           dylan_value base2, DSINT offset2, DSINT size) {
-  return (RAWASBOOL(memcmp(&((((dylan_byte_string*)base1)->data)[offset1]),
-                           &((((dylan_byte_string*)base2)->data)[offset2]),
+  return (RAWASBOOL(memcmp(&((((dylan_string*)base1)->data)[offset1]),
+                           &((((dylan_string*)base2)->data)[offset2]),
                            size * sizeof(dylan_value))));
 }
 
@@ -526,14 +526,14 @@ INLINE dylan_simple_object_vector* init_stack_vector(dylan_simple_object_vector*
 
 /* STRING */
 
-extern Wrapper KLbyte_stringGVKdW;
+extern Wrapper KLstringGVKdW;
 
 dylan_value primitive_raw_as_string (DBSTR buffer) {
   size_t base_size = 2 * sizeof(dylan_value); // 1 for wrapper, 1 for size slot
   size_t len = strlen(buffer);
   size_t size = round_up_to_word(base_size + len + 1);
-  dylan_value string = primitive_alloc_leaf_r(size, &KLbyte_stringGVKdW, len, 1);
-  memcpy(((dylan_byte_string*)string)->data, buffer, len + 1);
+  dylan_value string = primitive_alloc_leaf_r(size, &KLstringGVKdW, len, 1);
+  memcpy(((dylan_string*)string)->data, buffer, len + 1);
   return string;
 }
 
@@ -3603,15 +3603,15 @@ dylan_value primitive_preboot_symbols () {
 
 dylan_value primitive_string_as_symbol_using_symbol (dylan_value string, dylan_value symbol)
 {
-  int input_string_size = R(((dylan_byte_string*)string)->size);
-  char *input_string_data = ((dylan_byte_string*)string)->data;
+  int input_string_size = R(((dylan_string*)string)->size);
+  char *input_string_data = ((dylan_string*)string)->data;
 
   int i;
 
   for (i = 0; i < oblist_cursor; ++i) {
     dylan_symbol *oblist_symbol = (dylan_symbol*)oblist[i];
-    int oblist_string_size = R(((dylan_byte_string*)(oblist_symbol->name))->size);
-    char *oblist_string_data = ((dylan_byte_string*)(oblist_symbol->name))->data;
+    int oblist_string_size = R(((dylan_string*)(oblist_symbol->name))->size);
+    char *oblist_string_data = ((dylan_string*)(oblist_symbol->name))->data;
     if (oblist_string_size == input_string_size
           && strncasecmp
                (oblist_string_data, input_string_data, (size_t)input_string_size)

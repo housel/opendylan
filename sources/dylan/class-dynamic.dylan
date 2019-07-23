@@ -13,7 +13,7 @@ define /* thread */ variable *class-symbol-table* :: false-or(<string-table>) = 
 
 define method class->variable
     (class :: <class>)
- => (binding :: <byte-string>, module :: <byte-string>, library :: <byte-string>)
+ => (binding :: <string>, module :: <string>, library :: <string>)
   let class-binding-name = debug-name(class);
   let class-module       = class-module(class);
   let class-module-name  = namespace-name(class-module);
@@ -48,7 +48,7 @@ define method build-class-symbol-table ()
 end method;
 
 define method lookup-class-bindings
-    (module :: <byte-string>, library :: <byte-string>) => (bindings :: <string-table>)
+    (module :: <string>, library :: <string>) => (bindings :: <string-table>)
   unless (*class-symbol-table*)
     *class-symbol-table* := make(<string-table>);
     build-class-symbol-table();
@@ -65,7 +65,7 @@ define method lookup-class-bindings
 end method;
 
 define method variable->class
-    (binding :: <byte-string>, module :: <byte-string>, library :: <byte-string>)
+    (binding :: <string>, module :: <string>, library :: <string>)
  => (class :: <class>)
   let bindings = lookup-class-bindings(module, library);
   // TODO: should signal sensible error if not found

@@ -155,7 +155,7 @@ define method mapped-model (object :: <simple-object-vector>) => model;
   object
 end method;
 
-define method mapped-model (object :: <byte-string>) => model;
+define method mapped-model (object :: <string>) => model;
   immutable-model(object);
 end method;
 
