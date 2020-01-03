@@ -1,14 +1,14 @@
 #include "mps.h"        /* MPS Interface */
-#include "mpscmv.h"     /* MPS pool class MV */
-#include "mpscamc.h"    /* MPS pool class AMC */
 #include "mpsavm.h"     /* MPS arena class */
+#include "mpscmvff.h"   /* MPS pool class MVFF */
+#include "mpscamc.h"    /* MPS pool class AMC */
 #ifndef OPEN_DYLAN_PLATFORM_UNIX
 #include "mpsw3.h"
 #endif
 #include "fmtdy.h"      /* Dylan object format */
 #include "mpslib.h"     /* plinth interface */
 #include "mpscawl.h"    /* MPS pool class AWL */
-#include "mpsclo.h"    /* MPS pool class LO */
+#include "mpsclo.h"     /* MPS pool class LO */
 
 typedef struct gc_teb_s {       /* GC Thread Environment block descriptor */
   mps_bool_t gc_teb_inside_tramp;  /* the HARP runtime assumes offset 0 for this */
@@ -155,7 +155,6 @@ void update_runtime_thread_count(int increment)
 
   enter_CRITICAL_SECTION(&reservoir_limit_set_lock);
     num_threads = num_threads + increment;
-    mps_reservoir_limit_set(arena, num_threads * low_memory_allocation_per_thread);
   leave_CRITICAL_SECTION(&reservoir_limit_set_lock);
 }
 
@@ -170,30 +169,58 @@ MMError dylan_mm_register_thread(void *stackBot)
 
   zero_allocation_counter(gc_teb);
 
-  res = mps_ap_create(&gc_teb->gc_teb_main_ap, main_pool, mps_rank_exact());
-  if (res) goto failApCreate;
+  MPS_ARGS_BEGIN(args) {
+    MPS_ARGS_ADD(args, MPS_KEY_RANK, mps_rank_exact());
+    res = mps_ap_create_k(&gc_teb->gc_teb_main_ap, main_pool, args);
+  } MPS_ARGS_END(args);
+  if (res) {
+    goto failApCreate;
+  }
 
-  res = mps_ap_create(&gc_teb->gc_teb_leaf_ap, leaf_pool, mps_rank_exact());
-  if (res) goto failLeafApCreate;
+  MPS_ARGS_BEGIN(args) {
+    MPS_ARGS_ADD(args, MPS_KEY_RANK, mps_rank_exact());
+    res = mps_ap_create_k(&gc_teb->gc_teb_leaf_ap, leaf_pool, args);
+  } MPS_ARGS_END(args);
+  if (res) {
+    goto failLeafApCreate;
+  }
 
-  res = mps_ap_create(&gc_teb->gc_teb_weak_awl_ap, weak_table_pool, mps_rank_weak());
-  if (res) goto failWeakAWLApCreate;
+  MPS_ARGS_BEGIN(args) {
+    MPS_ARGS_ADD(args, MPS_KEY_RANK, mps_rank_weak());
+    res = mps_ap_create_k(&gc_teb->gc_teb_weak_awl_ap, weak_table_pool, args);
+  } MPS_ARGS_END(args);
+  if (res) {
+    goto failWeakAWLApCreate;
+  }
 
-  res = mps_ap_create(&gc_teb->gc_teb_exact_awl_ap, weak_table_pool, mps_rank_exact());
-  if (res) goto failExactAWLApCreate;
+  MPS_ARGS_BEGIN(args) {
+    MPS_ARGS_ADD(args, MPS_KEY_RANK, mps_rank_exact());
+    res = mps_ap_create_k(&gc_teb->gc_teb_exact_awl_ap, weak_table_pool, args);
+  } MPS_ARGS_END(args);
+  if (res) {
+    goto failExactAWLApCreate;
+  }
 
   res = mps_thread_reg(&gc_teb->gc_teb_thread, arena);
-  if (res) goto failThreadReg;
+  if (res) {
+    goto failThreadReg;
+  }
 
   /* Create a root object for ambiguously scanning the stack. */
   assert(stackBot != NULL);
-  res = mps_root_create_reg(&gc_teb->gc_teb_stack_root, arena, mps_rank_ambig(),
-                           (mps_rm_t)0,
-                            gc_teb->gc_teb_thread, mps_stack_scan_ambig, stackBot, 0);
-  if (res) goto failStackRootCreate;
+  res = mps_root_create_thread_tagged(&gc_teb->gc_teb_stack_root, arena,
+                                      mps_rank_ambig(),
+                                      (mps_rm_t) 0,
+                                      gc_teb->gc_teb_thread,
+                                      mps_scan_area_tagged,
+                                      sizeof(mps_word_t) - 1, 0,
+                                      stackBot);
+  if (res) {
+    goto failStackRootCreate;
+  }
   return res;
 
-  mps_root_destroy(gc_teb->gc_teb_stack_root);
+  //mps_root_destroy(gc_teb->gc_teb_stack_root);
 failStackRootCreate:
   mps_thread_dereg(gc_teb->gc_teb_thread);
 failThreadReg:
@@ -231,54 +258,20 @@ void *wrapper_class(void *wrapper);
                                   gc_teb_ap,  \
                                   handler,  \
                                   MMReserve)  \
-{  \
-  mps_res_t res;  \
-  mps_addr_t p;  \
-  \
-  assert(gc_teb->gc_teb_inside_tramp);  \
-  \
-  do {  \
+  {                                                  \
+  mps_res_t res;                                     \
+  mps_addr_t p;                                      \
+  assert(gc_teb->gc_teb_inside_tramp);               \
+  do {                                               \
     res = mps_reserve(&p, gc_teb->gc_teb_ap, size);  \
-  \
-    if (res == MPS_RES_OK) {  \
-      /* Success */  \
-      return (void *)p;  \
-  \
-    } else {  \
-      /* Failure due to low-memory - ask for reservoir permit */  \
-      void *class = wrapper_class(wrapper);  \
-      void *permit = call_dylan_function(dylan_signal_low_memory, 2, class, ((size << 2) + 1));  \
-      if (permit != dylan_false) {  \
-        /* Have permission - so use reservoir */  \
-        res = mps_reserve_with_reservoir_permit  \
-                (&p, gc_teb->gc_teb_ap, size);  \
-        if (res == MPS_RES_OK) {  \
-          return (void *)p;  \
-        }  \
-        /* Failure even when using reservoir. Catastrophic */  \
-        (*handler)((MMError)res, MMReserve, size);  \
-      } else {  \
-        /* No permission to use the reservoir.  */  \
-        /* Check the reservoir is full before looping again */  \
-        /* Do this inside a critical region with the limit setting function */  \
-        enter_CRITICAL_SECTION(&reservoir_limit_set_lock);  \
-          { \
-          size_t limit = mps_reservoir_limit(arena);  \
-          size_t avail = mps_reservoir_available(arena);  \
-          if (avail < limit) {  \
-            /* The reservoir is not full - so the handling policy failed */  \
-            /* Could attempt to do something smart here - like work out */  \
-            /* whether other threads are likely to free up memory, */  \
-            /* and signal a different error if not */  \
-            }  \
-          }  \
-        leave_CRITICAL_SECTION(&reservoir_limit_set_lock);  \
-        /* Try allocation again */  \
-      }  \
-  \
-    }  \
-  \
-  } while (TRUE);  \
+    if (res == MPS_RES_OK) {                         \
+      /* Success */                                  \
+      return (void *)p;                              \
+    } else {                                         \
+      /* Failure due to low-memory - Catastrophic */ \
+      (*handler)((MMError)res, MMReserve, size);     \
+    }                                                \
+  } while (TRUE);                                    \
 }
 
 
@@ -1176,18 +1169,18 @@ MMError MMRegisterRootImmut(mps_root_t *rootp, void *base, void *limit)
 
 MMError MMRegisterRootAmbig(mps_root_t *rootp, void *base, void *limit)
 {
-  size_t s = ((char *)limit - (char *)base) / sizeof(mps_addr_t);
   /* assert(gc_teb->gc_teb_inside_tramp); tramp not needed for root registration */
-  return mps_root_create_table(rootp, arena, mps_rank_ambig(),
-                               0, base, s);
+  return mps_root_create_area(rootp, arena, mps_rank_ambig(),
+                              (mps_rm_t) 0, base, limit,
+                              mps_scan_area, NULL);
 }
 
 MMError MMRegisterRootExact(mps_root_t *rootp, void *base, void *limit)
 {
-  size_t s = ((char *)limit - (char *)base) / sizeof(mps_addr_t);
   /* assert(gc_teb->gc_teb_inside_tramp); tramp not needed for root registration */
-  return mps_root_create_table_masked(rootp, arena, mps_rank_exact(),
-                                      MPS_RM_PROT, base, s, 3);
+  return mps_root_create_area_tagged(rootp, arena, mps_rank_exact(),
+                                     MPS_RM_PROT, base, limit,
+                                     mps_scan_area_tagged, 3, 0);
 }
 
 void MMDeregisterRoot(mps_root_t root)
@@ -1250,17 +1243,17 @@ MMError MMRootImmut(void *base, void *limit)
 MMError MMRootAmbig(void *base, void *limit)
 {
   mps_root_t root;
-  size_t s = ((char *)limit - (char *)base) / sizeof(mps_addr_t);
-  return mps_root_create_table(&root, arena, mps_rank_ambig(),
-                               0, base, s);
+  return mps_root_create_area(&root, arena, mps_rank_ambig(),
+                              0, base, limit,
+                              mps_scan_area, NULL);
 }
 
 MMError MMRootExact(void *base, void *limit)
 {
   mps_root_t root;
-  size_t s = ((char *)limit - (char *)base) / sizeof(mps_addr_t);
-  return mps_root_create_table_masked(&root, arena, mps_rank_exact(),
-                                      0, base, s, 3);
+  return mps_root_create_area_tagged(&root, arena, mps_rank_exact(),
+                                     0, base, limit,
+                                     mps_scan_area_tagged, 3, 0);
 }
 
 
@@ -1533,50 +1526,92 @@ MMError dylan_init_memory_manager(void)
     const char *spec = getenv("OPEN_DYLAN_MPS_HEAP");
 #endif
 
-    res = mps_arena_create(&arena, mps_arena_class_vm(), max_heap_size);
-    if (res) { init_error("create arena"); return(res); }
+    MPS_ARGS_BEGIN(args) {
+      MPS_ARGS_ADD(args, MPS_KEY_ARENA_SIZE, max_heap_size);
+      res = mps_arena_create_k(&arena, mps_arena_class_vm(), args);
+    } MPS_ARGS_END(args);
+    if (res) {
+      init_error("create arena");
+      return(res);
+    }
 
     if (spec) {
       params = get_gen_params(spec, &gen_count, &max_heap_size);
-      if (!params)
+      if (!params) {
         init_error("parse OPEN_DYLAN_MPS_HEAP format");
+      }
     }
 
     if (params) {
       res = mps_chain_create(&chain, arena, gen_count, params);
       free(params);
-    } else {
+    }
+    else {
       res = mps_chain_create(&chain, arena, genCOUNT, gc_default_gen_param);
     }
-    if (res) { init_error("create chain"); return(res); }
+    if (res) {
+      init_error("create chain");
+      return(res);
+    }
   }
 
   fmt_A = dylan_fmt_A();
   res = mps_fmt_create_A(&format, arena, fmt_A);
-  if (res) { init_error("create format"); return(res); }
+  if (res) {
+    init_error("create format");
+    return(res);
+  }
 
   fmt_A_weak = dylan_fmt_A_weak();
   res = mps_fmt_create_A(&dylan_fmt_weak_s, arena, fmt_A_weak);
-  if (res) { init_error("create weak format"); return(res); }
+  if (res) {
+    init_error("create weak format");
+    return(res);
+  }
 
-  res = mps_pool_create(&main_pool, arena, mps_class_amc(), format, chain);
-  if (res) { init_error("create main pool"); return(res); }
+  MPS_ARGS_BEGIN(args) {
+    MPS_ARGS_ADD(args, MPS_KEY_FORMAT, format);
+    MPS_ARGS_ADD(args, MPS_KEY_CHAIN, chain);
+    res = mps_pool_create_k(&main_pool, arena, mps_class_amc(), args);
+  } MPS_ARGS_END(args);
+  if (res) {
+    init_error("create main pool");
+    return(res);
+  }
 
   /* Create the Leaf Object pool */
-  res = mps_pool_create(&leaf_pool, arena, mps_class_amcz(), format, chain);
-  if (res) { init_error("create leaf pool"); return(res); }
+  MPS_ARGS_BEGIN(args) {
+    MPS_ARGS_ADD(args, MPS_KEY_FORMAT, format);
+    MPS_ARGS_ADD(args, MPS_KEY_CHAIN, chain);
+    res = mps_pool_create_k(&leaf_pool, arena, mps_class_amcz(), args);
+  } MPS_ARGS_END(args);
+  if (res) {
+    init_error("create leaf pool");
+    return(res);
+  }
 
   /* Create the Automatic Weak Linked pool */
-  res = mps_pool_create(&weak_table_pool, arena, mps_class_awl(),
-                        dylan_fmt_weak_s, dylan_weak_dependent);
-  if (res) { init_error("create weak pool"); return(res); }
+  MPS_ARGS_BEGIN(args) {
+    MPS_ARGS_ADD(args, MPS_KEY_FORMAT, dylan_fmt_weak_s);
+    MPS_ARGS_ADD(args, MPS_KEY_AWL_FIND_DEPENDENT, dylan_weak_dependent);
+    res = mps_pool_create_k(&weak_table_pool, arena, mps_class_awl(), args);
+  } MPS_ARGS_END(args);
+  if (res) {
+    init_error("create weak pool");
+    return(res);
+  }
 
-  /* Create the MV pool for miscellaneous objects. */
+  /* Create the MVFF pool for miscellaneous objects. */
   /* This is also used for wrappers. */
-  res = mps_pool_create(&misc_pool, arena, mps_class_mv(),
-                        MISCEXTENDBY, MISCAVGSIZE, MISCMAXSIZE);
-  if (res) { init_error("create misc pool"); return(res); }
-
+  MPS_ARGS_BEGIN(args) {
+    MPS_ARGS_ADD(args, MPS_KEY_EXTEND_BY, MISCEXTENDBY);
+    MPS_ARGS_ADD(args, MPS_KEY_MEAN_SIZE, MISCAVGSIZE);
+    res = mps_pool_create_k(&misc_pool, arena, mps_class_mvff(), args);
+  } MPS_ARGS_END(args);
+  if (res) {
+    init_error("create misc pool");
+    return(res);
+  }
   wrapper_pool = misc_pool;
 
   finalization_type = mps_message_type_finalization();
@@ -1591,7 +1626,7 @@ MMError dylan_init_memory_manager(void)
     class_breakpoint_events[1] = create_EVENT(NULL, FALSE, FALSE, NULL);
   }
 
-  return(0);
+  return 0;
 }
 
 

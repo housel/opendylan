@@ -15,21 +15,6 @@
 #define EXCEPTION_POSTAMBLE()
 #endif
 
-#if defined(GC_USE_BOEHM) || defined(GC_USE_MALLOC)
-#undef mps_tramp /* Override generic version */
-
-typedef void *(*mps_tramp_t)(void *, size_t);
-
-#define mps_tramp(r_o, f, p, s) \
-    { \
-    void **_r_o = (r_o); \
-    mps_tramp_t _f = (f); \
-    void *_p = (p); \
-    size_t _s = (s); \
-    *_r_o = (*_f)(_p, _s); \
-    }
-#endif
-
 /* Support for foreign call-ins */
 extern void *dylan_callin_internal(void *arg_base, size_t s);
 
@@ -43,7 +28,7 @@ MMError dylan_init_thread(void **rReturn, void *(*f)(void *, size_t), void *p, s
   gc_teb->gc_teb_inside_tramp = 1;
 
   /* Go for it! */
-  mps_tramp(rReturn, f, p, s);
+  *rReturn = f(p, s);
 
   gc_teb->gc_teb_inside_tramp = 0;
 
@@ -66,7 +51,7 @@ void *dylan_callin_handler(void *arg_base, size_t s)
   gc_teb->gc_teb_inside_tramp = 1;
 
   /* Go for it! */
-  mps_tramp(&res, dylan_callin_internal, arg_base, s);
+  res = dylan_callin_internal(arg_base, s);
 
   gc_teb->gc_teb_inside_tramp = was_inside;
 
