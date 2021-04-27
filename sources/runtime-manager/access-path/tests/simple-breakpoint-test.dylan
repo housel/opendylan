@@ -5,7 +5,7 @@ Copyright:    Original Code is Copyright 2015 Gwydion Dylan Maintainers
 License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-define constant $debugger-wait-timeout = 2000;
+define constant $debugger-wait-timeout = 5000;
 
 define constant $test-module-name = "debugger-test-target-app";
 define constant $test-library-name = "debugger-test-target-app";
@@ -22,8 +22,8 @@ end function;
 
 define test simple-breakpoint-test ()
   let access-path = #f;
-  check-no-errors("Instantiate access path",
-                  access-path := make-test-access-path("simple-breakpoint"));
+  assert-no-errors(access-path := make-test-access-path("simple-breakpoint"),
+                   "Instantiate access path");
 
   restart(access-path);
 
@@ -31,7 +31,11 @@ define test simple-breakpoint-test ()
     method wait-for-stop-reason-aux(access-path :: <access-path>) => (stop-reason :: <stop-reason>);
       let stop-reason
         = wait-for-stop-reason(access-path, timeout: $debugger-wait-timeout);
-      if (instance?(stop-reason, <load-library-stop-reason>))
+      test-output("Stop-reason %=\n", stop-reason);
+      if (instance?(stop-reason, <load-library-stop-reason>)
+            | instance?(stop-reason, <unload-library-stop-reason>)
+            | instance?(stop-reason, <create-thread-stop-reason>)
+            | instance?(stop-reason, <exit-thread-stop-reason>))
         continue(access-path);
         wait-for-stop-reason-aux(access-path)
       elseif (~stop-reason)
@@ -41,35 +45,35 @@ define test simple-breakpoint-test ()
       end if;
     end method;
 
-  check-instance?("Stop at process creation",
-                  <create-process-stop-reason>,
-                  wait-for-stop-reason-aux(access-path));
+  assert-instance?(<create-process-stop-reason>,
+                   wait-for-stop-reason-aux(access-path),
+                   "Stop at process creation");
 
   continue(access-path);
-  check-instance?("Stop at system initialized",
-                  <system-initialized-stop-reason>,
-                  wait-for-stop-reason-aux(access-path));
+  assert-instance?(<system-initialized-stop-reason>,
+                   wait-for-stop-reason-aux(access-path),
+                   "Stop at system initialized");
 
   let name
     = mangle-iep-name("simple-breakpoint",
                       $test-module-name,
                       $test-library-name);
   let place = find-symbol(access-path, name);
-  check-true("Symbol for simple-breakpoint found", place);
-  check-true("Set breakpoint at simple-breakpoint",
-             enable-breakpoint(access-path,
-                               first-frame-breakable-address(place)));
+  assert-true("Symbol for simple-breakpoint found", place);
+  assert-true(enable-breakpoint(access-path,
+                                first-frame-breakable-address(place)),
+              "Set breakpoint at simple-breakpoint");
 
   continue(access-path);
-  check-instance?("Stop at breakpoint",
-                  <breakpoint-stop-reason>,
-                  wait-for-stop-reason-aux(access-path));
+  assert-instance?(<breakpoint-stop-reason>,
+                   wait-for-stop-reason-aux(access-path),
+                   "Stop at breakpoint");
 
   continue(access-path);
-  check-instance?("Stop at process exit",
-                  <exit-process-stop-reason>,
-                  wait-for-stop-reason-aux(access-path));
+  assert-instance?(<exit-process-stop-reason>,
+                   wait-for-stop-reason-aux(access-path),
+                   "Stop at process exit");
 
-  check-no-errors("Close access path",
-                  close-application(access-path));
+  check-no-errors(close-application(access-path),
+                  "Close access path");
 end test;
