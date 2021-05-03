@@ -5,7 +5,7 @@ module Rtmgr {
 interface AccessPath {
 
 typedef long           NUBINT;
-typedef unsigned long  RTARGET_ADDRESS;
+typedef unsigned long long RTARGET_ADDRESS;
 typedef unsigned long  RNUBPROCESS;
 typedef unsigned long  RNUBTHREAD;
 
@@ -50,7 +50,7 @@ typedef unsigned long  RSERVER;
 typedef unsigned long  RNUBPROCESS;
 typedef unsigned long  RNUBTHREAD;
 typedef unsigned long  RNUBLIBRARY;
-typedef unsigned long  RTARGET_ADDRESS;
+typedef unsigned long long RTARGET_ADDRESS;
 
 typedef unsigned long FLAG;
 
