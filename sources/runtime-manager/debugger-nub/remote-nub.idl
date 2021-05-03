@@ -102,9 +102,6 @@ void get_library_version
 string get_library_filename
   (in RNUBLIBRARY dll);
 
-string get_library_undecorated_name
-  (in RNUBLIBRARY dll);
-
 
 string get_register_name
   (in NUB_INDEX reg);

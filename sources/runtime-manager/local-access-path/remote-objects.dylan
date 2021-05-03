@@ -98,10 +98,7 @@ define method construct-library-object
     => (lib :: <remote-library>)
   let name-length :: <integer>
     = nub-get-library-filename-length (conn.connection-process, lib);
-  let C-filename = make (<byte-string>, size: name-length);
-  let basic-name-length =
-    nub-get-library-undecorated-name-length(conn.connection-process, lib);
-  let basic-name = make(<byte-string>, size: basic-name-length);
+  let filename = make (<byte-string>, size: name-length);
   let (major-v, minor-v) =
     nub-get-library-version(conn.connection-process, lib);
   let base-addr =
@@ -110,8 +107,8 @@ define method construct-library-object
   nub-get-library-undecorated-name(conn.connection-process, lib, name-length, basic-name);
   make (<remote-library>,
         nub-descriptor: lib,
-        locator: as-uppercase(C-filename),
-        core-name: as-uppercase(basic-name),
+        locator: filename,
+        core-name: locator-base(filename),
         version-major: major-v,
         version-minor: minor-v,
         base-address: base-addr);

@@ -22,6 +22,7 @@ define module remote-access-path
   use streams, import: {<file-stream>, <stream>, force-output, close};
   use byte-vector;
   use table-extensions, import: {<string-table>};
+  use locators;
   use c-ffi;
   use access-path;
   use access-path-nub;
