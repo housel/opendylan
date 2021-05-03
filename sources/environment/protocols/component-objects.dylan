@@ -78,21 +78,6 @@ define function component-version-string
 end function component-version-string;
 
 
-///// LOOKUP-COMPONENT-BY-NAME
-//    Synopsis: Attempts to find a <component-object> with a given name.
-
-define open generic lookup-component-by-name
-    (server :: <server>, name :: <string>)
- => (component :: false-or(<component-object>));
-
-define method lookup-component-by-name
-    (project :: <project-object>, name :: <string>)
- => (component :: false-or(<component-object>))
-  let server = project.project-application;
-  server & lookup-component-by-name(server, name);
-end method;
-
-
 ///// DO-APPLICATION-COMPONENTS
 //    Synopsis: Iterates over the components currently loaded into an
 //              application.

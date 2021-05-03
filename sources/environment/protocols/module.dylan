@@ -156,7 +156,6 @@ define module environment-protocols
          component-image-filename,
          component-version,
          component-version-string,
-         lookup-component-by-name,
          application-components,
          do-application-components;
 
