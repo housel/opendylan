@@ -24,39 +24,6 @@ define method component-version
 end method;
 
 
-///// LOOKUP-COMPONENT-BY-NAME (Environment Protocols)
-
-define method lookup-component-by-name
-    (application :: <dfmc-application>, name :: <string>)
- => (component :: false-or(<component-object>))
-  let target = application.application-target-app;
-  let component = #f;
-
-  local method wrap-for-env (l :: <remote-library>) => (c :: <component-object>)
-          make-environment-object(<component-object>,
-                                  project: application.server-project,
-                                  application-object-proxy: l)
-        end method;
-
-  perform-debugger-transaction
-    (target,
-     method ()
-       let path = target.debug-target-access-path;
-       component :=
-         block(return)
-           do-libraries(method (l :: <remote-library>) => ()
-                          if (l.library-core-name = name)
-                            return(wrap-for-env(l))
-                          end if
-                        end method,
-                        path);
-           return(#f)
-         end block
-     end method);
-  component
-end method;
-
-
 ///// DO-APPLICATION-COMPONENTS (Environment Protocols)
 
 define method do-application-components
