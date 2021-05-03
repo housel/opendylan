@@ -104,16 +104,14 @@ define method construct-library-object
     Rtmgr/RemoteNub/get-library-version(conn.nub, rlib);
   let base-addr :: <RTARGET-ADDRESS> =
     Rtmgr/RemoteNub/get-library-base-address(conn.nub, rlib);
-  let C-filename =
+  let filename =
     Rtmgr/RemoteNub/get-library-filename(conn.nub, rlib);
-  let basic-name =
-    Rtmgr/RemoteNub/get-library-undecorated-name(conn.nub, rlib);
 
   make (<remote-library>,
         nub-descriptor: lib,
         rnub-descriptor: rlib,
-        locator: as-uppercase(C-filename),
-        core-name: as-uppercase(basic-name),
+        locator: filename,
+        core-name: locator-base(as(<file-locator>, filename)),
         version-major: major-v,
         version-minor: minor-v,
         base-address: as-remote-value(base-addr));

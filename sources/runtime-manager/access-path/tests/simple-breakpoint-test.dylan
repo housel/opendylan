@@ -5,7 +5,7 @@ Copyright:    Original Code is Copyright 2015 Gwydion Dylan Maintainers
 License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-define constant $debugger-wait-timeout = 5000;
+define constant $debugger-wait-timeout = 10000;
 
 define constant $test-module-name = "debugger-test-target-app";
 define constant $test-library-name = "debugger-test-target-app";
@@ -54,6 +54,7 @@ define test simple-breakpoint-test ()
                    wait-for-stop-reason-aux(access-path),
                    "Stop at system initialized");
 
+/*
   let name
     = mangle-iep-name("simple-breakpoint",
                       $test-module-name,
@@ -68,6 +69,7 @@ define test simple-breakpoint-test ()
   assert-instance?(<breakpoint-stop-reason>,
                    wait-for-stop-reason-aux(access-path),
                    "Stop at breakpoint");
+*/
 
   continue(access-path);
   assert-instance?(<exit-process-stop-reason>,

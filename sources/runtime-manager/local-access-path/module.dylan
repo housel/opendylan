@@ -20,7 +20,7 @@ define module access-path-implementation
   use format-out;
   use print;
   use streams, import: {<file-stream>, <stream>, force-output, close};
-  use locators, import: {<file-locator>};
+  use locators, import: {<file-locator>, locator-base};
   use file-system;
   use byte-vector;
   use table-extensions, import: {<string-table>};

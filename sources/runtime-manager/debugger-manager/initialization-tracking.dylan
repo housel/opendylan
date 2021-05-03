@@ -132,11 +132,13 @@ define abstract class <library-initialization-tracker> (<object>)
     required-init-keyword: top-level?:;
 end class;
 
+/*
 define class <foreign-library-initialization-tracker> 
     (<library-initialization-tracker>)
   inherited slot tracker-initialization-state,
     init-value: #"foreign";
 end class;
+*/
 
 define class <dylan-library-initialization-tracker> 
     (<library-initialization-tracker>)
@@ -155,7 +157,6 @@ define sealed method initialize
   let lib = entry-init.tracker-remote-library;
   let target = entry-init.tracker-debug-target;
   let path = target.debug-target-access-path;
-  let core = lib.library-core-name;
   let init-fun = entry-init.tracker-initialization-symbol;
   let tracer = make(<starting-dynamic-initialization>,
                     address: init-fun.remote-symbol-address,

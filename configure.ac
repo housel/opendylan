@@ -281,6 +281,18 @@ AC_LINK_IFELSE([], [AC_MSG_RESULT(none needed)],
                                [AC_MSG_RESULT(not found)
                                 LIBS="$save_LIBS"])])
 
+AC_CHECK_PROGS(OMNIIDL, [omniidl])
+PKG_CHECK_MODULES(OMNIORB, [omniORB4 omnithread3])
+
+AC_CHECK_PROGS(LLVM_CONFIG, [llvm-config-12 llvm-config12 llvm-config-11 llvm-config11 llvm-config])
+AS_IF([$LLVM_CONFIG --version 2>/dev/null],
+      [LLDB_CPPFLAGS="`$LLVM_CONFIG --cppflags`"
+       LLDB_LDFLAGS="`$LLVM_CONFIG --ldflags`"
+       LLDB_LIBS="-llldb `$LLVM_CONFIG --libs support` `$LLVM_CONFIG --system-libs`"])
+AC_SUBST(LLDB_CPPFLAGS)
+AC_SUBST(LLDB_LDFLAGS)
+AC_SUBST(LLDB_LIBS)
+
 AS_ECHO(["
 Targeting '${target}' ('${OPEN_DYLAN_TARGET_PLATFORM}')
 
@@ -298,6 +310,7 @@ AS_ECHO(["  C back-end collector                                    ${C_COLLECTO
 AC_CONFIG_FILES(Makefile
                 sources/jamfiles/Makefile
                 sources/jamfiles/config.jam
-                sources/lib/run-time/Makefile)
+                sources/lib/run-time/Makefile
+                sources/runtime-manager/debugger-nub/lldb-debugger-server/Makefile)
 
 AC_OUTPUT

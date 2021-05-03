@@ -46,17 +46,20 @@ define method initialize
   next-method();
 
   let orb = CORBA/orb-init(make(corba/<arg-list>), "Open Dylan ORB");
-  let location =
-    make(IIOP/<location>,
-	 repository-id: $RepositoryID,
-	 host: connection.connection-network-address,
-	 port: $DebuggerServerPort,
-	 adaptor-path: $RootPOAs,
-	 objectid: $DebuggerServerId);
-  let server =
-    as(Rtmgr/<NubServer>,
-       CORBA/ORB/create-reference(orb, location));
-
+  let address = connection.connection-network-address;
+  let server
+    = if (address.size > 4 & copy-sequence(address, end: 4) = "IOR:")
+        as(Rtmgr/<NubServer>, CORBA/ORB/string-to-object(orb, address))
+      else
+        let location
+          = make(IIOP/<location>,
+                 repository-id: $RepositoryID,
+                 host: address,
+                 port: $DebuggerServerPort,
+                 adaptor-path: $RootPOAs,
+                 objectid: $DebuggerServerId);
+        as(Rtmgr/<NubServer>, CORBA/ORB/create-reference(orb, location))
+      end if;
   let password-ok = 
     block ()
       Rtmgr/NubServer/verify-local-password
