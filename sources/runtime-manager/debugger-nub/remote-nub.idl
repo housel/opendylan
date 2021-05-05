@@ -62,22 +62,6 @@ readonly attribute RNUB process;
 
 readonly attribute AccessPath access_path;
 
-RNUB create_and_debug_process
-  (in string command, 
-   in string args,
-   in NUBINT path_count,
-   in NUBINT lib_count,
-   in string working_dir, 
-   in NUBINT create_shell);
-
-RNUB debug_active_process
-  (in string process_name,
-   in string process_id,
-   in unsigned long actual_process_id,
-   in NUBINT path_count,
-   in string jit_info);
-
-
 NUBINT remote_value_byte_size
   ();
 

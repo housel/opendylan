@@ -178,24 +178,6 @@ define macro export-corba-values
 end macro;
 
 
-/*
-define corba-method Rtmgr/RemoteNub/create-and-debug-process
-    (rnub :: <RemoteNub-implementation>, command :: CORBA/<string>, arguments :: CORBA/<string>, path-count :: Rtmgr/RemoteNub/<NUBINT>, lib-count :: Rtmgr/RemoteNub/<NUBINT>, working-dir :: CORBA/<string>, create-shell :: Rtmgr/RemoteNub/<NUBINT>)
- => (result :: Rtmgr/RemoteNub/<RNUB>)
-  let process = remote-process(rnub);
-  nub-create-and-debug-process
-  (process, command, arguments, path-count, lib-count, working-dir, create-shell);
-end corba-method;
-
-define corba-method Rtmgr/RemoteNub/debug-active-process
-    (rnub :: <RemoteNub-implementation>, process-name :: CORBA/<string>, process-id :: CORBA/<string>, actual-process-id :: CORBA/<unsigned-long>, path-count :: Rtmgr/RemoteNub/<NUBINT>, jit-info :: CORBA/<string>)
- => (result :: Rtmgr/RemoteNub/<RNUB>)
-  let process = remote-process(rnub);
-  nub-debug-active-process
-  (process, process-name, process-id, actual-process-id, path-count, jit-info);
-end corba-method;
-*/
-
 define corba-method Rtmgr/RemoteNub/remote-value-byte-size
     (rnub :: <RemoteNub-implementation>)
  => (result :: Rtmgr/RemoteNub/<NUBINT>)
