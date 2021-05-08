@@ -7,6 +7,6 @@ License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 // For testing breakpoints at IEP entry
-define function simple-breakpoint()
+define not-inline function simple-breakpoint()
   #f
 end function;
