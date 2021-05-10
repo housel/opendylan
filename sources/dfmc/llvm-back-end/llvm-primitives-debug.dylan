@@ -64,3 +64,79 @@ end;
 //
 define runtime-variable %running-dylan-spy-function? :: <raw-integer>
   = make-raw-literal(0);
+
+// This is just like call-dylan-function except that it sets
+// %running-dylan-spy-function? while it is active
+define c-callable auxiliary &runtime-primitive-descriptor spy-call-dylan-function
+    (fn :: <function>, n :: <raw-integer>, #rest args)
+ => (primary :: <object>)
+  let word-size = back-end-word-size(be);
+  let m = be.llvm-builder-module;
+
+  let va-list = op--va-decl-start(be);
+  let optargs = op--va-list-to-stack-vector(be, va-list, n);
+  op--va-end(be, va-list);
+
+  let args = op--stack-allocate-vector(be, 1);
+  call-primitive(be, primitive-vector-element-setter-descriptor,
+                 optargs, args, llvm-back-end-value-function(be, 0));
+
+  let global
+    = llvm-runtime-variable(be, m, %running-dylan-spy-function?-descriptor);
+  ins--store(be, 1, global, alignment: word-size);
+
+  let fn-cast = op--object-pointer-cast(be, fn, #"<function>");
+  let args-cast = op--object-pointer-cast(be, args, #"<simple-object-vector>");
+
+  let mv = call-primitive(be, primitive-apply-descriptor, fn-cast, args-cast);
+
+  ins--store(be, 0, global, alignment: word-size);
+
+  ins--extractvalue(be, mv, 0)
+end;
+
+// Read memory on behalf of the debugger, using code so that garbage
+// collector read barriers will have a chance to take effect.
+define c-callable auxiliary &runtime-primitive-descriptor spy-read-location-through-barrier
+    (address :: <raw-pointer>) => (value :: <raw-machine-word>);
+  let word-size = back-end-word-size(be);
+  let raw-machine-word-type
+    = llvm-reference-type(be, dylan-value(#"<raw-machine-word>"));
+  let ptr = ins--bitcast(be, address, llvm-pointer-to(be, raw-machine-word-type));
+  ins--load(be, ptr, alignment: word-size)
+end;
+
+// Write memory on behalf of the debugger, using code so that garbage
+// collector write barriers will have a chance to take effect.
+define c-callable auxiliary &runtime-primitive-descriptor spy-write-location-through-barrier
+    (address :: <raw-pointer>, value :: <raw-machine-word>) => ();
+  let word-size = back-end-word-size(be);
+  let raw-machine-word-type
+    = llvm-reference-type(be, dylan-value(#"<raw-machine-word>"));
+  let ptr = ins--bitcast(be, address, llvm-pointer-to(be, raw-machine-word-type));
+  ins--store(be, value, ptr, alignment: word-size);
+end;
+
+define c-callable auxiliary &runtime-primitive-descriptor spy-exit-application
+    () => ();
+  let zero = llvm-back-end-value-function(be, 0);
+  call-primitive(be, primitive-exit-application-descriptor, zero);
+end;
+
+define c-callable auxiliary &runtime-primitive-descriptor spy-fixup-imported-dylan-data
+    (lo :: <raw-pointer>, hi :: <raw-pointer>) => ();
+  ins--call-intrinsic(be, "llvm.trap", vector()); // FIXME
+  ins--unreachable(be);
+end;
+
+define c-callable auxiliary &runtime-primitive-descriptor spy-fixup-unimported-dylan-data
+    (lo :: <raw-pointer>, hi :: <raw-pointer>) => ();
+  ins--call-intrinsic(be, "llvm.trap", vector()); // FIXME
+  ins--unreachable(be);
+end;
+
+define C-callable auxiliary &runtime-primitive-descriptor spy-teb
+  () => (teb :: <raw-pointer>);
+  let raw-pointer-type = llvm-reference-type(be, dylan-value(#"<raw-pointer>"));
+  ins--bitcast(be, op--teb(be), raw-pointer-type)
+end;

@@ -35,10 +35,9 @@ Rtmgr::NubServer::RemoteNub_SEQ *Rtmgr_NubServer_i::nubs()
 
 Rtmgr::RemoteNub_ptr Rtmgr_NubServer_i::CreateNub(const char *process_name, const char *remote_machine)
 {
-  Rtmgr_RemoteNub_i *nub_impl
-    = new Rtmgr_RemoteNub_i(process_name, remote_machine, debugger_);
+  Rtmgr_RemoteNub_i *nub_impl = new Rtmgr_RemoteNub_i(process_name, remote_machine, debugger_);
   Rtmgr::RemoteNub_ptr nub = nub_impl->_this();
-  nub_impl->_remove_ref();
+  //nub_impl->_remove_ref();
   return nub;
 }
 

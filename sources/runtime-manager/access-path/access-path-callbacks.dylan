@@ -29,6 +29,7 @@ define method deregister-access-path
   end;
 end method;
 
+/*
 define method lookup-access-path-application
     (proc :: <NUBPROCESS>) => (path, application)
   block (return)
@@ -40,7 +41,7 @@ define method lookup-access-path-application
     end for;
   end block;
 end;
-
+*/
 
 // Callback functions for the Debugger NUB to do explicit
 // stop-reason handling for clients during spy calls
@@ -51,7 +52,12 @@ end;
 define function create-thread-stop-reason-handler
     (process :: <NUBPROCESS>, thread :: <NUBTHREAD>,
      priority :: <integer>) => ()
-  let (path, application) = lookup-access-path-application(process);
+  //let (path, application) = lookup-access-path-application(process);
+  if (*current-access-paths*.size ~= 1)
+    error("FIXME create-thread-stop-reason-handler assumptions challenged");
+  end if;
+  let path = *current-access-paths*[0];
+  let application = path.access-path-application-object;
   let process = make (<remote-process>,
                       nub-descriptor: process);
   let thread =

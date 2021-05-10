@@ -46,7 +46,6 @@ define module access-path
       make-access-connection,
       do-open-access-connections,
       connection-open-tethers,
-      connection-process, connection-process-setter,
       connection-process-list, connection-process-list-setter,
       access-debugger-connection,
       <local-debugger-connection>,

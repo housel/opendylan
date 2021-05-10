@@ -6,6 +6,8 @@
 
 #include <memory>
 #include <deque>
+#include <map>
+#include <string>
 
 class NubEventDispatcher;
 
@@ -19,6 +21,7 @@ public:
 
   enum NubState {
     IDLE,
+    OPEN,
     LAUNCHING,
     RUNNING,
   };
@@ -78,22 +81,21 @@ public:
 
   Rtmgr::RemoteNub::RNUBLIBRARY module_index(lldb::SBModule &module);
 
+  enum BreakpointStatusCode {
+    NOT_SUPPORTED = 0,
+    BREAKPOINT_ALREADY_EXISTS = 1,
+    BREAKPOINT_DOES_NOT_EXIST = 2,
+    WATCHPOINT_ALREADY_EXISTS = 3,
+    WATCHPOINT_DOES_NOT_EXIST = 4,
+    SET_BREAKPOINT_FAILED = 5,
+    CLEAR_BREAKPOINT_FAILED = 6,
+    OK = 7,
+    BREAKPOINT_WAS_DISABLED = 8,
+  };
+
   // methods corresponding to defined IDL attributes and operations
   Rtmgr::RemoteNub::RNUB process();
   Rtmgr::AccessPath_ptr access_path();
-
-  Rtmgr::RemoteNub::RNUB create_and_debug_process(const char *command,
-                                                  const char *args,
-                                                  Rtmgr::RemoteNub::NUBINT path_count,
-                                                  Rtmgr::RemoteNub::NUBINT lib_count,
-                                                  const char *working_dir,
-                                                  Rtmgr::RemoteNub::NUBINT create_shell);
-
-  Rtmgr::RemoteNub::RNUB debug_active_process(const char *process_name,
-                                              const char *process_id,
-                                              ::CORBA::ULong actual_process_id,
-                                              Rtmgr::RemoteNub::NUBINT path_count,
-                                              const char *jit_info);
 
   Rtmgr::RemoteNub::NUBINT remote_value_byte_size();
 
@@ -268,7 +270,7 @@ private:
   lldb::SBDebugger debugger_;
   lldb::SBTarget target_;
   lldb::SBListener listener_;
-  lldb::SBProcess process_;
+  lldb::SBLaunchInfo launch_;
 
   // LLDB event dispatcher thread
   std::unique_ptr<NubEventDispatcher> dispatcher_;
@@ -305,6 +307,30 @@ private:
   };
   std::deque<StopReason> stop_reason_queue_;
 
-  // Modules, with a persistent RLIBRARY index value
+  // Target modules, with a persistent RLIBRARY index value
   std::vector<lldb::SBModule> modules_;
+
+  struct SymbolLookup {
+    std::string name;
+    Rtmgr::RemoteNub::RTARGET_ADDRESS address;
+    Rtmgr::RemoteNub::RTARGET_ADDRESS debug_start;
+    Rtmgr::RemoteNub::RTARGET_ADDRESS debug_end;
+    Rtmgr::RemoteNub::RTARGET_ADDRESS final_address_of_definition;
+    bool is_function;
+
+    SymbolLookup(lldb::SBSymbol &symbol, lldb::SBTarget &target);
+  };
+  std::vector<std::vector<SymbolLookup>> lookups_;
+
+  // The system-initialized breakpoint
+  lldb::SBBreakpoint main_breakpoint_;
+
+  std::map<lldb::addr_t, lldb::SBBreakpoint> breakpoint_map_;
+
+  lldb::addr_t exit_process_function_;
+
+  std::string closest_symbol_name_;
+
+  lldb::SBValue evaluate(lldb::SBThread &thread, const char *expression,
+                         bool stop_others = false);
 };

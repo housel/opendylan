@@ -149,7 +149,6 @@ define method start-application-on-connection
   if (success == 0)
     signal(make(<access-path-creation-error>));
   else
-    conn.connection-process := as-remote-pointer(process);
     add!(conn.access-debugger-connection.connection-open-tethers, conn);
   end if;
 end method;
@@ -195,7 +194,6 @@ define method attach-application-on-connection
   if (success == 0)
     signal(make(<access-path-creation-error>));
   else
-    conn.connection-process := as-remote-pointer(process);
     add!(conn.access-debugger-connection.connection-open-tethers, conn);
   end if;
 end method;

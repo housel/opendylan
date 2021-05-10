@@ -19,6 +19,8 @@ int main(int argc, char *argv[])
     lldb::SBDebugger debugger{lldb::SBDebugger::Create(false)};
     debugger.SetAsync(true);
 
+    debugger.HandleCommand("log enable lldb all");
+
     // Initialize the ORB
     CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
 

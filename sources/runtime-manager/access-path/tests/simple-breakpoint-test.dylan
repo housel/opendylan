@@ -31,7 +31,7 @@ define test simple-breakpoint-test ()
     method wait-for-stop-reason-aux(access-path :: <access-path>) => (stop-reason :: <stop-reason>);
       let stop-reason
         = wait-for-stop-reason(access-path, timeout: $debugger-wait-timeout);
-      test-output("Stop-reason %=\n", stop-reason);
+      //test-output("Stop-reason %=\n", stop-reason);
       if (instance?(stop-reason, <load-library-stop-reason>)
             | instance?(stop-reason, <unload-library-stop-reason>)
             | instance?(stop-reason, <create-thread-stop-reason>)
@@ -54,7 +54,6 @@ define test simple-breakpoint-test ()
                    wait-for-stop-reason-aux(access-path),
                    "Stop at system initialized");
 
-/*
   let name
     = mangle-iep-name("simple-breakpoint",
                       $test-module-name,
@@ -69,7 +68,6 @@ define test simple-breakpoint-test ()
   assert-instance?(<breakpoint-stop-reason>,
                    wait-for-stop-reason-aux(access-path),
                    "Stop at breakpoint");
-*/
 
   continue(access-path);
   assert-instance?(<exit-process-stop-reason>,

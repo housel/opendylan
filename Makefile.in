@@ -189,7 +189,8 @@ cli2:
 BOOTSTRAP_3_ROOT = $(abs_builddir)/Bootstrap.3
 
 BOOTSTRAP_3_LIBRARIES = \
-	dylan-compiler dylan-environment parser-compiler dswank make-dylan-app
+	dylan-compiler dylan-environment parser-compiler dswank make-dylan-app \
+        access-path-test-suite-app debugger-test-target-app
 
 BOOTSTRAP_3_COMPILER = \
         $(BOOTSTRAP_2_ROOT)/bin/dylan-compiler \

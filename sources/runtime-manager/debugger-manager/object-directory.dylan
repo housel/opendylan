@@ -138,8 +138,8 @@ define sealed method initialize
       := pair(#"not-located", $each-subclass-slot-descriptor-type);
   wrappers-in-internal-module["<simple-closure-method>"]
     := pair(#"not-located", $simple-method-type);
-  wrappers-in-internal-module["<standard-object-table>"]
-    := pair(#"not-located", $table-type);
+  // wrappers-in-internal-module["<standard-object-table>"]
+  //   := pair(#"not-located", $table-type);
   wrappers-in-internal-module["<symbol-table>"]
     := pair(#"not-located", $table-type);
   wrappers-in-internal-module["<simple-object-array>"]

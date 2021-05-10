@@ -14,6 +14,8 @@ define class <local-access-connection> (<access-connection>)
     = make(<REMOTE-ARG-ARRAY>, element-count: $max-spy-function-arguments);
   constant slot stepping-locations-vector :: <REMOTE-ARG-ARRAY>
     = make(<REMOTE-ARG-ARRAY>, element-count: $max-stepping-locations);
+  slot connection-process :: <NUB>,
+    init-keyword: process:;
 end class;
 
 
