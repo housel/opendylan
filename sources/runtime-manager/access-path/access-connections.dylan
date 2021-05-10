@@ -174,8 +174,6 @@ define open abstract class <access-connection> (<object>)
   constant slot access-connection-description :: <string>,
     init-value: "No description available",
     init-keyword: description:;
-  slot connection-process :: <NUB>,
-    init-keyword: process:;
 end class;
 
 
