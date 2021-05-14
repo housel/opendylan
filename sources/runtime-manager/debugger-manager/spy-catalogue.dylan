@@ -108,6 +108,7 @@ define method use-thread-for-spy-functions
     (application :: <debug-target>, thread :: false-or(<remote-thread>),
      #key reserve?)
        => ()
+  debugger-message("Using thread %= for spy", thread);
   case
     reserve? =>
       application.reserved-spy-thread? := #t;

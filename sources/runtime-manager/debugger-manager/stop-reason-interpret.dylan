@@ -52,7 +52,8 @@ define method interpret-stop-reason
        let top-stack-frame =
          initialize-stack-trace(path, thread);
        let code-location =
-         frame-instruction-address(path, top-stack-frame);
+        frame-instruction-address(path, top-stack-frame);
+       debugger-message("%= from %=", stop-reason, code-location);
        if (address-corresponds-to-primitive?
             (application, code-location, 
              application.debug-message-primitive))
@@ -164,6 +165,8 @@ define method interpret-stop-reason
        create-thread-descriptor(application, stop-reason.stop-reason-thread);
        application.application-primary-thread := 
            stop-reason.stop-reason-thread;
+       debugger-message("Primary thread is %=",
+                        application.application-primary-thread);
        let lib = stop-reason.stop-reason-executable-component;
        application.application-executable := lib;
        note-library-loaded(application, lib);

@@ -559,10 +559,14 @@ define method spawn-interactive-thread
 
   let success? = #f;
 
+  debugger-message("spy-thread: %=, static-block: %=",
+                   spy-thread, static-block);
   if (spy-thread & static-block)
     let running-dylan-spy-function? =
       remote-symbol-address
       (lookup-runtime-symbol(application, $running-dylan-spy-function?));
+    debugger-message("running-dylan-spy-function?: %=",
+                     running-dylan-spy-function?);
 
     block ()
     write-value(path, running-dylan-spy-function?, as-remote-value(1));

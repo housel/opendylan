@@ -8,6 +8,7 @@
 /configure
 /config/build-aux/
 /autom4te*.cache/
+/TAGS
 /sources/bootstrap1-registry/
 /sources/corba/scepter/front-end/file/parser.dylan
 /sources/corba/orb/iop-protocol/
