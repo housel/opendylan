@@ -269,7 +269,7 @@ define function make-debugger-stream(file-name :: <byte-string>)
   *debugger-stream-count* := *debugger-stream-count* + 1;
 end function;
 
-// make-debugger-stream("U:\\nosa\\dylan\\admin\\logs\\debugging");
+make-debugger-stream("/tmp/debugging");
 
 define function close-debugger-stream()
   if (*debugger-stream*)
@@ -283,7 +283,7 @@ define function debugger-message
     let string :: <byte-string> = as(<byte-string>, string);
     if (*debugger-stream*)
       apply(format, *debugger-stream*, concatenate("\n### ", string, "\n"), args);
-      // force-output(*debugger-stream*);
+      force-output(*debugger-stream*);
     else
       // apply(format-out, concatenate("\n### ", string, "\n"), args);
       apply(nub-debug-message, string, args)

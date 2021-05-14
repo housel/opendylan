@@ -561,7 +561,18 @@ void Rtmgr_RemoteNub_i::write_double_float_to_process_memory(Rtmgr::RemoteNub::R
 
 void Rtmgr_RemoteNub_i::read_byte_string_from_process_memory(Rtmgr::RemoteNub::RTARGET_ADDRESS address, Rtmgr::RemoteNub::NUBINT sz, ::CORBA::String_out buffer, Rtmgr::RemoteNub::NUB_ERROR &status)
 {
-  NUB_UNIMPLEMENTED();
+  lldb::SBError error;
+  buffer = CORBA::string_alloc(sz);
+  if (sz > 0) {
+    auto process { this->target_.GetProcess() };
+    auto result { process.ReadMemory(address, buffer.ptr(), sz, error) };
+    if (error.Success()) {
+      status = 0;
+    }
+    else {
+      status = 1;
+    }
+  }
 }
 
 void Rtmgr_RemoteNub_i::write_byte_string_to_process_memory(Rtmgr::RemoteNub::RTARGET_ADDRESS address, Rtmgr::RemoteNub::NUBINT sz, const char *buffer, Rtmgr::RemoteNub::NUB_ERROR &status)
@@ -722,12 +733,18 @@ Rtmgr::RemoteNub::NUBINT Rtmgr_RemoteNub_i::thread_suspendedQ(Rtmgr::RemoteNub::
 void Rtmgr_RemoteNub_i::thread_suspended(Rtmgr::RemoteNub::RNUBTHREAD nubthread)
 {
   auto thread { this->target_.GetProcess().GetThreadByID(nubthread) };
+  lldb::SBStream stream;
+  thread.GetDescription(stream);
+  std::cerr << "thread_suspended " << nubthread << " (" << stream.GetData() << ") ";
   thread.Suspend();
 }
 
 void Rtmgr_RemoteNub_i::thread_resumed(Rtmgr::RemoteNub::RNUBTHREAD nubthread)
 {
   auto thread { this->target_.GetProcess().GetThreadByID(nubthread) };
+  lldb::SBStream stream;
+  thread.GetDescription(stream);
+  std::cerr << "thread_resumed " << nubthread << " (" << stream.GetData() << ") ";
   thread.Resume();
 }
 
@@ -764,12 +781,12 @@ lldb::SBValue Rtmgr_RemoteNub_i::evaluate(lldb::SBThread &thread, const char *ex
 {
   std::cerr << "Evaluating: " << expression << endl;
   lldb::SBExpressionOptions options;
+  options.SetTimeoutInMicroSeconds(0); // Wait forever
   options.SetIgnoreBreakpoints(false);
   options.SetLanguage(lldb::eLanguageTypeC99);
   options.SetTryAllThreads(false);
   options.SetStopOthers(stop_others);
   options.SetUnwindOnError(false);
-  options.SetIgnoreBreakpoints(false);
 
   // If we're currently stopped at a breakpoint then we need to
   // temporarily disable it
@@ -783,7 +800,10 @@ lldb::SBValue Rtmgr_RemoteNub_i::evaluate(lldb::SBThread &thread, const char *ex
   lldb::SBStream description;
   value.GetDescription(description);
   std::cerr << "Result: " << description.GetData() << std::endl;
-  std::cerr << value.GetError().GetCString() << std::endl;
+  lldb::SBError e { value.GetError() };
+  if (e.Fail()) {
+    std::cerr << "Error: " << value.GetError().GetCString() << std::endl;
+  }
 
   // Restore the breakpoint if we disabled it
   if (breakpoint_i != this->breakpoint_map_.end()) {
@@ -800,7 +820,21 @@ Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::remote_call_spy
      const Rtmgr::RemoteNub::RTARGET_ADDRESS_SEQ &args,
      Rtmgr::RemoteNub::NUB_ERROR &status)
 {
+  std::cerr << "remote_call_spy on thread " << nubthread << std::endl;
   auto func_addr { lldb::SBAddress(func, this->target_) };
+  if (func_addr.IsValid()) {
+    auto symbol { func_addr.GetSymbol() };
+    if (symbol.IsValid()) {
+      std::string name(symbol.GetName());
+      std::cerr << "Calling " << name;
+      if (name == "spy_call_dylan_function") {
+        auto callee_addr { lldb::SBAddress(args[0], this->target_) };
+        auto callee_symbol { callee_addr.GetSymbol() };
+        std::cerr << " => " << callee_symbol.GetName();
+      }
+      std::cerr << std::endl;
+    }
+  }
 
   // Record threads existing before the call
   std::set<lldb::tid_t> pre_call_threads;
@@ -829,6 +863,9 @@ Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::remote_call_spy
 
   // Evaluate it
   auto thread { this->target_.GetProcess().GetThreadByID(nubthread) };
+  if (thread.IsSuspended()) {
+    std::cerr << "Thread is suspended!" << std::endl;
+  }
   auto value { this->evaluate(thread, expression.GetData()) };
 
   // Check if any new threads were created during the call. If so, run
@@ -876,7 +913,7 @@ Rtmgr::RemoteNub::NUB_ERROR Rtmgr_RemoteNub_i::set_breakpoint(Rtmgr::RemoteNub::
       breakpoint.SetEnabled(true);
       this->breakpoint_map_[address] = breakpoint;
       std::cerr << "Created a breakpoint at " << std::hex << address << std::dec << std::endl;
-      //this->debugger_.HandleCommand("breakpoint list");
+      this->debugger_.HandleCommand("breakpoint list");
       return OK;
     }
     else {
@@ -1350,8 +1387,18 @@ Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::dylan_calculate_step_into(R
 
 Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::dylan_thread_environment_block_address(Rtmgr::RemoteNub::RNUBTHREAD nubthread, Rtmgr::RemoteNub::NUBINT &valid)
 {
+  std::cerr << "dylan_thread_environment_block_address on thread " << nubthread << std::endl;
+
   auto thread { this->target_.GetProcess().GetThreadByID(nubthread) };
-  auto value { this->evaluate(thread, "spy_teb()", true) };
+  auto suspended { thread.IsSuspended() };
+  if (suspended) {
+    std::cerr << "Temporarily resuming thread!" << std::endl;
+    thread.Resume();
+  }
+  auto value { this->evaluate(thread, "(D) spy_teb()", true) };
+  if (suspended) {
+    thread.Suspend();
+  }
   if (value.IsValid() && value.GetError().Success()) {
     valid = 1;
     return value.GetValueAsUnsigned();
