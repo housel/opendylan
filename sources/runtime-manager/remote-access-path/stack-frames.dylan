@@ -96,8 +96,6 @@ define method read-frame-lexicals
      // from the debugger nub.
      let variable-type = #f; // Until we figure <remote-type> out!
 
-     let variable-location = #f;
-
      let (variable-address :: <abstract-integer>,
           registers? :: <integer>,
           high-register-index :: <integer>,
@@ -106,22 +104,29 @@ define method read-frame-lexicals
        = Rtmgr/RemoteNub/lexical-variable-address
            (conn.nub, as-integer(frame.stack-frame-pointer), lookups, i + 1);
 
-     let variable-name =
-      Rtmgr/RemoteNub/get-lexical-variable-name 
-      (conn.nub, lookups, i + 1);
+    let variable-name
+      = Rtmgr/RemoteNub/get-lexical-variable-name(conn.nub, lookups, i + 1);
 
-     if (registers? == 1)
-       // TODO: Make a register
-       let unassigned-register = 
-         find-register(frame.frame-thread.thread-access-path,
-                       low-register-index);
-       variable-location := 
-         active-register(frame.frame-thread.thread-access-path,
-                         frame.frame-thread,
-                         unassigned-register);
-     else
-       variable-location := as-remote-value(variable-address);
-     end if;
+    let variable-location
+      = if (registers? == 1)
+          if (low-register-index < 0)
+            make (<active-remote-register>,
+                  name: format-to-string("virtual-%d", -low-register-index),
+                  category: #"virtual",
+                  descriptor: low-register-index,
+                  code: low-register-index,
+                  thread: frame.frame-thread)
+          else
+            let unassigned-register
+              = find-register(frame.frame-thread.thread-access-path,
+                              low-register-index);
+            active-register(frame.frame-thread.thread-access-path,
+                            frame.frame-thread,
+                            unassigned-register)
+          end if
+        else
+          as-remote-value(variable-address)
+        end if;
 
      frame.lexicals[i] := make (<lexical-variable>,
                                 name: variable-name,
