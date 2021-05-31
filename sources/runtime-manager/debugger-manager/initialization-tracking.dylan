@@ -217,10 +217,9 @@ define method dynamic-initializer-start-callback
     (start.entry-initialization-tracker.tracker-initialization-state);
   start.entry-initialization-tracker.tracker-initialization-state :=
      #"statically-initialized";
-  if (start.entry-initialization-tracker.tracker-remote-library ==
-         application.application-dylan-library)
+  unless (application.temporary-download-block)
     allocate-temporary-download-block-in(application, thread);
-  end if;
+  end unless;
   if (start.entry-initialization-tracker.tracker-top-level?)
     initialize-static-keywords(application, thread);
   end if;
