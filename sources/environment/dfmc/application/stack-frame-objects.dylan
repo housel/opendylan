@@ -15,7 +15,8 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 define method source-location-from-frame-proxy
     (application :: <dfmc-application>, call-frame :: <call-frame>)
  => (maybe-location :: false-or(<source-location>),
-     location-exact? :: <boolean>)
+     location-exact? :: <boolean>,
+     dylan? :: <boolean>)
   let target = application.application-target-app;
   let ip = call-frame-instruction-pointer(target, call-frame);
   //---*** andrewa: this currently doesn't work for foreign frames...
@@ -28,8 +29,9 @@ define method source-location-from-frame-proxy
     (application :: <dfmc-application>,
      call-frame :: <application-stack-frame>)
  => (maybe-location :: false-or(<source-location>),
-     location-exact? :: <boolean>)
-  values(#f, #f)
+     location-exact? :: <boolean>,
+     dylan? :: <boolean>)
+  values(#f, #f, #f)
 end method source-location-from-frame-proxy;
 
 
@@ -75,10 +77,10 @@ define method stack-frame-function
   with-debugger-transaction (target)
     let project = application.server-project;
     let dm-frame = sf.application-object-proxy;
-    let (location, exact?)
+    let (location, exact?, dylan?)
       = source-location-from-frame-proxy(application, dm-frame);
     let definition-from-source
-      = location & source-location-environment-object(project, location);
+      = dylan? & location & source-location-environment-object(project, location);
     if (instance?(definition-from-source, <application-code-object>))
       definition-from-source
     else
@@ -94,7 +96,9 @@ end method stack-frame-function;
 
 define method stack-frame-source-location
     (application :: <dfmc-application>, sf :: <stack-frame-object>)
- => (location :: false-or(<source-location>), exact? :: <boolean>)
+ => (location :: false-or(<source-location>),
+     exact? :: <boolean>,
+     dylan? :: <boolean>)
   let target = application.application-target-app;
   with-debugger-transaction (target)
     let dm-frame = sf.application-object-proxy;

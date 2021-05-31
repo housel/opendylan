@@ -129,21 +129,16 @@ end method;
 define method remote-address-source-location
     (application :: <debug-target>, address :: <remote-value>,
      #key line-only? = #t, interactive-only? = #f, exact-only? = #f)
-  => (source-location :: false-or(<source-location>), exact? :: <boolean>)
-
-  // Initialize the return value pessimistically.
-  let source-location = #f;
-  let exact? = #f;
-
+  => (source-location :: false-or(<source-location>), exact? :: <boolean>, dylan? :: <boolean>)
   // We need a symbolic name via which to access debug info, so try to find
   // a symbol corresponding to this address.
-
   let interactive-table = application.debug-target-symbol-table;
-  let (sym, offset) = 
-    symbol-table-symbol-relative-address(interactive-table, address);
+  let (sym, offset)
+    = symbol-table-symbol-relative-address(interactive-table, address);
+  let dylan? = sym.remote-symbol-language == $symbol-language-Dylan;
 
   local
-    method defer-to-runtime-information (context) => ()
+    method defer-to-runtime-information (context) => (source-location, exact?, dylan?)
       let path = application.debug-target-access-path;
       let slm = function-source-location-map(path, sym);
       if (slm)
@@ -152,60 +147,57 @@ define method remote-address-source-location
         if (exact)
           let (linenumber, address)
             = source-location-description(slm, exact);
-          source-location
-            := compilation-context-source-location
-                (context, slm.source-filename,
-                 slm.base-linenumber + linenumber);
-          exact? := #t;
+          values(compilation-context-source-location
+                   (context, slm.source-filename,
+                    slm.base-linenumber + linenumber),
+                 #t, dylan?)
         elseif (behind)
           let (linenumber, address)
             = source-location-description(slm, behind);
-          source-location
-            := compilation-context-source-location
-                (context, slm.source-filename,
-                 slm.base-linenumber + linenumber);
-          exact? := #f;
+          values(compilation-context-source-location
+                   (context, slm.source-filename,
+                    slm.base-linenumber + linenumber),
+                 #f, dylan?)
         elseif (ahead)
           let (linenumber, address)
             = source-location-description(slm, ahead);
-          source-location
-            := compilation-context-source-location
-                (context, slm.source-filename,
-                 slm.base-linenumber + linenumber);
-          exact? := #f;
-        end if;
-      end if;
+          values(compilation-context-source-location
+                   (context, slm.source-filename,
+                    slm.base-linenumber + linenumber),
+                 #f, dylan?)
+        end if
+      else
+        values(#f, #f, dylan?)
+      end if
     end method;
 
   if (sym)
-    // Our only possible route to the source location is via the
-    // <compiled-lambda> object whose definition encloses this address.
-    // Call the utility function to find the compiled lambda and its context.
-
-    let (context, lambda) =
-      compiled-lambda-in-context-from-symbol(application, sym);
+    // One possible route to the source location (when using the HARP
+    // back-end, anyway) is via the <compiled-lambda> object whose
+    // definition encloses this address.  Call the utility function to
+    // find the compiled lambda and its context.
+    let (context, lambda)
+      = compiled-lambda-in-context-from-symbol(application, sym);
 
     // If we have this, it should be a simple matter to get the source
     // location from the compiler database.
-
     if (lambda)
-      let (location, ex) =
-        compiled-lambda-source-location
-          (lambda,
-           offset,
-           exact?: exact-only?,
-           line-only?: line-only?,
-           interactive-only?: interactive-only?);
-      source-location := location;
-      exact? := ex;
-      if (~source-location)
-        defer-to-runtime-information(context);
+      let (location, ex)
+        = compiled-lambda-source-location
+            (lambda, offset,
+             exact?: exact-only?,
+             line-only?: line-only?,
+             interactive-only?: interactive-only?);
+      if (location)
+        values(location, ex, dylan?)
+      else
+        defer-to-runtime-information(context)
       end if;
     else
-      defer-to-runtime-information(context);
+      defer-to-runtime-information(context)
     end if;
-  end if;
-
-  // Return whatever we found.
-  values(source-location, exact?);
+  else
+    // Didn't even find a symbol
+    values(#f, #f, #f)
+  end if
 end method;
