@@ -38,7 +38,7 @@ define class <stack-frame-object> (<application-object>)
   //                          correspond to the program counter.
   //   #"location-exact"    - An exact source location is stored in
   //                          the cache.
-  slot source-location-cache-slot :: false-or(<pair>),
+  slot source-location-cache-slot :: false-or(<simple-object-vector>),
     init-value: #f;
 end class <stack-frame-object>;
 
@@ -59,14 +59,15 @@ define open generic stack-frame-environment-object
 
 /// stack-frame-source-location
 ///
-/// Returns the source-location and whether it is exact.  When it is not
-/// exact, the source-location is chosen by the compiler-interface and
-/// debugger-manager libraries to be a known source location.  This returns
-/// #f, #f when the stack frame is not a call frame.
+/// Returns the source-location, whether it is exact, and whether it
+/// represents a Dylan function.  When it is not exact, the
+/// source-location is chosen by the comiler-interface and
+/// debugger-manager libraries to be a known source location.  This
+/// returns #f, #f, #f when the stack frame is not a call frame.
 ///
 define open generic stack-frame-source-location
     (server :: <server>, stack-frame :: <stack-frame-object>)
- => (location :: false-or(<source-location>), exact? :: <boolean>);
+ => (location :: false-or(<source-location>), exact? :: <boolean>, dylan? :: <boolean>);
 
 
 /// stack-frame-thread
@@ -124,33 +125,37 @@ end method environment-object-source-location;
 
 define method stack-frame-source-location
     (project :: <project-object>, stack-frame :: <stack-frame-object>)
- => (location :: false-or(<source-location>), exact? :: <boolean>)
+ => (location :: false-or(<source-location>), exact? :: <boolean>, dylan? :: <boolean>)
   unless (stack-frame.source-location-cache-slot)
     let server = choose-server(project, stack-frame);
     if (server)
-      let (location, exact?) =
+      let (location, exact?, dylan?) =
         stack-frame-source-location(server, stack-frame);
       if (location)
         if (exact?)
-          stack-frame.source-location-cache-slot :=
-            pair(#"location-exact", location)
+          stack-frame.source-location-cache-slot
+            := vector(#"location-exact", location, dylan?);
         else
-          stack-frame.source-location-cache-slot :=
-            pair(#"location-inexact", location)
+          stack-frame.source-location-cache-slot
+            := vector(#"location-inexact", location, dylan?);
         end if;
       else
-        stack-frame.source-location-cache-slot := pair(#"not-available", #f)
+        stack-frame.source-location-cache-slot
+          := vector(#"not-available", #f, dylan?);
       end if;
     else
-      stack-frame.source-location-cache-slot := pair(#"not-available", #f);
+      stack-frame.source-location-cache-slot
+        := vector(#"not-available", #f, #f);
     end if;
   end unless;
-  select (stack-frame.source-location-cache-slot.head)
-    #"not-available"      => values(#f, #f);
+  let slot = stack-frame.source-location-cache-slot;
+  select (slot[0])
+    #"not-available"      =>
+      values(#f, #f, #f);
     #"location-inexact"   =>
-       values(stack-frame.source-location-cache-slot.tail, #f);
+      values(slot[1], #f, slot[2]);
     #"location-exact"     =>
-       values(stack-frame.source-location-cache-slot.tail, #t);
+      values(slot[1], #t, slot[2]);
   end select;
 end method;
 
