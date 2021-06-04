@@ -215,6 +215,10 @@ void deinitialize_thread_variables(void)
 static pthread_mutex_t thread_join_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t thread_exit_event = PTHREAD_COND_INITIALIZER;
 
+static bool thread_hold = false;
+static pthread_mutex_t thread_hold_lock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t thread_hold_change = PTHREAD_COND_INITIALIZER;
+
 static inline void thread_set_state(dylan_value t, uintptr_t state)
 {
   struct KLthreadGYthreadsVdylan *thread
@@ -244,6 +248,14 @@ void *dylan_thread_trampoline(void *arg)
   // FIXME set thread name
   // FIXME set thread priority
 
+  // If this thread was created under control of the debugger, hold it
+  // here until the debugger is ready for it to continue
+  pthread_mutex_lock(&thread_hold_lock);
+  while (thread_hold) {
+    pthread_cond_wait(&thread_hold_change, &thread_hold_lock);
+  }
+  pthread_mutex_unlock(&thread_hold_lock);
+
   EstablishDylanExceptionHandlers();
 
   primitive_initialize_thread_variables();
@@ -267,6 +279,15 @@ void *dylan_thread_trampoline(void *arg)
   pthread_mutex_unlock(&thread_join_lock);
 
   return result;
+}
+
+// Called by the debugger nub
+void spy_hold_threads(int hold)
+{
+  pthread_mutex_lock(&thread_hold_lock);
+  thread_hold = hold;
+  pthread_cond_broadcast(&thread_hold_change);
+  pthread_mutex_unlock(&thread_hold_lock);
 }
 
 // primitive-make-thread

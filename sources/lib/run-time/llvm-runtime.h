@@ -25,4 +25,6 @@ typedef double                  DDFLT;
 extern void EstablishDylanExceptionHandlers(void);
 extern void RemoveDylanExceptionHandlers(void);
 
+extern void spy_hold_threads(int hold);
+
 #endif // LLVM_RUNTIME_H_
