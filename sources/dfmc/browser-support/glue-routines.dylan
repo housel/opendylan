@@ -128,7 +128,7 @@ define function compilation-context-source-location
   project
     & begin
         let sr = project-record-id-source-record(project, ids.first);
-        make-line-location(sr, linenumber)
+        make-line-location(sr, linenumber - sr.source-record-start-line)
       end
 end function;
 
