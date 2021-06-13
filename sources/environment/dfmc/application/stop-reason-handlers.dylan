@@ -895,13 +895,16 @@ define sealed method stop-reason-transaction-admin
   let thread :: <thread-object>
     = stop-reason-thread-object(application, stop-reason);
 
+  debugger-message("stop-reason-transaction-admin %=", stop-reason);
   if (application-just-interacted?(application, thread)
-      & application.application-temporary-stop?)
+        & application.application-temporary-stop?)
+    debugger-message("s-r-t-a invoke application callback");
     invoke-application-callback
       (application, application-just-interacted-callback, thread)
   end if;
 
   let breakpoints = current-stop-breakpoints(application, thread);
+  debugger-message("s-r-t-a breakpoints: %=", breakpoints);
 
   // If we came across the special "initial" breakpoint, we need
   // to set the APPLICATION-REACHED-INTERACTION-POINT? property.
@@ -910,6 +913,7 @@ define sealed method stop-reason-transaction-admin
                & breakpoint.breakpoint-entry-function?
            end,
            breakpoints))
+    debugger-message("s-r-t-a interaction point reached");
     application.application-reached-interaction-point? := #t
   end if;
 
@@ -927,6 +931,7 @@ define sealed method stop-reason-transaction-admin
       unless (instance?(breakpoint, <function-breakpoint-object>)
                 & instance?(breakpoint-info(application, breakpoint), <breakpoint-entry-info>)
                 & member?(#"out", breakpoint.breakpoint-directions))
+        debugger-message("Destroy transient breakpoint %=", breakpoint);
         destroy-breakpoint(breakpoint)
       end unless;
     end if;
@@ -934,20 +939,24 @@ define sealed method stop-reason-transaction-admin
 
   // Now is the time to re-establish function breakpoints.
   if (application.application-just-initialized?)
+    debugger-message("s-r-t-a application was just initialized");
     let project = application.server-project;
     for (breakpoint :: <breakpoint-object> in project.environment-object-breakpoints)
+      debugger-message("Establish environment-object breakpoint %=", breakpoint);
       server-note-breakpoint-state-changed
          (application, breakpoint, #"destroyed");
       server-note-breakpoint-state-changed
          (application, breakpoint, #"created");
     end for;
     for (breakpoint :: <breakpoint-object> in project.source-location-breakpoints)
+      debugger-message("Establish source-location breakpoint %=", breakpoint);
       server-note-breakpoint-state-changed
           (application, breakpoint, #"destroyed");
       server-note-breakpoint-state-changed
           (application, breakpoint, #"created");
     end for;
     if (application.application-startup-option ~== #"start")
+      debugger-message("Establish transient startup breakpoint");
       // If the application was started via the Debug or Interact
       // route, we must set a transient breakpoint upon the initializer
       // function, given that it exists.
@@ -1070,10 +1079,9 @@ define function handle-library-initialization
             application.application-just-finished-execution? := #t;
         end;
       end;
-  /*
-  debugger-message("Stopping? %=: top? %= dll? %=, dll-wrap? %=, phase %=",
-                   stop?, top-level?, dll-project?, dll-wrap?, phase);
-  */
+  debugger-message("Stopping? %=: top? %= really-top? dll? %=, dll-wrap? %=, phase %=",
+                   stop?, top-level?, really-top-level?, dll-project?, dll-wrap?,
+                   phase);
   stop?
 end function handle-library-initialization;
 
