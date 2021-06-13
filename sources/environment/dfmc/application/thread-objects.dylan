@@ -106,8 +106,11 @@ define method process-next-interaction-request
   let path = target.debug-target-access-path;
   let state-model = thread-state-model(application, thread);
   let requests-pending? =
-     (state-model.thread-state-interactor-queue.size > 0);
-  if (requests-pending? & thread-available-for-interaction?(target, thread))
+    (state-model.thread-state-interactor-queue.size > 0);
+  let tafi? = thread-available-for-interaction?(target, thread);
+  debugger-message("requests-pending?=%= tafi?(%=)=%=",
+                   requests-pending?, thread, tafi?);
+  if (requests-pending? & tafi?)
     if (thread-permanently-suspended?(path, thread))
       error("Suspended thread cannot have pending interaction requests");
     end if;
@@ -313,6 +316,7 @@ end method;
 define method create-application-thread
     (application :: <dfmc-application>, title :: <string>)
  => (thread :: <thread-object>)
+  debugger-message("create-application-thread %s", title);
   unless (application.dylan-thread-manager)
     error("Thread Manager does not exist: Cannot create a new application thread");
   end;
@@ -685,6 +689,7 @@ define method initialize-interactive-threads
   => ()
   // Spawn these three interactive threads after
   // library initialization is complete
+  debugger-message("initialize-interactive-threads %=", thread);
 
   // The Thread Manager is explicitly reserved for spawning
   // new application threads by running a particular deemed

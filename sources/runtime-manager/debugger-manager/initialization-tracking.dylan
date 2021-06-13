@@ -22,6 +22,7 @@ define function note-library-loaded
       let library-name
         = demangle-glue-init-name(sym.remote-symbol-name);
       application.library-component-names[library-name] := remote-library;
+      debugger-message("Located %s library init", library-name);
 
       let needs-tracking? = #f;
       let top-level? = #f;
@@ -33,6 +34,7 @@ define function note-library-loaded
         needs-tracking? := #t;
         top-level? := #t;
       end if;
+      debugger-message("%s needs-tracking?=%= top-level?=%=", library-name, needs-tracking?, top-level?);
 
       if (needs-tracking?)
         application.library-initialization-trackers[remote-library]
@@ -221,7 +223,9 @@ define method dynamic-initializer-start-callback
     allocate-temporary-download-block-in(application, thread);
   end unless;
   if (start.entry-initialization-tracker.tracker-top-level?)
+    debugger-message("This is top-level, doing extra initialization now");
     initialize-static-keywords(application, thread);
+    debugger-message("Extra top-level initialization done");
   end if;
   handle-library-initialization-phase
     (application, thread,
@@ -242,6 +246,8 @@ define method dynamic-initializer-done-callback
   deregister-debug-point(application, done.corresponding-entry-tracepoint);
   done.exit-initialization-tracker.tracker-initialization-state := 
      #"dynamically-initialized";
+  debugger-message("Tracker for %s state set to dynamically-initialized (done)",
+                done.exit-initialization-tracker.tracker-remote-library.library-core-name);
   handle-library-initialization-phase
     (application, thread,
      done.exit-initialization-tracker.tracker-remote-library,
@@ -258,7 +264,8 @@ end method;
 
 define method register-dylan-library
     (application :: <debug-target>, dylan-library :: <remote-library>)
-  => ()
+ => ()
+  debugger-message("Registering Dylan library %=", dylan-library);
   application.application-dylan-library := dylan-library;
   application.dylan-application? := #t;
   application.dylan-spy := make(<dylan-spy-catalogue>);
@@ -286,6 +293,7 @@ define constant $running-under-dylan-debugger?
 define method register-dylan-runtime-library
     (application :: <debug-target>, runtime-library :: <remote-library>)
   => ()
+  debugger-message("Registering Dylan runtime library %=", runtime-library);
   let path = application.debug-target-access-path;
   let one = as-remote-value(1);
   application.application-dylan-runtime-library := runtime-library;

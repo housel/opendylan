@@ -288,6 +288,8 @@ define method function-object-breakpoint-address
   let project = application.server-project;
   let source-location
     = environment-object-source-location(project, function-object);
+  debugger-message("function-object-breakpoint-address %=, source-location=%=",
+                   function-object, source-location);
   case
     source-location =>
       let source-record = source-location.source-location-source-record;
@@ -300,12 +302,16 @@ define method function-object-breakpoint-address
              interactive-only?:   #f,
              entry-point-only?:   entry-point?,
              compilation-context: context);
+      debugger-message("source-location is at %= (exact?=%=)",
+                       address, exact);
       address;
     instance?(function-object, <generic-function-object>) =>
       #f;
     otherwise =>
       //---*** We need to handle entry-point? in here too!
       let proxy = ensure-application-proxy(application, function-object);
+      debugger-message("function-object-breakpoint-address (no source) proxy=%=",
+                       proxy);
       if (proxy)
         let function-value = runtime-proxy-to-remote-value(application, proxy);
         let (sig, breakpoint-address, keyword-specifiers)
@@ -321,10 +327,13 @@ define method calculate-breakpoint-address
      #key compilation-context = #f)
   => (address-we-hope :: false-or(<remote-value>))
   let function = bp-object.breakpoint-object;
+  debugger-message("calculate-breakpoint-address %=, function: %=",
+                   bp-object, function);
   ensure-application-proxy(application, function);
   if (instance?(function, <method-object>))
     let project = application.server-project;
     let gf = method-generic-function(project, function);
+    debugger-message("calculate-breakpoint-address gf=%=", gf);
     gf & ensure-application-proxy(application, gf)
   end;
   ensure-application-proxy(application, function);
@@ -557,15 +566,18 @@ define method server-note-breakpoint-state-changed
      state-change :: <breakpoint-state>,
      #key use-project-proxy = application.server-project.project-proxy)
  => ()
+  debugger-message("server-note-breakpoint-state-changed %= %s", bp, state-change);
   unless (breakpoint-has-failed-already?(application, bp))
     let target = application.application-target-app;
     let cc = use-project-proxy & use-project-proxy.project-browsing-context;
     with-debugger-transaction (target)
       block ()
+        debugger-message("s-n-b-s-c %s", state-change);
         select (state-change)
           #"created" =>
             let proxy = find-or-instantiate-proxy(application, bp,
                                                   compilation-context: cc);
+            debugger-message("s-n-b-s-c enabled?=", bp.breakpoint-enabled?);
             if (bp.breakpoint-enabled?)
               register-proxy-if-necessary(application, proxy)
             end;
@@ -578,6 +590,7 @@ define method server-note-breakpoint-state-changed
           #"enabled?" =>
             let proxy = find-or-instantiate-proxy(application, bp,
                                                   compilation-context: cc);
+            debugger-message("s-n-b-s-c enabled?=", bp.breakpoint-enabled?);
             if (bp.breakpoint-enabled?)
               register-proxy-if-necessary(application, proxy);
             else
@@ -587,7 +600,8 @@ define method server-note-breakpoint-state-changed
           otherwise => #f;
 
         end
-      exception (<breakpoint-error>)
+      exception (e :: <breakpoint-error>)
+        debugger-message("s-n-b-s-c %=", e);
         if (application.application-state == #"running")
           note-breakpoint-state-changes-failed
             (application.server-project, vector(bp), state-change);

@@ -39,6 +39,7 @@ define method interpret-stop-reason
   let path = application.debug-target-access-path;
   let interesting-debug-points? = #f;
 
+  debugger-message("Interpret stop reason %=", stop-reason);
   select (stop-reason by instance?)
     <invoke-debugger-stop-reason> =>
        // If this is a dylan-level invocation of the debugger,
@@ -237,6 +238,7 @@ define method interpret-stop-reason
       maybe-modified-stop-reason := stop-reason;
 
   end select;
+  debugger-message("Stop reason modified to %=", maybe-modified-stop-reason);
   values(maybe-modified-stop-reason, interesting-debug-points?, stop-reason);
 end method;
 
@@ -277,6 +279,7 @@ define function debug-primitive-format-arguments
     // from the debug primitive's argument list.
     let format-string = #f;
     let arguments = #f;
+    debugger-message("Extracting format arguments");
     do-frame-arguments(method (lexical :: <lexical-variable>)
                          let name = lexical.lexical-variable-name;
                          let value

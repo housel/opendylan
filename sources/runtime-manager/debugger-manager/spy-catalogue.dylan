@@ -410,6 +410,7 @@ end class;
 
 define method allocate-temporary-download-block-in
     (application :: <debug-target>, spy-thread :: <remote-thread>) => ()
+  debugger-message("Allocate the temporary download block in %=", spy-thread);
   let path = application.debug-target-access-path;
   let lib = application.application-dylan-runtime-library;
   if (lib)
