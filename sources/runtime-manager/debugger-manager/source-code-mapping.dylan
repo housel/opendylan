@@ -36,10 +36,12 @@ define method resolve-source-code-position
 	    else
               #f
 	    end if;
+          let location = sr.source-record-location;
           let (addr, exact) =
             resolve-source-location
               (path, 
-               sr.source-record-name | "unnamed-source-record.dylan", 
+               (location & as(<string>, location))
+                 | "unnamed-source-record.dylan",
                line: line-number, 
                column: column-number,
                library: lib);
@@ -135,13 +137,12 @@ define method remote-address-source-location
   let interactive-table = application.debug-target-symbol-table;
   let (sym, offset)
     = symbol-table-symbol-relative-address(interactive-table, address);
-  let dylan? = sym.remote-symbol-language == $symbol-language-Dylan;
 
   local
-    method defer-to-runtime-information (context) => (source-location, exact?, dylan?)
+    method defer-to-runtime-information (context, dylan?) => (source-location, exact?, dylan?)
       let path = application.debug-target-access-path;
       let slm = function-source-location-map(path, sym);
-      if (slm)
+      if (dylan? & slm)
         let (exact, ahead, behind)
           = nearest-source-locations(path, slm, address);
         if (exact)
@@ -178,10 +179,11 @@ define method remote-address-source-location
     // find the compiled lambda and its context.
     let (context, lambda)
       = compiled-lambda-in-context-from-symbol(application, sym);
+    let dylan? = sym.remote-symbol-language == $symbol-language-Dylan;
 
     // If we have this, it should be a simple matter to get the source
     // location from the compiler database.
-    if (lambda)
+    if (context)
       let (location, ex)
         = compiled-lambda-source-location
             (lambda, offset,
@@ -191,10 +193,11 @@ define method remote-address-source-location
       if (location)
         values(location, ex, dylan?)
       else
-        defer-to-runtime-information(context)
+        defer-to-runtime-information(context, dylan?)
       end if;
     else
-      defer-to-runtime-information(context)
+      // No database in which to find source record information
+      values(#f, #f, dylan?)
     end if;
   else
     // Didn't even find a symbol
