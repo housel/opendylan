@@ -1079,27 +1079,28 @@ define method dylan-object-size
       number-of-repeated-elements :: <integer>)
   let tag = inspect-instance-tag(application, instance);
   let path = application.debug-target-access-path;
+  let rv-size = remote-value-byte-size(path);
   select (tag)
-    $dylan-tag-integer => values(4, 0, 0);
-    $dylan-tag-character => values(4, 0, 0);
-    $dylan-tag-unichar => values(4, 0, 0);
+    $dylan-tag-integer => values(rv-size, 0, 0);
+    $dylan-tag-character => values(rv-size, 0, 0);
+    $dylan-tag-unichar => values(rv-size, 0, 0);
     $dylan-tag-pointer =>
       let (wrapper, valid?) = read-instance-header(application, instance);
       if (valid?)
         let (fixed-slot-count, vector-scaling) =
           dylan-wrapper-properties(application, wrapper);
         if (vector-scaling == 0)
-          values((fixed-slot-count + 1) * 4, fixed-slot-count, 0)
+          values((fixed-slot-count + 1) * rv-size, fixed-slot-count, 0)
         else
           let element-count-address =
             indexed-remote-value(instance, fixed-slot-count + 1);
           let element-count-tagged = read-value(path, element-count-address);
           let element-count = 
             tagged-remote-value-as-integer(element-count-tagged);
-          values((fixed-slot-count + 1) * 4, fixed-slot-count, element-count);
+          values((fixed-slot-count + 1) * rv-size, fixed-slot-count, element-count);
         end if;
       else
-        values(4, 0, 0);
+        values(rv-size, 0, 0);
       end if;
   end select;
 end method;
