@@ -21,7 +21,8 @@ int main(int argc, char *argv[])
 
     //debugger.HandleCommand("log enable lldb expr");
     //debugger.HandleCommand("log enable lldb jit");
-    debugger.HandleCommand("log enable lldb thread");
+    //debugger.HandleCommand("log enable lldb process");
+    //debugger.HandleCommand("log enable lldb thread");
 
     // Initialize the ORB
     CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);

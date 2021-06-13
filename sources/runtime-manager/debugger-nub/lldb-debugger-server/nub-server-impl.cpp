@@ -24,10 +24,6 @@ Rtmgr_NubServer_i::Rtmgr_NubServer_i(CORBA::ORB_ptr orb,
   // add extra constructor code here
 }
 
-Rtmgr_NubServer_i::~Rtmgr_NubServer_i() {
-  // add extra destructor code here
-}
-
 Rtmgr::NubServer::RemoteNub_SEQ *Rtmgr_NubServer_i::nubs()
 {
   NUB_SERVER_UNIMPLEMENTED();
@@ -35,8 +31,8 @@ Rtmgr::NubServer::RemoteNub_SEQ *Rtmgr_NubServer_i::nubs()
 
 Rtmgr::RemoteNub_ptr Rtmgr_NubServer_i::CreateNub(const char *process_name, const char *remote_machine)
 {
-  Rtmgr_RemoteNub_i *nub_impl = new Rtmgr_RemoteNub_i(process_name, remote_machine, debugger_);
-  Rtmgr::RemoteNub_ptr nub = nub_impl->_this();
+  auto nub_impl { new Rtmgr_RemoteNub_i(process_name, remote_machine, debugger_) };
+  auto nub { nub_impl->_this() };
   //nub_impl->_remove_ref();
   return nub;
 }
@@ -62,7 +58,7 @@ void Rtmgr_NubServer_i::DeregisterNub(Rtmgr::RemoteNub_ptr nub)
 
 void Rtmgr_NubServer_i::ShutdownServer()
 {
-  orb_->shutdown(1);
+  orb_->shutdown(true);
 }
 
 char *Rtmgr_NubServer_i::get_local_hostname()
