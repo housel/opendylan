@@ -7,28 +7,24 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define method llvm-compilation-record-dbg-compile-unit
     (back-end :: <llvm-back-end>, cr :: <compilation-record>)
- => (dbg-compile-unit :: false-or(<llvm-metadata>));
+ => (dbg-compile-unit :: <llvm-metadata>);
   let sr = cr.compilation-record-source-record;
   let dbg-file = llvm-source-record-dbg-file(back-end, sr);
-  if (dbg-file)
-    llvm-make-dbg-compile-unit($DW-LANG-Dylan,
-                               dbg-file,
-                               release-full-name(),
-                               module: back-end.llvm-builder-module)
-  end if
+  llvm-make-dbg-compile-unit($DW-LANG-Dylan,
+                             dbg-file,
+                             release-full-name(),
+                             module: back-end.llvm-builder-module)
 end method;
 
 define method llvm-source-record-dbg-file
     (back-end :: <llvm-back-end>, sr :: <source-record>)
- => (dbg-file :: false-or(<llvm-metadata>));
+ => (dbg-file :: <llvm-metadata>);
   element(back-end.%source-record-dbg-file-table, sr, default: #f)
     | begin
         let location = source-record-location(sr);
-        if (location)
-          back-end.%source-record-dbg-file-table[sr]
-            := llvm-make-dbg-file(location.locator-name,
-                                  location.locator-directory)
-        end if
+        back-end.%source-record-dbg-file-table[sr]
+          := llvm-make-dbg-file(location.locator-name,
+                                location.locator-directory)
       end
 end method;
 
