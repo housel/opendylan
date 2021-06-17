@@ -117,6 +117,27 @@ define sideways method emit-gluefile
   end if;
 
   // Generate the system init function
+  emit-gluefile-system-init(back-end, m, ld, cr-names);
+
+  // Generate the self init function
+  let self-init-function
+    = emit-gluefile-self-init(back-end, m, ld, cr-names);
+
+  // Generate the library glue function
+  emit-gluefile-user-init(back-end, m, ld, glue-name, self-init-function);
+
+  // Add constructor definitions to the module
+  llvm-builder-finish-ctor(back-end);
+
+  // Output LLVM bitcode
+  llvm-save-bitcode-file(m, locator);
+
+  // Retract
+  back-end.llvm-builder-module := #f;
+end;
+
+define function emit-gluefile-system-init
+    (back-end :: <llvm-back-end>, m :: <llvm-module>, ld :: <library-description>, cr-names)
   block ()
     let init-name = system-init-name(back-end, ld);
     back-end.llvm-builder-function
@@ -157,7 +178,71 @@ define sideways method emit-gluefile
   cleanup
     back-end.llvm-builder-function := #f;
   end block;
+end function;
 
+define function emit-gluefile-self-init
+    (back-end :: <llvm-back-end>, m :: <llvm-module>, ld :: <library-description>, cr-names)
+ => (self-init-function :: <llvm-function>);
+  let self-init-function
+    = make(<llvm-function>,
+           name: self-init-name(back-end, ld),
+           type: $init-code-function-ptr-type,
+           arguments: #(),
+           attribute-list: make(<llvm-attribute-list>,
+                                function-attributes: $llvm-attribute-noinline),
+           linkage: #"external",
+           visibility: #"hidden",
+           section: llvm-section-name(back-end, #"init-code"),
+           calling-convention: $llvm-calling-convention-c);
+
+  back-end.llvm-builder-function := self-init-function;
+  ins--block(back-end, make(<llvm-basic-block>, name: "bb.entry"));
+
+  // Emit calls to user init functions of compilation records
+  for (cr-name in cr-names)
+    let init-function
+      = make(<llvm-function>,
+             name: concatenate(cr-init-name(back-end, ld, cr-name),
+                               $user-init-code-tag),
+             type: $init-code-function-ptr-type,
+             arguments: #(),
+             linkage: #"external",
+             section: llvm-section-name(back-end, #"init-code"),
+             calling-convention: $llvm-calling-convention-c);
+    llvm-builder-declare-global(back-end, init-function.llvm-global-name,
+                                init-function);
+    ins--call(back-end, init-function, #[]);
+  end for;
+
+  // Call %install-boot-symbols if this is the Dylan library
+  if (dylan-library-library-description?(ld))
+    without-dependency-tracking
+      let install-boot-symbols = ^iep(dylan-value(#"%install-boot-symbols"));
+      emit-extern(back-end, m, install-boot-symbols);
+      let ibs-global
+        = llvm-builder-global(back-end,
+                              emit-name(back-end, m, install-boot-symbols));
+      let undef = make(<llvm-undef-constant>, type: $llvm-object-pointer-type);
+      ins--call(back-end, ibs-global,
+                vector(undef, undef),
+                calling-convention:
+                  llvm-calling-convention(back-end, install-boot-symbols));
+    end;
+  end if;
+
+  // Function return
+  ins--ret(back-end);
+
+  llvm-builder-define-global(back-end, self-init-function.llvm-global-name,
+                             back-end.llvm-builder-function);
+
+  back-end.llvm-builder-function := #f;
+  self-init-function
+end function;
+
+define function emit-gluefile-user-init
+    (back-end :: <llvm-back-end>, m :: <llvm-module>, ld :: <library-description>,
+     glue-name :: <string>, self-init-function :: <llvm-function>)
   // Add a flag to check whether the library has been initialized or not
   let i8-zero
     = make(<llvm-integer-constant>, type: $llvm-i8-type, integer: 0);
@@ -172,19 +257,6 @@ define sideways method emit-gluefile
                              init-flag-global.llvm-global-name,
                              init-flag-global);
 
-  let self-init-function
-    = make(<llvm-function>,
-           name: self-init-name(back-end, ld),
-           type: $init-code-function-ptr-type,
-           arguments: #(),
-           attribute-list: make(<llvm-attribute-list>,
-                                function-attributes: $llvm-attribute-noinline),
-           linkage: #"external",
-           visibility: #"hidden",
-           section: llvm-section-name(back-end, #"init-code"),
-           calling-convention: $llvm-calling-convention-c);
-
-  // Generate the library glue function
   block ()
     back-end.llvm-builder-function
       := make(<llvm-function>,
@@ -261,62 +333,7 @@ define sideways method emit-gluefile
   cleanup
     back-end.llvm-builder-function := #f;
   end block;
-
-  // Generate the self init function
-  block ()
-    back-end.llvm-builder-function := self-init-function;
-    ins--block(back-end, make(<llvm-basic-block>, name: "bb.entry"));
-
-    // Emit calls to user init functions of compilation records
-    for (cr-name in cr-names)
-      let init-function
-        = make(<llvm-function>,
-               name: concatenate(cr-init-name(back-end, ld, cr-name),
-                                 $user-init-code-tag),
-               type: $init-code-function-ptr-type,
-               arguments: #(),
-               linkage: #"external",
-               section: llvm-section-name(back-end, #"init-code"),
-               calling-convention: $llvm-calling-convention-c);
-      llvm-builder-declare-global(back-end, init-function.llvm-global-name,
-                                  init-function);
-      ins--call(back-end, init-function, #[]);
-    end for;
-
-    // Call %install-boot-symbols if this is the Dylan library
-    if (dylan-library-library-description?(ld))
-      without-dependency-tracking
-        let install-boot-symbols = ^iep(dylan-value(#"%install-boot-symbols"));
-        emit-extern(back-end, m, install-boot-symbols);
-        let ibs-global
-          = llvm-builder-global(back-end,
-                                emit-name(back-end, m, install-boot-symbols));
-        let undef = make(<llvm-undef-constant>, type: $llvm-object-pointer-type);
-        ins--call(back-end, ibs-global,
-                  vector(undef, undef),
-                  calling-convention:
-                    llvm-calling-convention(back-end, install-boot-symbols));
-      end;
-    end if;
-
-    // Function return
-    ins--ret(back-end);
-
-    llvm-builder-define-global(back-end, self-init-function.llvm-global-name,
-                               back-end.llvm-builder-function);
-  cleanup
-    back-end.llvm-builder-function := #f;
-  end block;
-
-  // Add constructor definitions to the module
-  llvm-builder-finish-ctor(back-end);
-
-  // Output LLVM bitcode
-  llvm-save-bitcode-file(m, locator);
-
-  // Retract
-  back-end.llvm-builder-module := #f;
-end;
+end function;
 
 
 /// Compilation record init function naming
