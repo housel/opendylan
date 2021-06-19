@@ -319,7 +319,7 @@ define method op--call-iep
           tail-call? = #f)
  => (call :: <llvm-value>);
   let word-size = back-end-word-size(back-end);
-  let return-type = llvm-reference-type(back-end, back-end.%mv-struct-type);
+  let return-type = llvm-mv-return-type(back-end);
 
   let (arguments, function-type)
     = if (arguments.size > $entry-point-argument-count)
