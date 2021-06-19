@@ -58,7 +58,7 @@ define sideways method emit-mainfile
     let my-glue
       = make(<llvm-function>,
              name: library-description-glue-name(back-end, ld),
-             type: $init-code-function-ptr-type,
+             type: user-init-function-ptr-type(back-end),
              arguments: #(),
              linkage: #"external",
              section: llvm-section-name(back-end, #"init-code"),
@@ -186,7 +186,7 @@ define function emit-gluefile-self-init
   let self-init-function
     = make(<llvm-function>,
            name: self-init-name(back-end, ld),
-           type: $init-code-function-ptr-type,
+           type: user-init-function-ptr-type(back-end),
            arguments: #(),
            attribute-list: make(<llvm-attribute-list>,
                                 function-attributes: $llvm-attribute-noinline),
@@ -199,19 +199,21 @@ define function emit-gluefile-self-init
   ins--block(back-end, make(<llvm-basic-block>, name: "bb.entry"));
 
   // Emit calls to user init functions of compilation records
+  let result
+    = make(<llvm-undef-constant>, type: llvm-mv-return-type(back-end));
   for (cr-name in cr-names)
     let init-function
       = make(<llvm-function>,
              name: concatenate(cr-init-name(back-end, ld, cr-name),
                                $user-init-code-tag),
-             type: $init-code-function-ptr-type,
+             type: user-init-function-ptr-type(back-end),
              arguments: #(),
              linkage: #"external",
              section: llvm-section-name(back-end, #"init-code"),
              calling-convention: $llvm-calling-convention-c);
     llvm-builder-declare-global(back-end, init-function.llvm-global-name,
                                 init-function);
-    ins--call(back-end, init-function, #[]);
+    result := ins--call(back-end, init-function, #[]);
   end for;
 
   // Call %install-boot-symbols if this is the Dylan library
@@ -230,8 +232,8 @@ define function emit-gluefile-self-init
     end;
   end if;
 
-  // Function return
-  ins--ret(back-end);
+  // Return the result of the last init
+  ins--ret(back-end, result);
 
   llvm-builder-define-global(back-end, self-init-function.llvm-global-name,
                              back-end.llvm-builder-function);
@@ -268,62 +270,58 @@ define function emit-gluefile-user-init
               calling-convention: $llvm-calling-convention-c);
     ins--block(back-end, make(<llvm-basic-block>, name: "bb.entry"));
 
-    let init-bb = make(<llvm-basic-block>);
-    let return-bb = make(<llvm-basic-block>);
+    let do-init-cmp
+      = if (dylan-library-library-description?(ld))
+          $llvm-true
+        else
+          // Only do library user init after *argv* is available,
+          // i.e. after main() has been entered
+          let argv-value
+            = ins--load(back-end, llvm-runtime-variable(back-end, m, #"*argv*"));
+          let c-pointer-type
+            = llvm-reference-type(back-end, dylan-value(#"<raw-c-pointer>"));
+          let null = make(<llvm-null-constant>, type: c-pointer-type);
+          ins--icmp-ne(back-end, argv-value, null);
+        end if;
+    let result
+      = ins--if (back-end, do-init-cmp)
+          // Check the init flag
+          let flag-value = ins--load(back-end, init-flag-global);
+          let cmp = ins--icmp-eq(back-end, flag-value, i8-zero);
+          ins--if (back-end, cmp)
+            // Set the init flag
+            let i8-one
+              = make(<llvm-integer-constant>, type: $llvm-i8-type, integer: 1);
+            ins--store(back-end, i8-one, init-flag-global);
 
-    unless (dylan-library-library-description?(ld))
-      // Only do library user init after *argv* is available,
-      // i.e. after main() has been entered
-      let check-bb = make(<llvm-basic-block>);
-
-      let argv-value
-        = ins--load(back-end, llvm-runtime-variable(back-end, m, #"*argv*"));
-      let c-pointer-type
-        = llvm-reference-type(back-end, dylan-value(#"<raw-c-pointer>"));
-      let null = make(<llvm-null-constant>, type: c-pointer-type);
-      let argv-cmp = ins--icmp-ne(back-end, argv-value, null);
-      ins--br(back-end, argv-cmp, check-bb, return-bb);
-
-      ins--block(back-end, check-bb);
-    end unless;
-
-    // Check the init flag
-    let flag-value = ins--load(back-end, init-flag-global);
-    let cmp = ins--icmp-eq(back-end, flag-value, i8-zero);
-    ins--br(back-end, cmp, init-bb, return-bb);
-
-    ins--block(back-end, init-bb);
-    // Set the init flag
-    let i8-one
-      = make(<llvm-integer-constant>, type: $llvm-i8-type, integer: 1);
-    ins--store(back-end, i8-one, init-flag-global);
-
-    // Emit calls to glue functions of referenced libraries
-    for (used-ld in library-description-used-descriptions(ld))
-      unless (dylan-library-library-description?(used-ld))
-        let used-glue
-          = make(<llvm-function>,
-                 name: library-description-glue-name(back-end, used-ld),
-                 type: $init-code-function-ptr-type,
-                 arguments: #(),
-                 linkage: #"external",
-                 section: llvm-section-name(back-end, #"init-code"),
-                 calling-convention: $llvm-calling-convention-c);
-        llvm-builder-declare-global(back-end, used-glue.llvm-global-name,
+            // Emit calls to glue functions of referenced libraries
+            for (used-ld in library-description-used-descriptions(ld))
+              unless (dylan-library-library-description?(used-ld))
+                let used-glue
+                  = make(<llvm-function>,
+                         name: library-description-glue-name(back-end, used-ld),
+                         type: user-init-function-ptr-type(back-end),
+                         arguments: #(),
+                         linkage: #"external",
+                         section: llvm-section-name(back-end, #"init-code"),
+                         calling-convention: $llvm-calling-convention-c);
+                llvm-builder-declare-global(back-end, used-glue.llvm-global-name,
                                     used-glue);
-        ins--call(back-end, used-glue, #[]);
-      end unless;
-    end for;
+                ins--call(back-end, used-glue, #[]);
+              end unless;
+            end for;
 
-    // Emit a call to the self init function
-    ins--call(back-end, self-init-function, #[]);
-
-    // Branch to common return
-    ins--br(back-end, return-bb);
+            // Emit a call to the self init function
+            ins--call(back-end, self-init-function, #[]);
+          ins--else
+            make(<llvm-undef-constant>, type: llvm-mv-return-type(back-end))
+          end ins--if
+        ins--else
+          make(<llvm-undef-constant>, type: llvm-mv-return-type(back-end))
+        end ins--if;
 
     // Function return
-    ins--block(back-end, return-bb);
-    ins--ret(back-end);
+    ins--ret(back-end, result);
 
     llvm-builder-define-global(back-end, glue-name,
                                back-end.llvm-builder-function);

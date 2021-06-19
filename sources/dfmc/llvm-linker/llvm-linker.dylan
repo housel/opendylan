@@ -262,6 +262,16 @@ define constant $init-code-function-type
 define constant $init-code-function-ptr-type
   = make(<llvm-pointer-type>, pointee: $init-code-function-type);
 
+define function user-init-function-ptr-type (back-end :: <llvm-back-end>)
+ => (ptr-type :: <llvm-pointer-type>);
+  let function-type
+    = make(<llvm-function-type>,
+           return-type: llvm-mv-return-type(back-end),
+           parameter-types: #(),
+           varargs?: #f);
+  make(<llvm-pointer-type>, pointee: function-type)
+end function;
+
 define method emit-init-code-definition
     (back-end :: <llvm-back-end>, m :: <llvm-module>, heap, name :: <string>)
  => ();
@@ -340,26 +350,29 @@ define method emit-init-code-definition
     back-end.llvm-builder-function
       := make(<llvm-function>,
               name: user-init-name,
-              type: $init-code-function-ptr-type,
+              type: user-init-function-ptr-type(back-end),
               arguments: #(),
               linkage: #"external",
               visibility: #"hidden",
               section: llvm-section-name(back-end, #"init-code"),
               calling-convention: $llvm-calling-convention-c);
     ins--block(back-end, make(<llvm-basic-block>, name: "bb.entry"));
-    
+
+    let result
+      = make(<llvm-undef-constant>, type: llvm-mv-return-type(back-end));
     for (code in heap.heap-root-init-code)
       // Emit the generated init function
       emit-definition(back-end, m, code.^iep);
 
       // Generate a call to the init function
       let iep-name = emit-name(back-end, m, code.^iep);
-      ins--call(back-end, llvm-builder-global(back-end, iep-name),
-                vector(undef, undef),
-                calling-convention: $llvm-calling-convention-fast);
+      result := ins--call(back-end, llvm-builder-global(back-end, iep-name),
+                          vector(undef, undef),
+                          calling-convention: $llvm-calling-convention-fast);
     end for;
 
-    ins--ret(back-end);
+    // Return the result of the last init
+    ins--ret(back-end, result);
 
     llvm-builder-define-global(back-end, user-init-name,
                                back-end.llvm-builder-function);
