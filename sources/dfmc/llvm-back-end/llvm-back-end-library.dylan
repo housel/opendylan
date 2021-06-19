@@ -59,6 +59,7 @@ define module dfmc-llvm-back-end
     llvm-object-type,
     llvm-class-type,
     llvm-reference-type,
+    llvm-mv-return-type,
     llvm-lambda-type,
     llvm-c-function-type,
     llvm-entry-point-info,

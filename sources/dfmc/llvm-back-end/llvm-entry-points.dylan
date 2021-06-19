@@ -220,7 +220,7 @@ define method llvm-entry-point-descriptor-function-type
 
   make(<llvm-function-type>,
        parameter-types: parameter-types,
-       return-type: llvm-reference-type(back-end, back-end.%mv-struct-type),
+       return-type: llvm-mv-return-type(back-end),
        varargs?: true?(member?(#"variable-arity",
                                descriptor.entry-point-attributes)))
 end method;
@@ -548,7 +548,7 @@ define entry-point-descriptor apply-xep
   if (empty?(arguments))
     // The 0-argument apply-xep will never be called
     make(<llvm-undef-constant>,
-         type: llvm-reference-type(be, be.%mv-struct-type))
+         type: llvm-mv-return-type(be))
   else
     let word-size = back-end-word-size(be);
 
@@ -611,7 +611,7 @@ define entry-point-descriptor apply-xep
       fill!(parameter-types, $llvm-object-pointer-type, start: 2);
       let xep-type
         = make(<llvm-function-type>,
-               return-type: llvm-reference-type(be, be.%mv-struct-type),
+               return-type: llvm-mv-return-type(be),
                parameter-types: parameter-types,
                varargs?: #f);
       let xep-cast = ins--bitcast(be, xep, llvm-pointer-to(be, xep-type));
@@ -639,7 +639,7 @@ end entry-point-descriptor;
 define entry-point-descriptor apply-mep
     (next :: <list>, meth :: <lambda>, #rest arguments) => (#rest values);
   let word-size = back-end-word-size(be);
-  let return-type = llvm-reference-type(be, be.%mv-struct-type);
+  let return-type = llvm-mv-return-type(be);
   let sov-class :: <&class> = dylan-value(#"<simple-object-vector>");
 
   local
@@ -723,7 +723,7 @@ define entry-point-descriptor apply-mep
   if (empty?(arguments))
     // The 0-argument apply-mep will never be called
     make(<llvm-undef-constant>,
-         type: llvm-reference-type(be, be.%mv-struct-type))
+         type: llvm-mv-return-type(be))
   else
     let lambda-class :: <&class> = dylan-value(#"<lambda>");
     let meth-cast = op--object-pointer-cast(be, meth, lambda-class);
@@ -1121,7 +1121,7 @@ define singular variable-arity outer entry-point-descriptor rest-key-xep-n
            fill: $llvm-object-pointer-type);
   parameter-types[$entry-point-argument-count]
     := llvm-pointer-to(be, $llvm-object-pointer-type);
-  let return-type = llvm-reference-type(be, be.%mv-struct-type);
+  let return-type = llvm-mv-return-type(be);
   let iep-type
     = make(<llvm-function-type>,
            return-type: return-type,
@@ -1172,7 +1172,7 @@ define method op--chain-to-engine-entry-point
            fill: $llvm-object-pointer-type);
   let entry-point-type
     = make(<llvm-function-type>,
-           return-type: llvm-reference-type(be, be.%mv-struct-type),
+           return-type: llvm-mv-return-type(be),
            parameter-types: parameter-types,
            varargs?: #f);
   let entry-point-cast
@@ -1491,7 +1491,7 @@ define singular variable-arity outer entry-point-descriptor rest-key-mep-n
            fill: $llvm-object-pointer-type);
   parameter-types[$entry-point-argument-count]
     := llvm-pointer-to(be, $llvm-object-pointer-type);
-  let return-type = llvm-reference-type(be, be.%mv-struct-type);
+  let return-type = llvm-mv-return-type(be);
   let iep-type
     = make(<llvm-function-type>,
            return-type: return-type,
@@ -1531,7 +1531,7 @@ define method op--slotacc-xep
   let undef = make(<llvm-undef-constant>, type: $llvm-object-pointer-type);
   ins--tail-call(be, llvm-builder-global(be, name),
                  concatenate(arguments, vector(undef, undef)),
-                 type: llvm-reference-type(be, be.%mv-struct-type),
+                 type: llvm-mv-return-type(be),
                  calling-convention: llvm-calling-convention(be, f))
 end method;
 
@@ -1923,7 +1923,7 @@ define single-method outer entry-point-descriptor implicit-keyed-single-method
                  fill: $llvm-object-pointer-type);
         let mep-type
           = make(<llvm-function-type>,
-                 return-type: llvm-reference-type(be, be.%mv-struct-type),
+                 return-type: llvm-mv-return-type(be),
                  parameter-types: parameter-types,
                  varargs?: #f);
         let mep-cast = ins--bitcast(be, mep, llvm-pointer-to(be, mep-type));
@@ -2012,7 +2012,7 @@ define single-method outer entry-point-descriptor explicit-keyed-single-method
                  fill: $llvm-object-pointer-type);
         let mep-type
           = make(<llvm-function-type>,
-                 return-type: llvm-reference-type(be, be.%mv-struct-type),
+                 return-type: llvm-mv-return-type(be),
                  parameter-types: parameter-types,
                  varargs?: #f);
         let mep-cast = ins--bitcast(be, mep, llvm-pointer-to(be, mep-type));
@@ -2115,7 +2115,7 @@ define single-method outer entry-point-descriptor unrestricted-keyed-single-meth
                fill: $llvm-object-pointer-type);
       let mep-type
         = make(<llvm-function-type>,
-               return-type: llvm-reference-type(be, be.%mv-struct-type),
+               return-type: llvm-mv-return-type(be),
                parameter-types: parameter-types,
                varargs?: #f);
       let mep-cast = ins--bitcast(be, mep, llvm-pointer-to(be, mep-type));

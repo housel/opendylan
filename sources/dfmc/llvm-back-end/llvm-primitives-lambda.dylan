@@ -557,7 +557,7 @@ define side-effecting stateless indefinite-extent can-unwind &runtime-primitive-
     fill!(parameter-types, $llvm-object-pointer-type, start: 3);
     let mep-type
       = make(<llvm-function-type>,
-             return-type: llvm-reference-type(be, be.%mv-struct-type),
+             return-type: llvm-mv-return-type(be),
              parameter-types: parameter-types,
              varargs?: #f);
     let mep-cast = ins--bitcast(be, mep, llvm-pointer-to(be, mep-type));
@@ -738,7 +738,7 @@ define side-effecting stateless indefinite-extent can-unwind mapped-parameter &r
     fill!(parameter-types, $llvm-object-pointer-type, start: 2);
     let xep-type
       = make(<llvm-function-type>,
-             return-type: llvm-reference-type(be, be.%mv-struct-type),
+             return-type: llvm-mv-return-type(be),
              parameter-types: parameter-types,
              varargs?: #f);
     let xep-cast = ins--bitcast(be, xep, llvm-pointer-to(be, xep-type));

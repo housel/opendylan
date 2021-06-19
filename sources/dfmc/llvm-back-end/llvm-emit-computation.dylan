@@ -762,7 +762,7 @@ define method emit-call
       = make(<simple-object-vector>,
              size: c.arguments.size + 2,
              fill: $llvm-object-pointer-type);
-    let return-type = llvm-reference-type(back-end, back-end.%mv-struct-type);
+    let return-type = llvm-mv-return-type(back-end);
     let mep-type
       = make(<llvm-function-type>,
              return-type: return-type,
@@ -816,7 +816,7 @@ define method emit-call
   parameter-types[0] := $llvm-object-pointer-type; // function
   parameter-types[1] := back-end.%type-table["iWord"]; // argument count
   fill!(parameter-types, $llvm-object-pointer-type, start: 2);
-  let return-type = llvm-reference-type(back-end, back-end.%mv-struct-type);
+  let return-type = llvm-mv-return-type(back-end);
   let xep-type
     = make(<llvm-function-type>,
            return-type: return-type,
@@ -855,7 +855,7 @@ define method emit-call
   let apply-xep-entry-point
     = llvm-entry-point-function(back-end, apply-xep-descriptor,
                                 c.arguments.size);
-  let return-type = llvm-reference-type(back-end, back-end.%mv-struct-type);
+  let return-type = llvm-mv-return-type(back-end);
   op--call(back-end, apply-xep-entry-point,
            concatenate(vector(emit-reference(back-end, m, c.function)),
                        map(curry(emit-reference, back-end, m),
@@ -872,7 +872,7 @@ define method emit-call
   let apply-mep-entry-point
     = llvm-entry-point-function(back-end, apply-mep-descriptor,
                                 c.arguments.size);
-  let return-type = llvm-reference-type(back-end, back-end.%mv-struct-type);
+  let return-type = llvm-mv-return-type(back-end);
   op--call(back-end, apply-mep-entry-point,
            concatenate(vector(emit-reference(back-end, m, c.next-methods),
                               emit-reference(back-end, m, c.function)),
@@ -903,7 +903,7 @@ define method emit-call
       = make(<simple-object-vector>,
              size: c.arguments.size + 2,
              fill: $llvm-object-pointer-type);
-    let return-type = llvm-reference-type(back-end, back-end.%mv-struct-type);
+    let return-type = llvm-mv-return-type(back-end);
     let mep-type
       = make(<llvm-function-type>,
              return-type: return-type,
@@ -1809,7 +1809,7 @@ define method do-emit-return-temporary
  => ();
   let undef-struct
     = make(<llvm-undef-constant>,
-           type: llvm-reference-type(back-end, back-end.%mv-struct-type));
+           type: llvm-mv-return-type(back-end));
   if (mv.llvm-mv-fixed.empty?)
     let result
       = op--global-mv-struct(back-end,

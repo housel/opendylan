@@ -355,6 +355,12 @@ define method llvm-dynamic-signature-types
   parameter-types
 end method;
 
+define inline function llvm-mv-return-type
+    (back-end :: <llvm-back-end>)
+  => (type :: <llvm-type>);
+  llvm-reference-type(back-end, back-end.%mv-struct-type)
+end function;
+
 // Function type for an Internal Entry Point function
 define method llvm-lambda-type
     (back-end :: <llvm-back-end>, o :: <&iep>)
@@ -374,7 +380,7 @@ define method llvm-lambda-type
     = vector($llvm-object-pointer-type,  // next-methods
              $llvm-object-pointer-type); // function
   make(<llvm-function-type>,
-       return-type: llvm-reference-type(back-end, back-end.%mv-struct-type),
+       return-type: llvm-mv-return-type(back-end),
        parameter-types:
          if (parameter-types.size > $entry-point-argument-count)
            let extra-parameter-type

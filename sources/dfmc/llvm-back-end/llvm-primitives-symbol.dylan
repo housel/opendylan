@@ -308,7 +308,7 @@ define side-effecting stateless dynamic-extent auxiliary &runtime-primitive-desc
                = llvm-builder-global(be, emit-name(be, m, resolve-iep));
              let resolved-mv
                = op--call(be, resolve-iep-global, vector(symbol, undef, undef),
-                          type: llvm-reference-type(be, be.%mv-struct-type),
+                          type: llvm-mv-return-type(be),
                           calling-convention:
                             llvm-calling-convention(be, resolve-iep));
              ins--extractvalue(be, resolved-mv, 0);

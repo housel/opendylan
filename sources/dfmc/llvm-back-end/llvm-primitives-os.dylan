@@ -28,7 +28,7 @@ define c-callable auxiliary &runtime-primitive-descriptor call-application-exit-
   let undef = make(<llvm-undef-constant>, type: $llvm-object-pointer-type);
   op--call(be, global,
            vector(undef, undef),
-           type: llvm-reference-type(be, be.%mv-struct-type),
+           type: llvm-mv-return-type(be),
            calling-convention: llvm-calling-convention(be, iep),
            tail-call?: #t);
 end;

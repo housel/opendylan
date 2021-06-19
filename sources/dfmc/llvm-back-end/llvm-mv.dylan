@@ -189,7 +189,7 @@ define method op--global-mv-struct
  => (struct :: <llvm-value>);
   let undef-struct
     = make(<llvm-undef-constant>,
-           type: llvm-reference-type(back-end, back-end.%mv-struct-type));
+           type: llvm-mv-return-type(back-end));
   llvm-constrain-type(primary.llvm-value-type, $llvm-object-pointer-type);
   let value-struct
     = ins--insertvalue(back-end, undef-struct, primary, 0);
