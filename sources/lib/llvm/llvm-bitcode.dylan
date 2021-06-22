@@ -3086,3 +3086,82 @@ define function llvm-save-bitcode-file
     end if;
   end block;
 end function;
+
+define class <byte-vector-file-accessor> (<external-file-accessor>)
+  slot accessor-vector :: <byte-vector> = make(<byte-vector>, size: 0);
+  slot accessor-position :: <integer> = 0;
+end class;
+
+define sealed method accessor-size
+    (accessor :: <byte-vector-file-accessor>)
+ => (size :: false-or(<integer>));
+  accessor.accessor-vector.size
+end method;
+
+define sealed method accessor-read-into!
+    (accessor :: <byte-vector-file-accessor>, stream :: <multi-buffered-stream>,
+     offset :: <integer>, count :: <integer>, #key buffer)
+ => (nread :: <integer>)
+  let nread :: <integer>
+    = min(accessor.accessor-vector.size - accessor.accessor-position, count);
+  let buffer :: <buffer> = buffer | stream-input-buffer(stream);
+  copy-bytes(buffer, offset,
+             accessor.accessor-vector, accessor.accessor-position,
+             nread);
+  accessor.accessor-position := accessor.accessor-position + nread;
+  nread
+end method;
+
+define sealed method accessor-write-from
+    (accessor :: <byte-vector-file-accessor>, stream :: <multi-buffered-stream>,
+     offset :: <buffer-index>, count :: <buffer-index>, #key buffer,
+     return-fresh-buffer?)
+ => (nwritten :: <integer>, new-buffer :: <buffer>);
+  let buffer :: <buffer> = buffer | stream-output-buffer(stream);
+  let current-size = accessor.accessor-vector.size;
+  if (accessor.accessor-position + count > current-size)
+    let new-size = accessor.accessor-position + count;
+    let new-vector = make(<byte-vector>, size: new-size);
+    copy-bytes(new-vector, 0, accessor.accessor-vector, 0, current-size);
+    accessor.accessor-vector := new-vector;
+  end if;
+  copy-bytes(accessor.accessor-vector, accessor.accessor-position,
+             buffer, offset, count);
+  accessor.accessor-position := accessor.accessor-position + count;
+  values (count, buffer)
+end method;
+
+define sealed method accessor-close
+    (accessor :: <byte-vector-file-accessor>,
+     #key abort? = #f, wait? = #t)
+ => (closed? :: <boolean>)
+  #t
+end method;
+
+define function llvm-save-bitcode-byte-vector
+    (module :: <llvm-module>)
+ => (bitcode :: <byte-vector>);
+  let inner-stream = #f;
+  let stream = #f;
+  let accessor = make(<byte-vector-file-accessor>);
+  block ()
+    inner-stream
+      := make(<multi-buffered-stream>,
+              element-type: <byte>,
+              direction: #"output",
+              if-exists: #"truncate",
+              buffer-size: 4096,
+              locator: #f,
+              accessor: accessor);
+    stream
+      := make(<bitcode-stream>, inner-stream: inner-stream);
+    llvm-write-bitcode(stream, module);
+  cleanup
+    if (stream)
+      close(stream);
+    elseif (inner-stream)
+      close(inner-stream);
+    end if;
+  end block;
+  accessor.accessor-vector
+end function;

@@ -267,7 +267,8 @@ define module llvm
     llvm-type-table,
     llvm-global-table,
 
-    llvm-save-bitcode-file;
+    llvm-save-bitcode-file,
+    llvm-save-bitcode-byte-vector;
 end module;
 
 define module llvm-builder
@@ -563,6 +564,7 @@ define module llvm-internals
   use machine-word-lowlevel;
   use common-dylan;
   use streams;
+  use streams-internals;
   use format;
   use print;
   use pprint;
