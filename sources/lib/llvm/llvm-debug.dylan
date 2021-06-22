@@ -194,13 +194,13 @@ end function;
 
 define function llvm-make-dbg-file
     (file :: <pathname>,
-     directory :: <pathname>)
+     directory :: false-or(<pathname>))
  => (dbg-file :: <llvm-metadata>)
   make(<llvm-DIFile-metadata>,
        filename:
          llvm-make-canonical-metadata-string(as(<string>, file)),
        directory:
-         llvm-make-canonical-metadata-string(as(<string>, directory)))
+         llvm-make-canonical-metadata-string(directory & as(<string>, directory)))
 end function;
 
 define function llvm-make-dbg-function-type
