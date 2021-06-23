@@ -23,8 +23,12 @@ define method llvm-source-record-dbg-file
     | begin
         let location = source-record-location(sr);
         back-end.%source-record-dbg-file-table[sr]
-          := llvm-make-dbg-file(location.locator-name,
-                                location.locator-directory)
+          := if (location)
+               llvm-make-dbg-file(location.locator-name,
+                                  location.locator-directory)
+             else
+               llvm-make-dbg-file("ISR", #f)
+             end if
       end
 end method;
 
