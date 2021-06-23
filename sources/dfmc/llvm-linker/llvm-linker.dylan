@@ -384,6 +384,9 @@ end method;
 
 /// Externs referenced from <computation> expansions (and not explicitly in DFM)
 
+define constant $wrapper-classes
+  = #[#"<simple-object-vector>"];
+
 define constant $object-extern-names
   = #[#"%empty-vector"];
 
@@ -397,6 +400,14 @@ define constant $code-extern-names
 define method emit-code-externs
     (back-end :: <llvm-back-end>, m :: <llvm-module>)
  => ();
+  for (class-name in $wrapper-classes)
+    let wrapper = ^class-mm-wrapper(dylan-value(class-name));
+    let def = llvm-builder-global(back-end, emit-name(back-end, m, wrapper));
+    if (instance?(def, <llvm-symbolic-constant>))
+      emit-extern(back-end, m, wrapper);
+    end if;
+  end for;
+
   for (object-name in $object-extern-names)
     let object = dylan-value(object-name);
     let def = llvm-builder-global(back-end, emit-name(back-end, m, object));
