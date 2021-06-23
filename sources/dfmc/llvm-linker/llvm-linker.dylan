@@ -106,7 +106,6 @@ define method link-all
   end with-simple-abort-retry-restart;
 end method;
 
-define variable *fake-transaction-id-counter* = 0;
 define sideways method link-and-download
     (back-end :: <llvm-back-end>, il :: <interactive-layer>, runtime-context,
      #rest flags,
@@ -114,12 +113,57 @@ define sideways method link-and-download
           debug-info? = #f,
      #all-keys)
  => (transaction-id);
-  // let cr-names = compilation-context-object-names(il);
-  break("Interactive execution not implemented for %s, "
-	  "continue from break to pretend that download completed", back-end);
-  // Make sure to return distinct transaction ids, so can test condition
-  // lookup, which is based on the transaction id's.
-  *fake-transaction-id-counter* := *fake-transaction-id-counter* + 1
+  let crs = compilation-context-records(il);
+  let bc-files = make(<vector>, size: crs.size + 1);
+  let ld = il.interactive-layer-base;
+  let component-name
+    = as-lowercase(as(<byte-string>, ld.library-description-emit-name));
+  let init-function-name = glue-name(back-end, component-name);
+
+  local
+    method emitter(cr :: <compilation-record>) => (data)
+      progress-line("Interactive linking %s", cr);
+      let m :: <llvm-module> = cr.compilation-record-back-end-data;
+      back-end.llvm-builder-module := m;
+
+      link-all(back-end, m, cr);
+
+      // Add constructor definitions to the module
+      llvm-builder-finish-ctor(back-end);
+
+      // Output LLVM bitcode
+      let data = llvm-save-bitcode-byte-vector(m);
+
+      // Retract
+      cr.compilation-record-back-end-data
+        := back-end.llvm-builder-module
+        := #f;
+      llvm-retract-cached(back-end);
+
+      data
+    end method emitter;
+
+  for (cr in crs, i from 0)
+    if (compilation-record-needs-linking?(cr))
+      with-dependent ($compilation of cr)
+        bc-files[i] := emitter(cr);
+      end with-dependent;
+      compilation-record-needs-linking?(cr) := #f;
+    end if;
+  end for;
+
+  let cr-names = compilation-context-object-names(il);
+  without-dependency-tracking
+    bc-files[crs.size]
+      := emit-gluefile(back-end, ld, cr-names,
+                       assembler-output?: assembler-output?,
+                       downloadable-data?: #t,
+                       debug-info?: debug-info?,
+                       compilation-layer: il);
+  end;
+
+  download-for-interactive-execution
+    (runtime-context, bc-files, component-name, init-function-name)
 end method;
 
 define method emit-externs

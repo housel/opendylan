@@ -89,7 +89,8 @@ define sideways method emit-gluefile
           downloadable-data? = #f,
           debug-info? = #t,
           compilation-layer,
-     #all-keys)
+          #all-keys)
+ => (data);
   let locator
     = build-area-output-locator(ld, base: "_glue", type: "bc");
   let m = make(<llvm-module>,
@@ -130,10 +131,18 @@ define sideways method emit-gluefile
   llvm-builder-finish-ctor(back-end);
 
   // Output LLVM bitcode
-  llvm-save-bitcode-file(m, locator);
+  let data
+    = if (downloadable-data?)
+        llvm-save-bitcode-byte-vector(m)
+      else
+        llvm-save-bitcode-file(m, locator)
+      end if;
 
   // Retract
   back-end.llvm-builder-module := #f;
+
+  // If this is for interactive download, return the bitcode
+  data
 end;
 
 define function emit-gluefile-system-init
