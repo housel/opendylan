@@ -223,8 +223,9 @@ define function write-bug-report-object-location
  => ()
   let project = report.report-project;
   let function = stack-frame-function(project, frame);
-  //---*** How do we display the location of foreign code?
-  let location = function & environment-object-source-location(project, function);
+  let location
+    = stack-frame-source-location(project, frame)
+    | (function & environment-object-source-location(project, function));
   format(stream, "%s", indentation);
   if (location)
     let record = location.source-location-source-record;

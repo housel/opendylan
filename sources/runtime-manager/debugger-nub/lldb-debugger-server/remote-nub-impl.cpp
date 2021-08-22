@@ -168,7 +168,8 @@ Rtmgr_RemoteNub_i::Rtmgr_RemoteNub_i(const char *process_name, const char *remot
     launch_(nullptr),
     dispatcher_(new NubEventDispatcher(this->listener_, *this)),
     cond_(&this->mutex_),
-    nub_state_(IDLE)
+    nub_state_(IDLE),
+    ssp_(std::make_shared<llvm::orc::SymbolStringPool>())
 {
   std::cerr << "Instantiated RemoteNub" << std::endl;
 }
@@ -299,12 +300,29 @@ void Rtmgr_RemoteNub_i::notify_process_stop(lldb::SBProcess &process, lldb::Stat
             }
             break;
           case lldb::eStopReasonException:
-            std::cerr << "  What to do???" << std::endl;
+            {
+              auto code { thread.GetStopReasonDataAtIndex(0) };
+              if (code == 6) {    // FIXME
+                StopReason system_initialized(HARD_CODED_BREAKPOINT_DBG_EVENT, false,
+                                              pid, tid);
+                system_initialized.datum = 0;
+                this->stop_reason_queue_.push_back(system_initialized);
+                this->cond_.signal();
+                std::cerr << "  Pushed HARD_CODED_BREAKPOINT for that one" << std::endl;
+                //this->debugger_.HandleCommand("bt all");
+              }
+              else {
+                std::cerr << "  What to do??? "
+                          << thread.GetStopReasonDataCount() << " data"
+                          << " (0) = " << thread.GetStopReasonDataAtIndex(0)
+                          << std::endl;
+              }
+            }
             break;
           case lldb::eStopReasonSignal:
             {
               auto sig { thread.GetStopReasonDataAtIndex(0) };
-              if (sig == SIGTRAP) {
+              if (sig == process.GetUnixSignals().GetSignalNumberFromName("SIGTRAP")) {
                 StopReason system_initialized(HARD_CODED_BREAKPOINT_DBG_EVENT, false,
                                               pid, tid);
                 system_initialized.datum = 0;
@@ -423,6 +441,28 @@ void Rtmgr_RemoteNub_i::notify_target_modules_unloaded(lldb::SBEvent &event)
 Rtmgr::RemoteNub::RNUBLIBRARY Rtmgr_RemoteNub_i::module_index(lldb::SBModule &module)
 {
   abort();
+}
+
+lldb::addr_t Rtmgr_RemoteNub_i::allocate_target_memory(size_t size, uint32_t permissions,
+                                                       lldb::SBError &error)
+{
+  omni_mutex_lock lock(this->mutex_);
+  auto process { this->target_.GetProcess() };
+  return process.AllocateMemory(size, permissions, error);
+}
+
+lldb::SBError Rtmgr_RemoteNub_i::deallocate_target_memory(lldb::addr_t ptr)
+{
+  omni_mutex_lock lock(this->mutex_);
+  auto process { this->target_.GetProcess() };
+  return process.DeallocateMemory(ptr);
+}
+
+lldb::SBError Rtmgr_RemoteNub_i::do_with_process(ProcessFunction perform)
+{
+  omni_mutex_lock lock(this->mutex_);
+  auto process { this->target_.GetProcess() };
+  return perform(process);
 }
 
 // Methods corresponding to IDL attributes and operations
@@ -669,7 +709,12 @@ Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::calculate_stack_address(Rtm
 
 char *Rtmgr_RemoteNub_i::target_address_to_string(Rtmgr::RemoteNub::RTARGET_ADDRESS x, Rtmgr::RemoteNub::NUBINT sz, Rtmgr::RemoteNub::NUBINT radix, Rtmgr::RemoteNub::NUBINT pad, Rtmgr::RemoteNub::NUBINT &truncated)
 {
-  NUB_UNIMPLEMENTED();
+  if (radix != 16) {
+    throw CORBA::BAD_PARAM(0, CORBA::COMPLETED_NO);
+  }
+  lldb::SBStream address;
+  address.Printf("%" PRIx64, x);
+  return CORBA::string_dup(address.GetData());
 }
 
 Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::string_to_target_address(Rtmgr::RemoteNub::NUBINT sz, const char *buffer, Rtmgr::RemoteNub::NUBINT radix, Rtmgr::RemoteNub::NUBINT &overflow)
@@ -904,7 +949,9 @@ void Rtmgr_RemoteNub_i::application_continue()
   std::cerr << "Continue from " << stop_reason_name[this->stop_reason_queue_.front().code]
             << " synthetic: " << synthetic << std::endl;
   this->stop_reason_queue_.pop_front();
-  if (!synthetic) {
+  if (!this->function_call_expression_.empty()) {
+    this->evaluate_function_call();
+  } else if (!synthetic) {
     if (!this->stop_reason_queue_.empty()) {
       std::cerr << "Continuing with items in queue:" << std::endl;
       for (auto &stop : this->stop_reason_queue_) {
@@ -924,7 +971,9 @@ void Rtmgr_RemoteNub_i::application_continue_unhandled()
   std::cerr << "Continue from " << stop_reason_name[this->stop_reason_queue_.front().code]
             << " synthetic: " << synthetic << std::endl;
   this->stop_reason_queue_.pop_front();
-  if (!synthetic) {
+  if (!this->function_call_expression_.empty()) {
+    this->evaluate_function_call();
+  } else if (!synthetic) {
     if (!this->stop_reason_queue_.empty()) {
       std::cerr << "Continuing with items in queue:" << std::endl;
       for (auto &stop : this->stop_reason_queue_) {
@@ -1039,9 +1088,72 @@ void Rtmgr_RemoteNub_i::close_remote_tether()
   NUB_UNIMPLEMENTED();
 }
 
-Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::setup_function_call(Rtmgr::RemoteNub::RNUBTHREAD nubthread, Rtmgr::RemoteNub::RTARGET_ADDRESS func, Rtmgr::RemoteNub::NUBINT arg_count, const Rtmgr::RemoteNub::RTARGET_ADDRESS_SEQ &args, Rtmgr::RemoteNub::RNUBHANDLE &cx_handle)
+Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::setup_function_call
+    (Rtmgr::RemoteNub::RNUBTHREAD nubthread,
+     Rtmgr::RemoteNub::RTARGET_ADDRESS func,
+     Rtmgr::RemoteNub::NUBINT arg_count,
+     const Rtmgr::RemoteNub::RTARGET_ADDRESS_SEQ &args,
+     Rtmgr::RemoteNub::RNUBHANDLE &cx_handle)
 {
-  NUB_UNIMPLEMENTED();
+  auto thread { this->target_.GetProcess().GetThreadByID(nubthread) };
+  auto frame { thread.GetFrameAtIndex(0) };
+
+  lldb::SBStream expression;
+  expression.Print("((void *(*)(");
+  for (size_t i = 0; i < arg_count; ++i) {
+    if (i > 0) {
+      expression.Print(",");
+    }
+    expression.Print("void *");
+  }
+  expression.Printf(")) %#lx)(", func);
+  for (size_t i = 0; i < arg_count; ++i) {
+    if (i > 0) {
+      expression.Print(",");
+    }
+    expression.Printf("(void *) %#lx", args[i]);
+  }
+  expression.Print(")");
+  this->function_call_thread_ = nubthread;
+  this->function_call_expression_ = expression.GetData();
+  cx_handle = 0;
+
+  return frame.GetPC();
+}
+
+Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::get_function_result(Rtmgr::RemoteNub::RNUBTHREAD nubthread)
+{
+  return this->function_call_result_.GetValueAsUnsigned();
+}
+
+void Rtmgr_RemoteNub_i::restore_context
+    (Rtmgr::RemoteNub::RNUBTHREAD nubthread, Rtmgr::RemoteNub::RNUBHANDLE the_context)
+{
+  // Nothing to do
+}
+
+void Rtmgr_RemoteNub_i::evaluate_function_call()
+{
+  auto process { this->target_.GetProcess() };
+  lldb::pid_t pid { process.GetProcessID() };
+  auto thread { process.GetThreadByID(this->function_call_thread_) };
+
+  std::string expression;
+  std::swap(expression, function_call_expression_);
+
+  this->function_call_result_
+    = evaluate(thread, expression.c_str(), false, false);
+
+  if (this->function_call_result_.IsValid()
+      && this->function_call_result_.GetError().Success()) {
+    StopReason breakpoint_stop(BREAKPOINT_EXCEPTION_DBG_EVENT, false,
+                               pid, this->function_call_thread_);
+    this->stop_reason_queue_.push_back(breakpoint_stop);
+    this->cond_.signal();
+    std::cerr << "  Pushed BREAKPOINT_EXCEPTION after function call evaluation"
+              << std::endl;
+  }
+
 }
 
 lldb::SBValue Rtmgr_RemoteNub_i::evaluate(lldb::SBThread &thread, const char *expression, bool stop_others, bool ignore_result)
@@ -1074,9 +1186,7 @@ lldb::SBValue Rtmgr_RemoteNub_i::evaluate(lldb::SBThread &thread, const char *ex
   if (!ignore_result) {
     lldb::SBError e { value.GetError() };
     if (e.Fail()) {
-      std::cerr << "Error: " << value.GetError().GetCString()
-                << std::endl;
-      abort();
+      std::cerr << "Error: " << e.GetCString() << std::endl;
     }
   }
 
@@ -1182,16 +1292,6 @@ Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::remote_call_spy
     status = 1;
     return 0;
   }
-}
-
-Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::get_function_result(Rtmgr::RemoteNub::RNUBTHREAD nubthread)
-{
-  NUB_UNIMPLEMENTED();
-}
-
-void Rtmgr_RemoteNub_i::restore_context(Rtmgr::RemoteNub::RNUBTHREAD nubthread, Rtmgr::RemoteNub::RNUBHANDLE the_context)
-{
-  NUB_UNIMPLEMENTED();
 }
 
 Rtmgr::RemoteNub::NUB_ERROR Rtmgr_RemoteNub_i::set_breakpoint(Rtmgr::RemoteNub::RTARGET_ADDRESS address)

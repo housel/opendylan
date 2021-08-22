@@ -254,6 +254,8 @@ end method;
 ///// ADDRESS-CORRESPONDS-TO-PRIMITIVE? (Internal function)
 //    Decides whether a given instruction pointer is within the definition
 //    of a runtime primitive.
+//    FIXME we could capture the start and end addresses within <runtime-primitive>
+//    and make it a simple range comparison
 define method address-corresponds-to-primitive?
     (application :: <debug-target>, address :: <remote-value>,
      primitive :: <runtime-primitive>) => (answer :: <boolean>)
@@ -265,9 +267,14 @@ define method address-corresponds-to-primitive?
     let (closest, offset)
       = symbol-relative-address(application.debug-target-access-path,
                                 address);
+    debugger-message("Checking for %s (%s), at %=: %= is %s + %d",
+                     primitive.runtime-name, primsym.remote-symbol-name,
+                     primsym.remote-symbol-address,
+                     address, closest & closest.remote-symbol-name, offset);
     if (closest &
         (closest.remote-symbol-address = primsym.remote-symbol-address))
       primitive.last-matched-address := address;
+      debugger-message("match was successful");
       #t
     end if;
   else

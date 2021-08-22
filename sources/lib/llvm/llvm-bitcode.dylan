@@ -3104,12 +3104,16 @@ define sealed method accessor-read-into!
  => (nread :: <integer>)
   let nread :: <integer>
     = min(accessor.accessor-vector.size - accessor.accessor-position, count);
-  let buffer :: <buffer> = buffer | stream-input-buffer(stream);
-  copy-bytes(buffer, offset,
-             accessor.accessor-vector, accessor.accessor-position,
-             nread);
-  accessor.accessor-position := accessor.accessor-position + nread;
-  nread
+  if (nread > 0)
+    let buffer :: <buffer> = buffer | stream-input-buffer(stream);
+    copy-bytes(buffer, offset,
+               accessor.accessor-vector, accessor.accessor-position,
+               nread);
+    accessor.accessor-position := accessor.accessor-position + nread;
+    nread
+  else
+    0
+  end if
 end method;
 
 define sealed method accessor-write-from
@@ -3128,7 +3132,7 @@ define sealed method accessor-write-from
   copy-bytes(accessor.accessor-vector, accessor.accessor-position,
              buffer, offset, count);
   accessor.accessor-position := accessor.accessor-position + count;
-  values (count, buffer)
+  values(count, buffer)
 end method;
 
 define sealed method accessor-close

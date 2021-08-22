@@ -155,6 +155,7 @@ define module access-path
       remote-address-page-number,
       page-relative-address,
       perform-coff-relocation,
+      download-code,
       calculate-stack-address,
 
       <remote-access-violation-error>,
@@ -460,6 +461,7 @@ define module access-path-nub
     page-read-permission-on-connection?,
     page-write-permission-on-connection?,
     page-relative-address-on-connection,
+    download-code-on-connection,
     perform-coff-relocation-on-connection,
     wait-for-stop-reason-with-timeout,
     wait-for-stop-reason-no-timeout,

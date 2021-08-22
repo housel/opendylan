@@ -1,6 +1,7 @@
 #include "remote-nub.h"
 
-#include <lldb/API/LLDB.h>
+#include "lldb/API/LLDB.h"
+#include "llvm/Support/TargetSelect.h"
 
 #include <iostream>
 
@@ -14,6 +15,11 @@ using namespace std;
 int main(int argc, char *argv[])
 {
   try {
+    // Initialize LLVM for JIT use
+    llvm::InitializeNativeTarget();
+    llvm::InitializeNativeTargetAsmPrinter();
+    //llvm::InitializeNativeTargetDisassembler();
+
     // Initialize the debugger
     lldb::SBDebugger::Initialize();
     lldb::SBDebugger debugger{lldb::SBDebugger::Create(false)};

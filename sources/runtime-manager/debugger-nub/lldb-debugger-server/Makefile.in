@@ -20,10 +20,12 @@ OMNIORB_LIBS	= @OMNIORB_LIBS@
 OMNIIDL         = @OMNIIDL@
 
 LLDB_CPPFLAGS   = @LLDB_CPPFLAGS@
+LLDB_CXXFLAGS   = @LLDB_CXXFLAGS@
 LLDB_LDFLAGS    = @LLDB_LDFLAGS@
 LLDB_LIBS       = @LLDB_LIBS@
 
 OBJS		= remote-nub-impl.o \
+                  remote-nub-jit.o \
 		  remote-nub-skels.o \
 	          nub-server-impl.o \
 		  main.o
@@ -39,7 +41,7 @@ remote-nub.h remote-nub-skels.cpp: $(IDL)
 	$(OMNIIDL) -bcxx -Wbs=-skels.cpp -Wbh=.h $(IDL)
 
 %.o: %.cpp remote-nub.h
-	$(CXX) -MMD -c -std=c++17 $(CXXFLAGS) $(OMNIORB_CFLAGS) $(LLDB_CPPFLAGS) -I. -o $@ $<
+	$(CXX) -MMD -c $(CXXFLAGS) $(OMNIORB_CFLAGS) $(LLDB_CXXFLAGS) $(LLDB_CPPFLAGS) -I. -o $@ $<
 
 clean:
 	rm -f dylan-debugger-nub $(OBJS) $(OBJS:%.o=%.d) remote-nub.h remote-nub-skels.cpp

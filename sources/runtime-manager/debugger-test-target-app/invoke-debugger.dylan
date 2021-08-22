@@ -6,17 +6,7 @@ Copyright:    Original Code is Copyright 2015 Gwydion Dylan Maintainers
 License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
-define function main()
-  let scenario = element(application-arguments(), 0, default: #f);
-  select (scenario by \=)
-    "simple-breakpoint" =>
-      simple-breakpoint();
-    "invoke-debugger" =>
-      test-invoke-debugger();
-    otherwise =>
-      #f;
-  end select;
-  exit-application(0);
+// For testing primitive-invoke-debugger
+define not-inline function test-invoke-debugger()
+  break("invoking the debugger with %d and %=", 844, #(#"invoke" . #"debugger"));
 end function;
-
-main()

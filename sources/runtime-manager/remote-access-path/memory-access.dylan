@@ -318,6 +318,28 @@ define method page-relative-address-on-connection
 end method;
 
 
+///// DOWNLOAD-CODE-ON-CONNECTION
+
+define method download-code-on-connection
+    (conn :: <remote-access-connection>, thread :: <remote-thread>,
+     downloadable-records :: <sequence>,
+     library :: false-or(<remote-library>), entry-point :: <byte-string>)
+ => (regions :: <sequence>, symbols :: <sequence>);
+  let records
+    = map-as(Rtmgr/RemoteNub/<CODE-SEQ>, curry(as, Rtmgr/RemoteNub/<CODE>),
+             downloadable-records);
+  let (err, regions, first-sym, last-sym, lookups)
+    = Rtmgr/RemoteNub/download-code(conn.nub, thread.rnub-descriptor,
+                                    records, entry-point);
+  if (err ~= $access-ok)
+    signal(make(<remote-access-violation-error>));
+  end if;
+  let symbols = make(<stretchy-object-vector>);
+  do-symbols-aux(conn, curry(add!, symbols), library,
+                 first-sym, last-sym, lookups);
+  values(#[], symbols)
+end method;
+
 ///// PERFORM-COFF-RELOCATION
 
 define method perform-coff-relocation-on-connection

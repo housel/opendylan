@@ -18,6 +18,15 @@ define method do-symbols-in-library
     = Rtmgr/RemoteNub/do-symbols(conn.nub,
                                  library.rnub-descriptor,
                                  matching);
+  do-symbols-aux(conn, function, library, first, last, lookups);
+end method;
+
+define function do-symbols-aux
+    (conn :: <remote-access-connection>, function :: <function>,
+     library :: <remote-library>,
+     first :: Rtmgr/RemoteNub/<NUBINT>, last :: Rtmgr/RemoteNub/<NUBINT>,
+     lookups :: Rtmgr/RemoteNub/<RNUBHANDLE>)
+ => ();
   block ()
     for (i from first to last)
       let name = Rtmgr/RemoteNub/lookup-symbol-name(conn.nub, lookups, i);
@@ -54,8 +63,7 @@ define method do-symbols-in-library
   cleanup
     Rtmgr/RemoteNub/dispose-lookups(conn.nub, lookups);
   end block;
-end method;
-
+end function;
 
 ///// NEAREST-SYMBOLS-FROM-NUB
 

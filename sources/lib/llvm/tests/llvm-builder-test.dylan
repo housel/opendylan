@@ -41,6 +41,7 @@ end method make-test-instance;
 
 define function make-builder-with-test-function
     (#key entry-block? = #t,
+          personality = #f,
           return-type = $llvm-void-type,
           arg-type = #f,
           varargs? = #f)
@@ -71,6 +72,7 @@ define function make-builder-with-test-function
     = make(<llvm-function>,
            name: "test",
            type: test-function-pointer-type,
+           personality: personality,
            arguments: arguments,
            linkage: #"external");
   llvm-builder-define-global(builder, "test", test-function);
@@ -93,7 +95,7 @@ define function builder-test-function-disassembly
   let bc-pathname = "out.bc";   // FIXME
   block ()
     llvm-save-bitcode-file(builder.llvm-builder-module, bc-pathname);
-    with-application-output (stream = "llvm-dis", input: bc-pathname)
+    with-application-output (stream = "llvm-dis-devel", input: bc-pathname)
       iterate loop (lines = #())
         let line = read-line(stream, on-end-of-stream: #f);
         if (line)
@@ -545,7 +547,7 @@ define test test-ins--ptrtoint ()
   ins--ret(builder);
   check-equal("ins--ptrtoint disassembly",
               #("entry:",
-                "%0 = alloca float",
+                "%0 = alloca float, align 4",
                 "%1 = ptrtoint float* %0 to i32",
                 "ret void"),
               builder-test-function-disassembly(builder));
@@ -1637,8 +1639,10 @@ define test test-ins--if--with-else-no-successor-block ()
               #("entry:",
                 "%0 = icmp uge i32 1, 2",
                 "br i1 %0, label %1, label %2",
+                "1:",
                 "call void @llvm.trap() #1",
                 "unreachable",
+                "2:",
                 "call void @llvm.trap() #1",
                 "unreachable"),
               builder-test-function-disassembly(builder));

@@ -187,21 +187,16 @@ end method;
 
 
 ///// REMOTE-VALUE-AS-STRING
-//    Converts a remote value to a string on the application's machine.
+//    Converts a remote value to a string.
 
 define method remote-value-as-string
-    (ap :: <access-path>, val :: <remote-value>, radix :: <integer>)
-       => (str :: <string>)
-  // This is a bit of a hack. Pad with zero. Assume 8 digits. (Eugh!)
-  let padding = 2;
-  remote-value-as-string-on-connection
-     (ap.connection, val, radix, padding, 8);
+    (ap :: <access-path>, val :: <remote-value>, radix :: <integer>) 
+ => (str :: <string>)
+  if (radix ~= 16)
+    error("Unsupported radix");
+  end if;
+  machine-word-to-string(val, prefix: "0x")
 end method;
-
-define open generic remote-value-as-string-on-connection
-    (conn :: <access-connection>, val :: <remote-value>,
-     radix :: <integer>, pad :: <integer>, sz :: <integer>)
-       => (str :: <string>);
 
 
 ///// STRING-AS-REMOTE-VALUE

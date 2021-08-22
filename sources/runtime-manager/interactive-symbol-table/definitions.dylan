@@ -90,13 +90,8 @@ define method symbol-table-define-symbol
      addr :: <remote-value>,
      #key language = $symbol-language-C, library = #f,
           file = #f, storage-status = #"public")
-        => (defined-sym :: <remote-symbol>)
-
-  let path = st.symbol-table-access-path;
-  let (page, page-offset) = page-relative-address(path, addr);
-
+ => (defined-sym :: <remote-symbol>)
   // Construct the <remote-symbol> itself.
-
   let newsym = make(<remote-symbol>,
                     name: name,
                     address: addr,
@@ -104,11 +99,23 @@ define method symbol-table-define-symbol
                     library: library,
                     object-file: file,
                     storage-status: storage-status);
+  symbol-table-add-symbol(st, newsym)
+end method;
+
+
+define method symbol-table-add-symbol
+    (st :: <interactive-symbol-table>, symbol :: <remote-symbol>)
+ => (defined-sym :: <remote-symbol>)
+  let path = st.symbol-table-access-path;
+  let name = symbol.remote-symbol-name;
+  let addr = symbol.remote-symbol-address;
+  let (page, page-offset) = page-relative-address(path, addr);
+  let library = symbol.remote-symbol-library;
+  let file = symbol.remote-symbol-object-file;
 
   // If this symbol table does not support redefinition of symbols, see
   // whether this call would indeed result in a redefinition. If so,
   // signal an error.
-
   if (~st.symbol-table-redefinition-allowed?)
     let existing-sym = find-symbol(path, name, library: library);
     if (existing-sym)
@@ -120,7 +127,6 @@ define method symbol-table-define-symbol
   end if;
 
   // It is an error if no <remote-library> is supplied for the symbol.
-
   if (~library)
     error(make(<symbol-no-library-error>,
                table: st, name: name))
@@ -128,15 +134,13 @@ define method symbol-table-define-symbol
 
   // It is an error if the symbol is declared to be static, but no
   // <remote-object-file> is given.
-
-  if ((storage-status == #"static") & (~file))
+  if ((symbol.remote-symbol-storage-status == #"static") & (~file))
     error(make(<symbol-static-no-file-error>,
                table: st, name: name))
   end if;
 
   // It is an error if the symbol is declared to be within a
   // <remote-object-file> that does not belong to the library.
-
   if (file)
     unless (member?(file, library.library-object-files))
       error(make(<symbol-attempted-definition-in-undefined-file-error>,
@@ -158,7 +162,6 @@ define method symbol-table-define-symbol
   // been defined at this address. If it has, we will later signal an
   // error. If not, we will know whether or not there is already an entry
   // for symbols defined on the same virtual memory page.
-
   block(exit)
     for (i from 0 below size(subtable.symbols-by-address))
       if (head(subtable.symbols-by-address[i]) == page)
@@ -192,45 +195,39 @@ define method symbol-table-define-symbol
     // virutal memory page as the one we are making. This is legal, but
     // results in different behaviour.
     let existing-entry = subtable.symbols-by-address[index-into-pages];
-    add!(tail(existing-entry), pair(page-offset, newsym));
+    add!(tail(existing-entry), pair(page-offset, symbol));
   else
     // New symbol, and a new memory page to add to the sequence.
     let new-entry = pair(page, make(<stretchy-vector>));
-    add!(tail(new-entry), pair(page-offset, newsym));
+    add!(tail(new-entry), pair(page-offset, symbol));
     add!(subtable.symbols-by-address, new-entry);
   end if;
 
   // Also, add (or alter) the symbol's name->symbol mapping in the string
   // table.
-
-  if (storage-status == #"static")
+  if (symbol.remote-symbol-storage-status == #"static")
     let statics = subtable.statics-by-object-file[file];
-    statics[name] := newsym;
+    statics[name] := symbol;
   else
-    subtable.symbols-by-name[name] := newsym;
+    subtable.symbols-by-name[name] := symbol;
   end if;
 
   // The symbols are now potentially out-of-order by address, since we added
   // our new definitions to the end of stretchy-vectors. However, if we
   // are currently making multiple definitions at once, it is not
   // desirable to perform a resort now.
-
-  unless(st.performing-multiple-definitions?)
+  unless (st.performing-multiple-definitions?)
     sort-symbol-table-by-address(st)
   end unless;
 
-  // The symbol table is no longer empty.
-  if (st.symbol-table-empty?)
-    st.symbol-table-empty? := #f
-  end if;
+  // The symbol table is no longer empty
+  st.symbol-table-empty? := #f;
 
   // And neither is the subtable.
-  if (subtable.subtable-empty?)
-    subtable.subtable-empty? := #f
-  end if;
+  subtable.subtable-empty? := #f;
 
-  // And return the <remote-symbol> itself.
-  newsym;
+  // And return the <remote-symbol> itself
+  symbol
 end method;
 
 

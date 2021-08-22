@@ -155,9 +155,9 @@ end method;
 //    For now, this is just a bit of a hack.
 define method dylan-calling-convention-information
     (application :: <debug-target>)
- => (argument-register-codes :: <sequence>, return-register :: <integer>,
-     function-register :: <integer>)
-  values(#[17], 17, 20)
+ => (argument-register-codes :: <sequence>, return-register :: <integer>)
+  //values(#[17], 17)
+  values(#[1], 1)
 end method;
 
 
@@ -174,7 +174,7 @@ define method dylan-trace-entry-arguments
      rest-vector :: false-or(<remote-value>),
      keyword-arguments :: false-or(<sequence>))
   // Get information about which registers are used to house arguments.
-  let (argument-register-codes, return-register, function-register)
+  let (argument-register-codes, return-register)
     = dylan-calling-convention-information(application);
 
   let values-inspected = 0;

@@ -110,7 +110,7 @@ define function make-llvm-test-function
   else
     method ()
       let reference-lines
-        = with-application-output (stream = "llvm-as | llvm-dis",
+        = with-application-output (stream = "llvm-as-devel | llvm-dis-devel",
                                    under-shell?: #t,
                                    input: merged-file-locator,
                                    error: #"null")

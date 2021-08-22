@@ -57,6 +57,24 @@ typedef unsigned long FLAG;
 typedef sequence<RTARGET_ADDRESS> RTARGET_ADDRESS_SEQ;
 typedef sequence<string> STRING_SEQ;
 
+typedef sequence<octet> CODE;
+typedef sequence<CODE> CODE_SEQ;
+
+enum RegionKind {
+  DylanExact,                   // .dyvar
+  DylanStatic,                  // .dyobj
+  DylanAmbiguous,               // .dydat
+  DylanFixup,                   // .dyfix
+  DylanImport,                  // .dyimp
+  DylanUntraced,                // .dyutr
+  CompiledCode                  // .text
+};
+struct REGION {
+  RegionKind kind;
+  RTARGET_ADDRESS lower;
+  RTARGET_ADDRESS upper;
+};
+typedef sequence<REGION> REGION_SEQ;
 
 readonly attribute RNUB process;
 
@@ -119,7 +137,6 @@ NUBINT page_relative_address
 
 NUBINT virtual_page_size
   ();
-
 
 RTARGET_ADDRESS read_value_from_process_memory
    (in RTARGET_ADDRESS address,
@@ -560,6 +577,14 @@ NUBINT older_stack_frame
 RTARGET_ADDRESS dylan_current_function
   (in RNUBTHREAD nubthread);
 
+NUB_ERROR download_code
+  (in RNUBTHREAD nubthread,
+   in CODE_SEQ download_records,
+   in string entry_point,
+   out REGION_SEQ regions,
+   out NUBINT first,
+   out NUBINT last,
+   out RNUBHANDLE lookups);
 
 NUBINT perform_absolute_relocation
   (in RTARGET_ADDRESS address,

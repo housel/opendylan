@@ -1071,7 +1071,6 @@ end method;
 
 ///// DYLAN-OBJECT-SIZE
 //    Returns size information about an instance.
-//    FIXME: Add support for 64-bit platformsa
 define method dylan-object-size
     (application :: <debug-target>, instance :: <remote-value>)
   => (byte-size-of-whole-object :: <integer>,

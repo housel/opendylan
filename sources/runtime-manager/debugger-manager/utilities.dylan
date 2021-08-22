@@ -21,6 +21,19 @@ define method debug-target-platform-name
 end method;
 
 
+///// FIND-LIBRARY-CALLED
+//    Attempts to find a <remote-library> whose name matches the
+//    supplied string. Returns #f if no matching library is found.
+
+define method find-library-called
+    (application :: <debug-target>, core-name :: <string>)
+ => (maybe-lib :: false-or(<remote-library>));
+  element(application.library-component-names,
+          core-name,
+          default: application.application-executable)
+end method;
+
+
 ///// COMPILATION-CONTEXT-COMPONENT
 //    Given a compilation context, try to obtain a <REMOTE-LIBRARY> into
 //    which its definitions were emitted.

@@ -79,6 +79,10 @@ define module interactive-symbol-table
      symbol-table-define-symbol,
      symbol-table-undefine-symbol,
 
+     // Adding new already-instantiated symbols
+
+     symbol-table-add-symbol,
+
      // Defining new files (static scopes for symbols)
 
      symbol-table-define-file,

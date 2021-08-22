@@ -58,7 +58,7 @@ define function test-project-location
            "cmu-test-suite"               => "testing/cmu-test-suite";
          end,
          name);
-  // format-out("project-location: %=\n", location-name);
+  format-out("project-location: %=\n", location-name);
   as(<file-locator>, location-name);
 end function test-project-location;
 

@@ -284,12 +284,15 @@ AC_LINK_IFELSE([], [AC_MSG_RESULT(none needed)],
 AC_CHECK_PROGS(OMNIIDL, [omniidl])
 PKG_CHECK_MODULES(OMNIORB, [omniORB4 omnithread3])
 
+LLVM_COMPONENTS="core executionengine bitreader jitlink orcjit support nativecodegen"
 AC_CHECK_PROGS(LLVM_CONFIG, [llvm-config-12 llvm-config12 llvm-config-11 llvm-config11 llvm-config])
 AS_IF([$LLVM_CONFIG --version 2>/dev/null],
       [LLDB_CPPFLAGS="`$LLVM_CONFIG --cppflags`"
+       LLDB_CXXFLAGS="`$LLVM_CONFIG --cxxflags`"
        LLDB_LDFLAGS="`$LLVM_CONFIG --ldflags`"
-       LLDB_LIBS="-llldb `$LLVM_CONFIG --libs support` `$LLVM_CONFIG --system-libs`"])
+       LLDB_LIBS="-llldb `$LLVM_CONFIG --libs $LLVM_COMPONENTS` `$LLVM_CONFIG --system-libs`"])
 AC_SUBST(LLDB_CPPFLAGS)
+AC_SUBST(LLDB_CXXFLAGS)
 AC_SUBST(LLDB_LDFLAGS)
 AC_SUBST(LLDB_LIBS)
 

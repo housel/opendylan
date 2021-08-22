@@ -78,8 +78,9 @@ define function output-source-location
     let sr = source-location-source-record(loc);
     let start-offset = source-location-start-offset(loc);
     let start-line = source-offset-line(start-offset);
+    let locator = source-record-location(sr);
     format(stream, " @%s:%d",
-           source-record-location(sr).locator-name,
+           if (locator) locator.locator-name else "???" end,
            start-line + source-record-start-line(sr));
   else
     format(stream, " @???");

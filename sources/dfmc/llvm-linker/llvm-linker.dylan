@@ -113,12 +113,13 @@ define sideways method link-and-download
           debug-info? = #f,
      #all-keys)
  => (transaction-id);
-  let crs = compilation-context-records(il);
-  let bc-files = make(<vector>, size: crs.size + 1);
   let ld = il.interactive-layer-base;
   let component-name
     = as-lowercase(as(<byte-string>, ld.library-description-emit-name));
   let init-function-name = glue-name(back-end, component-name);
+
+  let crs = compilation-context-records(il);
+  let bc-files = make(<vector>, size: crs.size + 1);
 
   local
     method emitter(cr :: <compilation-record>) => (data)

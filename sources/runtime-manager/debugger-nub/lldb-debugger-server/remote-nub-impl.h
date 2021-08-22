@@ -2,6 +2,8 @@
 
 #include "remote-nub.h"
 
+#include <llvm/ExecutionEngine/Orc/SymbolStringPool.h>
+
 #include <lldb/API/LLDB.h>
 
 #include <memory>
@@ -95,6 +97,14 @@ public:
 
   Rtmgr::RemoteNub::NUBINT add_virtual_register(uint64_t value);
 
+  // Methods used by the JIT process control
+  lldb::addr_t allocate_target_memory(size_t size, uint32_t permissions,
+                                      lldb::SBError &error);
+  lldb::SBError deallocate_target_memory(lldb::addr_t ptr);
+
+  using ProcessFunction = std::function<lldb::SBError(lldb::SBProcess &)>;
+  lldb::SBError do_with_process(ProcessFunction perform);
+
   // methods corresponding to defined IDL attributes and operations
   Rtmgr::RemoteNub::RNUB process() override;
   Rtmgr::AccessPath_ptr access_path() override;
@@ -123,6 +133,15 @@ public:
   Rtmgr::RemoteNub::NUBINT page_write_permission(Rtmgr::RemoteNub::RTARGET_ADDRESS address) override;
   Rtmgr::RemoteNub::NUBINT page_relative_address(Rtmgr::RemoteNub::RTARGET_ADDRESS address, Rtmgr::RemoteNub::NUBINT &offset) override;
   Rtmgr::RemoteNub::NUBINT virtual_page_size() override;
+
+  Rtmgr::RemoteNub::NUB_ERROR download_code
+      (Rtmgr::RemoteNub::RNUBTHREAD nubthread,
+       const Rtmgr::RemoteNub::CODE_SEQ &download_records,
+       const char *entry_point,
+       Rtmgr::RemoteNub::REGION_SEQ_out regions,
+       Rtmgr::RemoteNub::NUBINT &first,
+       Rtmgr::RemoteNub::NUBINT &last,
+       Rtmgr::RemoteNub::RNUBHANDLE &lookups) override;
 
   Rtmgr::RemoteNub::RTARGET_ADDRESS read_value_from_process_memory(Rtmgr::RemoteNub::RTARGET_ADDRESS address, Rtmgr::RemoteNub::NUB_ERROR &status) override;
   void write_value_to_process_memory(Rtmgr::RemoteNub::RTARGET_ADDRESS address, Rtmgr::RemoteNub::RTARGET_ADDRESS val, Rtmgr::RemoteNub::NUBINT &status) override;
@@ -336,6 +355,12 @@ private:
     };
 
   public:
+    Lookup(std::string name, Rtmgr::RemoteNub::RTARGET_ADDRESS address,
+           bool is_function)
+      : name_(name),
+        address_(address),
+        tag_(is_function ? LOOKUP_SYMBOL_FUNCTION : LOOKUP_SYMBOL_DATA) {
+    }
     Lookup(lldb::SBSymbol &symbol, lldb::SBTarget &target);
     explicit Lookup(lldb::SBValue &value, Rtmgr_RemoteNub_i *nub);
 
@@ -406,6 +431,11 @@ private:
 
   std::string closest_symbol_name_;
 
+  Rtmgr::RemoteNub::RNUBTHREAD function_call_thread_;
+  std::string function_call_expression_;
+  lldb::SBValue function_call_result_;
+  void evaluate_function_call();
+
   lldb::SBValue evaluate(lldb::SBThread &thread, const char *expression,
                          bool stop_others = false, bool ignore_result = false);
 
@@ -419,4 +449,7 @@ private:
 
   void populate_register_group(lldb::SBValue &group);
   void ensure_register_info();
+
+  // JIT
+  std::shared_ptr<llvm::orc::SymbolStringPool> ssp_;
 };

@@ -282,7 +282,7 @@ define function debugger-message
   if (*debugging-debugger?*)
     let string :: <byte-string> = as(<byte-string>, string);
     if (*debugger-stream*)
-      apply(format, *debugger-stream*, concatenate("\n### ", string, "\n"), args);
+      apply(format, *debugger-stream*, concatenate("### ", string, "\n"), args);
       force-output(*debugger-stream*);
     else
       // apply(format-out, concatenate("\n### ", string, "\n"), args);

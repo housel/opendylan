@@ -264,7 +264,7 @@ define method application-proxy-primitive-name
   let (sym, obj, gen) = call-frame-function(target, proxy);
   let byte-offset = call-frame-code-offset(target, proxy);
   let ip = call-frame-instruction-pointer(target, proxy);
-  let printed-ip = remote-value-as-string(path, ip, 16);
+  let printed-ip = machine-word-to-string(ip);
   if (dylan-call-frame?(target, proxy))
     if (sym)
       format-to-string("%s + 0x%x",

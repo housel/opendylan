@@ -99,34 +99,6 @@ define method truncated-dylan-string-data
 end method;
 
 
-///// FIND-LIBRARY-CALLED
-//    Attempts to find a <remote-library> whose name matches the
-//    supplied string. Returns #f if no matching library is found.
-
-define method find-library-called
-    (application :: <debug-target>, core-name :: <string>)
-       => (maybe-lib :: <remote-library>)
-  let foundit = #f;
-  let first = #f;
-  block (exit)
-    do-libraries
-     (method (l :: <remote-library>)
-        unless (first)
-          first := l
-        end unless;
-        if ((as-uppercase(core-name) = as-uppercase(l.library-core-name)) |
-            (as-uppercase(concatenate("hqn-", core-name)) =
-                                       as-uppercase(l.library-core-name)))
-          foundit := l;
-          exit();
-        end if;
-      end method,
-      application.debug-target-access-path);
-  end block;
-  foundit | first;
-end method;
-
-
 ///// CLASSIFY-DYLAN-OBJECT
 //    Slightly more general than the above function, returns the type of
 //    an instance, whether it be a tagged immediate or a pointer.

@@ -630,6 +630,27 @@ define open generic page-relative-address-on-connection
        => (id :: <integer>, offset :: <integer>);
 
 
+///// DOWNLOAD-CODE
+
+//    Downloads multiple code records into the application, returning
+//    sequences of memory areas and symbols defined by the download.
+
+define method download-code
+    (ap :: <access-path>, thread :: <remote-thread>,
+     downloadable-records :: <sequence>,
+     library :: false-or(<remote-library>), entry-point :: <byte-string>)
+ => (regions :: <sequence>, symbols :: <sequence>);
+  download-code-on-connection(ap.connection, thread, downloadable-records,
+                              library, entry-point)
+end method;
+
+define open generic download-code-on-connection
+    (conn :: <access-connection>, thread :: <remote-thread>,
+     downloadable-records :: <sequence>,
+     library :: false-or(<remote-library>), entry-point :: <byte-string>)
+ => (regions :: <sequence>, symbols :: <sequence>);
+
+
 ///// PERFORM-COFF-RELOCATION
 //    Alters the contents of an address 'ra' according to COFF-file relocation
 //    semantics. This is used by the interactive downloader.

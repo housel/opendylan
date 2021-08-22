@@ -135,7 +135,7 @@ define c-callable auxiliary &runtime-primitive-descriptor spy-fixup-unimported-d
   ins--unreachable(be);
 end;
 
-define C-callable auxiliary &runtime-primitive-descriptor spy-teb
+define c-callable auxiliary &runtime-primitive-descriptor spy-teb
   () => (teb :: <raw-pointer>);
   let raw-pointer-type = llvm-reference-type(be, dylan-value(#"<raw-pointer>"));
   ins--bitcast(be, op--teb(be), raw-pointer-type)
