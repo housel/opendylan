@@ -1,0 +1,69 @@
+srcdir		= @srcdir@
+top_srcdir	= @top_srcdir@
+top_builddir	= @top_builddir@
+
+subdir		= sources/runtime-manager/debugger-nub/lldb-nub
+
+VPATH		= $(srcdir)
+
+CC		= @CC@
+CXX		= @CXX@
+
+IDL		= $(top_srcdir)/sources/runtime-manager/debugger-nub/remote-nub.idl
+
+CFLAGS          = @CFLAGS@
+CXXFLAGS        = @CXXFLAGS@
+LDFLAGS         = @LDFLAGS@
+
+OMNIORB_CFLAGS	= @OMNIORB_CFLAGS@ -I.
+OMNIORB_LIBS	= @OMNIORB_LIBS@
+OMNIIDL         = @OMNIIDL@
+
+LLDB_CPPFLAGS   = @LLDB_CPPFLAGS@
+LLDB_CXXFLAGS   = @LLDB_CXXFLAGS@
+LLDB_LDFLAGS    = @LLDB_LDFLAGS@
+LLDB_LIBS       = @LLDB_LIBS@
+
+LLDB_OBJS       = NubProcess.o
+
+OBJS            = $(LLDB_OBJS) \
+		  nub-server-impl.o \
+		  remote-nub-impl.o \
+		  remote-nub-skels.o \
+		  main.o
+
+all:	dylan-debugger-nub
+
+dylan-debugger-nub: $(OBJS)
+	$(CXX) -o dylan-debugger-nub $(CXXFLAGS) $(OMNIORB_CFLAGS) \
+	    $(LDFLAGS) $(LLDB_LDFLAGS) \
+	    $(OBJS) $(OMNIORB_LIBS) $(LLDB_LIBS)
+
+remote-nub.h remote-nub-skels.cpp: $(IDL)
+	$(OMNIIDL) -bcxx -Wbs=-skels.cpp -Wbh=.h $(IDL)
+
+NubProcess.o: NubProcess.cpp
+	$(CXX) -MMD -c $(CXXFLAGS) $(LLDB_CXXFLAGS) $(LLDB_CPPFLAGS) \
+            -I. -o $@ $(srcdir)/NubProcess.cpp
+
+nub-server-impl.o: nub-server-impl.cpp remote-nub.h
+	$(CXX) -MMD -c $(CXXFLAGS) $(OMNIORB_CFLAGS) \
+	    -o $@ $(srcdir)/nub-server-impl.cpp
+remote-nub-impl.o: remote-nub-impl.cpp remote-nub.h
+	$(CXX) -MMD -c $(CXXFLAGS) $(OMNIORB_CFLAGS) \
+	    -o $@ $(srcdir)/remote-nub-impl.cpp
+remote-nub-skels.o: remote-nub-skels.cpp remote-nub.h
+	$(CXX) -MMD -c $(CXXFLAGS) $(OMNIORB_CFLAGS) \
+	    -o $@ remote-nub-skels.cpp
+main.o: main.cpp remote-nub.h
+	$(CXX) -MMD -c $(CXXFLAGS) $(OMNIORB_CFLAGS) \
+	    -o $@ $(srcdir)/main.cpp
+
+clean:
+	rm -f dylan-debugger-nub $(OBJS) $(OBJS:%.o=%.d) remote-nub.h remote-nub-skels.cpp
+
+Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
+	cd $(top_builddir) && ./config.status $(subdir)/Makefile
+
+-include $(OBJS:%.o=%.d)
+
