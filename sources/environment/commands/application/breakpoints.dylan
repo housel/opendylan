@@ -194,8 +194,6 @@ end method do-execute-command;
 ///---*** To do
 
 /*
-  step into/over/out
-
   clear
   disable-breakpoint
   enable-breakpoint

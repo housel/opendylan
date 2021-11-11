@@ -635,7 +635,69 @@ define method do-execute-command
      end)
 end method do-execute-command;
 
+
+/// Stepping commands
 
+define abstract class <step-command> (<project-command>)
+  constant slot %thread :: false-or(<thread-object>) = #f,
+    init-keyword: thread:;
+end class;
+
+define class <step-into-command> (<step-command>)
+end class <step-into-command>;
+
+define command-line step-into => <step-into-command>
+    (summary:       "step into",
+     documentation: "Steps to called function\'s next known source location (enters function calls).")
+  optional thread :: <thread-object> = "the thread to step";
+end command-line step-into;
+
+define method do-execute-command
+    (context :: <environment-context>, command :: <step-into-command>)
+ => ()
+  let project = context.context-project;
+  let application-context = context.context-application-context;
+  let thread = command.%thread | application-context.context-thread;
+  step-application-into(project, thread);
+end method do-execute-command;
+
+define class <step-over-command> (<step-command>)
+end class <step-over-command>;
+
+define command-line step-over => <step-over-command>
+    (summary:       "step over",
+     documentation: "Steps to current function\'s next known source location (skips over function calls).")
+  optional thread :: <thread-object> = "the thread to step";
+end command-line step-over;
+
+define method do-execute-command
+    (context :: <environment-context>, command :: <step-over-command>)
+ => ()
+  let project = context.context-project;
+  let application-context = context.context-application-context;
+  let thread = command.%thread | application-context.context-thread;
+  step-application-over(project, thread); // FIXME stack-frame:
+end method do-execute-command;
+
+define class <step-out-command> (<step-command>)
+end class <step-out-command>;
+
+define command-line step-out => <step-out-command>
+    (summary:       "step out",
+     documentation: "Steps to caller function\'s next known source location (leaves current function).")
+  optional thread :: <thread-object> = "the thread to step";
+end command-line step-out;
+
+define method do-execute-command
+    (context :: <environment-context>, command :: <step-out-command>)
+ => ()
+  let project = context.context-project;
+  let application-context = context.context-application-context;
+  let thread = command.%thread | application-context.context-thread;
+  step-application-out(project, thread); // FIXME stack-frame:
+end method do-execute-command;
+
+
 /// Word parsing
 ///---*** Should be in environment-commands
 
@@ -911,10 +973,15 @@ define command-group debugging into environment
   command  evaluate;
   command  stop;
   command  restart;
+  command  step-into;
+  command  step-over;
+  command  step-out;
   alias interact = debug;
   alias eval     = evaluate;
   alias a        = abort;
   alias c        = continue;
+  alias s        = step-into;
+  alias n        = step-over;
 end command-group debugging;
 
 define command-group remote-debugging into environment
