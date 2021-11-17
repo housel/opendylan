@@ -24,7 +24,8 @@ LLDB_CXXFLAGS   = @LLDB_CXXFLAGS@
 LLDB_LDFLAGS    = @LLDB_LDFLAGS@
 LLDB_LIBS       = @LLDB_LIBS@
 
-LLDB_OBJS       = NubProcess.o
+LLDB_OBJS       = NubProcess.o \
+                  NubLLDBContext.o
 
 OBJS            = $(LLDB_OBJS) \
 		  nub-server-impl.o \
@@ -45,6 +46,9 @@ remote-nub.h remote-nub-skels.cpp: $(IDL)
 NubProcess.o: NubProcess.cpp
 	$(CXX) -MMD -c $(CXXFLAGS) $(LLDB_CXXFLAGS) $(LLDB_CPPFLAGS) \
             -I. -o $@ $(srcdir)/NubProcess.cpp
+NubLLDBContext.o: NubLLDBContext.cpp
+	$(CXX) -MMD -c $(CXXFLAGS) $(LLDB_CXXFLAGS) $(LLDB_CPPFLAGS) \
+            -I. -o $@ $(srcdir)/NubLLDBContext.cpp
 
 nub-server-impl.o: nub-server-impl.cpp remote-nub.h
 	$(CXX) -MMD -c $(CXXFLAGS) $(OMNIORB_CFLAGS) \

@@ -4,7 +4,10 @@
 #include <memory>
 #include <string>
 
-class NubProcessPrivate;
+namespace nub_private {;
+  class NubLLDBContext;
+};
+
 class NubProcess {
 public:
   using NUBHANDLE = unsigned;
@@ -366,5 +369,5 @@ public:
   TARGET_ADDRESS dylan_current_function(NUBTHREAD nubthread);
 
 private:
-  NubProcessPrivate *private_;
+  nub_private::NubLLDBContext *private_;
 };
