@@ -356,7 +356,7 @@ end method;
 define inline function llvm-mv-return-type
     (back-end :: <llvm-back-end>)
   => (type :: <llvm-type>);
-  llvm-reference-type(back-end, back-end.%mv-struct-type)
+  llvm-reference-type(back-end, back-end.llvm-mv-struct-type)
 end function;
 
 // Function type for an Internal Entry Point function

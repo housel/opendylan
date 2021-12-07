@@ -204,7 +204,7 @@ define method llvm-signature-dbg-types
   end for;
 
   let return-type
-    = llvm-reference-dbg-type(back-end, back-end.%mv-struct-type);
+    = llvm-reference-dbg-type(back-end, back-end.llvm-mv-struct-type);
   values(return-type, parameter-types)
 end method;
 
@@ -231,7 +231,7 @@ define method llvm-dynamic-signature-dbg-types
   end for;
 
   let return-type
-    = llvm-reference-dbg-type(back-end, back-end.%mv-struct-type);
+    = llvm-reference-dbg-type(back-end, back-end.llvm-mv-struct-type);
   values(return-type, parameter-types)
 end method;
 

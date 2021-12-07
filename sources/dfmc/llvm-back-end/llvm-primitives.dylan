@@ -636,7 +636,7 @@ define method make-primitive-dbg-function
   // Return value
   let dbg-return-type
     = if (values-rest?)
-        llvm-reference-dbg-type(back-end, back-end.%mv-struct-type)
+        llvm-reference-dbg-type(back-end, back-end.llvm-mv-struct-type)
       elseif (required-value-type-specs.empty?)
         #f
       else

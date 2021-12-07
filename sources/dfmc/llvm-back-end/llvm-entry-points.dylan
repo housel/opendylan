@@ -285,7 +285,7 @@ define function make-entry-point-dbg-function
   end if;
 
   let dbg-return-type
-    = llvm-reference-dbg-type(back-end, back-end.%mv-struct-type);
+    = llvm-reference-dbg-type(back-end, back-end.llvm-mv-struct-type);
   let dbg-function-type
     = llvm-make-dbg-function-type(dbg-file, dbg-return-type,
                                   dbg-parameter-types);
