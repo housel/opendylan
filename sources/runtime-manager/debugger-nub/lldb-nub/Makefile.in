@@ -25,7 +25,10 @@ LLDB_LDFLAGS    = @LLDB_LDFLAGS@
 LLDB_LIBS       = @LLDB_LIBS@
 
 LLDB_OBJS       = NubProcess.o \
-                  NubLLDBContext.o
+                  NubLLDBContext.o \
+                  NubExecutorProcessControl.o \
+                  NubProcessMemoryManager.o \
+                  NubTargetDefinitionGenerator.o
 
 OBJS            = $(LLDB_OBJS) \
 		  nub-server-impl.o \
@@ -49,6 +52,16 @@ NubProcess.o: NubProcess.cpp
 NubLLDBContext.o: NubLLDBContext.cpp
 	$(CXX) -MMD -c $(CXXFLAGS) $(LLDB_CXXFLAGS) $(LLDB_CPPFLAGS) \
             -I. -o $@ $(srcdir)/NubLLDBContext.cpp
+
+NubExecutorProcessControl.o: NubExecutorProcessControl.cpp
+	$(CXX) -MMD -c $(CXXFLAGS) $(LLDB_CXXFLAGS) $(LLDB_CPPFLAGS) \
+            -I. -o $@ $(srcdir)/NubExecutorProcessControl.cpp
+NubProcessMemoryManager.o: NubProcessMemoryManager.cpp
+	$(CXX) -MMD -c $(CXXFLAGS) $(LLDB_CXXFLAGS) $(LLDB_CPPFLAGS) \
+            -I. -o $@ $(srcdir)/NubProcessMemoryManager.cpp
+NubTargetDefinitionGenerator.o: NubTargetDefinitionGenerator.cpp
+	$(CXX) -MMD -c $(CXXFLAGS) $(LLDB_CXXFLAGS) $(LLDB_CPPFLAGS) \
+            -I. -o $@ $(srcdir)/NubTargetDefinitionGenerator.cpp
 
 nub-server-impl.o: nub-server-impl.cpp remote-nub.h
 	$(CXX) -MMD -c $(CXXFLAGS) $(OMNIORB_CFLAGS) \

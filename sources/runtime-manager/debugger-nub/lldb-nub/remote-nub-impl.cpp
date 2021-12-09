@@ -146,7 +146,30 @@ Rtmgr::RemoteNub::NUB_ERROR Rtmgr_RemoteNub_i::download_code
      Rtmgr::RemoteNub::NUBINT &last,
      Rtmgr::RemoteNub::RNUBHANDLE &lookups)
 {
-  NUB_UNIMPLEMENTED();
+  // FIXME
+  regions = new Rtmgr::RemoteNub::REGION_SEQ(0);
+  regions->length(0);
+
+  if (!this->lookup_symbols_.empty()) {
+    std::cerr << "Improper symbol lookup nesting (download_code)"
+              << std::endl;
+    abort();
+  }
+
+  std::vector<NubProcess::DownloadRecord> records;
+  for (CORBA::ULong ri = 0, re = download_records.length(); ri != re; ++ri) {
+    auto &codeseq { download_records[ri] };
+    auto codebuf { reinterpret_cast<const char *>(codeseq.get_buffer()) };
+
+    records.emplace_back(NubProcess::DownloadRecord(codebuf, codeseq.length()));
+  }
+
+  NubProcess::NUBINT rc = this->nub_process_->download_code(nubthread, records, entry_point, this->lookup_symbols_);
+  first = 1;
+  last = this->lookup_symbols_.size();
+  lookups = 0;
+
+  return rc;
 }
 
 Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::read_value_from_process_memory(Rtmgr::RemoteNub::RTARGET_ADDRESS address, Rtmgr::RemoteNub::NUB_ERROR &status)
@@ -346,15 +369,19 @@ Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::setup_function_call
     (Rtmgr::RemoteNub::RNUBTHREAD nubthread,
      Rtmgr::RemoteNub::RTARGET_ADDRESS func,
      Rtmgr::RemoteNub::NUBINT arg_count,
-     const Rtmgr::RemoteNub::RTARGET_ADDRESS_SEQ &args,
+     const Rtmgr::RemoteNub::RTARGET_ADDRESS_SEQ &args_seq,
      Rtmgr::RemoteNub::RNUBHANDLE &cx_handle)
 {
-  NUB_UNIMPLEMENTED();
+  std::vector<NubProcess::TARGET_ADDRESS> args;
+  for (size_t i = 0; i < arg_count; ++i) {
+    args.push_back(args_seq[i]);
+  }
+  return this->nub_process_->setup_function_call(nubthread, func, arg_count, args, cx_handle);
 }
 
 Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::get_function_result(Rtmgr::RemoteNub::RNUBTHREAD nubthread)
 {
-  NUB_UNIMPLEMENTED();
+  return this->nub_process_->get_function_result(nubthread);
 }
 
 void Rtmgr_RemoteNub_i::restore_context

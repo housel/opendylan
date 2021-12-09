@@ -1,11 +1,21 @@
 #include "NubProcess.h"
 #include "NubLLDBContext.h"
+#include "NubProcessMemoryManager.h"
+#include "NubExecutorProcessControl.h"
+#include "NubTargetDefinitionGenerator.h"
 
 #include <lldb/API/LLDB.h>
+
 #include <llvm/Support/Debug.h>
 #include <llvm/Support/Endian.h>
 #include <llvm/Support/GlobPattern.h>
+#include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/raw_ostream.h>
+#include <llvm/Bitcode/BitcodeReader.h>
+
+#include <llvm/ExecutionEngine/Orc/Core.h>
+#include <llvm/ExecutionEngine/Orc/ObjectLinkingLayer.h>
+#include <llvm/ExecutionEngine/Orc/LLJIT.h>
 
 #include <chrono>
 #include <thread>
@@ -16,9 +26,6 @@
 
 #include <wordexp.h>
 #include <unistd.h>
-
-namespace {
-}
 
 using namespace nub_private;
 
@@ -198,11 +205,13 @@ NubProcess::NUBINT NubProcess::page_relative_address
   auto &np { *this->private_ };
   std::unique_lock<std::mutex> guard(np.mutex);
   lldb::SBMemoryRegionInfo info;
-  TARGET_ADDRESS pagesize = getpagesize();
-  if (np.process.GetMemoryRegionInfo(address, info).Success()) {
-    if (info.GetPageSize() != 0) {
-      pagesize = info.GetPageSize();
-    }
+  TARGET_ADDRESS pagesize = 0;
+  if (np.process.GetMemoryRegionInfo(address, info).Success()
+      && info.GetPageSize() != 0) {
+    pagesize = info.GetPageSize();
+  }
+  else {
+    pagesize = llvm::sys::Process::getPageSizeEstimate();
   }
   offset = address % pagesize;
   return address / pagesize;
@@ -449,12 +458,10 @@ void NubProcess::application_continue()
                    << " synthetic: " << synthetic << "\n";
   });
   np.stop_reason_queue.pop_front();
-#if 0
-  if (!this->function_call_expression_.empty()) {
-    this->evaluate_function_call();
-  } else
-#endif
-  if (!synthetic) {
+  if (!np.function_call_expression.empty()) {
+    np.evaluate_function_call();
+  }
+  else if (!synthetic) {
     if (!np.stop_reason_queue.empty()) {
       llvm::errs() << "Continuing with items in queue:\n";
       for (auto &stop : np.stop_reason_queue) {
@@ -479,12 +486,10 @@ void NubProcess::application_continue_unhandled()
                    << " synthetic: " << synthetic << "\n";
   });
   np.stop_reason_queue.pop_front();
-#if 0
-  if (!np.function_call_expression_.empty()) {
+  if (!np.function_call_expression.empty()) {
     np.evaluate_function_call();
-  } else
-#endif
-  if (!synthetic) {
+  }
+  else if (!synthetic) {
     if (!np.stop_reason_queue.empty()) {
       llvm::errs() << "Continuing with items in queue:\n";
       for (auto &stop : np.stop_reason_queue) {
@@ -684,7 +689,7 @@ NubProcess::NUB_ERROR NubProcess::set_breakpoint(TARGET_ADDRESS address)
         llvm::dbgs().flush();
       });
       i->second.breakpoint.SetEnabled(true);
-      np.debugger.HandleCommand("breakpoint list");
+      //np.debugger.HandleCommand("breakpoint list");
       return OK;
     }
   }
@@ -701,7 +706,7 @@ NubProcess::NUB_ERROR NubProcess::set_breakpoint(TARGET_ADDRESS address)
                      << "\n";
         llvm::dbgs().flush();
       });
-      np.debugger.HandleCommand("breakpoint list");
+      //np.debugger.HandleCommand("breakpoint list");
       return OK;
     }
     else {
@@ -756,6 +761,45 @@ void NubProcess::wait_for_stop_reason_with_timeout
                  << "thread " << stop.thread
                  << "\n";
   });
+}
+
+NubProcess::TARGET_ADDRESS NubProcess::setup_function_call
+  (NUBTHREAD nubthread,  TARGET_ADDRESS func,
+   NUBINT arg_count, const std::vector<TARGET_ADDRESS> &args,
+   NUBHANDLE &cx_handle)
+{
+  auto &np { *this->private_ };
+  std::unique_lock<std::mutex> guard(np.mutex);
+  auto thread { np.process.GetThreadByID(nubthread) };
+  auto frame { thread.GetFrameAtIndex(0) };
+
+  lldb::SBStream expression;
+  expression.Print("((struct dylan_mv (*)(");
+  for (size_t i = 0; i < arg_count; ++i) {
+     if (i > 0) {
+      expression.Print(",");
+    }
+    expression.Print("void *");
+  }
+  expression.Printf(")) %#lx)(", func);
+  for (size_t i = 0; i < arg_count; ++i) {
+    if (i > 0) {
+      expression.Print(",");
+    }
+    expression.Printf("(void *) %#lx", args[i]);
+  }
+  expression.Print(")");
+  np.function_call_thread = nubthread;
+  np.function_call_expression = expression.GetData();
+
+  return frame.GetPC();
+}
+
+NubProcess::TARGET_ADDRESS NubProcess::get_function_result(NUBTHREAD nubthread)
+{
+  auto &np { *this->private_ };
+  std::unique_lock<std::mutex> guard(np.mutex);
+  return np.function_call_result.GetChildAtIndex(0).GetValueAsUnsigned();
 }
 
 NubProcess::TARGET_ADDRESS NubProcess::remote_call_spy
@@ -1070,7 +1114,8 @@ std::vector<NubProcess::LookupSymbol> NubProcess::lookup_symbols
   std::vector<NubProcess::LookupSymbol> result;
   auto pattern { llvm::GlobPattern::create(llvm::StringRef(match)) };
   if (!pattern) {
-    llvm::errs() << "lookup_symbols pattern error: "<< pattern.takeError() << "\n";
+    llvm::logAllUnhandledErrors(pattern.takeError(), llvm::errs(),
+                                "lookup_symbols pattern error: ");
     return result;
   }
 
@@ -1204,4 +1249,112 @@ NubProcess::TARGET_ADDRESS NubProcess::dylan_thread_environment_block_address
     valid = 0;
     return 0;
   }
+}
+
+NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vector<NubProcess::DownloadRecord> &records, const char *entry_name, std::vector<NubProcess::LookupSymbol> &symbols)
+{
+  auto &np { *this->private_ };
+
+  // The JIT target
+  llvm::Triple triple;
+  {
+    std::unique_lock<std::mutex> guard(np.mutex);
+    triple = llvm::Triple(np.target.GetTriple());
+  }
+  NUB_DEBUG({
+    llvm::dbgs() << "JIT Triple " << triple.str()
+                 << " (" << triple.normalize() <<")\n";
+  });
+  auto JTMB { llvm::orc::JITTargetMachineBuilder(triple) };
+  JTMB.setCodeModel(llvm::CodeModel::Large);
+
+  auto DL { JTMB.getDefaultDataLayoutForTarget() };
+  if (!DL) {
+    llvm::logAllUnhandledErrors(DL.takeError(), llvm::errs(),
+                                "download_code: ");
+    return -1;
+  }
+
+  // Build the LLJIT using ObjectLinkingLayer
+  auto TD { std::make_unique<llvm::orc::InPlaceTaskDispatcher>() };
+  auto MM { std::make_unique<NubProcessMemoryManager>(np) };
+  auto EPC { std::make_unique<NubExecutorProcessControl>(np.ssp, std::move(TD), std::move(MM), np) };
+  auto Creator {
+    [](llvm::orc::ExecutionSession &ES, const llvm::Triple &) -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
+      auto OLL { std::make_unique<llvm::orc::ObjectLinkingLayer>(ES) };
+      //OLL->addPlugin(std::make_unique<NubDebutPlugin>());
+      OLL->setReturnObjectBuffer([](std::unique_ptr<llvm::MemoryBuffer> buf) {
+        llvm::errs() << "Return buffer " << buf->getBufferSize() << "\n";
+      });
+      return std::move(OLL);
+    }
+  };
+  auto EJ { llvm::orc::LLJITBuilder()
+    .setJITTargetMachineBuilder(std::move(JTMB))
+    .setObjectLinkingLayerCreator(Creator)
+    .setExecutorProcessControl(std::move(EPC))
+    .create() };
+  if (!EJ) {
+    llvm::logAllUnhandledErrors(EJ.takeError(), llvm::errs(),
+                                "download_code: ");
+    return -1;
+  }
+
+  // Add a JITDylib to represent symbols defined in the target image
+  auto EJD { (*EJ)->createJITDylib("target") };
+  if (!EJD) {
+    llvm::logAllUnhandledErrors(EJD.takeError(), llvm::errs(),
+                                "download_code: ");
+    return -1;
+  }
+  EJD->addGenerator(std::make_unique<NubTargetDefinitionGenerator>(np));
+  (*EJ)->getMainJITDylib().addToLinkOrder(*EJD);
+
+  // Parse the passed-in bitcode records and add them to the JIT
+  for (auto &record : records) {
+    auto codemem { llvm::MemoryBufferRef(llvm::StringRef(record.data, record.length),
+                                         "download_code") };
+    auto context { std::make_unique<llvm::LLVMContext>() };
+    auto M { llvm::parseBitcodeFile(codemem, *context) };
+    if (!M) {
+      llvm::errs() << "Parsing download record failed\n";
+      return -1;
+    }
+    // Force the data layout to match the one identified by the JIT
+    // compiler; the one supplied by DFMC should be compatible but
+    // might not be identical
+    (*M)->setDataLayout(*DL);
+    NUB_DEBUG({
+      llvm::dbgs() << "Record ----------------------------------------\n";
+      (*M)->print(llvm::dbgs(), nullptr);
+    });
+
+    // Package the parsed module as a ThreadSafeModule and add it to
+    // the JIT
+    auto TSM { llvm::orc::ThreadSafeModule(std::move(*M), std::move(context)) };
+    if (auto E = (*EJ)->addIRModule(std::move(TSM))) {
+      llvm::logAllUnhandledErrors(std::move(E), llvm::errs());
+      return -1;
+    };
+  }
+
+  // Locate the entry point, generating code as needed
+  bool debug { llvm::DebugFlag };
+  llvm::DebugFlag = false;
+  auto Entry { (*EJ)->lookup(entry_name) };
+  llvm::DebugFlag = debug;
+  if (!Entry) {
+    llvm::logAllUnhandledErrors(Entry.takeError(), llvm::errs(),
+                                "download_code: ");
+    return -1;
+  }
+  NUB_DEBUG({
+    llvm::errs() << "Entry is " << llvm::format_hex(Entry->getAddress(), 18)
+                 << "\n";
+    (*EJ)->getExecutionSession().dump(llvm::dbgs());
+  });
+
+  symbols.emplace_back(np.make_lookup_symbol(entry_name, *Entry));
+
+  return 0;
 }

@@ -2,7 +2,11 @@
 
 #include <lldb/API/LLDB.h>
 #include <llvm/Support/Debug.h>
+#include <llvm/Support/Error.h>
 #include <llvm/Support/raw_ostream.h>
+
+#include <llvm/ExecutionEngine/JITSymbol.h>
+#include <llvm/ExecutionEngine/Orc/SymbolStringPool.h>
 
 #include <deque>
 #include <map>
@@ -12,6 +16,13 @@
 #define NUB_DEBUG(X) DEBUG_WITH_TYPE("dylan-nub", X)
 
 namespace nub_private {
+  inline llvm::Error errorFromSBError(lldb::SBError err) {
+    return err.Success()
+      ? llvm::Error::success()
+      : llvm::createStringError(llvm::inconvertibleErrorCode(),
+                                "lldb: %s", err.GetCString());
+  }
+
   extern const char *const stop_reason_name[];
 
   class NubLLDBContext {
@@ -25,6 +36,13 @@ namespace nub_private {
     lldb::SBLaunchInfo launch;
 
     NubProcess::LookupSymbol make_lookup_symbol(lldb::SBSymbol &symbol);
+    NubProcess::LookupSymbol make_lookup_symbol(const std::string &name,
+                                                const llvm::JITEvaluatedSymbol &symbol);
+
+    lldb::tid_t function_call_thread;
+    std::string function_call_expression;
+    lldb::SBValue function_call_result;
+    void evaluate_function_call();
 
     lldb::SBValue evaluate(lldb::SBThread &thread, const char *expression,
                            bool stop_others = false, bool ignore_result = false);
@@ -88,6 +106,9 @@ namespace nub_private {
     std::pair<register_name_index, register_name_index> general_registers;
     std::pair<register_name_index, register_name_index> special_registers;
     std::pair<register_name_index, register_name_index> floating_registers;
+
+    // JIT
+    std::shared_ptr<llvm::orc::SymbolStringPool> ssp;
 
   private:
     std::vector<NubProcess::TARGET_ADDRESS> virtual_register_values_;

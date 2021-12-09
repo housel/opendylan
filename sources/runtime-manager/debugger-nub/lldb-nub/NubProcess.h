@@ -368,6 +368,14 @@ public:
                            TARGET_ADDRESS than_this_one);
   TARGET_ADDRESS dylan_current_function(NUBTHREAD nubthread);
 
+  struct DownloadRecord {
+    const char *data;
+    size_t length;
+
+    DownloadRecord(const char *data, size_t length) : data(data), length(length) {}
+  };
+  NUBINT download_code(NUBTHREAD nubthread, const std::vector<DownloadRecord> &records, const char *entry, std::vector<LookupSymbol> &symbols);
+
 private:
   nub_private::NubLLDBContext *private_;
 };

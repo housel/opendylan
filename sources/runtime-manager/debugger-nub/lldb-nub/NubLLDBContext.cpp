@@ -2,6 +2,43 @@
 #include "NubLLDBContext.h"
 
 #include <llvm/Support/Format.h>
+#include <llvm/Support/TargetSelect.h>
+
+namespace {
+  const char DYLAN_MV_DECL[] = "struct dylan_mv { void *primary_value; unsigned char mv_count; };";
+
+  /// Ensure LLDB initialization, deinitialization, and debugger
+  /// singleton creation
+  class DebuggerCreator {
+  public:
+    DebuggerCreator() {
+      llvm::DebugFlag = true;
+
+      // Initialize compilation support for JIT use
+      llvm::InitializeAllTargetInfos();
+      llvm::InitializeAllTargets();
+      llvm::InitializeAllTargetMCs();
+      llvm::InitializeAllAsmPrinters();
+
+      // Initialize LLDB
+      lldb::SBDebugger::Initialize();
+    }
+    ~DebuggerCreator() {
+      // Terminate LLDB
+      lldb::SBDebugger::Terminate();
+    }
+    lldb::SBDebugger create() {
+      if (!this->debugger_) {
+        this->debugger_ = lldb::SBDebugger::Create(false);
+      }
+      return this->debugger_;
+    }
+  private:
+    lldb::SBDebugger debugger_;
+  };
+
+  DebuggerCreator creator;
+}
 
 namespace nub_private {
   const char *const stop_reason_name[] = {
@@ -42,38 +79,13 @@ namespace nub_private {
     "PROFILER_UNHANDLED",               // 34
   };
 
-  /// Ensure LLDB initialization, deinitialization, and debugger
-  /// singleton creation
-  class DebuggerCreator {
-  public:
-    DebuggerCreator() {
-      llvm::DebugFlag = true;
-
-      // Initialize LLDB
-      lldb::SBDebugger::Initialize();
-    }
-    ~DebuggerCreator() {
-      // Terminate LLDB
-      lldb::SBDebugger::Terminate();
-    }
-    lldb::SBDebugger create() {
-      if (!this->debugger_) {
-        this->debugger_ = lldb::SBDebugger::Create(false);
-      }
-      return this->debugger_;
-    }
-  private:
-    lldb::SBDebugger debugger_;
-  };
-
-  DebuggerCreator creator;
-
   NubLLDBContext::NubLLDBContext(const char *process_name)
     : debugger(creator.create()),
       listener(std::string("Listener for ").append(process_name).c_str()),
       launch(nullptr),
       nub_state(INITIAL),
       exit_process_function(LLDB_INVALID_ADDRESS),
+      ssp(std::make_shared<llvm::orc::SymbolStringPool>()),
       exit_broadcaster_("nub event_dispatcher_thread"),
       event_dispatcher_thread_([&] { dispatch_lldb_events(); })
   {
@@ -108,6 +120,20 @@ namespace nub_private {
       }
       auto end { symbol.GetEndAddress() };
       lookup.debug_end = lookup.function_end = end.GetLoadAddress(target);
+    }
+    return lookup;
+  }
+
+  NubProcess::LookupSymbol NubLLDBContext::make_lookup_symbol
+    (const std::string &name, const llvm::JITEvaluatedSymbol &symbol)
+  {
+    auto callable { symbol.getFlags().isCallable() };
+    auto lookup { NubProcess::LookupSymbol(name, symbol.getAddress(), callable) };
+    if (callable) {
+      lookup.language = 0;
+      lookup.debug_start = LLDB_INVALID_ADDRESS;
+      lookup.debug_end = LLDB_INVALID_ADDRESS;
+      lookup.function_end = LLDB_INVALID_ADDRESS;
     }
     return lookup;
   }
@@ -202,6 +228,14 @@ namespace nub_private {
           // We have a process now
           this->process = this->target.GetProcess();
 
+          // Install a persistent definition for dylan_mv
+          {
+            lldb::SBExpressionOptions options;
+            options.SetLanguage(lldb::eLanguageTypeC99);
+            options.SetTopLevel(true);
+            this->target.EvaluateExpression(DYLAN_MV_DECL, options);
+          }
+
           // Enumerate the initial set of threads
           lldb::tid_t tid = LLDB_INVALID_THREAD_ID;
           for (size_t ti = 0, te = process.GetNumThreads(); ti != te; ++ti) {
@@ -275,7 +309,7 @@ namespace nub_private {
         break;
 
       case RUNNING:
-        llvm::dbgs() << "Stopped in RUNNING, for whatever reason\n";
+        NUB_DEBUG(llvm::dbgs() << "Stopped in RUNNING, for whatever reason\n");
         //this->debugger.HandleCommand("bt all");
         {
           auto queue_count { this->stop_reason_queue.size() };
@@ -287,14 +321,16 @@ namespace nub_private {
             frame.GetDescription(frame_stream);
             auto exception_address { frame.GetPC() };
 
-            char description[8192];
-            thread.GetStopDescription(description, sizeof description);
-            llvm::dbgs() << "Thread " << tid
-                         << " stop reason: " << thread.GetStopReason()
-                         << " description: " << description
-                         << "\n  " << frame_stream.GetData();
+            NUB_DEBUG({
+              char description[8192];
+              thread.GetStopDescription(description, sizeof description);
+              llvm::dbgs() << "Thread " << tid
+                           << " stop reason: " << thread.GetStopReason()
+                           << " description: " << description
+                           << "\n  " << frame_stream.GetData();
+            });
             if (thread.IsSuspended()) {
-              llvm::dbgs() << "  That's suspended, ignore for now\n";
+              NUB_DEBUG(llvm::dbgs() << "  That's suspended, ignore for now\n");
               continue;
             }
             switch (thread.GetStopReason()) {
@@ -350,7 +386,7 @@ namespace nub_private {
                   system_initialized.first_hard_coded_breakpoint = 0;
                   this->stop_reason_queue.emplace_back(system_initialized);
                   this->queue_condition.notify_all();
-                  llvm::dbgs() << "  Pushed HARD_CODED_BREAKPOINT for that one\n";
+                  NUB_DEBUG(llvm::dbgs() << "  Pushed HARD_CODED_BREAKPOINT for that one\n");
                   //this->debugger_.HandleCommand("bt all");
                 }
                 else {
@@ -428,6 +464,30 @@ namespace nub_private {
   {
   }
 
+  void NubLLDBContext::evaluate_function_call()
+  {
+    auto pid { this->process.GetProcessID() };
+    auto thread { this->process.GetThreadByID(this->function_call_thread) };
+
+    std::string expression;
+    std::swap(expression, function_call_expression);
+
+    this->function_call_result
+      = this->evaluate(thread, expression.c_str(), false, false);
+
+    if (this->function_call_result.IsValid()
+        && this->function_call_result.GetError().Success()) {
+      auto frame { thread.GetFrameAtIndex(0) };
+      NubProcess::StopReason breakpoint_stop(NubProcess::BREAKPOINT_EXCEPTION_DBG_EVENT, false,
+                                             this->function_call_thread);
+      breakpoint_stop.exception_address = frame.GetPC();
+      this->stop_reason_queue.emplace_back(breakpoint_stop);
+      this->queue_condition.notify_all();
+
+      NUB_DEBUG(llvm::dbgs() << "  Pushed BREAKPOINT_EXCEPTION after function call evaluation\n");
+    }
+  }
+
   lldb::SBValue NubLLDBContext::evaluate
     (lldb::SBThread &thread, const char *expression,
      bool stop_others, bool ignore_result)
@@ -489,8 +549,10 @@ namespace nub_private {
       return;
     }
 
-    NUB_DEBUG(llvm::dbgs() << "Shepherding " << created_thread_count
-              << " spy-created thread(s)\n");
+    NUB_DEBUG({
+      llvm::dbgs() << "Shepherding " << created_thread_count
+                   << " spy-created thread(s)\n";
+    });
 
     // Suspend any pre-existing threads so they don't interfere
     std::vector<lldb::SBThread> suspended_threads;
@@ -502,8 +564,10 @@ namespace nub_private {
           && !thread.IsSuspended()) {
         thread.Suspend();
         suspended_threads.emplace_back(thread);
-        NUB_DEBUG(llvm::dbgs() << "Temporarily suspending " << tid
-                  << " during shepherding\n");
+        NUB_DEBUG({
+          llvm::dbgs() << "Temporarily suspending " << tid
+                       << " during shepherding\n";
+        });
       }
     }
 
@@ -516,6 +580,10 @@ namespace nub_private {
                                  [&]{ return !stop_reason_queue.empty(); });
 
       if (this->stop_reason_queue.front().code != NubProcess::HARD_CODED_BREAKPOINT_DBG_EVENT) {
+        auto code { this->stop_reason_queue.front().code };
+        llvm::errs() << "Shepherding unexpectedly stopped with code " << stop_reason_name[code]
+                     << " in thread " << this->stop_reason_queue.front().thread
+                     << "\n";
         abort();
       }
       auto tid { this->stop_reason_queue.front().thread };
@@ -535,8 +603,10 @@ namespace nub_private {
 
     // Resume any threads we might have suspended
     for (auto &thread : suspended_threads) {
-      NUB_DEBUG(llvm::dbgs() << "Unsuspending " << thread.GetThreadID()
-                << " after shepherding\n");
+      NUB_DEBUG({
+        llvm::dbgs() << "Unsuspending " << thread.GetThreadID()
+                     << " after shepherding\n";
+      });
       thread.Resume();
     }
   }
@@ -569,7 +639,6 @@ namespace nub_private {
     for (uint32_t ci = 0, ce = group.GetNumChildren(); ci != ce; ++ci) {
       auto reg { group.GetChildAtIndex(ci) };
       auto index { this->register_names.size() };
-      llvm::dbgs() << "[" << index << "] = " << reg.GetName() << "\n";
       this->register_names.emplace_back(reg.GetName());
       this->register_name_map.insert({reg.GetName(), index});
     }
