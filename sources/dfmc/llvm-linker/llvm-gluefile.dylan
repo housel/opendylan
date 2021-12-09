@@ -95,6 +95,7 @@ define sideways method emit-gluefile
     = build-area-output-locator(ld, base: "_glue", type: "bc");
   let m = make(<llvm-module>,
                name: "_glue",
+               source-filename: "_glue",
                target-triple: llvm-back-end-target-triple(back-end),
                data-layout: llvm-back-end-data-layout(back-end));
   back-end.llvm-builder-module := m;

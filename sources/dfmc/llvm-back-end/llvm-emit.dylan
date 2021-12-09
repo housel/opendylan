@@ -14,6 +14,7 @@ define method emit-all (back-end :: <llvm-back-end>,
     // Initialize a new LLVM module
     let m = make(<llvm-module>,
                  name: compilation-record-name(cr),
+                 source-filename: compilation-record-name(cr),
                  target-triple: llvm-back-end-target-triple(back-end),
                  data-layout: llvm-back-end-data-layout(back-end));
 
