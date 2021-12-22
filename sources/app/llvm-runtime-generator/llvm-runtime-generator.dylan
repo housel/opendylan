@@ -30,7 +30,8 @@ define constant $runtime-referenced-objects
       #"%empty-vector",         // #[]
       #"%empty-string",         // ""
       #"$absent-engine-node",
-      #"$inapplicable-engine-node"];
+      #"$inapplicable-engine-node",
+      #"make-simple-lock"];
 
 define constant $runtime-referenced-functions
   = #[#"type-check-error",
@@ -54,7 +55,8 @@ define constant $runtime-referenced-functions
       #"float-invalid",
       #"float-overflow",
       #"float-underflow",
-      #"call-application-exit-functions"];
+      #"call-application-exit-functions",
+      #"spy-invoke-dylan-under-coded-restart"];
 
 define constant $runtime-referenced-variables
   = #[#"$direct-object-mm-wrappers"];

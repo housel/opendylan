@@ -95,6 +95,33 @@ define c-callable auxiliary &runtime-primitive-descriptor spy-call-dylan-functio
   ins--extractvalue(be, mv, 0)
 end;
 
+define c-callable auxiliary &runtime-primitive-descriptor spy-call-interactive-function
+    (iep :: <function>)
+ => (#rest values);
+  let word-size = back-end-word-size(be);
+  let m = be.llvm-builder-module;
+
+  // Make a "closure" by copying a no-argument function's <simple-method>
+  // object and replacing its IEP
+  let template = emit-reference(be, m, dylan-value(#"make-simple-lock"));
+  let class = dylan-value(#"<simple-closure-method>");
+  let thunk = op--make-closure(be, class, template,
+                               llvm-back-end-value-function(be, 0));
+  let thunk-cast = op--object-pointer-cast(be, thunk, class);
+  let mep-ptr = op--getslotptr(be, thunk-cast, class, #"mep");
+  ins--store(be, iep, mep-ptr, alignment: word-size);
+
+  // Pass the thunk to the spy invoker
+  let siducr-iep = dylan-value(#"spy-invoke-dylan-under-coded-restart").^iep;
+  let siducr-name = emit-name(be, m, siducr-iep);
+  let siducr-global = llvm-builder-global(be, siducr-name);
+  let interactor-level = emit-reference(be, m, -1);
+  let arguments = emit-reference(be, m, dylan-value(#"%empty-vector"));
+  op--call-iep(be, siducr-global, vector(interactor-level, thunk, arguments),
+               function-type: llvm-lambda-type(be, siducr-iep),
+               calling-convention: llvm-calling-convention(be, siducr-iep))
+end;
+
 // Read memory on behalf of the debugger, using code so that garbage
 // collector read barriers will have a chance to take effect.
 define c-callable auxiliary &runtime-primitive-descriptor spy-read-location-through-barrier
