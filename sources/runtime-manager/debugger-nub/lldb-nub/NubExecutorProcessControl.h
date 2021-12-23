@@ -27,7 +27,6 @@ namespace nub_private {
                           llvm::ArrayRef<char> ArgBuffer) override;
 
     llvm::Error disconnect() override;
-
   private:
     // MemoryAccess methods
     virtual void writeUInt8sAsync(llvm::ArrayRef<llvm::orc::tpctypes::UInt8Write> Ws,

@@ -21,6 +21,11 @@ public:
   using DOUBLE = double;
   using TARGET_ADDRESS = uint64_t; // cf lldb::addr_t
 
+  enum OutputType {
+    StdOut,
+    StdErr,
+  };
+
   explicit NubProcess(const char *process_name);
   ~NubProcess();
 
@@ -375,6 +380,8 @@ public:
     DownloadRecord(const char *data, size_t length) : data(data), length(length) {}
   };
   NUBINT download_code(NUBTHREAD nubthread, const std::vector<DownloadRecord> &records, const char *entry, std::vector<LookupSymbol> &symbols);
+
+  
 
 private:
   nub_private::NubLLDBContext *private_;

@@ -221,7 +221,7 @@ void Rtmgr_RemoteNub_i::read_byte_string_from_process_memory(Rtmgr::RemoteNub::R
 {
   buffer = CORBA::string_alloc(sz);
   this->nub_process_->read_byte_string_from_process_memory(address, sz, buffer.ptr(), status);
-  if (sz == 0) {
+  if (status == 0) {
     buffer[sz] = '\0';
   }
 }
@@ -668,6 +668,7 @@ Rtmgr::RemoteNub::NUBINT Rtmgr_RemoteNub_i::closest_symbol
   NubProcess::LookupSymbol lookup;
   auto status { this->nub_process_->closest_symbol(address, lib, actual_address,
                                                    offset, lookup) };
+  this->closest_symbol_name_ = lookup.name;
   name_length = lookup.name.size();
   type = 0;
   is_function = lookup.is_function;
@@ -675,7 +676,6 @@ Rtmgr::RemoteNub::NUBINT Rtmgr_RemoteNub_i::closest_symbol
   debug_end = lookup.debug_end;
   language = lookup.language;
   final_address_of_definition = lookup.function_end;
-  this->lookup_symbols_.emplace_back(lookup);
   return status;
 }
 
@@ -686,8 +686,7 @@ void Rtmgr_RemoteNub_i::function_bounding_addresses(Rtmgr::RemoteNub::RTARGET_AD
 
 char *Rtmgr_RemoteNub_i::closest_symbol_name(Rtmgr::RemoteNub::NUBINT sz)
 {
-  char *result = CORBA::string_dup(this->lookup_symbols_.back().name.c_str());
-  this->lookup_symbols_.pop_back();
+  char *result = CORBA::string_dup(this->closest_symbol_name_.c_str());
   return result;
 }
 

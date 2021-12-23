@@ -118,7 +118,10 @@ namespace nub_private {
     void dispatch_lldb_events();
 
     void dispatch_process_stop(lldb::SBProcess &process, lldb::StateType state);
+    void dispatch_process_output(lldb::SBProcess &process, NubProcess::OutputType type);
     void dispatch_target_modules_loaded(lldb::SBEvent &event);
     void dispatch_target_modules_unloaded(lldb::SBEvent &event);
+
+    void backtrace(lldb::SBThread &thread);
   };
 }

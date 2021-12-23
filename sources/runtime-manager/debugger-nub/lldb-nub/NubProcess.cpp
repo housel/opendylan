@@ -452,10 +452,18 @@ void NubProcess::application_continue()
   std::unique_lock<std::mutex> guard(np.mutex);
   np.clear_virtual_registers();
   bool synthetic = np.stop_reason_queue.front().synthetic;
+  if (np.stop_reason_queue.front().code == NubProcess::EXIT_PROCESS_DBG_EVENT) {
+    llvm::errs() << "He's dead, Jim.\n";
+    abort();
+  }
   NUB_DEBUG({
       llvm::dbgs() << "Continue from "
                    << stop_reason_name[np.stop_reason_queue.front().code]
-                   << " synthetic: " << synthetic << "\n";
+                   << " synthetic: " << synthetic;
+      if (!np.function_call_expression.empty()) {
+        llvm::dbgs() << " call: " << np.function_call_expression;
+      }
+      llvm::dbgs() << "\n";
   });
   np.stop_reason_queue.pop_front();
   if (!np.function_call_expression.empty()) {
@@ -480,6 +488,10 @@ void NubProcess::application_continue_unhandled()
   std::unique_lock<std::mutex> guard(np.mutex);
   np.clear_virtual_registers();
   bool synthetic = np.stop_reason_queue.front().synthetic;
+  if (np.stop_reason_queue.front().code == NubProcess::EXIT_PROCESS_DBG_EVENT) {
+    llvm::errs() << "He's dead, Jim.\n";
+    abort();
+  }
   NUB_DEBUG({
       llvm::dbgs() << "Continue (unhandled) from "
                    << stop_reason_name[np.stop_reason_queue.front().code]
@@ -834,6 +846,24 @@ NubProcess::TARGET_ADDRESS NubProcess::remote_call_spy
     }
   });
 
+  // Suspend any other threads so they don't interfere
+  std::vector<lldb::SBThread> suspended_threads;
+  for (size_t ti = 0, te = np.process.GetNumThreads(); ti != te; ++ti) {
+    auto thread { np.process.GetThreadAtIndex(ti) };
+    auto tid { thread.GetThreadID() };
+    if (tid != nubthread
+        && (np.thread_map[tid] == NubLLDBContext::THREAD_MAIN
+            || np.thread_map[tid] == NubLLDBContext::THREAD_NOTIFIED)
+        && !thread.IsSuspended()) {
+      thread.Suspend();
+      suspended_threads.emplace_back(thread);
+      NUB_DEBUG({
+        llvm::dbgs() << "Temporarily suspending " << tid
+                     << " during spy call\n";
+      });
+    }
+  }
+
   // Temporarily disable the thread creation breakpoint since we will
   // be tracking new threads using other means
   np.create_thread_breakpoint.SetEnabled(false);
@@ -880,13 +910,33 @@ NubProcess::TARGET_ADDRESS NubProcess::remote_call_spy
       created_threads.push_back(tid);
     }
   }
-  np.shepherd_spy_created_threads(guard, created_threads.size());
+
+  if (!created_threads.empty()) {
+    // Before shepherding the spy call thread needs to be suspended too
+    thread.Suspend();
+    suspended_threads.emplace_back(thread);
+    NUB_DEBUG({
+      llvm::dbgs() << "Temporarily suspending " << nubthread
+                   << " during spy call\n";
+    });
+
+    np.shepherd_spy_created_threads(guard, created_threads.size());
+  }
 
   // Update the client's idea of the current stop reason
   stop = np.stop_reason_queue.front();
 
   // Re-enable the thread creation breakpoint
   np.create_thread_breakpoint.SetEnabled(true);
+
+  // Resume any threads we might have suspended
+  for (auto &thread : suspended_threads) {
+    NUB_DEBUG({
+      llvm::dbgs() << "Unsuspending " << thread.GetThreadID()
+                   << " after shepherding\n";
+      });
+    thread.Resume();
+  }
 
   if (value.IsValid() && value.GetError().Success()) {
     status = 0;
@@ -1284,7 +1334,7 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
       auto OLL { std::make_unique<llvm::orc::ObjectLinkingLayer>(ES) };
       //OLL->addPlugin(std::make_unique<NubDebutPlugin>());
       OLL->setReturnObjectBuffer([](std::unique_ptr<llvm::MemoryBuffer> buf) {
-        llvm::errs() << "Return buffer " << buf->getBufferSize() << "\n";
+        llvm::dbgs() << "Return buffer " << buf->getBufferSize() << "\n";
       });
       return std::move(OLL);
     }

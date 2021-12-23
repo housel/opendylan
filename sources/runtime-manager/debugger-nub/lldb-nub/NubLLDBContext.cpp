@@ -12,7 +12,7 @@ namespace {
   class DebuggerCreator {
   public:
     DebuggerCreator() {
-      llvm::DebugFlag = true;
+      llvm::DebugFlag = false;
 
       // Initialize compilation support for JIT use
       llvm::InitializeAllTargetInfos();
@@ -94,6 +94,8 @@ namespace nub_private {
 
   NubLLDBContext::~NubLLDBContext()
   {
+    // Tell the listener dispatch thread to exit, and join it when it
+    // does
     this->exit_broadcaster_.BroadcastEventByType(1, true);
     this->event_dispatcher_thread_.join();
   }
@@ -172,10 +174,10 @@ namespace nub_private {
           }
         }
         else if (event_type & lldb::SBProcess::eBroadcastBitSTDOUT) {
-          //this->dispatch_process_output(process, Rtmgr_RemoteNub_i::StdOut);
+          this->dispatch_process_output(process, NubProcess::StdOut);
         }
         else if (event_type & lldb::SBProcess::eBroadcastBitSTDERR) {
-          //this->dispatch_process_output(process, Rtmgr_RemoteNub_i::StdErr);
+          this->dispatch_process_output(process, NubProcess::StdErr);
         }
         else {
           NUB_DEBUG(llvm::dbgs() << "PROCESS EVENT NOT HANDLED\n");
@@ -456,6 +458,23 @@ namespace nub_private {
     }
   }
 
+  void NubLLDBContext::dispatch_process_output(lldb::SBProcess &process, NubProcess::OutputType type)
+  {
+    char buf[4096];
+    size_t len;
+    switch (type) {
+    case NubProcess::StdOut:
+      len = process.GetSTDOUT(buf, sizeof buf);
+      break;
+    case NubProcess::StdErr:
+      len = process.GetSTDERR(buf, sizeof buf);
+      break;
+    }
+    llvm::errs() << "Output " << type << ": "
+                 << std::string(buf, len)
+                 << "\n";
+  }
+
   void NubLLDBContext::dispatch_target_modules_loaded(lldb::SBEvent &event)
   {
   }
@@ -501,6 +520,20 @@ namespace nub_private {
     options.SetStopOthers(stop_others);
     options.SetUnwindOnError(false);
 
+    NUB_DEBUG({
+      llvm::dbgs() << "Before evaluate on " << thread.GetThreadID() << "\n";
+      this->backtrace(thread);
+
+      for (size_t ti = 0, te = this->process.GetNumThreads(); ti != te; ++ti) {
+        auto tt { process.GetThreadAtIndex(ti) };
+        auto tid { tt.GetThreadID() };
+        llvm::dbgs() << "Thread " << tid
+                     << " kind=" << this->thread_map[tid]
+                     << " suspended=" << thread.IsSuspended()
+                     << "\n";
+      }
+    });
+
     // If we're currently stopped at a breakpoint then we need to
     // temporarily disable it
     auto frame { thread.GetFrameAtIndex(0) };
@@ -540,36 +573,20 @@ namespace nub_private {
       breakpoint_i->second.breakpoint.SetEnabled(true);
     }
 
+    NUB_DEBUG({
+      llvm::dbgs() << "After evaluate on " << thread.GetThreadID() << "\n";
+      this->backtrace(thread);
+    });
+
     return value;
   }
 
   void NubLLDBContext::shepherd_spy_created_threads(std::unique_lock<std::mutex> &guard, unsigned created_thread_count)
   {
-    if (created_thread_count == 0) {
-      return;
-    }
-
     NUB_DEBUG({
       llvm::dbgs() << "Shepherding " << created_thread_count
                    << " spy-created thread(s)\n";
     });
-
-    // Suspend any pre-existing threads so they don't interfere
-    std::vector<lldb::SBThread> suspended_threads;
-    for (size_t ti = 0, te = this->process.GetNumThreads(); ti != te; ++ti) {
-      auto thread { process.GetThreadAtIndex(ti) };
-      auto tid { thread.GetThreadID() };
-      if ((this->thread_map[tid] == THREAD_MAIN
-           || this->thread_map[tid] == THREAD_NOTIFIED)
-          && !thread.IsSuspended()) {
-        thread.Suspend();
-        suspended_threads.emplace_back(thread);
-        NUB_DEBUG({
-          llvm::dbgs() << "Temporarily suspending " << tid
-                       << " during shepherding\n";
-        });
-      }
-    }
 
     // Continue the new thread until it stops within
     // primitive-invoke-debugger (see spy-create-application-thread)
@@ -591,23 +608,14 @@ namespace nub_private {
       --created_thread_count;
       auto thread { process.GetThreadByID(tid) };
       NUB_DEBUG({
-          auto frame { thread.GetFrameAtIndex(0) };
-          lldb::SBStream stream;
-          frame.GetDescription(stream);
-          llvm::dbgs() << "Successfully shepherded " << tid
-                       << ", suspending it at "
-                       << stream.GetData();
+        auto frame { thread.GetFrameAtIndex(0) };
+        lldb::SBStream stream;
+        frame.GetDescription(stream);
+        llvm::dbgs() << "Successfully shepherded " << tid
+                     << ", suspending it at "
+                     << stream.GetData();
         });
       thread.Suspend();
-    }
-
-    // Resume any threads we might have suspended
-    for (auto &thread : suspended_threads) {
-      NUB_DEBUG({
-        llvm::dbgs() << "Unsuspending " << thread.GetThreadID()
-                     << " after shepherding\n";
-      });
-      thread.Resume();
     }
   }
 
@@ -665,5 +673,32 @@ namespace nub_private {
   void NubLLDBContext::clear_virtual_registers()
   {
     this->virtual_register_values_.clear();
+  }
+
+  void NubLLDBContext::backtrace(lldb::SBThread &thread)
+  {
+    auto real_frame_count { thread.GetNumFrames() };
+    for (uint32_t i = 0; i < real_frame_count; ++i) {
+      auto frame { thread.GetFrameAtIndex(i) };
+      lldb::addr_t return_address;
+      if (i + 1 < real_frame_count) {
+        auto inner_frame { thread.GetFrameAtIndex(i + 1) };
+        return_address = inner_frame.GetPC();
+      }
+      else {
+        return_address = LLDB_INVALID_ADDRESS;
+      }
+      NUB_DEBUG({
+        lldb::SBStream stream;
+        frame.GetDescription(stream);
+        llvm::dbgs() << "  [" << i << "]: FP="
+                     << llvm::format("0x%016" PRIx64, frame.GetFP())
+                     << " PC="
+                     << llvm::format("0x%016" PRIx64, frame.GetPC())
+                     << " RET="
+                     << llvm::format("0x%016" PRIx64, return_address)
+                     << "\n      " << stream.GetData();
+      });
+    }
   }
 }

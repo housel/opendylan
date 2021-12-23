@@ -208,4 +208,5 @@ private:
   std::vector<NubProcess::LookupSymbol> lookup_symbols_;
   std::vector<NubProcess::FrameLexical> lookup_lexicals_;
   std::vector<NubProcess::SourceLocation> source_locations_;
+  std::string closest_symbol_name_;
 };
