@@ -145,15 +145,13 @@ void NubProcessMemoryManager::deallocate(std::vector<FinalizedAlloc> Allocs,
     std::unique_ptr<FinalizedAllocInfo> FAI
       { llvm::jitTargetAddressToPointer<FinalizedAllocInfo *>(Alloc.release()) };
     for (auto Addr : FAI->addresses) {
-      NUB_DEBUG(llvm::errs() << "Deallocated " << llvm::format_hex(Addr, 18) << " (NOT!)\n");
-#if 0
+      NUB_DEBUG(llvm::errs() << "Deallocated " << llvm::format_hex(Addr, 18) << "\n");
       lldb::SBError error = this->nlc_.process.DeallocateMemory(Addr);
       if (error.Fail()) {
         this->nlc_.mutex.unlock();
         OnDeallocated(errorFromSBError(error));
         return;
       }
-#endif
     }
   }
   this->nlc_.mutex.unlock();

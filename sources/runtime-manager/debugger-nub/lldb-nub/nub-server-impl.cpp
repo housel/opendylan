@@ -32,6 +32,7 @@ Rtmgr::RemoteNub_ptr Rtmgr_NubServer_i::CreateNub(const char *process_name, cons
   std::cerr << "CreateNub" << process_name << std::endl;
   auto nub_impl { new Rtmgr_RemoteNub_i(process_name, remote_machine) };
   auto nub { nub_impl->_this() };
+  nub_impl->_remove_ref();
   return nub;
 }
 

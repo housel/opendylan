@@ -7,6 +7,7 @@
 
 #include <llvm/ExecutionEngine/JITSymbol.h>
 #include <llvm/ExecutionEngine/Orc/SymbolStringPool.h>
+#include <llvm/ExecutionEngine/Orc/LLJIT.h>
 
 #include <deque>
 #include <map>
@@ -109,6 +110,10 @@ namespace nub_private {
 
     // JIT
     std::shared_ptr<llvm::orc::SymbolStringPool> ssp;
+    std::unique_ptr<llvm::orc::LLJIT> jit;
+    std::vector<llvm::orc::JITDylib *> jds;
+
+    bool initialize_jit();
 
   private:
     std::vector<NubProcess::TARGET_ADDRESS> virtual_register_values_;

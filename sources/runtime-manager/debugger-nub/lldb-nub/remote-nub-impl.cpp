@@ -863,7 +863,6 @@ void Rtmgr_RemoteNub_i::OpenNub(Rtmgr::AccessPath_ptr access_path)
 
 void Rtmgr_RemoteNub_i::CloseNub()
 {
-  std::cerr << "CloseNub " << this << std::endl;
   //this->access_path_ = Rtmgr::AccessPath::_nil();
   std::cerr << "Deactivate" << std::endl;
   PortableServer::POA_var poa = _default_POA();

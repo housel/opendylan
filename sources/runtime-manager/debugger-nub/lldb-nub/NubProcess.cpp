@@ -1306,59 +1306,33 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
   auto &np { *this->private_ };
 
   // The JIT target
-  llvm::Triple triple;
   {
     std::unique_lock<std::mutex> guard(np.mutex);
-    triple = llvm::Triple(np.target.GetTriple());
-  }
-  NUB_DEBUG({
-    llvm::dbgs() << "JIT Triple " << triple.str()
-                 << " (" << triple.normalize() <<")\n";
-  });
-  auto JTMB { llvm::orc::JITTargetMachineBuilder(triple) };
-  JTMB.setCodeModel(llvm::CodeModel::Large);
-
-  auto DL { JTMB.getDefaultDataLayoutForTarget() };
-  if (!DL) {
-    llvm::logAllUnhandledErrors(DL.takeError(), llvm::errs(),
-                                "download_code: ");
-    return -1;
-  }
-
-  // Build the LLJIT using ObjectLinkingLayer
-  auto TD { std::make_unique<llvm::orc::InPlaceTaskDispatcher>() };
-  auto MM { std::make_unique<NubProcessMemoryManager>(np) };
-  auto EPC { std::make_unique<NubExecutorProcessControl>(np.ssp, std::move(TD), std::move(MM), np) };
-  auto Creator {
-    [](llvm::orc::ExecutionSession &ES, const llvm::Triple &) -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
-      auto OLL { std::make_unique<llvm::orc::ObjectLinkingLayer>(ES) };
-      //OLL->addPlugin(std::make_unique<NubDebutPlugin>());
-      OLL->setReturnObjectBuffer([](std::unique_ptr<llvm::MemoryBuffer> buf) {
-        llvm::dbgs() << "Return buffer " << buf->getBufferSize() << "\n";
-      });
-      return std::move(OLL);
+    if (!np.jit) {
+      if (!np.initialize_jit()) {
+        return -1;
+      }
     }
-  };
-  auto EJ { llvm::orc::LLJITBuilder()
-    .setJITTargetMachineBuilder(std::move(JTMB))
-    .setObjectLinkingLayerCreator(Creator)
-    .setExecutorProcessControl(std::move(EPC))
-    .create() };
-  if (!EJ) {
-    llvm::logAllUnhandledErrors(EJ.takeError(), llvm::errs(),
-                                "download_code: ");
-    return -1;
-  }
 
-  // Add a JITDylib to represent symbols defined in the target image
-  auto EJD { (*EJ)->createJITDylib("target") };
-  if (!EJD) {
-    llvm::logAllUnhandledErrors(EJD.takeError(), llvm::errs(),
-                                "download_code: ");
-    return -1;
+    // Create a JITDylib to represent this code download
+    auto id { static_cast<unsigned>(np.jds.size()) };
+    auto name { llvm::Twine("download_code_").concat(llvm::Twine(id)) };
+    auto EJD { np.jit->createJITDylib(name.str()) };
+    if (!EJD) {
+      llvm::logAllUnhandledErrors(EJD.takeError(), llvm::errs(),
+                                  "download_code: ");
+      return -1;
+    }
+
+    // Add the target and any previous downloads to the dynamic linking
+    // resolution order
+    EJD->addToLinkOrder(np.jit->getMainJITDylib());
+    for (auto &JDP : np.jds) {
+      EJD->addToLinkOrder(*JDP);
+    }
+
+    np.jds.push_back(&*EJD);
   }
-  EJD->addGenerator(std::make_unique<NubTargetDefinitionGenerator>(np));
-  (*EJ)->getMainJITDylib().addToLinkOrder(*EJD);
 
   // Parse the passed-in bitcode records and add them to the JIT
   for (auto &record : records) {
@@ -1370,10 +1344,12 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
       llvm::errs() << "Parsing download record failed\n";
       return -1;
     }
+
     // Force the data layout to match the one identified by the JIT
-    // compiler; the one supplied by DFMC should be compatible but
+    // compiler; the one supplied by DFMC should be compatible, but it
     // might not be identical
-    (*M)->setDataLayout(*DL);
+    (*M)->setDataLayout(np.jit->getDataLayout());
+
     NUB_DEBUG({
       llvm::dbgs() << "Record ----------------------------------------\n";
       (*M)->print(llvm::dbgs(), nullptr);
@@ -1382,7 +1358,7 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
     // Package the parsed module as a ThreadSafeModule and add it to
     // the JIT
     auto TSM { llvm::orc::ThreadSafeModule(std::move(*M), std::move(context)) };
-    if (auto E = (*EJ)->addIRModule(std::move(TSM))) {
+    if (auto E = np.jit->addIRModule(*np.jds.back(), std::move(TSM))) {
       llvm::logAllUnhandledErrors(std::move(E), llvm::errs());
       return -1;
     };
@@ -1391,7 +1367,7 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
   // Locate the entry point, generating code as needed
   bool debug { llvm::DebugFlag };
   llvm::DebugFlag = false;
-  auto Entry { (*EJ)->lookup(entry_name) };
+  auto Entry { np.jit->lookup(*np.jds.back(), entry_name) };
   llvm::DebugFlag = debug;
   if (!Entry) {
     llvm::logAllUnhandledErrors(Entry.takeError(), llvm::errs(),
@@ -1401,7 +1377,7 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
   NUB_DEBUG({
     llvm::errs() << "Entry is " << llvm::format_hex(Entry->getAddress(), 18)
                  << "\n";
-    (*EJ)->getExecutionSession().dump(llvm::dbgs());
+    np.jit->getExecutionSession().dump(llvm::dbgs());
   });
 
   symbols.emplace_back(np.make_lookup_symbol(entry_name, *Entry));

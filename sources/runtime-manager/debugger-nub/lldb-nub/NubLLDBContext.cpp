@@ -1,8 +1,13 @@
 #include "NubProcess.h"
 #include "NubLLDBContext.h"
+#include "NubProcessMemoryManager.h"
+#include "NubExecutorProcessControl.h"
+#include "NubTargetDefinitionGenerator.h"
 
 #include <llvm/Support/Format.h>
 #include <llvm/Support/TargetSelect.h>
+
+#include <llvm/ExecutionEngine/Orc/ObjectLinkingLayer.h>
 
 namespace {
   const char DYLAN_MV_DECL[] = "struct dylan_mv { void *primary_value; unsigned char mv_count; };";
@@ -138,6 +143,53 @@ namespace nub_private {
       lookup.function_end = LLDB_INVALID_ADDRESS;
     }
     return lookup;
+  }
+
+  bool NubLLDBContext::initialize_jit()
+  {
+    // The JIT target
+    auto triple { llvm::Triple(this->target.GetTriple()) };
+    NUB_DEBUG({
+      llvm::dbgs() << "JIT Triple " << triple.str()
+                   << " (" << triple.normalize() <<")\n";
+    });
+
+    auto JTMB { llvm::orc::JITTargetMachineBuilder(triple) };
+    JTMB.setCodeModel(llvm::CodeModel::Large);
+
+    // Build the LLJIT using ObjectLinkingLayer
+    auto TD { std::make_unique<llvm::orc::InPlaceTaskDispatcher>() };
+    auto MM { std::make_unique<NubProcessMemoryManager>(*this) };
+    auto EPC { std::make_unique<NubExecutorProcessControl>(this->ssp, std::move(TD), std::move(MM), *this) };
+    auto Creator {
+      [](llvm::orc::ExecutionSession &ES, const llvm::Triple &) -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
+        auto OLL { std::make_unique<llvm::orc::ObjectLinkingLayer>(ES) };
+        //OLL->addPlugin(std::make_unique<NubDebutPlugin>());
+        OLL->setReturnObjectBuffer([](std::unique_ptr<llvm::MemoryBuffer> buf) {
+          NUB_DEBUG(llvm::dbgs() << "Return buffer " << buf->getBufferSize() << "\n");
+        });
+        return std::move(OLL);
+      }
+    };
+    auto EJ { llvm::orc::LLJITBuilder()
+      .setJITTargetMachineBuilder(std::move(JTMB))
+      .setObjectLinkingLayerCreator(Creator)
+      .setExecutorProcessControl(std::move(EPC))
+      .create() };
+    if (!EJ) {
+      llvm::logAllUnhandledErrors(EJ.takeError(), llvm::errs(),
+                                  "download_code: ");
+      return false;
+    }
+
+    // Use the main JITDylib the target image; add a generator for resolving
+    // symbols
+    (*EJ)->getMainJITDylib().addGenerator
+      (std::make_unique<NubTargetDefinitionGenerator>(*this));
+
+    // Save it
+    std::swap(this->jit, *EJ);
+    return true;
   }
 
   void NubLLDBContext::dispatch_lldb_events()
