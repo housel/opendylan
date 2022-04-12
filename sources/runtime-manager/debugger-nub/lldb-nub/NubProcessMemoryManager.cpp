@@ -67,7 +67,7 @@ public:
       }
     }
     this->Parent.nlc_.mutex.unlock();
-    OnFinalized(FinalizedAlloc(llvm::pointerToJITTargetAddress(new FinalizedAllocInfo(this->allocations))));
+    OnFinalized(FinalizedAlloc(llvm::orc::ExecutorAddr::fromPtr(new FinalizedAllocInfo(this->allocations))));
   }
 };
 
@@ -114,10 +114,10 @@ void NubProcessMemoryManager::allocate(const llvm::jitlink::JITLinkDylib *JD,
     {
       std::unique_lock<std::mutex> guard(this->nlc_.mutex);
       auto addr { this->nlc_.process.AllocateMemory(size, protection, error) };
-      Seg.Addr = addr;
+      Seg.Addr = llvm::orc::ExecutorAddr(addr);
       allocations.push_back(addr);
     }
-    NUB_DEBUG(llvm::dbgs() << "  Allocated " << llvm::format_hex(Seg.Addr, 18) << "\n");
+    NUB_DEBUG(llvm::dbgs() << "  Allocated " << Seg.Addr << "\n");
     if (error.Success()) {
       Seg.WorkingMem = new char[size];
       if (Seg.ZeroFillSize != 0) {
@@ -143,7 +143,7 @@ void NubProcessMemoryManager::deallocate(std::vector<FinalizedAlloc> Allocs,
   this->nlc_.mutex.lock();
   for (auto &Alloc : Allocs) {
     std::unique_ptr<FinalizedAllocInfo> FAI
-      { llvm::jitTargetAddressToPointer<FinalizedAllocInfo *>(Alloc.release()) };
+      { Alloc.release().toPtr<FinalizedAllocInfo *>() };
     for (auto Addr : FAI->addresses) {
       NUB_DEBUG(llvm::errs() << "Deallocated " << llvm::format_hex(Addr, 18) << "\n");
       lldb::SBError error = this->nlc_.process.DeallocateMemory(Addr);
