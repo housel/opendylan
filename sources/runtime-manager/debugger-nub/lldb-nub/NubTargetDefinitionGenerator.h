@@ -1,5 +1,6 @@
 // -*- C++ -*-
 
+#include "llvm/ADT/Triple.h"
 #include "llvm/ExecutionEngine/Orc/Core.h"
 
 #include <mutex>
@@ -10,9 +11,9 @@ namespace nub_private {
 
   class NubTargetDefinitionGenerator : public llvm::orc::DefinitionGenerator {
   public:
-    NubTargetDefinitionGenerator(NubLLDBContext &nlc)
+    NubTargetDefinitionGenerator(NubLLDBContext &nlc, llvm::Triple &triple)
       : DefinitionGenerator(),
-      nlc_(nlc) {
+        nlc_(nlc), triple_(triple) {
     }
 
     llvm::Error tryToGenerate(llvm::orc::LookupState &LS, llvm::orc::LookupKind K,
@@ -22,5 +23,6 @@ namespace nub_private {
 
   private:
     NubLLDBContext &nlc_;
+    llvm::Triple triple_;
   };
 } // namespace nub_private

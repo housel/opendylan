@@ -17,13 +17,18 @@ namespace {
   class DebuggerCreator {
   public:
     DebuggerCreator() {
-      llvm::DebugFlag = false;
+      llvm::DebugFlag = true;
 
       // Initialize compilation support for JIT use
+#if 0
       llvm::InitializeAllTargetInfos();
       llvm::InitializeAllTargets();
       llvm::InitializeAllTargetMCs();
       llvm::InitializeAllAsmPrinters();
+#else
+      llvm::InitializeNativeTarget();
+      llvm::InitializeNativeTargetAsmPrinter();
+#endif
 
       // Initialize LLDB
       lldb::SBDebugger::Initialize();
@@ -163,6 +168,7 @@ namespace nub_private {
     auto EPC { std::make_unique<NubExecutorProcessControl>(this->ssp, std::move(TD), std::move(MM), *this) };
     auto Creator {
       [](llvm::orc::ExecutionSession &ES, const llvm::Triple &) -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
+        NUB_DEBUG(llvm::dbgs() << "Creating ObjectLinkingLayer\n");
         auto OLL { std::make_unique<llvm::orc::ObjectLinkingLayer>(ES) };
         //OLL->addPlugin(std::make_unique<NubDebutPlugin>());
         OLL->setReturnObjectBuffer([](std::unique_ptr<llvm::MemoryBuffer> buf) {
@@ -178,14 +184,14 @@ namespace nub_private {
       .create() };
     if (!EJ) {
       llvm::logAllUnhandledErrors(EJ.takeError(), llvm::errs(),
-                                  "download_code: ");
+                                  "initialize_jit: ");
       return false;
     }
 
-    // Use the main JITDylib the target image; add a generator for resolving
-    // symbols
+    // Use the main JITDylib to represent the debugger's target image;
+    // add a generator for resolving symbols within it
     (*EJ)->getMainJITDylib().addGenerator
-      (std::make_unique<NubTargetDefinitionGenerator>(*this));
+      (std::make_unique<NubTargetDefinitionGenerator>(*this, triple));
 
     // Save it
     std::swap(this->jit, *EJ);

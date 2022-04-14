@@ -469,8 +469,13 @@ void Rtmgr_RemoteNub_i::unset_first_chance(Rtmgr::RemoteNub::NUBINT ecode)
 
 Rtmgr::RemoteNub::NUBINT Rtmgr_RemoteNub_i::thread_stop_information(Rtmgr::RemoteNub::RNUBTHREAD nubthread, Rtmgr::RemoteNub::NUBINT &fchance, Rtmgr::RemoteNub::NUBINT &fstart, Rtmgr::RemoteNub::RTARGET_ADDRESS &ret_addr)
 {
-  return this->nub_process_->thread_stop_information
-    (nubthread, fchance, fstart, ret_addr);
+  NubProcess::TARGET_ADDRESS target_ret_addr;
+  auto rc {
+    this->nub_process_->thread_stop_information
+      (nubthread, fchance, fstart, target_ret_addr)
+  };
+  ret_addr = target_ret_addr;
+  return rc;
 }
 
 void Rtmgr_RemoteNub_i::wait_for_stop_reason_no_timeout(Rtmgr::RemoteNub::NUBINT &ecode)
@@ -666,8 +671,10 @@ Rtmgr::RemoteNub::NUBINT Rtmgr_RemoteNub_i::closest_symbol
      Rtmgr::RemoteNub::RTARGET_ADDRESS &final_address_of_definition)
 {
   NubProcess::LookupSymbol lookup;
-  auto status { this->nub_process_->closest_symbol(address, lib, actual_address,
+  NubProcess::TARGET_ADDRESS target_actual_address;
+  auto status { this->nub_process_->closest_symbol(address, lib, target_actual_address,
                                                    offset, lookup) };
+  actual_address = target_actual_address;
   this->closest_symbol_name_ = lookup.name;
   name_length = lookup.name.size();
   type = 0;

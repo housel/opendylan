@@ -776,7 +776,7 @@ void NubProcess::wait_for_stop_reason_with_timeout
 }
 
 NubProcess::TARGET_ADDRESS NubProcess::setup_function_call
-  (NUBTHREAD nubthread,  TARGET_ADDRESS func,
+  (NUBTHREAD nubthread, TARGET_ADDRESS func,
    NUBINT arg_count, const std::vector<TARGET_ADDRESS> &args,
    NUBHANDLE &cx_handle)
 {
@@ -793,12 +793,12 @@ NubProcess::TARGET_ADDRESS NubProcess::setup_function_call
     }
     expression.Print("void *");
   }
-  expression.Printf(")) %#lx)(", func);
+  expression.Printf(")) %#llx)(", func);
   for (size_t i = 0; i < arg_count; ++i) {
     if (i > 0) {
       expression.Print(",");
     }
-    expression.Printf("(void *) %#lx", args[i]);
+    expression.Printf("(void *) %#llx", args[i]);
   }
   expression.Print(")");
   np.function_call_thread = nubthread;
@@ -881,12 +881,12 @@ NubProcess::TARGET_ADDRESS NubProcess::remote_call_spy
     }
     expression.Print("void *");
   }
-  expression.Printf(")) %#lx)(", func);
+  expression.Printf(")) %#llx)(", func);
   for (size_t i = 0; i < args.size(); ++i) {
     if (i > 0) {
       expression.Print(",");
     }
-    expression.Printf("(void *) %#lx", args[i]);
+    expression.Printf("(void *) %#llx", args[i]);
   }
   expression.Print(")");
 
@@ -1326,8 +1326,10 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
 
     // Add the target and any previous downloads to the dynamic linking
     // resolution order
+    NUB_DEBUG(llvm::dbgs() << "Add target to new JITDylib " << name << "\n");
     EJD->addToLinkOrder(np.jit->getMainJITDylib());
     for (auto &JDP : np.jds) {
+      NUB_DEBUG(llvm::dbgs() << "Add prev to JITDylib " << name << "\n");
       EJD->addToLinkOrder(*JDP);
     }
 
