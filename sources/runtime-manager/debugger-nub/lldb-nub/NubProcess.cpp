@@ -46,7 +46,7 @@ bool NubProcess::launch_process(const char *command, const char *args,
                                 const char *working_directory)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
 
   // Create an SBTarget for the executable to be debugged
   lldb::SBError error;
@@ -115,7 +115,7 @@ NubProcess::NUBINT NubProcess::remote_value_byte_size() const
 NubProcess::TARGET_ADDRESS NubProcess::get_library_base_address(NUBLIBRARY dll)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   lldb::SBModule &module { np.modules[dll] };
   auto address { module.GetObjectFileHeaderAddress() };
   return address.GetLoadAddress(np.target);
@@ -124,7 +124,7 @@ NubProcess::TARGET_ADDRESS NubProcess::get_library_base_address(NUBLIBRARY dll)
 void NubProcess::get_library_version(NUBLIBRARY dll, NUBINT &maj, NUBINT &min)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   lldb::SBModule &module { np.modules[dll] };
   uint32_t versions[2];
   module.GetVersion(versions, 2);
@@ -135,7 +135,7 @@ void NubProcess::get_library_version(NUBLIBRARY dll, NUBINT &maj, NUBINT &min)
 std::string NubProcess::get_library_filename(NUBLIBRARY dll)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   lldb::SBModule &module { np.modules[dll] };
   return module.GetFileSpec().GetFilename();
 }
@@ -143,14 +143,14 @@ std::string NubProcess::get_library_filename(NUBLIBRARY dll)
 std::string NubProcess::get_register_name(NUB_INDEX reg)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   return np.register_names[reg - 1];
 }
 
 void NubProcess::all_registers(NUBINT &first, NUBINT &last)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetSelectedThread() };
   auto frame { thread.GetFrameAtIndex(0) };
   np.ensure_register_info(frame);
@@ -161,7 +161,7 @@ void NubProcess::all_registers(NUBINT &first, NUBINT &last)
 void NubProcess::general_registers(NUBINT &first, NUBINT &last)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetSelectedThread() };
   auto frame { thread.GetFrameAtIndex(0) };
   np.ensure_register_info(frame);
@@ -172,7 +172,7 @@ void NubProcess::general_registers(NUBINT &first, NUBINT &last)
 void NubProcess::special_registers(NUBINT &first, NUBINT &last)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   // FIXME
   first = np.special_registers.first + 1;
   last = np.special_registers.second;
@@ -181,7 +181,7 @@ void NubProcess::special_registers(NUBINT &first, NUBINT &last)
 void NubProcess::floating_registers(NUBINT &first, NUBINT &last)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetSelectedThread() };
   auto frame { thread.GetFrameAtIndex(0) };
   np.ensure_register_info(frame);
@@ -203,7 +203,7 @@ NubProcess::NUBINT NubProcess::page_relative_address
     (TARGET_ADDRESS address, NUBINT &offset)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   lldb::SBMemoryRegionInfo info;
   TARGET_ADDRESS pagesize = 0;
   if (np.process.GetMemoryRegionInfo(address, info).Success()
@@ -226,7 +226,7 @@ NubProcess::TARGET_ADDRESS NubProcess::read_value_from_process_memory
   (TARGET_ADDRESS address, NUB_ERROR &status)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
 
 
   lldb::SBError error;
@@ -249,7 +249,7 @@ void NubProcess::write_value_to_process_memory
     (TARGET_ADDRESS address, TARGET_ADDRESS val, NUBINT &status)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   uint8_t bytes[8];
   auto address_size { np.target.GetAddressByteSize() };
   switch (np.target.GetByteOrder()) {
@@ -300,7 +300,7 @@ void NubProcess::read_byte_string_from_process_memory
 {
   if (sz > 0) {
     auto &np { *this->private_ };
-    std::unique_lock<std::mutex> guard(np.mutex);
+    std::unique_lock<std::recursive_mutex> guard(np.mutex);
 
     lldb::SBError error;
     np.process.ReadMemory(address, buffer, sz, error);
@@ -324,7 +324,7 @@ void NubProcess::write_byte_string_to_process_memory
     (TARGET_ADDRESS address, NUBINT sz, const void *buffer, NUB_ERROR &status)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
 
   lldb::SBError error;
   auto result { np.process.WriteMemory(address, buffer, sz, error) };
@@ -341,7 +341,7 @@ NubProcess::TARGET_ADDRESS NubProcess::read_value_from_process_register
     (NUBTHREAD nubthread, NUB_INDEX reg, NUB_ERROR &status)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   auto frame { thread.GetFrameAtIndex(0) };
   if (reg < 0) {
@@ -376,7 +376,7 @@ NubProcess::TARGET_ADDRESS NubProcess::read_value_from_process_register_in_stack
      NUB_INDEX frame_index, NUB_ERROR &status)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   auto frame { thread.GetFrameAtIndex(frame_index) };
   auto reg_name { np.register_names[reg - 1].c_str() };
@@ -402,7 +402,7 @@ NubProcess::TARGET_ADDRESS NubProcess::read_value_from_process_register_in_stack
 void NubProcess::application_restart()
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
 
   auto state { np.process.GetState() };
   NUB_DEBUG({
@@ -441,7 +441,7 @@ void NubProcess::application_restart()
 void NubProcess::application_stop()
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   NUB_DEBUG(llvm::dbgs() << "Stop\n");
   np.process.Stop();
 }
@@ -449,7 +449,7 @@ void NubProcess::application_stop()
 void NubProcess::application_continue()
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   np.clear_virtual_registers();
   bool synthetic = np.stop_reason_queue.front().synthetic;
   if (np.stop_reason_queue.front().code == NubProcess::EXIT_PROCESS_DBG_EVENT) {
@@ -485,7 +485,7 @@ void NubProcess::application_continue()
 void NubProcess::application_continue_unhandled()
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   np.clear_virtual_registers();
   bool synthetic = np.stop_reason_queue.front().synthetic;
   if (np.stop_reason_queue.front().code == NubProcess::EXIT_PROCESS_DBG_EVENT) {
@@ -521,7 +521,7 @@ NubProcess::NUB_ERROR NubProcess::set_stepping_control_on_thread
      NUBINT operation)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   NUB_DEBUG({
     lldb::SBStream stream;
@@ -571,7 +571,7 @@ NubProcess::NUB_ERROR NubProcess::clear_stepping_control_on_thread
     (NUBTHREAD nubthread)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   NUB_DEBUG({
     lldb::SBStream stream;
@@ -596,7 +596,7 @@ NubProcess::NUB_ERROR NubProcess::clear_stepping_control_on_thread
 void NubProcess::thread_stop(NUBTHREAD nubthread)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   NUB_DEBUG({
     lldb::SBStream stream;
@@ -609,7 +609,7 @@ void NubProcess::thread_stop(NUBTHREAD nubthread)
 void NubProcess::thread_continue(NUBTHREAD nubthread)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   NUB_DEBUG({
     lldb::SBStream stream;
@@ -622,7 +622,7 @@ void NubProcess::thread_continue(NUBTHREAD nubthread)
 void NubProcess::thread_suspended(NUBTHREAD nubthread)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   NUB_DEBUG({
     lldb::SBStream stream;
@@ -635,7 +635,7 @@ void NubProcess::thread_suspended(NUBTHREAD nubthread)
 bool NubProcess::thread_suspendedQ(NUBTHREAD nubthread)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   bool suspendedQ { thread.IsSuspended() };
   NUB_DEBUG({
@@ -651,7 +651,7 @@ bool NubProcess::thread_suspendedQ(NUBTHREAD nubthread)
 void NubProcess::thread_resumed(NUBTHREAD nubthread)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   NUB_DEBUG({
     lldb::SBStream stream;
@@ -664,14 +664,14 @@ void NubProcess::thread_resumed(NUBTHREAD nubthread)
 void NubProcess::register_exit_process_function(TARGET_ADDRESS ExitProcess)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   np.exit_process_function = ExitProcess;
 }
 
 NubProcess::NUB_ERROR NubProcess::kill_application()
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto e { np.process.Kill() };
   if (e.Success()) {
     return 0;
@@ -685,7 +685,7 @@ NubProcess::NUB_ERROR NubProcess::kill_application()
 NubProcess::NUB_ERROR NubProcess::set_breakpoint(TARGET_ADDRESS address)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto i = np.breakpoint_map.find(address);
   if (i != np.breakpoint_map.end()) {
     if (i->second.breakpoint.IsEnabled()) {
@@ -731,7 +731,7 @@ NubProcess::NUB_ERROR NubProcess::set_breakpoint(TARGET_ADDRESS address)
 NubProcess::NUB_ERROR NubProcess::clear_breakpoint(TARGET_ADDRESS address)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto i = np.breakpoint_map.find(address);
   if (i != np.breakpoint_map.end()) {
     if (np.target.BreakpointDelete(i->second.breakpoint.GetID())) {
@@ -757,7 +757,7 @@ void NubProcess::wait_for_stop_reason_with_timeout
     (NUBINT timeout, StopReason &stop)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   if (np.queue_condition.wait_for(guard, std::chrono::milliseconds(timeout),
                                   [&]{ return !np.stop_reason_queue.empty(); })) {
     stop = np.stop_reason_queue.front();
@@ -781,7 +781,7 @@ NubProcess::TARGET_ADDRESS NubProcess::setup_function_call
    NUBHANDLE &cx_handle)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   auto frame { thread.GetFrameAtIndex(0) };
 
@@ -810,7 +810,7 @@ NubProcess::TARGET_ADDRESS NubProcess::setup_function_call
 NubProcess::TARGET_ADDRESS NubProcess::get_function_result(NUBTHREAD nubthread)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   return np.function_call_result.GetChildAtIndex(0).GetValueAsUnsigned();
 }
 
@@ -821,7 +821,7 @@ NubProcess::TARGET_ADDRESS NubProcess::remote_call_spy
      std::vector<NUBTHREAD> &created_threads)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
 
   NUB_DEBUG({
@@ -954,7 +954,7 @@ NubProcess::NUBINT NubProcess::thread_stop_information
      TARGET_ADDRESS &ret_addr)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto code { np.stop_reason_queue.front().code };
   fchance = 0;                  // FIXME
   fstart = 0;                   // Unused
@@ -965,7 +965,7 @@ NubProcess::NUBINT NubProcess::thread_stop_information
 NubProcess::NUBINT NubProcess::initialize_stack_vectors(NUBTHREAD nubthread)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   auto real_frame_count { thread.GetNumFrames() };
   auto frame { thread.GetFrameAtIndex(0) };
@@ -989,7 +989,7 @@ std::vector<NubProcess::StackFrame> NubProcess::read_stack_vectors
     (NUBTHREAD nubthread, NUBINT frame_count)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   auto real_frame_count { thread.GetNumFrames() };
   NUB_DEBUG({
@@ -1028,7 +1028,7 @@ std::vector<NubProcess::FrameLexical> NubProcess::all_frame_lexicals
     (TARGET_ADDRESS frame, TARGET_ADDRESS ip)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
 
   std::vector<FrameLexical> result;
 
@@ -1091,7 +1091,7 @@ NubProcess::NUBINT NubProcess::closest_symbol
      NUBINT &offset, LookupSymbol &lookup)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto addr { lldb::SBAddress(address, np.target) };
   if (addr.IsValid()) {
     auto symbol { addr.GetSymbol() };
@@ -1123,7 +1123,7 @@ NubProcess::NUBINT NubProcess::find_symbol_in_library
      LookupSymbol &symbol)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto &module { np.modules[nublibrary] };
   auto named_symbol { module.FindSymbol(name) };
   if (named_symbol.IsValid()) {
@@ -1159,7 +1159,7 @@ std::vector<NubProcess::LookupSymbol> NubProcess::lookup_symbols
     (NUBLIBRARY library, const char *match)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto &module { np.modules[library] };
   std::vector<NubProcess::LookupSymbol> result;
   auto pattern { llvm::GlobPattern::create(llvm::StringRef(match)) };
@@ -1193,7 +1193,7 @@ NubProcess::TARGET_ADDRESS NubProcess::resolve_source_location
      NUBINT &valid, NUBINT &exact)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
 
   auto &module { np.modules[nublibrary] };
   NUB_DEBUG(llvm::dbgs() << "resolve_source_location "
@@ -1239,7 +1239,7 @@ std::vector<NubProcess::SourceLocation> NubProcess::fetch_source_locations
     (TARGET_ADDRESS start_loc, TARGET_ADDRESS end_loc)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   std::vector<SourceLocation> result;
 
   auto addr { lldb::SBAddress(start_loc, np.target) };
@@ -1280,7 +1280,7 @@ NubProcess::TARGET_ADDRESS NubProcess::dylan_thread_environment_block_address
     (NUBTHREAD nubthread, NUBINT &valid)
 {
   auto &np { *this->private_ };
-  std::unique_lock<std::mutex> guard(np.mutex);
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   auto suspended { thread.IsSuspended() };
   if (suspended) {
@@ -1307,7 +1307,7 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
 
   // The JIT target
   {
-    std::unique_lock<std::mutex> guard(np.mutex);
+    std::unique_lock<std::recursive_mutex> guard(np.mutex);
     if (!np.jit) {
       if (!np.initialize_jit()) {
         return -1;

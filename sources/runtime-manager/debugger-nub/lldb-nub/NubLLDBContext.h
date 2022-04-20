@@ -12,6 +12,7 @@
 #include <deque>
 #include <map>
 #include <mutex>
+#include <condition_variable>
 #include <thread>
 
 #define NUB_DEBUG(X) DEBUG_WITH_TYPE("dylan-nub", X)
@@ -48,7 +49,7 @@ namespace nub_private {
     lldb::SBValue evaluate(lldb::SBThread &thread, const char *expression,
                            bool stop_others = false, bool ignore_result = false);
 
-    void shepherd_spy_created_threads(std::unique_lock<std::mutex> &guard,
+    void shepherd_spy_created_threads(std::unique_lock<std::recursive_mutex> &guard,
                                       unsigned created_thread_count);
 
     void ensure_register_info(lldb::SBFrame &frame);
@@ -58,8 +59,8 @@ namespace nub_private {
     NubProcess::TARGET_ADDRESS virtual_register_value(NubProcess::NUB_INDEX reg);
     void clear_virtual_registers();
 
-    std::mutex mutex;
-    std::condition_variable queue_condition;
+    std::recursive_mutex mutex;
+    std::condition_variable_any queue_condition;
 
     std::deque<NubProcess::StopReason> stop_reason_queue;
 

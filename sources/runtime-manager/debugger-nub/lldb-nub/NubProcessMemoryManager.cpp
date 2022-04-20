@@ -112,7 +112,7 @@ void NubProcessMemoryManager::allocate(const llvm::jitlink::JITLinkDylib *JD,
     });
     lldb::SBError error;
     {
-      std::unique_lock<std::mutex> guard(this->nlc_.mutex);
+      std::unique_lock<std::recursive_mutex> guard(this->nlc_.mutex);
       auto addr { this->nlc_.process.AllocateMemory(size, protection, error) };
       Seg.Addr = llvm::orc::ExecutorAddr(addr);
       allocations.push_back(addr);

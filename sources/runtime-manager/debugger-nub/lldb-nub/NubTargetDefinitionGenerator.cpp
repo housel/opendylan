@@ -11,7 +11,7 @@ llvm::Error NubTargetDefinitionGenerator::tryToGenerate(llvm::orc::LookupState &
                                                         llvm::orc::JITDylib &JD,
                                                         llvm::orc::JITDylibLookupFlags JDLookupFlags,
                                                         const llvm::orc::SymbolLookupSet &LookupSet) {
-  std::unique_lock<std::mutex> guard(this->nlc_.mutex);
+  std::unique_lock<std::recursive_mutex> guard(this->nlc_.mutex);
   llvm::orc::SymbolMap FoundSymbols;
   for (auto &kv : LookupSet) {
     const auto &name = kv.first;

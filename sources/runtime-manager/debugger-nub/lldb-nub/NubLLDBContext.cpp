@@ -271,7 +271,7 @@ namespace nub_private {
 
   void NubLLDBContext::dispatch_process_stop(lldb::SBProcess &process, lldb::StateType state)
   {
-    std::unique_lock<std::mutex> guard(this->mutex);
+    std::unique_lock<std::recursive_mutex> guard(this->mutex);
     lldb::pid_t pid { process.GetProcessID() };
     switch (state) {
     case lldb::eStateStopped:
@@ -639,7 +639,7 @@ namespace nub_private {
     return value;
   }
 
-  void NubLLDBContext::shepherd_spy_created_threads(std::unique_lock<std::mutex> &guard, unsigned created_thread_count)
+  void NubLLDBContext::shepherd_spy_created_threads(std::unique_lock<std::recursive_mutex> &guard, unsigned created_thread_count)
   {
     NUB_DEBUG({
       llvm::dbgs() << "Shepherding " << created_thread_count
