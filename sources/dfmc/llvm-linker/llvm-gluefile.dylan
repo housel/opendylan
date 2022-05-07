@@ -87,6 +87,7 @@ define sideways method emit-gluefile
     (back-end :: <llvm-back-end>, ld :: <library-description>, cr-names,
      #key assembler-output? = unsupplied(),
           downloadable-data? = #f,
+          interactive-mode? = #f,
           debug-info? = #t,
           compilation-layer,
           #all-keys)
@@ -126,7 +127,8 @@ define sideways method emit-gluefile
     = emit-gluefile-self-init(back-end, m, ld, cr-names);
 
   // Generate the library glue function
-  emit-gluefile-user-init(back-end, m, ld, glue-name, self-init-function);
+  emit-gluefile-user-init(back-end, m, ld, glue-name, self-init-function,
+                          interactive-mode?);
 
   // Add constructor definitions to the module
   llvm-builder-finish-ctor(back-end);
@@ -254,7 +256,8 @@ end function;
 
 define function emit-gluefile-user-init
     (back-end :: <llvm-back-end>, m :: <llvm-module>, ld :: <library-description>,
-     glue-name :: <string>, self-init-function :: <llvm-function>)
+     glue-name :: <string>, self-init-function :: <llvm-function>,
+     interactive-mode? :: <boolean>)
   // Add a flag to check whether the library has been initialized or not
   let i8-zero
     = make(<llvm-integer-constant>, type: $llvm-i8-type, integer: 0);
@@ -336,10 +339,12 @@ define function emit-gluefile-user-init
     llvm-builder-define-global(back-end, glue-name,
                                back-end.llvm-builder-function);
 
-    let cast = make(<llvm-cast-constant>, operator: #"BITCAST",
-                    type: $init-code-function-ptr-type,
-                    operands: vector(back-end.llvm-builder-function));
-    llvm-builder-add-ctor-entry(back-end, $user-init-ctor-priority, cast);
+    if (~interactive-mode?)
+      let cast = make(<llvm-cast-constant>, operator: #"BITCAST",
+                      type: $init-code-function-ptr-type,
+                      operands: vector(back-end.llvm-builder-function));
+      llvm-builder-add-ctor-entry(back-end, $user-init-ctor-priority, cast);
+    end if;
   cleanup
     back-end.llvm-builder-function := #f;
   end block;

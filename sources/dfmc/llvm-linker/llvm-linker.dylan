@@ -159,6 +159,7 @@ define sideways method link-and-download
       := emit-gluefile(back-end, ld, cr-names,
                        assembler-output?: assembler-output?,
                        downloadable-data?: #t,
+                       interactive-mode?: #t,
                        debug-info?: debug-info?,
                        compilation-layer: il);
   end;
