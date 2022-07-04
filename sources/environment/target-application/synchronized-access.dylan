@@ -48,13 +48,13 @@ end macro with-debugger-transaction;
 
 define method perform-debugger-transaction
     (application :: <target-application>, transaction :: <function>,
-     #key continue, on-failure = method () values() end)
+     #key name = "?", continue, on-failure = method () values() end)
  => (#rest results)
   local method do-transaction () => (#rest results)
           block()
             transaction();
           exception(<abort>)
-            thread-debug-message("Aborted transaction");
+            thread-debug-message("Aborted transaction %s", name);
             on-failure()
           end block;
         end method;
@@ -89,7 +89,7 @@ define method perform-debugger-transaction
           if (application.under-management?)
           temporary-stop? := application-temporary-stop?(application);
 
-          thread-debug-message("Performing debugger transaction");
+          thread-debug-message("Performing debugger transaction %s", name);
           block()
             application.thread-being-served := transaction-thread;
             do-transaction();
@@ -103,11 +103,11 @@ define method perform-debugger-transaction
         // so by clients, or if we explicitly stopped the running application
         if (continue)
           thread-debug-message
-            ("perform-debugger-transaction: continue application");
+            ("perform-debugger-transaction %s: continue application", name);
           continue();
         elseif (temporary-stop?)
           thread-debug-message
-            ("temporary-stop-reason for interrupting application");
+            ("transaction %s temporary-stop-reason for interrupting application", name);
           continue-target-application(application,
                                       application.application-selected-thread);
         end if
