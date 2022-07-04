@@ -282,7 +282,7 @@ AC_LINK_IFELSE([], [AC_MSG_RESULT(none needed)],
                                 LIBS="$save_LIBS"])])
 
 AC_CHECK_PROGS(OMNIIDL, [omniidl])
-PKG_CHECK_MODULES(OMNIORB, [omniORB4 omnithread3])
+PKG_CHECK_MODULES(OMNIORB, [omniORB4])
 
 LLVM_COMPONENTS="core executionengine bitreader jitlink orcjit support nativecodegen"
 AC_CHECK_PROGS(LLVM_CONFIG, [llvm-config-12 llvm-config12 llvm-config-11 llvm-config11 llvm-config])
