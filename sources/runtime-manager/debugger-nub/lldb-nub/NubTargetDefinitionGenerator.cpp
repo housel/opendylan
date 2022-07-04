@@ -13,7 +13,7 @@ llvm::Error NubTargetDefinitionGenerator::tryToGenerate(llvm::orc::LookupState &
                                                         const llvm::orc::SymbolLookupSet &LookupSet) {
   std::unique_lock<std::recursive_mutex> guard(this->nlc_.mutex);
   llvm::orc::SymbolMap FoundSymbols;
-  for (auto &kv : LookupSet) {
+  for (const auto &kv : LookupSet) {
     const auto &name = kv.first;
     NUB_DEBUG(llvm::dbgs() << "Lookup " << *name << "\n");
     auto name_str { (*name).str() };
@@ -54,4 +54,4 @@ llvm::Error NubTargetDefinitionGenerator::tryToGenerate(llvm::orc::LookupState &
   return JD.define(llvm::orc::absoluteSymbols(std::move(FoundSymbols)));
 }
 
-}
+} // namespace nub_private

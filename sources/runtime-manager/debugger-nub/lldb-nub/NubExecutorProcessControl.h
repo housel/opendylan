@@ -8,10 +8,17 @@ namespace nub_private {
   class NubExecutorProcessControl : public llvm::orc::ExecutorProcessControl,
                                     private llvm::orc::ExecutorProcessControl::MemoryAccess {
   public:
-    NubExecutorProcessControl(std::shared_ptr<llvm::orc::SymbolStringPool> SSP,
-                              std::unique_ptr<llvm::orc::TaskDispatcher> D,
-                              std::unique_ptr<llvm::jitlink::JITLinkMemoryManager> MemMgr,
-                              NubLLDBContext &nlc);
+    static llvm::Expected<std::unique_ptr<NubExecutorProcessControl>>
+    Create(std::shared_ptr<llvm::orc::SymbolStringPool> SSP,
+           std::unique_ptr<llvm::orc::TaskDispatcher> TD,
+           std::unique_ptr<llvm::jitlink::JITLinkMemoryManager> MemMgr,
+           NubLLDBContext &nlc) {
+      auto NEPC { std::unique_ptr<NubExecutorProcessControl>(new NubExecutorProcessControl(SSP, std::move(TD), std::move(MemMgr), nlc)) };
+      if (auto E = NEPC->setup()) {
+        return std::move(E);
+      }
+      return std::move(NEPC);
+    }
 
     llvm::Expected<llvm::orc::tpctypes::DylibHandle>
       loadDylib(const char *DylibPath) override;
@@ -27,7 +34,13 @@ namespace nub_private {
                           llvm::ArrayRef<char> ArgBuffer) override;
 
     llvm::Error disconnect() override;
+
   private:
+    NubExecutorProcessControl(std::shared_ptr<llvm::orc::SymbolStringPool> SSP,
+                              std::unique_ptr<llvm::orc::TaskDispatcher> D,
+                              std::unique_ptr<llvm::jitlink::JITLinkMemoryManager> MemMgr,
+                              NubLLDBContext &nlc);
+
     // MemoryAccess methods
     virtual void writeUInt8sAsync(llvm::ArrayRef<llvm::orc::tpctypes::UInt8Write> Ws,
                                   WriteResultFn OnWriteComplete) override;
@@ -43,6 +56,8 @@ namespace nub_private {
 
     virtual void writeBuffersAsync(llvm::ArrayRef<llvm::orc::tpctypes::BufferWrite> Ws,
                                    WriteResultFn OnWriteComplete) override;
+
+    llvm::Error setup();
 
     //
     NubLLDBContext &nlc_;

@@ -18,7 +18,7 @@
 #define NUB_DEBUG(X) DEBUG_WITH_TYPE("dylan-nub", X)
 
 namespace nub_private {
-  inline llvm::Error errorFromSBError(lldb::SBError err) {
+  inline llvm::Error errorFromSBError(lldb::SBError &&err) {
     return err.Success()
       ? llvm::Error::success()
       : llvm::createStringError(llvm::inconvertibleErrorCode(),
@@ -37,7 +37,7 @@ namespace nub_private {
     lldb::SBListener listener;
     lldb::SBLaunchInfo launch;
 
-    NubProcess::LookupSymbol make_lookup_symbol(lldb::SBSymbol &symbol);
+    NubProcess::LookupSymbol make_lookup_symbol(lldb::SBSymbol &symbol) const;
     NubProcess::LookupSymbol make_lookup_symbol(const std::string &name,
                                                 const llvm::JITEvaluatedSymbol &symbol);
 

@@ -73,8 +73,9 @@ bool NubProcess::launch_process(const char *command, const char *args,
   np.launch.SetLaunchFlags(lldb::eLaunchFlagDebug); // | lldb::eLaunchFlagStopAtEntry
 
   // Set a breakpoint at the executable's "main" function
-  lldb::SBFileSpecList module_list, comp_unit_list;
+  lldb::SBFileSpecList module_list;
   module_list.Append(np.target.GetExecutable());
+  lldb::SBFileSpecList comp_unit_list;
   np.main_breakpoint
     = np.target.BreakpointCreateByName("main", module_list, comp_unit_list);
   if (!np.main_breakpoint.IsValid()) {
@@ -350,7 +351,7 @@ NubProcess::TARGET_ADDRESS NubProcess::read_value_from_process_register
     return np.virtual_register_value(reg);
   }
   else {
-    auto reg_name { np.register_names[reg - 1].c_str() };
+    const auto *reg_name { np.register_names[reg - 1].c_str() };
     auto reg_value { frame.FindRegister(reg_name) };
     NUB_DEBUG({
       lldb::SBStream description;
@@ -379,7 +380,7 @@ NubProcess::TARGET_ADDRESS NubProcess::read_value_from_process_register_in_stack
   std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   auto frame { thread.GetFrameAtIndex(frame_index) };
-  auto reg_name { np.register_names[reg - 1].c_str() };
+  const auto *reg_name { np.register_names[reg - 1].c_str() };
   auto reg_value { frame.FindRegister(reg_name) };
   NUB_DEBUG({
     lldb::SBStream description;
@@ -493,9 +494,9 @@ void NubProcess::application_continue_unhandled()
     abort();
   }
   NUB_DEBUG({
-      llvm::dbgs() << "Continue (unhandled) from "
-                   << stop_reason_name[np.stop_reason_queue.front().code]
-                   << " synthetic: " << synthetic << "\n";
+    llvm::dbgs() << "Continue (unhandled) from "
+                 << stop_reason_name[np.stop_reason_queue.front().code]
+                 << " synthetic: " << synthetic << "\n";
   });
   np.stop_reason_queue.pop_front();
   if (!np.function_call_expression.empty()) {
@@ -793,12 +794,12 @@ NubProcess::TARGET_ADDRESS NubProcess::setup_function_call
     }
     expression.Print("void *");
   }
-  expression.Printf(")) %#llx)(", func);
+  expression.Printf(")) %#" PRIx64  ")(", func);
   for (size_t i = 0; i < arg_count; ++i) {
     if (i > 0) {
       expression.Print(",");
     }
-    expression.Printf("(void *) %#llx", args[i]);
+    expression.Printf("(void *) %#" PRIx64, args[i]);
   }
   expression.Print(")");
   np.function_call_thread = nubthread;
@@ -881,12 +882,12 @@ NubProcess::TARGET_ADDRESS NubProcess::remote_call_spy
     }
     expression.Print("void *");
   }
-  expression.Printf(")) %#llx)(", func);
+  expression.Printf(")) %#" PRIx64 ")(", func);
   for (size_t i = 0; i < args.size(); ++i) {
     if (i > 0) {
       expression.Print(",");
     }
-    expression.Printf("(void *) %#llx", args[i]);
+    expression.Printf("(void *) %#" PRIx64, args[i]);
   }
   expression.Print(")");
 
@@ -899,7 +900,7 @@ NubProcess::TARGET_ADDRESS NubProcess::remote_call_spy
   // Check if any new threads were created during the call. If so, run
   // them until they reach the state that the environment is
   // expecting.
-  auto pid { np.process.GetProcessID() };
+  //auto pid { np.process.GetProcessID() };
   for (size_t ti = 0, te = np.process.GetNumThreads(); ti != te; ++ti) {
     auto thread { np.process.GetThreadAtIndex(ti) };
     auto tid { thread.GetThreadID() };
@@ -1052,7 +1053,7 @@ std::vector<NubProcess::FrameLexical> NubProcess::all_frame_lexicals
   lldb::SBValueList values { matching_frame.GetVariables(true, true, false, true) };
   for (uint32_t vi = 0, ve = values.GetSize(); vi != ve; ++vi) {
     auto value { values.GetValueAtIndex(vi) };
-    auto name { value.GetName() };
+    const auto *name { value.GetName() };
     auto addr { value.AddressOf() };
     NUB_DEBUG({
       lldb::SBStream stream;
@@ -1088,25 +1089,25 @@ std::vector<NubProcess::FrameLexical> NubProcess::all_frame_lexicals
 
 NubProcess::NUBINT NubProcess::closest_symbol
     (TARGET_ADDRESS address, NUBLIBRARY &lib, TARGET_ADDRESS &actual_address,
-     NUBINT &offset, LookupSymbol &lookup)
+     NUBINT &offset, LookupSymbol &symbol)
 {
   auto &np { *this->private_ };
   std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto addr { lldb::SBAddress(address, np.target) };
   if (addr.IsValid()) {
-    auto symbol { addr.GetSymbol() };
-    if (symbol.IsValid()) {
+    auto addr_symbol { addr.GetSymbol() };
+    if (addr_symbol.IsValid()) {
       NUB_DEBUG({
         llvm::dbgs() << "closest to "
                      << llvm::format("0x%016" PRIx64, address)
-                     << ": " << symbol.GetName() << "\n";
+                     << ": " << addr_symbol.GetName() << "\n";
       });
       auto module { addr.GetModule() };
       lib = std::find(np.modules.begin(), np.modules.end(), module)
           - np.modules.begin();
-      actual_address = symbol.GetStartAddress().GetLoadAddress(np.target);
+      actual_address = addr_symbol.GetStartAddress().GetLoadAddress(np.target);
       offset = address - actual_address;
-      lookup = np.make_lookup_symbol(symbol);
+      symbol = np.make_lookup_symbol(addr_symbol);
       return 1;
     }
     else {
@@ -1304,40 +1305,39 @@ NubProcess::TARGET_ADDRESS NubProcess::dylan_thread_environment_block_address
 NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vector<NubProcess::DownloadRecord> &records, const char *entry_name, std::vector<NubProcess::LookupSymbol> &symbols)
 {
   auto &np { *this->private_ };
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
 
   // The JIT target
-  {
-    std::unique_lock<std::recursive_mutex> guard(np.mutex);
-    if (!np.jit) {
-      if (!np.initialize_jit()) {
-        return -1;
-      }
-    }
-
-    // Create a JITDylib to represent this code download
-    auto id { static_cast<unsigned>(np.jds.size()) };
-    auto name { llvm::Twine("download_code_").concat(llvm::Twine(id)) };
-    auto EJD { np.jit->createJITDylib(name.str()) };
-    if (!EJD) {
-      llvm::logAllUnhandledErrors(EJD.takeError(), llvm::errs(),
-                                  "download_code: ");
+  if (!np.jit) {
+    if (!np.initialize_jit()) {
+      llvm::errs() << "download_code: JIT initialization failed\n";
       return -1;
     }
-
-    // Add the target and any previous downloads to the dynamic linking
-    // resolution order
-    NUB_DEBUG(llvm::dbgs() << "Add target to new JITDylib " << name << "\n");
-    EJD->addToLinkOrder(np.jit->getMainJITDylib());
-    for (auto &JDP : np.jds) {
-      NUB_DEBUG(llvm::dbgs() << "Add prev to JITDylib " << name << "\n");
-      EJD->addToLinkOrder(*JDP);
-    }
-
-    np.jds.push_back(&*EJD);
   }
 
+  // Create a JITDylib to represent this code download
+  auto id { static_cast<unsigned>(np.jds.size()) };
+  auto name { std::string(llvm::Twine("download_code_").concat(llvm::Twine(id)).str()) };
+  auto EJD { np.jit->createJITDylib(name) };
+  if (!EJD) {
+    llvm::logAllUnhandledErrors(EJD.takeError(), llvm::errs(),
+                                "download_code: ");
+    return -1;
+  }
+
+  // Add the target and any previous downloads to the dynamic linking
+  // resolution order
+  NUB_DEBUG(llvm::dbgs() << "Add target to new JITDylib " << name << "\n");
+  EJD->addToLinkOrder(np.jit->getMainJITDylib());
+  for (auto &JDP : np.jds) {
+    NUB_DEBUG(llvm::dbgs() << "Add prev to JITDylib " << name << "\n");
+    EJD->addToLinkOrder(*JDP);
+  }
+
+  np.jds.push_back(&*EJD);
+
   // Parse the passed-in bitcode records and add them to the JIT
-  for (auto &record : records) {
+  for (const auto &record : records) {
     auto codemem { llvm::MemoryBufferRef(llvm::StringRef(record.data, record.length),
                                          "download_code") };
     auto context { std::make_unique<llvm::LLVMContext>() };
@@ -1369,7 +1369,13 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
   // Locate the entry point, generating code as needed
   bool debug { llvm::DebugFlag };
   llvm::DebugFlag = false;
-  auto Entry { np.jit->lookup(*np.jds.back(), entry_name) };
+  auto &ES { np.jit->getExecutionSession() };
+  auto SearchOrder {
+    llvm::orc::makeJITDylibSearchOrder(np.jds.back(),
+                                       llvm::orc::JITDylibLookupFlags::MatchAllSymbols)
+  };
+  auto mangled_entry_name { np.jit->mangleAndIntern(entry_name) };
+  auto Entry { ES.lookup(SearchOrder, mangled_entry_name) };
   llvm::DebugFlag = debug;
   if (!Entry) {
     llvm::logAllUnhandledErrors(Entry.takeError(), llvm::errs(),
@@ -1377,12 +1383,22 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
     return -1;
   }
   NUB_DEBUG({
-    llvm::errs() << "Entry is " << llvm::format_hex(Entry->getAddress(), 18)
+    llvm::errs() << "Entry " << mangled_entry_name
+                 << " is " << llvm::format_hex(Entry->getAddress(), 18)
                  << "\n";
-    np.jit->getExecutionSession().dump(llvm::dbgs());
+    ES.dump(llvm::dbgs());
   });
 
   symbols.emplace_back(np.make_lookup_symbol(entry_name, *Entry));
 
+  // Run the initializers
+  auto E { np.jit->initialize(*(np.jds.back())) };
+  if (!E) {
+    NUB_DEBUG(llvm::dbgs() << "download_code JITDylib " << name << " NOT LOOKING GOOD\n");
+    llvm::logAllUnhandledErrors(std::move(E), llvm::errs(), "download_code: ");
+    return -1;
+  }
+
+  NUB_DEBUG(llvm::dbgs() << "download_code JITDylib " << name << " succeeded\n");
   return 0;
 }

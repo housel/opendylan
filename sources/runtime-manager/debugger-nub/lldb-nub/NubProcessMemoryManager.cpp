@@ -36,7 +36,7 @@ public:
       lldb::SBError error { process.DeallocateMemory(addr) };
       if (error.Fail()) {
         this->Parent.nlc_.mutex.unlock();
-        OnAbandoned(errorFromSBError(error));
+        OnAbandoned(errorFromSBError(std::move(error)));
         return;
       }
     }
@@ -62,7 +62,7 @@ public:
       delete [] Seg.WorkingMem;
       if (error.Fail()) {
         this->Parent.nlc_.mutex.unlock();
-        OnFinalized(errorFromSBError(error));
+        OnFinalized(errorFromSBError(std::move(error)));
         return;
       }
     }
@@ -149,7 +149,7 @@ void NubProcessMemoryManager::deallocate(std::vector<FinalizedAlloc> Allocs,
       lldb::SBError error = this->nlc_.process.DeallocateMemory(Addr);
       if (error.Fail()) {
         this->nlc_.mutex.unlock();
-        OnDeallocated(errorFromSBError(error));
+        OnDeallocated(errorFromSBError(std::move(error)));
         return;
       }
     }

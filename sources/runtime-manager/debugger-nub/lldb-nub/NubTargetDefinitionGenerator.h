@@ -11,7 +11,7 @@ namespace nub_private {
 
   class NubTargetDefinitionGenerator : public llvm::orc::DefinitionGenerator {
   public:
-    NubTargetDefinitionGenerator(NubLLDBContext &nlc, llvm::Triple &triple)
+    NubTargetDefinitionGenerator(NubLLDBContext &nlc, const llvm::Triple &triple)
       : DefinitionGenerator(),
         nlc_(nlc), triple_(triple) {
     }
