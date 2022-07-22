@@ -1,13 +1,14 @@
 #include <inttypes.h>
 #include <memory.h>
 #include <stddef.h>
+#include <signal.h>
 #include <orc/c_api.h>
 
 // Context for calls into and out of the ORC runtime
 struct spy_orc_rt_jit_dispatch_ctx {
-  char data[512];
-  size_t size;
   const void *fntag;
+  char data[512];
+  uint32_t size;
 } spy_orc_rt_jit_dispatch_ctx;
 
 // Entry point used by ORC-RT routines to make calls to the ORC Platform.
@@ -24,8 +25,9 @@ spy_orc_rt_jit_dispatch(struct spy_orc_rt_jit_dispatch_ctx *DispatchCtx,
     abort();
   }
 
-  // Tell the debugger we want to make a call by trapping here
-  __builtin_debugtrap();
+  // Tell the debugger we want to make a call by stopping here
+  raise(SIGSTOP);
+  //__builtin_debugtrap();
 
   // Return the return value stored by the debugger as a wrapper
   // function result

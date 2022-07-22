@@ -10,24 +10,12 @@
 #include <llvm/Support/TargetSelect.h>
 
 #include <llvm/ExecutionEngine/Orc/ObjectLinkingLayer.h>
-#include "llvm/ExecutionEngine/Orc/ELFNixPlatform.h"
-#include "llvm/ExecutionEngine/Orc/MachOPlatform.h"
 
 #include <dlfcn.h>
 
 namespace {
   const char DYLAN_MV_DECL[]
     = "struct dylan_mv { void *primary_value; unsigned char mv_count; };";
-  // Defined in llvm-project's compiler-rt/lib/orc/c_api.h
-  const char ORC_RT_WRAPPER_STRUCT_DECL[] =
-    "typedef union {"
-    "  char *ValuePtr;"
-    "  char Value[sizeof(char *)];"
-    "} __orc_rt_CWrapperFunctionResultDataUnion;"
-    "typedef struct {"
-    "  __orc_rt_CWrapperFunctionResultDataUnion Data;"
-    "  size_t Size;"
-    "} __orc_rt_CWrapperFunctionResult;";
 
   /// Ensure LLDB initialization, deinitialization, and debugger
   /// singleton creation
@@ -65,83 +53,6 @@ namespace {
   };
 
   DebuggerCreator creator;
-
-  // Identify the location of the C++ standard library by
-  // introspecting the nub itself (which obviously uses it).
-  llvm::Expected<std::string> stdlib_path() {
-    void *handle = dlopen(nullptr, RTLD_LAZY);
-    void *addr = dlsym(handle, "_Znwm"); // operator new(unsigned long)
-    Dl_info info;
-    if (addr == nullptr || dladdr(addr, &info) == 0) {
-      return llvm::createStringError(llvm::inconvertibleErrorCode(),
-                                     "stdlib lookup failed: ", dlerror());
-    }
-    std::string path(info.dli_fname);
-    dlclose(handle);
-    return path;
-  }
-
-  class ORCPlatformSupport : public llvm::orc::LLJIT::PlatformSupport {
-  public:
-    ORCPlatformSupport(llvm::orc::LLJIT &J) : J(J) {}
-
-    llvm::Error initialize(llvm::orc::JITDylib &JD) override {
-      using llvm::orc::shared::SPSExecutorAddr;
-      using llvm::orc::shared::SPSString;
-      using SPSDLOpenSig = SPSExecutorAddr(SPSString, int32_t);
-      using SPSDLErrorSig = SPSString();
-      enum dlopen_mode : int32_t {
-        ORC_RT_RTLD_LAZY = 0x1,
-        ORC_RT_RTLD_NOW = 0x2,
-        ORC_RT_RTLD_LOCAL = 0x4,
-        ORC_RT_RTLD_GLOBAL = 0x8
-      };
-
-      if (auto WrapperAddr = J.lookup("__orc_rt_jit_dlopen_wrapper")) {
-        auto E { J.getExecutionSession().callSPSWrapper<SPSDLOpenSig>
-          (*WrapperAddr, DSOHandles[&JD], JD.getName(), int32_t(ORC_RT_RTLD_LAZY)) };
-        if (!E)
-          return E;
-        if (!DSOHandles[&JD]) {
-          auto WrapperAddr = J.lookup("__orc_rt_jit_dlerror_wrapper");
-          if (!WrapperAddr)
-            return WrapperAddr.takeError();
-          std::string ErrString;
-          auto EE { J.getExecutionSession().callSPSWrapper<SPSDLErrorSig>(*WrapperAddr, ErrString) };
-          if (!EE) {
-            return EE;
-          }
-          return llvm::make_error<llvm::StringError>(ErrString, llvm::inconvertibleErrorCode());
-        }
-        return E;
-      } else {
-        return WrapperAddr.takeError();
-      }
-    }
-
-    llvm::Error deinitialize(llvm::orc::JITDylib &JD) override {
-      using llvm::orc::shared::SPSExecutorAddr;
-      using SPSDLCloseSig = int32_t(SPSExecutorAddr);
-
-      if (auto WrapperAddr = J.lookup("__orc_rt_jit_dlclose_wrapper")) {
-        int32_t result;
-        auto E = J.getExecutionSession().callSPSWrapper<SPSDLCloseSig>
-          (*WrapperAddr, result, DSOHandles[&JD]);
-        if (E)
-          return E;
-        else if (result)
-          return llvm::make_error<llvm::StringError>("dlclose failed",
-                                                     llvm::inconvertibleErrorCode());
-        DSOHandles.erase(&JD);
-      } else
-        return WrapperAddr.takeError();
-      return llvm::Error::success();
-    }
-
-  private:
-    llvm::orc::LLJIT &J;
-    llvm::DenseMap<llvm::orc::JITDylib *, llvm::orc::ExecutorAddr> DSOHandles;
-  };
 
   class NubDebutPlugin : public llvm::orc::ObjectLinkingLayer::Plugin {
   public:
@@ -349,25 +260,6 @@ namespace nub_private {
                    << " (" << triple.normalize() <<")\n";
     });
 
-    // Download the C++ standard library into the target (FIXME if
-    // it's not already there) for use by the ORC runtime
-    auto Path { stdlib_path() };
-    if (Path) {
-      auto Spec { lldb::SBFileSpec(Path->c_str(), true) };
-      NUB_DEBUG(llvm::dbgs() << "Loading stdlib from " << *Path << "\n");
-      lldb::SBError error;
-      auto token { this->process.LoadImage(Spec, error) };
-      if (error.Fail()) {
-        llvm::errs() << "Stdlib load error: " << error.GetCString() << "\n";
-        return false;
-      }
-    }
-    else {
-      llvm::logAllUnhandledErrors(Path.takeError(), llvm::errs(),
-                                  "initialize_jit: ");
-      return false;
-    }
-
     auto JTMB { llvm::orc::JITTargetMachineBuilder(triple) };
     JTMB.setCodeModel(llvm::CodeModel::Large);
 
@@ -400,39 +292,7 @@ namespace nub_private {
         // Use the main JITDylib to represent the debugger's target image;
         // add a generator for resolving symbols within it
         MainJD.addGenerator(std::make_unique<NubTargetDefinitionGenerator>(*this, TT));
-
-        if (auto *OLL = llvm::dyn_cast<llvm::orc::ObjectLinkingLayer>(&J.getObjLinkingLayer())) {
-          if (TT.isOSBinFormatMachO()) {
-            if (auto P = llvm::orc::MachOPlatform::Create(ES, *OLL, MainJD,
-                                                          "libclang_rt.orc.a")) {
-              ES.setPlatform(std::move(*P));
-            }
-            else {
-              return P.takeError();
-            }
-          }
-          else if (TT.isOSBinFormatELF()) {
-            NUB_DEBUG(llvm::dbgs() << "PlatformSetUp isOSBinFormatELF\n");
-            if (auto P = llvm::orc::ELFNixPlatform::Create(ES, *OLL, MainJD,
-                                                           "libclang_rt.orc.a")) {
-              NUB_DEBUG(llvm::dbgs() << "PlatformSetUp setPlatform\n");
-              ES.setPlatform(std::move(*P));
-            }
-            else {
-              return P.takeError();
-            }
-          }
-          else {
-            return llvm::createStringError(llvm::inconvertibleErrorCode(),
-                                           "No JITLink platform support");
-          }
-          J.setPlatformSupport(std::make_unique<ORCPlatformSupport>(J));
-          return llvm::Error::success();
-        }
-        else {
-          return llvm::createStringError(llvm::inconvertibleErrorCode(),
-                                         "Platform requires an ObjectLinkingLayer");
-        }
+        return llvm::Error::success();
       }
     };
     auto EJ { llvm::orc::LLJITBuilder()
@@ -549,14 +409,6 @@ namespace nub_private {
             options.SetLanguage(lldb::eLanguageTypeC99);
             options.SetTopLevel(true);
             this->target.EvaluateExpression(DYLAN_MV_DECL, options);
-          }
-
-          // Install a persistent definition for __orc_rt_CWrapperFunctionResult
-          {
-            lldb::SBExpressionOptions options;
-            options.SetLanguage(lldb::eLanguageTypeC99);
-            options.SetTopLevel(true);
-            this->target.EvaluateExpression(ORC_RT_WRAPPER_STRUCT_DECL, options);
           }
 
           // Enumerate the initial set of threads
@@ -875,8 +727,7 @@ namespace nub_private {
       value.GetDescription(description);
       llvm::dbgs() << "Result: " << description.GetData();
     });
-    auto value_type { value.GetType() };
-    if (!ignore_result) {
+    if (!ignore_result && !value.IsValid()) {
       lldb::SBError e { value.GetError() };
       if (e.Fail()) {
         llvm::errs() << "Error: " << e.GetCString() << "\n";

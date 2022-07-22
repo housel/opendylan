@@ -4,6 +4,8 @@
 
 #include "llvm/Support/FormatVariadic.h"
 
+#include <initializer_list>
+
 namespace nub_private {
 
 NubExecutorProcessControl::NubExecutorProcessControl(std::shared_ptr<llvm::orc::SymbolStringPool> SSP,
@@ -53,48 +55,7 @@ void NubExecutorProcessControl::callWrapperAsync(llvm::orc::ExecutorAddr Wrapper
   llvm::errs() << __func__
                << ":" << WrapperFnAddr
                << " (" << ArgBuffer.size() << " arg bytes)\n";
-  // Construct a C99 expression for the call, turning ArgBuffer into a
-  // string literal
-  lldb::SBStream expression;
-  expression.Printf("((__orc_rt_CWrapperFunctionResult (*)(const char *, size_t)) %#" PRIx64 ")(\"",
-                    WrapperFnAddr.getValue());
-  for (auto &c : ArgBuffer) {
-    expression.Printf("\\x%02x", c & 0xFF);
-  }
-  expression.Printf("\", %zu)", ArgBuffer.size());
-  auto thread { this->nlc_.process.GetSelectedThread() };
-  auto result { this->nlc_.evaluate(thread, expression.GetData()) };
-  if (result.IsValid()) {
-    auto Size = result.GetChildAtIndex(1).GetValueAsUnsigned();
-    auto address_size { this->nlc_.target.GetAddressByteSize() };
-    if (Size == 0) {
-      auto ErrMsg { result.GetChildAtIndex(0).GetChildAtIndex(0).GetValueAsUnsigned() };
-      if (ErrMsg == 0) {
-        OnComplete(std::move(llvm::orc::shared::WrapperFunctionResult()));
-      }
-      else {
-        OnComplete(llvm::orc::shared::WrapperFunctionResult::createOutOfBandError("callWrapperAsync OOB Error"));
-      }
-    }
-    else if (Size <= address_size) {
-      auto Value { result.GetChildAtIndex(0).GetChildAtIndex(1).GetData() };
-      auto Result { llvm::orc::shared::WrapperFunctionResult::allocate(Size) };
-      lldb::SBError error;
-      Value.ReadRawData(error, 0, Result.data(), Size);
-      OnComplete(std::move(Result));
-    }
-    else {
-      auto Result { llvm::orc::shared::WrapperFunctionResult::allocate(Size) };
-      lldb::SBError error;
-      auto DataPtr { result.GetChildAtIndex(0).GetChildAtIndex(0).GetValueAsUnsigned() };
-      this->nlc_.process.ReadMemory(DataPtr, Result.data(), Size, error);
-      // FIXME free
-      OnComplete(llvm::orc::shared::WrapperFunctionResult::createOutOfBandError("callWrapperAsync nonempty"));
-    }
-  }
-  else {
-    OnComplete(llvm::orc::shared::WrapperFunctionResult::createOutOfBandError("callWrapperAsync error"));
-  }
+  OnComplete(llvm::orc::shared::WrapperFunctionResult::createOutOfBandError("callWrapperAsync error"));
 }
 
 llvm::Error NubExecutorProcessControl::disconnect()
@@ -155,10 +116,7 @@ void NubExecutorProcessControl::writeBuffersAsync(llvm::ArrayRef<llvm::orc::tpct
 
 llvm::Error NubExecutorProcessControl::setup()
 {
-  
-  return getBootstrapSymbols
-    ({{JDI.JITDispatchContext, "spy_orc_rt_jit_dispatch_ctx"},
-      {JDI.JITDispatchFunction, "spy_orc_rt_jit_dispatch"}});
+  return llvm::Error::success();
 }
 
 } // namespace nub_private

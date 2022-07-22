@@ -1391,14 +1391,6 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
 
   symbols.emplace_back(np.make_lookup_symbol(entry_name, *Entry));
 
-  // Run the initializers
-  auto E { np.jit->initialize(*(np.jds.back())) };
-  if (!E) {
-    NUB_DEBUG(llvm::dbgs() << "download_code JITDylib " << name << " NOT LOOKING GOOD\n");
-    llvm::logAllUnhandledErrors(std::move(E), llvm::errs(), "download_code: ");
-    return -1;
-  }
-
   NUB_DEBUG(llvm::dbgs() << "download_code JITDylib " << name << " succeeded\n");
   return 0;
 }

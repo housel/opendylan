@@ -28,23 +28,6 @@
 
 #define unused(param)   ((void)param)
 
-/* HACK Added by phoward 17-JUN-98
- * The file SPY-INTERFACES.C contains definitions that are not
- * referenced from within the runtime itself, but are called
- * remotely by the debugger. The Microsoft linker will throw
- * away these definitions unless another file references at least
- * one of them. The following (uncalled) function is the forced
- * reference we need.
- */
-
-extern int spy_load_extension_component(char *);
-
-void force_reference_to_spy_interface()
-{
-  spy_load_extension_component("");
-}
-
-
 #include "mm.h"        /* Dylan Interface */
 #include <memory.h>
 #include <stddef.h>
@@ -70,6 +53,28 @@ typedef intptr_t DSINT;
 #define EXTERN_INLINE __inline
 #define STATIC_INLINE static __inline
 #endif
+
+/* HACK Added by phoward 17-JUN-98
+ * The *-spy-interfaces.c files contain definitions that are not
+ * referenced from within the runtime itself, but are called
+ * remotely by the debugger. The linker will throw
+ * away these definitions unless another file references at least
+ * one of them. The following (uncalled) function is the forced
+ * reference we need.
+ */
+
+extern int spy_load_extension_component(char *);
+#ifdef OPEN_DYLAN_BACKEND_LLVM
+void spy_orc_rt_call_wrapper(uintptr_t wrapper_addr);
+#endif
+
+void force_reference_to_spy_interface()
+{
+  spy_load_extension_component("");
+#ifdef OPEN_DYLAN_BACKEND_LLVM
+  spy_orc_rt_call_wrapper(0);
+#endif
+}
 
 
 /* Configuration

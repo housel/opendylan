@@ -8,6 +8,7 @@
 #include <llvm/ExecutionEngine/JITSymbol.h>
 #include <llvm/ExecutionEngine/Orc/SymbolStringPool.h>
 #include <llvm/ExecutionEngine/Orc/LLJIT.h>
+#include "llvm/ExecutionEngine/Orc/Shared/WrapperFunctionUtils.h"
 
 #include <deque>
 #include <map>
