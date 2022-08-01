@@ -264,7 +264,8 @@ define function make-debugger-stream(file-name :: <byte-string>)
     make (<file-stream>,
 	  locator:   as(<file-locator>,
 			format-to-string(concatenate(file-name, ".%d"), *debugger-stream-count*)),
-	  direction: #"output");
+	  direction: #"output",
+          stream-lock: make(<recursive-lock>));
 
   *debugger-stream-count* := *debugger-stream-count* + 1;
 end function;
