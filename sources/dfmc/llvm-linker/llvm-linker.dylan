@@ -172,15 +172,76 @@ define method emit-externs
     (back-end :: <llvm-back-end>, m :: <llvm-module>,
      cr :: <compilation-record>)
  => ();
+  let ld :: <library-description> = cr.compilation-record-library;
   let heap = cr.compilation-record-model-heap;
   for (object in heap.heap-referenced-objects)
-    emit-extern(back-end, m, object);
+    let import?
+      = imported-object?(ld, object)
+      & ~model-interactive?(object);
+    emit-extern(back-end, m, object, import?: import?);
   end for;
 
   for (object in heap.heap-referenced-bindings)
-    emit-extern(back-end, m, object);
+    let import?
+      = library-imported-binding?(ld, object)
+      & ~binding-interactive?(object);
+    emit-extern(back-end, m, object, import?: import?);
   end for;
 end method;
+
+define method imported-object?
+    (ld :: <library-description>, object)
+ => (import? :: <boolean>);
+  ~ compiling-dylan-library?()
+    & library-imported-object?(ld, object)
+end;
+
+define method imported-object?
+    (ld :: <library-description>, object :: <module-binding>)
+ => (import? :: <boolean>);
+  ~compiling-dylan-library?()
+    & library-imported-binding?(ld, object)
+end;
+
+define method imported-object?
+    (ld :: <library-description>, object :: <symbol>)
+ => (import? :: <boolean>)
+  case
+    compiling-dylan-library?() => #f;
+    load-bound-object?(object) => #f;
+    otherwise => #t;
+  end
+end;
+
+define method imported-object?
+    (ld :: <library-description>, object :: <&c-variable>)
+ => (import? :: <boolean>);
+  object.dll-import?
+end;
+
+define method imported-object?
+    (ld :: <library-description>, object == #())
+ => (import? :: <boolean>)
+  ~compiling-dylan-library?()
+end;
+
+define method imported-object?
+    (ld :: <library-description>, object :: <string>)
+ => (import? :: <boolean>);
+  object = "" & ~compiling-dylan-library?()
+end;
+
+define method imported-object?
+    (ld :: <library-description>, object :: <&shared-entry-point>)
+ => (import? :: <boolean>);
+  #f
+end;
+
+define method imported-object?
+    (ld :: <library-description>, object :: <&engine-node-ep>)
+ => (import? :: <boolean>);
+  #f
+end;
 
 define method emit-indirection-definitions
     (back-end :: <llvm-back-end>, m :: <llvm-module>,
@@ -334,6 +395,7 @@ define method emit-init-code-definition
               type: $init-code-function-ptr-type,
               arguments: #(),
               linkage: #"external",
+              visibility: #"hidden",
               section: llvm-section-name(back-end, #"init-code"),
               calling-convention: $llvm-calling-convention-c);
     ins--block(back-end, make(<llvm-basic-block>, name: "bb.entry"));
@@ -446,11 +508,12 @@ define constant $code-extern-names
 define method emit-code-externs
     (back-end :: <llvm-back-end>, m :: <llvm-module>)
  => ();
+  let import? = ~compiling-dylan-library?();
   for (class-name in $wrapper-classes)
     let wrapper = ^class-mm-wrapper(dylan-value(class-name));
     let def = llvm-builder-global(back-end, emit-name(back-end, m, wrapper));
     if (instance?(def, <llvm-symbolic-constant>))
-      emit-extern(back-end, m, wrapper);
+      emit-extern(back-end, m, wrapper, import?: import?);
     end if;
   end for;
 
@@ -458,7 +521,7 @@ define method emit-code-externs
     let object = dylan-value(object-name);
     let def = llvm-builder-global(back-end, emit-name(back-end, m, object));
     if (instance?(def, <llvm-symbolic-constant>))
-      emit-extern(back-end, m, object);
+      emit-extern(back-end, m, object, import?: import?);
     end if;
   end for;
 
@@ -466,7 +529,7 @@ define method emit-code-externs
     let iep = ^iep(dylan-value(function-name));
     let def = llvm-builder-global(back-end, emit-name(back-end, m, iep));
     if (instance?(def, <llvm-symbolic-constant>))
-      emit-extern(back-end, m, iep);
+      emit-extern(back-end, m, iep, import?: import?);
     end if;
   end for;
 end method;
