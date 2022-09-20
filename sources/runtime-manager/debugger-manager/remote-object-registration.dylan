@@ -377,6 +377,37 @@ define method fixup-unimported-data-region
                     hi);
 end method;
 
+///// REGISTER-EXCEPTION-HANDLER-DATA-REGION
+//    A provision for the interactive downloader.
+
+define method register-exception-handler-data-region
+    (application :: <debug-target>, lo :: <remote-value>, hi :: <remote-value>,
+     #key thread = #f)
+ => ();
+  let spy-thread = thread | select-thread-for-spy(application);
+  run-spy-on-thread(application,
+                    spy-thread,
+                    application.C-spy.register-exception-handler-data,
+                    lo,
+                    hi);
+end method;
+
+///// RUN-INITIALIZER-ARRAY-REGION
+//    A provision for the interactive downloader.
+
+define method run-initializer-array-region
+    (application :: <debug-target>, lo :: <remote-value>, hi :: <remote-value>,
+     #key thread = #f)
+ => ();
+  let spy-thread = thread | select-thread-for-spy(application);
+  run-spy-on-thread(application,
+                    spy-thread,
+                    application.C-spy.run-initializer-array,
+                    lo,
+                    hi);
+end method;
+
+
 
 // TODO:
 // Remove these two functions when finalization arrives on the scene.

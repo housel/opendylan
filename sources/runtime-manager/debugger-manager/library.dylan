@@ -201,6 +201,8 @@ define module debugger-manager
     register-interactive-code,
     fixup-imported-data-region,
     fixup-unimported-data-region,
+    register-exception-handler-data-region,
+    run-initializer-array-region,
     use-thread-for-spy-functions,
     target-spy-thread,
     select-thread-for-spy,

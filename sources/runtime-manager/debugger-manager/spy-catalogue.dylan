@@ -284,6 +284,15 @@ define class <C-spy-catalogue> (<spy-catalogue>)
   constant slot fixup-unimported-data :: <C-spy-function-descriptor>
      = make(<C-spy-function-descriptor>,
             runtime-name: "spy_fixup_unimported_dylan_data");
+
+  constant slot register-exception-handler-data :: <C-spy-function-descriptor>
+     = make(<C-spy-function-descriptor>,
+            runtime-name: "spy_register_exception_handler_data");
+
+  constant slot run-initializer-array :: <C-spy-function-descriptor>
+     = make(<C-spy-function-descriptor>,
+            runtime-name: "spy_run_init_array");
+
 /*
   constant slot start-debugger-transaction :: <C-spy-function-descriptor>
      = make(<C-spy-function-descriptor>,

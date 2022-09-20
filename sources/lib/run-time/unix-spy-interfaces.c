@@ -23,3 +23,28 @@ SPY_INTERFACE int spy_load_extension_component (char *name)
   }
 }
 
+SPY_INTERFACE int spy_register_exception_handler_data(void *base, void *limit)
+{
+  // FIXME handle both this and __unw_add_dynamic_eh_frame_section
+  extern void __register_frame(void *begin);
+
+  __register_frame(base);
+  return 0;
+}
+
+typedef void (*init_function)(int argc, char **argv, char **environ);
+
+extern int TargcT;
+extern char **TargvT;
+extern char **environ;
+
+SPY_INTERFACE int spy_run_init_array(void *base, void *limit)
+{
+  // (((InitArrFunc)(target))(main_argc, main_argv, environ))
+  init_function *p = (init_function *) base;
+  while (p < (init_function *) limit) {
+    (*p)(TargcT, TargvT, environ);
+    p++;
+  }
+  return 0;
+}

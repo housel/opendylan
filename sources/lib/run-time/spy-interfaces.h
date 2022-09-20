@@ -19,6 +19,11 @@
 #define SPY_LOAD_EXTENSION_COMPONENT_FAILED 0
 #define SPY_LOAD_EXTENSION_COMPONENT_SUCCEEDED 1
 
-SPY_INTERFACE int spy_load_extension_component (char *name);
 /* Loads a named DLL into the runtime */
+SPY_INTERFACE int spy_load_extension_component (char *name);
 
+/* Registers LLVM exception handler data with the unwinder */
+SPY_INTERFACE int spy_register_exception_handler_data(void *base, void *limit);
+
+/* Executes shared library initializations */
+SPY_INTERFACE int spy_run_init_array(void *base, void *limit);
