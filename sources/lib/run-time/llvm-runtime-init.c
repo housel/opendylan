@@ -27,6 +27,10 @@ void _Init_Run_Time(void)
 
 #ifdef GC_USE_BOEHM
     GC_INIT();
+
+    // start the mark threads before the main entry point is reached
+    // so that the debugger nub can identify them
+    GC_start_mark_threads();
 #endif
 
     primitive_initialize_thread_variables();
