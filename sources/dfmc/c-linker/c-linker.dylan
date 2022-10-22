@@ -58,7 +58,7 @@ define method link-all
     emit-forwards(back-end, stream, cr);
     emit-indirection-definitions(back-end, stream, cr);
     write(stream, "/* Variables */\n\n");
-    for (binding in heap.heap-defined-bindings)
+    for (binding in heap.heap-defined-module-bindings)
       emit-definition(back-end, stream, binding);
     end for;
     write-element(stream, '\n');
@@ -178,7 +178,7 @@ define method emit-externs
   for (object in heap.heap-referenced-objects)
     emit-forward(back-end, stream, object);
   end for;
-  for (object in heap.heap-referenced-bindings)
+  for (object in heap.heap-referenced-module-bindings)
     emit-forward(back-end, stream, object);
   end for;
   write-element(stream, '\n');

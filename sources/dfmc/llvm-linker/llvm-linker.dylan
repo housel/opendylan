@@ -88,7 +88,7 @@ define method link-all
       end for;
 
       // Variables
-      for (binding in heap.heap-defined-bindings)
+      for (binding in heap.heap-defined-module-bindings)
         emit-definition(back-end, m, binding);
       end for;
 
@@ -181,7 +181,7 @@ define method emit-externs
     emit-extern(back-end, m, object, import?: import?);
   end for;
 
-  for (object in heap.heap-referenced-bindings)
+  for (object in heap.heap-referenced-module-bindings)
     let import?
       = library-imported-binding?(ld, object)
       & ~binding-interactive?(object);

@@ -70,9 +70,9 @@ define class <model-heap> (<object>)
 
   slot heap-back-pointers :: <object-table> = make(<table>);
 
-  slot heap-defined-bindings :: <ordered-object-set>
+  slot heap-defined-module-bindings :: <ordered-object-set>
     = make(<ordered-object-set>);
-  slot heap-referenced-bindings :: <ordered-object-set>
+  slot heap-referenced-module-bindings :: <ordered-object-set>
     = make(<ordered-object-set>);
   slot heap-defined-objects :: <ordered-object-set>
     = make(<ordered-object-set>);
@@ -114,8 +114,8 @@ end;
 
 define method heap-approximate-size
     (heap :: <model-heap>) => (res :: <integer>)
-  size(heap-defined-bindings(heap))
-    + size(heap-referenced-bindings(heap))
+  size(heap-defined-module-bindings(heap))
+    + size(heap-referenced-module-bindings(heap))
     + size(heap-defined-objects(heap))
     + size(heap-referenced-objects(heap))
 end method;
@@ -237,8 +237,8 @@ define method compute-compilation-record-heap
     // Reset the walking machinery, just wanted to the incoming references.
     // heap.heap-original-defined-objects := heap.heap-defined-objects;
     heap.heap-back-pointers := make(<table>);
-    heap.heap-defined-bindings := make(<ordered-object-set>);
-    heap.heap-referenced-bindings := make(<ordered-object-set>);
+    heap.heap-defined-module-bindings := make(<ordered-object-set>);
+    heap.heap-referenced-module-bindings := make(<ordered-object-set>);
     heap.heap-defined-objects := make(<ordered-object-set>);
     heap.heap-referenced-objects := make(<ordered-object-set>);
     heap.heap-defined-repeated-object-sizes := make(<object-table>);
@@ -1664,7 +1664,7 @@ define method mark-heap-element-referenced (heap, object, ct-ref?)
 end;
 
 define method heap-element-referenced? (heap, object :: <module-binding>, ct-ref?)
-  member?(object, heap-referenced-bindings(heap))
+  member?(object, heap-referenced-module-bindings(heap))
     | (ct-ref? & member?(object, *heap-pending*.heap-compile-time-references))
 end;
 
@@ -1672,7 +1672,7 @@ define method mark-heap-element-referenced (heap, object :: <module-binding>, ct
   if (ct-ref?)
     add!(*heap-pending*.heap-compile-time-references, object);
   else
-    add!(heap-referenced-bindings(heap), object);
+    add!(heap-referenced-module-bindings(heap), object);
   end;
 end;
 
@@ -2080,14 +2080,14 @@ end;
 define method mark-heap-element
     (heap :: <model-heap>, parent, binding :: <module-binding>)
   debug-assert(internal-binding?(heap, binding));
-  let defined = heap-defined-bindings(heap);
+  let defined = heap-defined-module-bindings(heap);
   unless (member?(binding, defined))
     add!(defined, binding);
   end;
 end method;
 
 define method heap-element-claimed? (heap :: <model-heap>, binding :: <module-binding>)
-  member?(binding, heap-defined-bindings(heap))
+  member?(binding, heap-defined-module-bindings(heap))
 end;
 
 define method make-heap-element-pending (heap :: <model-heap>, element)

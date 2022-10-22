@@ -180,7 +180,7 @@ define method link-all
           emit-indirection-definitions(back-end, stream, cr);
 
           emit-comment(stream, "Variables");
-          for (binding in heap.heap-defined-bindings)
+          for (binding in heap.heap-defined-module-bindings)
             emit-definition(back-end, stream, binding);
           end for;
 
@@ -292,7 +292,7 @@ define method emit-externs
     end select;
   end for;
 
-  for (object in heap.heap-referenced-bindings)
+  for (object in heap.heap-referenced-module-bindings)
     let import? = dll-imported-binding?(back-end, object);
     emit-extern/import(back-end, stream, object, import?);
   end for;
@@ -320,7 +320,7 @@ define method emit-forwards
   end for;
 
   // emit variables
-  for (binding in heap.heap-defined-bindings)
+  for (binding in heap.heap-defined-module-bindings)
     emit-forward(back-end, stream, binding);
   end for;
 end method;
