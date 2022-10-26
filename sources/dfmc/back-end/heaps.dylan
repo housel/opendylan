@@ -74,6 +74,8 @@ define class <model-heap> (<object>)
     = make(<ordered-object-set>);
   slot heap-referenced-module-bindings :: <ordered-object-set>
     = make(<ordered-object-set>);
+  slot heap-defined-interactor-bindings :: <ordered-object-set>
+    = make(<ordered-object-set>);
   slot heap-defined-objects :: <ordered-object-set>
     = make(<ordered-object-set>);
   slot heap-referenced-objects :: <ordered-object-set>
@@ -92,6 +94,8 @@ define class <model-heap> (<object>)
     = make(<object-table>);
   constant slot heap-record-repeated-object-sizes? :: <boolean>
     = back-end-record-repeated-object-sizes?(current-back-end());
+  constant slot heap-claim-interactor-bindings? :: <boolean>
+    = back-end-claim-interactor-bindings?(current-back-end());
 end class;
 
 define function heap-defined-object-sequence (heap :: <model-heap>)
@@ -239,6 +243,7 @@ define method compute-compilation-record-heap
     heap.heap-back-pointers := make(<table>);
     heap.heap-defined-module-bindings := make(<ordered-object-set>);
     heap.heap-referenced-module-bindings := make(<ordered-object-set>);
+    heap.heap-defined-interactor-bindings := make(<ordered-object-set>);
     heap.heap-defined-objects := make(<ordered-object-set>);
     heap.heap-referenced-objects := make(<ordered-object-set>);
     heap.heap-defined-repeated-object-sizes := make(<object-table>);
@@ -1577,8 +1582,11 @@ define method maybe-claim-heap-element
 end method;
 
 define method maybe-claim-heap-element
-    (heap :: <model-heap>, parent, element :: <interactor-binding>, ct-ref?) => ()
-  #f
+    (heap :: <model-heap>, parent, binding :: <interactor-binding>, ct-ref?) => ()
+  let defined = heap-defined-interactor-bindings(heap);
+  if (heap.heap-claim-interactor-bindings? & ~member?(binding, defined))
+    add!(defined, binding);
+  end;
 end method;
 
 // Exceptions.
@@ -2278,6 +2286,11 @@ end method;
 
 define method maybe-claim-computation-references
     (refs :: <code-references>, c :: <variable-reference>) => ()
+  maybe-claim-code-reference(refs, c.referenced-binding);
+end method;
+
+define method maybe-claim-computation-references
+    (refs :: <code-references>, c :: <interactor-binding-reference>) => ()
   maybe-claim-code-reference(refs, c.referenced-binding);
 end method;
 

@@ -68,10 +68,17 @@ define compiler-open generic back-end-word-size
   (back-end :: <back-end>) => (number-bytes :: <integer>);
 define compiler-open generic back-end-record-repeated-object-sizes?
   (back-end :: <back-end>) => (well? :: <boolean>);
+define compiler-open generic back-end-claim-interactor-bindings?
+  (back-end :: <back-end>) => (well? :: <boolean>);
 define compiler-open generic back-end-lambda-size
   (back-end :: <back-end>, lambda :: <&lambda>) => (number-bytes :: <integer>);
 
 define method back-end-record-repeated-object-sizes?
+    (back-end :: <back-end>) => (well? :: <boolean>)
+  #f
+end method;
+
+define method back-end-claim-interactor-bindings?
     (back-end :: <back-end>) => (well? :: <boolean>)
   #f
 end method;

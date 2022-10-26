@@ -293,6 +293,11 @@ define method emit-name-internal
   emit-anonymous-name(back-end, stream, o)
 end method;
 
+define method emit-name-internal
+    (back-end :: <back-end>, stream, o :: <interactor-binding>)
+ => (name)
+  local-mangle(back-end, as(<string>, o.name.fragment-identifier))
+end method;
 
 define method emit-name-internal
     (back-end :: <back-end>, stream, o) => (name)

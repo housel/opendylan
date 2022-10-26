@@ -34,6 +34,7 @@ define module dfmc-back-end
     back-end-word-size,
     back-end-lambda-size,
     back-end-record-repeated-object-sizes?,
+    back-end-claim-interactor-bindings?,
 
     maybe-label!,
     label!,
@@ -87,6 +88,7 @@ define module dfmc-back-end
     heap-root-init-code,
     heap-root-system-init-code,
     heap-defined-module-bindings,
+    heap-defined-interactor-bindings,
     heap-back-pointers,
     heap-referenced-module-bindings,
     heap-defined-objects,
