@@ -96,5 +96,7 @@ define module dfmc-llvm-back-end
     llvm-calling-convention,
     llvm-c-function-calling-convention,
 
+    op--tag-integer,
+
     llvm-raw-byte-character;
 end module;

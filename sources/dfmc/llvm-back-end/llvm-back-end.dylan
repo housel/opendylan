@@ -123,6 +123,11 @@ define sealed method initialize
   end;
 end method;
 
+define method back-end-claim-interactor-bindings?
+    (back-end :: <llvm-back-end>) => (well? :: <boolean>)
+  #t
+end method;
+
 define thread variable *loose-mode?* = #f;
 define thread variable *interactive-mode?* = #f;
 

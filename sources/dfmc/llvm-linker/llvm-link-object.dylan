@@ -67,6 +67,23 @@ define method emit-extern
   llvm-builder-define-global(back-end, name, global);
 end method;
 
+define method emit-definition
+    (back-end :: <llvm-back-end>, m :: <llvm-module>,
+     o :: <interactor-binding>)
+ => ()
+  let name = emit-name(back-end, m, o);
+  let global
+    = make(<llvm-global-variable>,
+           name: name,
+           type: llvm-pointer-to(back-end, $llvm-object-pointer-type),
+           initializer: op--tag-integer(back-end, o.binding-interactor-id),
+           constant?: #f,
+           linkage: #"external",
+           visibility: #"default",
+           section: llvm-section-name(back-end, #"history"));
+  llvm-builder-define-global(back-end, name, global);
+end method;
+
 // Code
 
 define method emit-definition

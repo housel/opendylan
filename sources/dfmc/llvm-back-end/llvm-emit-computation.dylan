@@ -684,6 +684,29 @@ define method emit-computation
   computation-result(back-end, c, result);
 end method;
 
+define method emit-computation
+    (back-end :: <llvm-back-end>, m :: <llvm-module>, c :: <interactor-binding-reference>) => ();
+  let word-size = back-end-word-size(back-end);
+
+  // Locate this binding's placeholder
+  let name = emit-name(back-end, m, referenced-binding(c));
+  let placeholder = llvm-builder-global(back-end, name);
+  llvm-constrain-type(placeholder.llvm-value-type,
+                      llvm-pointer-to(back-end, $llvm-object-pointer-type));
+
+  // Declare as invariant to allow CSE
+  let memory
+    = make(<llvm-cast-constant>, operator: #"BITCAST",
+           type: $llvm-object-pointer-type,
+           operands: vector(placeholder));
+  ins--call-intrinsic(back-end, "llvm.invariant.start",
+                      vector(i64(word-size), memory));
+
+  // Retrieve the initialized value
+  let result = ins--load(back-end, placeholder, alignment: word-size);
+  computation-result(back-end, c, result);
+end method;
+
 define function will-never-return?
     (c :: <function-call>)
  => (well? :: <boolean>);

@@ -92,6 +92,11 @@ define method link-all
         emit-definition(back-end, m, binding);
       end for;
 
+      // Placeholders for interactive bindings
+      for (binding in heap.heap-defined-interactor-bindings)
+        emit-definition(back-end, m, binding);
+      end for;
+
       // Init code
       let top-level-id =
         cr-init-name(back-end,

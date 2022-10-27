@@ -12,6 +12,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 // #"objects"          - section traced as a heap by the GC
 // #"untraced-objects" - heap section, untraced by the GC
 // #"untraced-data"    - untraced data section
+// #"history"          - indirection section for interactor $0, $1, ...
 // #"code"             - the code or text section
 // #"init-code"        - separate initialization part of the code section
 
@@ -37,6 +38,7 @@ define method llvm-section-name
       else
         ".dyutr$r"
       end;
+    #"history"                 => ".dyhis$m"; // History reference indirections
   end select
 end method;
 
