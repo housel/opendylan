@@ -22,6 +22,14 @@
 /* Loads a named DLL into the runtime */
 SPY_INTERFACE int spy_load_extension_component (char *name);
 
+#ifdef OPEN_DYLAN_PLATFORM_UNIX
+#define SPY_MAX_RUNTIME_SIGNALS 6
+
+/* Returns the nth signal reserved for use by the garbage collector or
+   other runtime support.  */
+SPY_INTERFACE int spy_get_runtime_signal(size_t n);
+#endif
+
 /* Registers LLVM exception handler data with the unwinder */
 SPY_INTERFACE int spy_register_exception_handler_data(void *base, void *limit);
 

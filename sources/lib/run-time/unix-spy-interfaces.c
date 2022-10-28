@@ -12,6 +12,9 @@
 #include "unix-types.h"
 #include "spy-interfaces.h"
 
+#ifdef GC_USE_BOEHM
+#include <gc/gc.h>
+#endif
 
 SPY_INTERFACE int spy_load_extension_component (char *name)
 {
@@ -20,6 +23,34 @@ SPY_INTERFACE int spy_load_extension_component (char *name)
     return(SPY_LOAD_EXTENSION_COMPONENT_FAILED);
   } else {
     return(SPY_LOAD_EXTENSION_COMPONENT_SUCCEEDED);
+  }
+}
+
+static int runtime_signals[SPY_MAX_RUNTIME_SIGNALS];
+static size_t runtime_signals_count;
+
+SPY_INTERFACE int spy_get_runtime_signal(size_t n)
+{
+  if (n == 0) {
+    // Initialize the set of signals reserved by the runtime
+    runtime_signals_count = 0;
+#ifdef GC_USE_BOEHM
+    int suspend_signal = GC_get_suspend_signal();
+    if (suspend_signal != -1) {
+      runtime_signals[runtime_signals_count++] = suspend_signal;
+    }
+    int restart_signal = GC_get_thr_restart_signal();
+    if (restart_signal != -1) {
+      runtime_signals[runtime_signals_count++] = restart_signal;
+    }
+#endif
+  }
+
+  if (n < runtime_signals_count) {
+    return runtime_signals[n];
+  }
+  else {
+    return -1;
   }
 }
 
