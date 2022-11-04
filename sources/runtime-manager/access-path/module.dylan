@@ -155,6 +155,10 @@ define module access-path
       remote-address-page-number,
       page-relative-address,
       perform-coff-relocation,
+      <remote-memory-region>,
+      remote-memory-region-classification,
+      remote-memory-region-lower-bound,
+      remote-memory-region-upper-bound,
       download-code,
       calculate-stack-address,
 

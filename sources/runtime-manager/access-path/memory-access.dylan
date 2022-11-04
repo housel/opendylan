@@ -630,6 +630,19 @@ define open generic page-relative-address-on-connection
        => (id :: <integer>, offset :: <integer>);
 
 
+///// <REMOTE-MEMORY-REGION>
+
+///   Represents a segment of memory associated with downloaded code.
+
+define class <remote-memory-region> (<object>)
+  constant slot remote-memory-region-classification :: <symbol>,
+    required-init-keyword: classification:;
+  constant slot remote-memory-region-lower-bound :: <remote-value>,
+    required-init-keyword: lower-bound:;
+  constant slot remote-memory-region-upper-bound :: <remote-value>,
+    required-init-keyword: upper-bound:;
+end class;
+
 ///// DOWNLOAD-CODE
 
 //    Downloads multiple code records into the application, returning
