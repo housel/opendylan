@@ -37,3 +37,85 @@ define method perform-all-registrations (trans :: <interactive-transaction>)
     end select
   end for;
 end method;
+
+///// PERFORM-REGISTRATIONS-AND-INITIALIZATIONS
+//    After the nub has completed code generation, it has identified
+//    regions of memory that require GC or other registration.
+//    The DM provides functions to actually perform the registrations
+//    and initializations, which it implements by calling SPY functions.
+
+define function perform-registrations-and-initializations
+    (context :: <runtime-context>, application :: <debug-target>,
+     thread :: <remote-thread>, regions :: <sequence>)
+ => ();
+  // First perform the needed registrations
+  for (region in regions)
+    debugger-message("Region %s: %=-%=",
+                     region.remote-memory-region-classification,
+                     region.remote-memory-region-lower-bound,
+                     region.remote-memory-region-upper-bound);
+    let lo = region.remote-memory-region-lower-bound;
+    let hi = region.remote-memory-region-upper-bound;
+    select (region.remote-memory-region-classification)
+      #"dylan-exact" =>
+        register-exact-roots(application, lo, hi, thread: thread);
+      #"dylan-static" =>
+        register-static-roots(application, lo, hi, thread: thread);
+      #"dylan-ambiguous" =>
+        register-ambiguous-roots(application, lo, hi, thread: thread);
+      #"dylan-fixup" =>
+        fixup-imported-data-region(application, lo, hi, thread: thread);
+      #"dylan-import" =>
+        fixup-unimported-data-region(application, lo, hi, thread: thread);
+      #"dylan-untraced" =>
+        #f;                     // Nothing needs to know about this
+      #"dylan-history" =>
+        fixup-interactor-history-data-region(context, application, lo, hi);
+        register-exact-roots(application, lo, hi, thread: thread);
+      #"compiled-code" =>
+        #f;
+      #"init-array" =>
+        #f;                     // Do nothing on this first pass
+      #"eh-frame" =>
+        register-exception-handler-data-region
+          (application, lo, hi, thread: thread);
+    end select;
+  end for;
+
+  // Next, traverse the set again to find things that need doing on
+  // the second pass
+  for (region in regions)
+    let lo = region.remote-memory-region-lower-bound;
+    let hi = region.remote-memory-region-upper-bound;
+    select (region.remote-memory-region-classification)
+      #"init-array" =>
+        run-initializer-array-region(application, lo, hi, thread: thread);
+      otherwise =>
+        #f;
+    end select;
+  end for;
+end function;
+
+///// FIXUP-INTERACTOR-HISTORY-DATA-REGION
+//
+
+define method fixup-interactor-history-data-region
+    (context :: <runtime-context>, application :: <debug-target>,
+     lo :: <remote-value>, hi :: <remote-value>)
+ => ();
+  debugger-message("fixup-interactor-history-data-region %= - %=", lo, hi);
+  let access-path = application.debug-target-access-path;
+  let stride = access-path.remote-value-byte-size;
+  for (address :: <remote-value> = lo
+         then byte-indexed-remote-value(address, stride),
+       while: remote-value-<(address, hi))
+    let raw-interactor-id = read-value(access-path, address);
+    let interactor-id = tagged-remote-value-as-integer(raw-interactor-id);
+    debugger-message("reaffirm %=: %= (%d)",
+                     address, raw-interactor-id, interactor-id);
+    let actual-value
+      = runtime-context-lexical-variable-value(context, interactor-id);
+    debugger-message("Actually, that's %=", actual-value);
+    write-value(access-path, address, actual-value);
+  end for;
+end method;

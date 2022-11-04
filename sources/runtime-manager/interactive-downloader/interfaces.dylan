@@ -43,7 +43,7 @@ define sideways method download-for-interactive-execution
           download-for-interactive-execution-nub;
       end select;
   call-debugger-function(application, download-function,
-			 context, application, coff-files,
+			 context, application, downloadable-records,
 			 library, entry-point)
 end method;
 
@@ -87,7 +87,7 @@ end method;
 
 define method download-for-interactive-execution-nub
     (context :: <runtime-context>, application :: <debug-target>,
-     coff-files :: <sequence>, library :: <byte-string>,
+     downloadable-records :: <sequence>, library :: <byte-string>,
      entry-point :: <byte-string>)
  => (transaction-id)
   let thread = context.runtime-context-thread;
@@ -108,6 +108,8 @@ define method download-for-interactive-execution-nub
     debugger-message("Download defined symbol %s", symbol.remote-symbol-name);
     symbol-table-add-symbol(public-table, symbol);
   end for;
+
+  perform-registrations-and-initializations(context, application, thread, regions);
 
   // Call the appropriate DM functionality to begin executing interactive
   // Dylan code. This will return a (pre-registered) breakpoint, which we
