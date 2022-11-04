@@ -29,6 +29,12 @@ namespace nub_private {
     llvm::Expected<int32_t> runAsMain(llvm::orc::ExecutorAddr MainFnAddr,
                                       llvm::ArrayRef<std::string> Args) override;
 
+    llvm::Expected<int32_t> runAsVoidFunction(llvm::orc::ExecutorAddr VoidFnAddr) override;
+
+
+    llvm::Expected<int32_t> runAsIntFunction(llvm::orc::ExecutorAddr IntFnAddr,
+                                             int Arg) override;
+
     void callWrapperAsync(llvm::orc::ExecutorAddr WrapperFnAddr,
                           IncomingWFRHandler OnComplete,
                           llvm::ArrayRef<char> ArgBuffer) override;

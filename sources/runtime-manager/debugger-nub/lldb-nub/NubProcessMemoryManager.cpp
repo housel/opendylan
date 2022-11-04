@@ -85,21 +85,21 @@ void NubProcessMemoryManager::allocate(const llvm::jitlink::JITLinkDylib *JD,
     using namespace llvm;
     using namespace llvm::jitlink;
 
-    if (AG.getMemDeallocPolicy() != MemDeallocPolicy::Standard) {
+    if (AG.getMemDeallocPolicy() != llvm::orc::MemDeallocPolicy::Standard) {
       OnAllocated(llvm::createStringError(llvm::inconvertibleErrorCode(),
                                           "Non-Standard dealloc policy not implemented"));
       return;
     }
 
-    MemProt segment_prot = AG.getMemProt();
+    llvm::orc::MemProt segment_prot = AG.getMemProt();
     uint32_t protection = 0;
-    if ((segment_prot & MemProt::Read) != MemProt::None) {
+    if ((segment_prot & llvm::orc::MemProt::Read) != llvm::orc::MemProt::None) {
       protection |= lldb::ePermissionsWritable;
     }
-    if ((segment_prot & MemProt::Read) != MemProt::None) {
+    if ((segment_prot & llvm::orc::MemProt::Read) != llvm::orc::MemProt::None) {
       protection |= lldb::ePermissionsReadable;
     }
-    if ((segment_prot & MemProt::Exec) != MemProt::None) {
+    if ((segment_prot & llvm::orc::MemProt::Exec) != llvm::orc::MemProt::None) {
       protection |= lldb::ePermissionsExecutable;
     }
     auto size { Seg.ContentSize + Seg.ZeroFillSize };

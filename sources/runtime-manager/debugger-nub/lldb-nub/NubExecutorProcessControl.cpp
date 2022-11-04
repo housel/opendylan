@@ -47,6 +47,22 @@ llvm::Expected<int32_t> NubExecutorProcessControl::runAsMain(llvm::orc::Executor
                                  "%s unimplemented", &__func__[0]);
 }
 
+llvm::Expected<int32_t> NubExecutorProcessControl::runAsVoidFunction(llvm::orc::ExecutorAddr VoidFnAddr)
+{
+  llvm::errs() << __func__ << "\n";
+  return llvm::createStringError(llvm::inconvertibleErrorCode(),
+                                 "%s unimplemented", &__func__[0]);
+}
+
+
+llvm::Expected<int32_t> NubExecutorProcessControl::runAsIntFunction
+    (llvm::orc::ExecutorAddr IntFnAddr, int Arg)
+{
+  llvm::errs() << __func__ << "\n";
+  return llvm::createStringError(llvm::inconvertibleErrorCode(),
+                                 "%s unimplemented", &__func__[0]);
+}
+
 void NubExecutorProcessControl::callWrapperAsync(llvm::orc::ExecutorAddr WrapperFnAddr,
                                                  IncomingWFRHandler OnComplete,
                                                  llvm::ArrayRef<char> ArgBuffer)
