@@ -156,13 +156,6 @@ RTARGET_ADDRESS calculate_stack_address
    in NUBINT offset);
 
 
-string target_address_to_string
-  (in RTARGET_ADDRESS x,
-   in NUBINT sz,
-   in NUBINT radix,
-   in NUBINT pad,
-   out NUBINT truncated);
-
 RTARGET_ADDRESS string_to_target_address
   (in NUBINT sz,
    in string buffer, 

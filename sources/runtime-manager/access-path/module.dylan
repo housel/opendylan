@@ -436,7 +436,6 @@ end module;
 define module access-path-nub
 
   create
-    remote-value-as-string-on-connection,
     string-as-remote-value-on-connection,
     start-application-on-connection,
     attach-application-on-connection,

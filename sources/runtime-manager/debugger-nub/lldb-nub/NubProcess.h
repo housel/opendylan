@@ -68,10 +68,6 @@ public:
   TARGET_ADDRESS calculate_stack_address(NUBTHREAD nubthread,
                                          NUBINT offset);
 
-  void target_address_to_string
-    (TARGET_ADDRESS x, NUBINT sz,
-     const char *buffer, NUBINT radix, NUBINT pad,
-     NUBINT &truncated);
   TARGET_ADDRESS string_to_target_address
     (std::string &string, NUBINT radix, NUBINT &overflow);
 

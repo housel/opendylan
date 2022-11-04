@@ -8,20 +8,6 @@ License:      See License.txt in this distribution for details.
 Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 
-///// REMOTE-VALUE-AS-STRING
-//    Converts a remote value to a string on the application's machine.
-
-define method remote-value-as-string-on-connection
-    (conn :: <local-access-connection>, val :: <remote-value>,
-     radix :: <integer>, pad :: <integer>, sz :: <integer>)
-       => (str :: <string>)
-  let str = make(<byte-string>, size: sz);
-  let trunc? =
-    nub-target-address-to-string(conn.connection-process, val, sz, str, radix, pad);
-  str;
-end method;
-
-
 ///// STRING-AS-REMOTE-VALUE
 //    Converts a string to a <remote-value> on the application's machine.
 
