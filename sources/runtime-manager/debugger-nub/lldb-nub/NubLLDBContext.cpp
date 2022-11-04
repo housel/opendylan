@@ -10,6 +10,7 @@
 #include <llvm/Support/TargetSelect.h>
 
 #include <llvm/ExecutionEngine/Orc/ObjectLinkingLayer.h>
+#include <llvm/ExecutionEngine/Orc/ELFNixPlatform.h>
 
 #include <dlfcn.h>
 
@@ -54,101 +55,6 @@ namespace {
 
   DebuggerCreator creator;
 
-  class NubDebutPlugin : public llvm::orc::ObjectLinkingLayer::Plugin {
-  public:
-    // Add passes to print the set of defined symbols after dead-stripping.
-    void modifyPassConfig(llvm::orc::MaterializationResponsibility &MR,
-                          llvm::jitlink::LinkGraph &G,
-                          llvm::jitlink::PassConfiguration &Config) override {
-      llvm::errs() << "Debut modifyPassConfig\n";
-      Config.PrePrunePasses.push_back([this](llvm::jitlink::LinkGraph &G) -> llvm::Error {
-        llvm::errs() << "Debut pre-prune pass for "
-                     << G.getName()
-                     << " reports:\n";
-        for (auto *block : G.blocks()) {
-          llvm::errs() << "  block from " << block->getSection().getName() << "\n";
-        }
-        return this->printAllSymbols(G);
-      });
-      Config.PostPrunePasses.push_back([this](llvm::jitlink::LinkGraph &G) {
-        llvm::errs() << "Debut post-prune pass for "
-                     << G.getName()
-                     << " reports:\n";
-        return this->printAllSymbols(G);
-      });
-      Config.PostAllocationPasses.push_back([this](llvm::jitlink::LinkGraph &G) {
-        llvm::errs() << "Debut post-allocation pass for "
-                     << G.getName()
-                     << " reports:\n";
-        for (auto *block : G.blocks()) {
-          llvm::errs() << "  block from " << block->getSection().getName()
-                       << " address " << block->getAddress()
-                       << " size " << block->getSize()
-                       << "\n";
-        }
-        for (auto *Sym : G.defined_symbols()) {
-          if (Sym->hasName()) {
-            llvm::errs() << "  " << Sym->getName();
-            if (Sym->isDefined()) {
-              llvm::errs() << " address " << Sym->getAddress();
-              auto &block { Sym->getBlock() };
-              llvm::errs() << " in section " << block.getSection().getName();
-            }
-            llvm::errs() << "\n";
-          }
-        }
-        return llvm::Error::success();
-      });
-    }
-
-    void notifyLoaded(llvm::orc::MaterializationResponsibility &MR) override {
-      llvm::errs() << "Debut notifyLoaded for "
-                   << MR.getTargetJITDylib().getName();
-      const auto &is { MR.getInitializerSymbol() };
-      if (is) {
-        llvm::errs() << " init symbol " << is;
-      }
-      llvm::errs() << "\n";
-    }
-    llvm::Error notifyEmitted(llvm::orc::MaterializationResponsibility &MR) override {
-      llvm::errs() << "Debut notifyEmitted for "
-                   << MR.getTargetJITDylib().getName()
-                   << "\n";
-      return llvm::Error::success();
-    }
-
-    // Implement mandatory overrides:
-    llvm::Error notifyFailed(llvm::orc::MaterializationResponsibility &MR) override {
-      llvm::errs() << "Debut notifyFailed for "
-                   << MR.getTargetJITDylib().getName()
-                   << "\n";
-      return llvm::Error::success();
-    }
-    llvm::Error notifyRemovingResources(llvm::orc::ResourceKey K) override {
-      llvm::errs() << "Debut notifyRemovingResources "
-                   << llvm::format_hex(K, 10)
-                   << "\n";
-      return llvm::Error::success();
-    }
-    void notifyTransferringResources(llvm::orc::ResourceKey DstKey,
-                                     llvm::orc::ResourceKey SrcKey) override {
-      llvm::errs() << "Debut notifyTransferringResources "
-                   << llvm::format_hex(DstKey, 10)
-                   << " <- " << llvm::format_hex(SrcKey, 10)
-                   << "\n";
-    }
-
-    // JITLink pass to print all defined symbols in G.
-    static llvm::Error printAllSymbols(llvm::jitlink::LinkGraph &G) {
-      for (auto *Sym : G.defined_symbols()) {
-        if (Sym->hasName()) {
-          llvm::errs() << "  " << Sym->getName() << "\n";
-        }
-      }
-
-      return llvm::Error::success();
-    }
-  };
 } // namespace
 
 namespace nub_private {
@@ -188,6 +94,96 @@ namespace nub_private {
     "TIMED_OUT_HANDLED",                // 32
     "TIMED_OUT_UNHANDLED",              // 33
     "PROFILER_UNHANDLED",               // 34
+  };
+
+  class NubELFNixSectionPlugin : public llvm::orc::ObjectLinkingLayer::Plugin {
+  public:
+    NubELFNixSectionPlugin(NubLLDBContext &nlc) : nlc_(nlc) {}
+
+    // Add passes to preserve initialization sections
+    void modifyPassConfig(llvm::orc::MaterializationResponsibility &MR,
+                          llvm::jitlink::LinkGraph &G,
+                          llvm::jitlink::PassConfiguration &Config) override {
+      Config.PrePrunePasses.push_back([this](llvm::jitlink::LinkGraph &G) -> llvm::Error {
+        for (auto *block : G.blocks()) {
+          auto section_name { block->getSection().getName() };
+          if (llvm::orc::ELFNixPlatform::isInitializerSection(section_name)) {
+            // Preserve this block by adding a live anonymous symbol
+            G.addAnonymousSymbol(*block, 0, block->getSize(), false, true);
+          }
+        }
+        return llvm::Error::success();
+      });
+      Config.PostFixupPasses.push_back([this, &MR](llvm::jitlink::LinkGraph &G) {
+        auto &JD { MR.getTargetJITDylib() };
+        NUB_DEBUG({
+          llvm::dbgs() << "Debut post-fixup pass for "
+                       << G.getName()
+                       << " reports:\n";
+        });
+        for (auto &Sec : G.sections()) {
+          auto name { Sec.getName() };
+          auto range { llvm::jitlink::SectionRange(Sec) };
+          NUB_DEBUG({
+            llvm::dbgs() << "  section " << name
+                         << " prot " << Sec.getMemProt()
+                         << " " << range.getStart() << ".." << range.getEnd()
+                         << "\n";
+          });
+          NubProcess::RegionKind kind;
+          if (name.equals(".eh_frame")) {
+            kind = NubProcess::RegionKind::EHFrame;
+          }
+          else if (name.equals(".init_array")
+                   || name.equals(".init_array.0")) {
+            kind = NubProcess::RegionKind::InitArray;
+          }
+          else if (name.equals(".dydat$m")) {
+            kind = NubProcess::RegionKind::DylanAmbiguous;
+          }
+          else if (name.equals(".dyobj$m")) {
+            kind = NubProcess::RegionKind::DylanStatic;
+          }
+          else if (name.equals(".dyutr$m") || name.equals(".dyutr$r")) {
+            kind = NubProcess::RegionKind::DylanUntraced;
+          }
+          else if (name.equals(".dyhis$m")) {
+            kind = NubProcess::RegionKind::DylanHistory;
+          }
+          else {
+            continue;
+          }
+          this->nlc_.jd_regions[&JD].push_back
+            (NubProcess::Region(kind,
+                                range.getStart().getValue(),
+                                range.getEnd().getValue()));
+        }
+        return llvm::Error::success();
+      });
+    }
+
+    llvm::Error notifyFailed(llvm::orc::MaterializationResponsibility &MR) override {
+      llvm::errs() << "NubELFNixSectionPlugin notifyFailed for "
+                   << MR.getTargetJITDylib().getName()
+                   << "\n";
+      return llvm::Error::success();
+    }
+    llvm::Error notifyRemovingResources(llvm::orc::ResourceKey K) override {
+      llvm::errs() << "NubELFNixSectionPlugin notifyRemovingResources "
+                   << llvm::format_hex(K, 10)
+                   << "\n";
+      return llvm::Error::success();
+    }
+    void notifyTransferringResources(llvm::orc::ResourceKey DstKey,
+                                     llvm::orc::ResourceKey SrcKey) override {
+      llvm::errs() << "NubELFNixSectionPlugin notifyTransferringResources "
+                   << llvm::format_hex(DstKey, 10)
+                   << " <- " << llvm::format_hex(SrcKey, 10)
+                   << "\n";
+    }
+
+  private:
+    NubLLDBContext &nlc_;
   };
 
   NubLLDBContext::NubLLDBContext(const char *process_name)
@@ -273,10 +269,16 @@ namespace nub_private {
       return false;
     }
     auto Creator {
-      [](llvm::orc::ExecutionSession &ES, const llvm::Triple &) -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
+      [this](llvm::orc::ExecutionSession &ES, const llvm::Triple &TT) -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
         NUB_DEBUG(llvm::dbgs() << "Creating ObjectLinkingLayer\n");
         auto OLL { std::make_unique<llvm::orc::ObjectLinkingLayer>(ES) };
-        OLL->addPlugin(std::make_unique<NubDebutPlugin>());
+        if (TT.isOSBinFormatELF()) {
+          OLL->addPlugin(std::make_unique<NubELFNixSectionPlugin>(*this));
+        }
+        else {
+          return llvm::make_error<llvm::StringError>("No plugin support for '" + TT.str() + "'",
+                                                     llvm::inconvertibleErrorCode());
+        }
         OLL->setReturnObjectBuffer([](std::unique_ptr<llvm::MemoryBuffer> buf) {
           NUB_DEBUG(llvm::dbgs() << "Return buffer " << buf->getBufferSize() << "\n");
         });

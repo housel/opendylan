@@ -1302,7 +1302,7 @@ NubProcess::TARGET_ADDRESS NubProcess::dylan_thread_environment_block_address
   }
 }
 
-NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vector<NubProcess::DownloadRecord> &records, const char *entry_name, std::vector<NubProcess::LookupSymbol> &symbols)
+NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vector<NubProcess::DownloadRecord> &records, const char *entry_name, std::vector<NubProcess::Region> &regions, std::vector<NubProcess::LookupSymbol> &symbols)
 {
   auto &np { *this->private_ };
   std::unique_lock<std::recursive_mutex> guard(np.mutex);
@@ -1390,6 +1390,9 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
   });
 
   symbols.emplace_back(np.make_lookup_symbol(entry_name, *Entry));
+
+  auto *JD { np.jds.back() };
+  regions = np.jd_regions[JD];
 
   NUB_DEBUG(llvm::dbgs() << "download_code JITDylib " << name << " succeeded\n");
   return 0;

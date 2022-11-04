@@ -115,6 +115,9 @@ namespace nub_private {
     std::unique_ptr<llvm::orc::LLJIT> jit;
     std::vector<llvm::orc::JITDylib *> jds;
 
+    using regions = std::vector<NubProcess::Region>;
+    std::map<llvm::orc::JITDylib *, regions> jd_regions;
+
     bool initialize_jit();
 
   private:

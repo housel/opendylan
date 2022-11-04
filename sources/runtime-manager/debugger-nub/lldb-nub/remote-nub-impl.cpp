@@ -147,9 +147,6 @@ Rtmgr::RemoteNub::NUB_ERROR Rtmgr_RemoteNub_i::download_code
      Rtmgr::RemoteNub::RNUBHANDLE &lookups)
 {
   // FIXME
-  regions = new Rtmgr::RemoteNub::REGION_SEQ(0);
-  regions->length(0);
-
   if (!this->lookup_symbols_.empty()) {
     std::cerr << "Improper symbol lookup nesting (download_code)"
               << std::endl;
@@ -164,7 +161,53 @@ Rtmgr::RemoteNub::NUB_ERROR Rtmgr_RemoteNub_i::download_code
     records.emplace_back(NubProcess::DownloadRecord(codebuf, codeseq.length()));
   }
 
-  NubProcess::NUBINT rc = this->nub_process_->download_code(nubthread, records, entry_point, this->lookup_symbols_);
+  using RV = std::vector<NubProcess::Region>;
+  RV np_regions;
+  NubProcess::NUBINT rc = this->nub_process_->download_code(nubthread, records, entry_point, np_regions, this->lookup_symbols_);
+
+  regions = new Rtmgr::RemoteNub::REGION_SEQ(np_regions.size());
+  regions->length(np_regions.size());
+
+  for (RV::size_type i = 0, e = np_regions.size(); i != e; ++i) {
+    auto &region { np_regions[i] };
+    Rtmgr::RemoteNub::RegionKind region_kind;
+    switch (region.kind) {
+    case NubProcess::RegionKind::DylanExact:
+      region_kind = Rtmgr::RemoteNub::DylanExact;
+      break;
+    case NubProcess::RegionKind::DylanStatic:
+      region_kind = Rtmgr::RemoteNub::DylanStatic;
+      break;
+    case NubProcess::RegionKind::DylanAmbiguous:
+      region_kind = Rtmgr::RemoteNub::DylanAmbiguous;
+      break;
+    case NubProcess::RegionKind::DylanFixup:
+      region_kind = Rtmgr::RemoteNub::DylanFixup;
+      break;
+    case NubProcess::RegionKind::DylanImport:
+      region_kind = Rtmgr::RemoteNub::DylanImport;
+      break;
+    case NubProcess::RegionKind::DylanUntraced:
+      region_kind = Rtmgr::RemoteNub::DylanUntraced;
+      break;
+    case NubProcess::RegionKind::DylanHistory:
+      region_kind = Rtmgr::RemoteNub::DylanHistory;
+      break;
+    case NubProcess::RegionKind::CompiledCode:
+      region_kind = Rtmgr::RemoteNub::CompiledCode;
+      break;
+    case NubProcess::RegionKind::InitArray:
+      region_kind = Rtmgr::RemoteNub::InitArray;
+      break;
+    case NubProcess::RegionKind::EHFrame:
+      region_kind = Rtmgr::RemoteNub::EHFrame;
+      break;
+    }
+    regions[i].kind = region_kind;
+    regions[i].lower = region.start;
+    regions[i].upper = region.end;
+  }
+
   first = 1;
   last = this->lookup_symbols_.size();
   lookups = 0;

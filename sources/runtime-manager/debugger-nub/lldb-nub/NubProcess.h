@@ -379,9 +379,29 @@ public:
 
     DownloadRecord(const char *data, size_t length) : data(data), length(length) {}
   };
-  NUBINT download_code(NUBTHREAD nubthread, const std::vector<DownloadRecord> &records, const char *entry, std::vector<LookupSymbol> &symbols);
-
   
+  enum class RegionKind {
+    DylanExact,                 // .dyvar
+    DylanStatic,                // .dyobj
+    DylanAmbiguous,             // .dydat
+    DylanFixup,                 // .dyfix
+    DylanImport,                // .dyimp
+    DylanUntraced,              // .dyutr
+    DylanHistory,               // .dyhis
+    CompiledCode,               // .text
+    InitArray,                  // .init_array
+    EHFrame,                    // .eh_frame
+  };
+  struct Region {
+    RegionKind kind;
+    TARGET_ADDRESS start;
+    TARGET_ADDRESS end;
+
+    Region(RegionKind kind, TARGET_ADDRESS start, TARGET_ADDRESS end)
+      : kind(kind), start(start), end(end) {
+    }
+  };
+  NUBINT download_code(NUBTHREAD nubthread, const std::vector<DownloadRecord> &records, const char *entry, std::vector<Region> &regions, std::vector<LookupSymbol> &symbols);
 
 private:
   nub_private::NubLLDBContext *private_;
