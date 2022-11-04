@@ -334,10 +334,37 @@ define method download-code-on-connection
   if (err ~= $access-ok)
     signal(make(<remote-access-violation-error>));
   end if;
+  debugger-message("Regions: %=", regions);
+  let regions
+    = map-as(<vector>,
+             method (region :: Rtmgr/RemoteNub/<Region>)
+               let classification
+                 = select (region.Rtmgr/RemoteNub/REGION/kind)
+                     #"DylanExact" => #"dylan-exact";
+                     #"DylanStatic" => #"dylan-static";
+                     #"DylanAmbiguous" => #"dylan-ambiguous";
+                     #"DylanFixup" => #"dylan-fixup";
+                     #"DylanImport" => #"dylan-import";
+                     #"DylanUntraced" => #"dylan-untraced";
+                     #"DylanHistory" => #"dylan-history";
+                     #"CompiledCode" => #"compiled-code";
+                     #"InitArray" => #"init-array";
+                     #"EHFrame" => #"eh-frame";
+                   end;
+               let lower-bound
+                 = as-remote-value(region.Rtmgr/RemoteNub/REGION/lower);
+               let upper-bound
+                 = as-remote-value(region.Rtmgr/RemoteNub/REGION/upper);
+               make(<remote-memory-region>,
+                    classification: classification,
+                    lower-bound: lower-bound,
+                    upper-bound: upper-bound)
+             end,
+             regions);
   let symbols = make(<stretchy-object-vector>);
   do-symbols-aux(conn, curry(add!, symbols), library,
                  first-sym, last-sym, lookups);
-  values(#[], symbols)
+  values(regions, symbols)
 end method;
 
 ///// PERFORM-COFF-RELOCATION

@@ -67,7 +67,10 @@ enum RegionKind {
   DylanFixup,                   // .dyfix
   DylanImport,                  // .dyimp
   DylanUntraced,                // .dyutr
-  CompiledCode                  // .text
+  DylanHistory,                 // .dyhis
+  CompiledCode,                 // .text
+  InitArray,                    // .init_array
+  EHFrame                       // .eh_frame
 };
 struct REGION {
   RegionKind kind;
