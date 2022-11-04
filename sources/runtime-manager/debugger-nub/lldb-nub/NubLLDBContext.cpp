@@ -404,6 +404,7 @@ namespace nub_private {
         {
           // We have a process now
           this->process = this->target.GetProcess();
+          auto main_thread { this->process.GetSelectedThread() };
 
           // Install a persistent definition for dylan_mv
           {
@@ -411,6 +412,25 @@ namespace nub_private {
             options.SetLanguage(lldb::eLanguageTypeC99);
             options.SetTopLevel(true);
             this->target.EvaluateExpression(DYLAN_MV_DECL, options);
+          }
+
+          // Enumerate the signals reserved by the runtime
+          if (auto us = this->process.GetUnixSignals()) {
+            for (size_t n = 0; ; n++) {
+              lldb::SBStream expression;
+              expression.Printf("spy_get_runtime_signal(%zu)", n);
+              auto value { this->evaluate(main_thread, expression.GetData()) };
+              auto sig { value.GetValueAsSigned(-1) };
+              if (sig == -1) {
+                break;
+              }
+              NUB_DEBUG({
+                llvm::dbgs() << "Runtime reserves signal "
+                             << sig << ": " << us.GetSignalAsCString(sig)
+                             << "\n";
+              });
+              us.SetShouldStop(sig, false);
+            }
           }
 
           // Enumerate the initial set of threads
