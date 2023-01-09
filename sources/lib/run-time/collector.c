@@ -64,16 +64,10 @@ typedef intptr_t DSINT;
  */
 
 extern int spy_load_extension_component(char *);
-#ifdef OPEN_DYLAN_BACKEND_LLVM
-void spy_orc_rt_call_wrapper(uintptr_t wrapper_addr);
-#endif
 
 void force_reference_to_spy_interface()
 {
   spy_load_extension_component("");
-#ifdef OPEN_DYLAN_BACKEND_LLVM
-  spy_orc_rt_call_wrapper(0);
-#endif
 }
 
 

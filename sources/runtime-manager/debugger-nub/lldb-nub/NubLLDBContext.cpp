@@ -1,6 +1,5 @@
 #include "NubProcess.h"
 #include "NubLLDBContext.h"
-#include "NubPlatform.h"
 #include "NubProcessMemoryManager.h"
 #include "NubExecutorProcessControl.h"
 #include "NubTargetDefinitionGenerator.h"
@@ -11,8 +10,13 @@
 
 #include <llvm/ExecutionEngine/Orc/ObjectLinkingLayer.h>
 #include <llvm/ExecutionEngine/Orc/ELFNixPlatform.h>
+#include <llvm/ExecutionEngine/Orc/MachOPlatform.h>
 
 #include <dlfcn.h>
+
+#ifdef HAVE_MACH_EXCEPTION_TYPES_H
+#include <mach/exception_types.h>
+#endif
 
 namespace {
   const char DYLAN_MV_DECL[]
@@ -117,7 +121,7 @@ namespace nub_private {
       Config.PostFixupPasses.push_back([this, &MR](llvm::jitlink::LinkGraph &G) {
         auto &JD { MR.getTargetJITDylib() };
         NUB_DEBUG({
-          llvm::dbgs() << "Debut post-fixup pass for "
+          llvm::dbgs() << "ELFNix post-fixup pass for "
                        << G.getName()
                        << " reports:\n";
         });
@@ -168,15 +172,112 @@ namespace nub_private {
                    << "\n";
       return llvm::Error::success();
     }
-    llvm::Error notifyRemovingResources(llvm::orc::ResourceKey K) override {
+    llvm::Error notifyRemovingResources(llvm::orc::JITDylib &JD,
+                                        llvm::orc::ResourceKey K) override {
       llvm::errs() << "NubELFNixSectionPlugin notifyRemovingResources "
                    << llvm::format_hex(K, 10)
                    << "\n";
       return llvm::Error::success();
     }
-    void notifyTransferringResources(llvm::orc::ResourceKey DstKey,
+    void notifyTransferringResources(llvm::orc::JITDylib &JD,
+                                     llvm::orc::ResourceKey DstKey,
                                      llvm::orc::ResourceKey SrcKey) override {
       llvm::errs() << "NubELFNixSectionPlugin notifyTransferringResources "
+                   << llvm::format_hex(DstKey, 10)
+                   << " <- " << llvm::format_hex(SrcKey, 10)
+                   << "\n";
+    }
+
+  private:
+    NubLLDBContext &nlc_;
+  };
+
+  class NubMachOSectionPlugin : public llvm::orc::ObjectLinkingLayer::Plugin {
+  public:
+    NubMachOSectionPlugin(NubLLDBContext &nlc) : nlc_(nlc) {}
+
+    // Add passes to preserve initialization sections
+    void modifyPassConfig(llvm::orc::MaterializationResponsibility &MR,
+                          llvm::jitlink::LinkGraph &G,
+                          llvm::jitlink::PassConfiguration &Config) override {
+      Config.PrePrunePasses.push_back([this](llvm::jitlink::LinkGraph &G) -> llvm::Error {
+        for (auto *block : G.blocks()) {
+          auto section_name { block->getSection().getName() };
+          auto is_initializer { std::apply(llvm::orc::MachOPlatform::isInitializerSection,
+                                           section_name.split(",")) };
+          if (is_initializer) {
+            // Preserve this block by adding a live anonymous symbol
+            G.addAnonymousSymbol(*block, 0, block->getSize(), false, true);
+          }
+        }
+        return llvm::Error::success();
+      });
+      Config.PostFixupPasses.push_back([this, &MR](llvm::jitlink::LinkGraph &G) {
+        auto &JD { MR.getTargetJITDylib() };
+        NUB_DEBUG({
+          llvm::dbgs() << "MachO post-fixup pass for "
+                       << G.getName()
+                       << " reports:\n";
+        });
+        for (auto &Sec : G.sections()) {
+          auto name { Sec.getName() };
+          auto range { llvm::jitlink::SectionRange(Sec) };
+          NUB_DEBUG({
+            llvm::dbgs() << "  section " << name
+                         << " prot " << Sec.getMemProt()
+                         << " " << range.getStart() << ".." << range.getEnd()
+                         << "\n";
+          });
+          NubProcess::RegionKind kind;
+          if (name.equals("__TEXT,__eh_frame")) {
+            kind = NubProcess::RegionKind::EHFrame;
+          }
+          else if (name.equals("__DATA,__mod_init_func")) {
+            kind = NubProcess::RegionKind::InitArray;
+          }
+          else if (name.equals("__DATA,__dydat")) { // FIXME
+            kind = NubProcess::RegionKind::DylanAmbiguous;
+          }
+          else if (name.equals("__DATA,__dyobj")) { // FIXME
+            kind = NubProcess::RegionKind::DylanStatic;
+          }
+          else if (name.equals("__DATA,__dyutr")) {
+            kind = NubProcess::RegionKind::DylanUntraced;
+          }
+          else if (name.equals("__DATA,__dyhis")) {
+            kind = NubProcess::RegionKind::DylanHistory;
+          }
+          else {
+            continue;
+          }
+          this->nlc_.jd_regions[&JD].push_back
+            (NubProcess::Region(kind,
+                                range.getStart().getValue(),
+                                range.getEnd().getValue()));
+        }
+        return llvm::Error::success();
+      });
+    }
+
+    llvm::Error notifyFailed(llvm::orc::MaterializationResponsibility &MR) override {
+      auto &JD { MR.getTargetJITDylib() };
+      this->nlc_.jd_regions[&JD].clear();
+      llvm::errs() << "NubMachOSectionPlugin notifyFailed for "
+                   << JD.getName()
+                   << "\n";
+      return llvm::Error::success();
+    }
+    llvm::Error notifyRemovingResources(llvm::orc::JITDylib &JD,
+                                        llvm::orc::ResourceKey K) override {
+      llvm::errs() << "NubMachOSectionPlugin notifyRemovingResources "
+                   << llvm::format_hex(K, 10)
+                   << "\n";
+      return llvm::Error::success();
+    }
+    void notifyTransferringResources(llvm::orc::JITDylib &JD,
+                                     llvm::orc::ResourceKey DstKey,
+                                     llvm::orc::ResourceKey SrcKey) override {
+      llvm::errs() << "NubMachOSectionPlugin notifyTransferringResources "
                    << llvm::format_hex(DstKey, 10)
                    << " <- " << llvm::format_hex(SrcKey, 10)
                    << "\n";
@@ -257,6 +358,7 @@ namespace nub_private {
     });
 
     auto JTMB { llvm::orc::JITTargetMachineBuilder(triple) };
+    JTMB.setRelocationModel(llvm::Reloc::PIC_);
     JTMB.setCodeModel(llvm::CodeModel::Large);
 
     // Build the LLJIT using ObjectLinkingLayer
@@ -273,7 +375,12 @@ namespace nub_private {
         NUB_DEBUG(llvm::dbgs() << "Creating ObjectLinkingLayer\n");
         auto OLL { std::make_unique<llvm::orc::ObjectLinkingLayer>(ES) };
         if (TT.isOSBinFormatELF()) {
+          NUB_DEBUG(llvm::dbgs() << "Adding the illustrious NubMachOSectionPlugin\n");
           OLL->addPlugin(std::make_unique<NubELFNixSectionPlugin>(*this));
+        }
+        else if (TT.isOSBinFormatMachO()) {
+          NUB_DEBUG(llvm::dbgs() << "Adding the alluring NubMachOSectionPlugin\n");
+          OLL->addPlugin(std::make_unique<NubMachOSectionPlugin>(*this));
         }
         else {
           return llvm::make_error<llvm::StringError>("No plugin support for '" + TT.str() + "'",
@@ -583,21 +690,41 @@ namespace nub_private {
             case lldb::eStopReasonException:
               {
                 auto code { thread.GetStopReasonDataAtIndex(0) };
-                if (code == 6) {    // FIXME
-                  NubProcess::StopReason system_initialized
-                    (NubProcess::HARD_CODED_BREAKPOINT_DBG_EVENT, false, tid);
-                  system_initialized.exception_address = exception_address;
-                  system_initialized.first_hard_coded_breakpoint = 0;
-                  this->stop_reason_queue.emplace_back(system_initialized);
-                  this->queue_condition.notify_all();
-                  NUB_DEBUG(llvm::dbgs() << "  Pushed HARD_CODED_BREAKPOINT for that one\n");
-                  //this->debugger_.HandleCommand("bt all");
-                }
-                else {
-                  llvm::dbgs() << "  What to do??? "
+                switch (code) {
+#ifdef EXC_BAD_ACCESS
+                case EXC_BAD_ACCESS:
+                  {
+                    NubProcess::StopReason access_violation
+                      (NubProcess::ACCESS_VIOLATION_EXCEPTION_DBG_EVENT, false, tid);
+                    access_violation.exception_address = exception_address;
+                    // FIXME violation-address
+                    // FIXME violation-operation
+                    this->stop_reason_queue.emplace_back(access_violation);
+                    this->queue_condition.notify_all();
+                    NUB_DEBUG(llvm::dbgs() << "  Pushed ACCESS_VIOLATION_EXCEPTION for that one\n");
+                  }
+                  break;
+#endif
+#ifdef EXC_BREAKPOINT
+                case EXC_BREAKPOINT:
+                  {
+                    NubProcess::StopReason system_initialized
+                      (NubProcess::HARD_CODED_BREAKPOINT_DBG_EVENT, false, tid);
+                    system_initialized.exception_address = exception_address;
+                    system_initialized.first_hard_coded_breakpoint = 0;
+                    this->stop_reason_queue.emplace_back(system_initialized);
+                    this->queue_condition.notify_all();
+                    NUB_DEBUG(llvm::dbgs() << "  Pushed HARD_CODED_BREAKPOINT for that one\n");
+                    //this->debugger_.HandleCommand("bt all");
+                  }
+                  break;
+#endif
+                default:
+                  llvm::errs() << "  Unhandled exception code " << code << ": "
                                << thread.GetStopReasonDataCount() << " data"
                                << " (0) = " << thread.GetStopReasonDataAtIndex(0)
                                << "\n";
+                  abort();
                 }
               }
               break;
@@ -616,6 +743,7 @@ namespace nub_private {
                 }
                 else {
                   NUB_DEBUG(llvm::dbgs() << "  What to do??? signal = " << sig << "\n");
+                  abort();
                 }
               }
               break;

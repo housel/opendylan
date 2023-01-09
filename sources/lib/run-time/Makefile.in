@@ -157,8 +157,7 @@ LLVM_RUNTIME_OBJS = \
 		  $(OBJDIR_LLVM)/llvm-nlx.o \
 		  $(OBJDIR_LLVM)/llvm-posix-os.o \
 		  $(OBJDIR_LLVM)/llvm-posix-threads.o \
-		  $(OBJDIR_LLVM)/llvm-exceptions.o \
-		  $(OBJDIR_LLVM)/spy-orc-rt.o
+		  $(OBJDIR_LLVM)/llvm-exceptions.o
 
 ifeq ($(LLVM_COLLECTOR),MPS)
   LLVM_RUNTIME_OBJS += \

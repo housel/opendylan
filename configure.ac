@@ -296,6 +296,8 @@ AC_SUBST(LLDB_CXXFLAGS)
 AC_SUBST(LLDB_LDFLAGS)
 AC_SUBST(LLDB_LIBS)
 
+AC_CHECK_HEADERS([mach/exception_types.h])
+
 AS_ECHO(["
 Targeting '${target}' ('${OPEN_DYLAN_TARGET_PLATFORM}')
 
