@@ -118,6 +118,8 @@ namespace nub_private {
     using regions = std::vector<NubProcess::Region>;
     std::map<llvm::orc::JITDylib *, regions> jd_regions;
 
+    NubProcess::NUBINT jit_error_code;
+
     bool initialize_jit();
 
   private:

@@ -1335,6 +1335,7 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
   }
 
   np.jds.push_back(&*EJD);
+  np.jit_error_code = 0;
 
   // Parse the passed-in bitcode records and add them to the JIT
   for (const auto &record : records) {
@@ -1382,8 +1383,12 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
                                 "download_code: ");
     return -1;
   }
+  else if (np.jit_error_code) {
+    ES.dump(llvm::errs());
+    return np.jit_error_code;
+  }
   NUB_DEBUG({
-    llvm::errs() << "Entry " << mangled_entry_name
+    llvm::dbgs() << "Entry " << mangled_entry_name
                  << " is " << llvm::format_hex(Entry->getAddress(), 18)
                  << "\n";
     ES.dump(llvm::dbgs());

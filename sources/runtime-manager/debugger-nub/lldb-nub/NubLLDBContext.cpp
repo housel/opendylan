@@ -289,7 +289,14 @@ namespace nub_private {
       [this](llvm::orc::LLJIT &J) -> llvm::Error {
         auto &TT { J.getTargetTriple() };
         NUB_DEBUG(llvm::dbgs() << "PlatformSetUp " << TT.str() << "\n");
+
         auto &ES { J.getExecutionSession() };
+        ES.setErrorReporter([this](llvm::Error Err) {
+          llvm::logAllUnhandledErrors(std::move(Err), llvm::errs(),
+                                      "NubLLDBContext JIT session error: ");
+          this->jit_error_code = -1;
+        });
+
         auto &MainJD { J.getMainJITDylib() };
         // Use the main JITDylib to represent the debugger's target image;
         // add a generator for resolving symbols within it
