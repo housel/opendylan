@@ -161,9 +161,3 @@ define c-callable auxiliary &runtime-primitive-descriptor spy-fixup-unimported-d
   ins--call-intrinsic(be, "llvm.trap", vector()); // FIXME
   ins--unreachable(be);
 end;
-
-define c-callable auxiliary &runtime-primitive-descriptor spy-teb
-  () => (teb :: <raw-pointer>);
-  let raw-pointer-type = llvm-reference-type(be, dylan-value(#"<raw-pointer>"));
-  ins--bitcast(be, op--teb(be), raw-pointer-type)
-end;

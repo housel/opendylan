@@ -1288,7 +1288,7 @@ NubProcess::TARGET_ADDRESS NubProcess::dylan_thread_environment_block_address
     NUB_DEBUG(llvm::dbgs() << "Temporarily resuming thread!\n");
     thread.Resume();
   }
-  auto value { np.evaluate(thread, "(D) spy_teb()", true) };
+  auto value { np.evaluate(thread, "(D) dylan_teb()", true) };
   if (suspended) {
     thread.Suspend();
   }
