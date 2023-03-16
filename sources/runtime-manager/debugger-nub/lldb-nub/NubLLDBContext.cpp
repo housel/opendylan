@@ -9,8 +9,7 @@
 #include <llvm/Support/TargetSelect.h>
 
 #include <llvm/ExecutionEngine/Orc/ObjectLinkingLayer.h>
-#include <llvm/ExecutionEngine/Orc/ELFNixPlatform.h>
-#include <llvm/ExecutionEngine/Orc/MachOPlatform.h>
+#include <llvm/ExecutionEngine/Orc/Shared/ObjectFormats.h>
 
 #include <dlfcn.h>
 
@@ -111,7 +110,7 @@ namespace nub_private {
       Config.PrePrunePasses.push_back([this](llvm::jitlink::LinkGraph &G) -> llvm::Error {
         for (auto *block : G.blocks()) {
           auto section_name { block->getSection().getName() };
-          if (llvm::orc::ELFNixPlatform::isInitializerSection(section_name)) {
+          if (llvm::orc::isELFInitializerSection(section_name)) {
             // Preserve this block by adding a live anonymous symbol
             G.addAnonymousSymbol(*block, 0, block->getSize(), false, true);
           }
@@ -203,8 +202,7 @@ namespace nub_private {
       Config.PrePrunePasses.push_back([this](llvm::jitlink::LinkGraph &G) -> llvm::Error {
         for (auto *block : G.blocks()) {
           auto section_name { block->getSection().getName() };
-          auto is_initializer { std::apply(llvm::orc::MachOPlatform::isInitializerSection,
-                                           section_name.split(",")) };
+          auto is_initializer { llvm::orc::isMachOInitializerSection(section_name) };
           if (is_initializer) {
             // Preserve this block by adding a live anonymous symbol
             G.addAnonymousSymbol(*block, 0, block->getSize(), false, true);

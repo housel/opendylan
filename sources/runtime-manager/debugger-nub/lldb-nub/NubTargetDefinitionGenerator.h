@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
-#include "llvm/ADT/Triple.h"
 #include "llvm/ExecutionEngine/Orc/Core.h"
+#include "llvm/TargetParser/Triple.h"
 
 #include <mutex>
 #include <memory>
