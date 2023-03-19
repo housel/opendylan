@@ -330,12 +330,6 @@ define method make-primitive-function
           range(below: parameter-types.size));
 
   let linkage = #"external";  // FIXME
-  let visibility
-    = if (compiling-dylan-library?())
-        #"protected"
-      else
-        #"default"
-      end if;
   let calling-convention
     = if (function-type.llvm-function-type-varargs?
             | member?(#"c-callable", descriptor.primitive-attributes))

@@ -42,27 +42,16 @@ define method emit-definition
 end method;
 
 define method emit-extern
-    (back-end :: <llvm-back-end>, m :: <llvm-module>, o :: <module-binding>,
-     #key import? :: <boolean>)
+    (back-end :: <llvm-back-end>, m :: <llvm-module>, o :: <module-binding>)
  => ()
   let name = emit-name(back-end, m, o);
-  let thread-local
-    = o.binding-thread? & llvm-thread-local-support?(back-end);
-  let visibility
-    = if (import?)
-        #"default"
-      elseif (model-externally-visible?(o))
-        #"protected"
-      else
-        #"hidden"
-      end if;
+  let thread-local = o.binding-thread? & llvm-thread-local-support?(back-end);
   let global
     = make(<llvm-global-variable>,
            name: name,
            type: llvm-pointer-to(back-end, $llvm-object-pointer-type),
            constant?: #f,
            linkage: #"external",
-           visibility: visibility,
 	   thread-local: thread-local);
   llvm-builder-define-global(back-end, name, global);
 end method;
@@ -111,17 +100,8 @@ define method emit-definition
 end method;
 
 define method emit-extern
-    (back-end :: <llvm-back-end>, module :: <llvm-module>, o :: <&iep>,
-     #key import? :: <boolean>) => ();
+    (back-end :: <llvm-back-end>, module :: <llvm-module>, o :: <&iep>) => ();
   let name = emit-name(back-end, module, o);
-  let visibility
-    = if (import?)
-        #"default"
-      elseif (model-externally-visible?(o) & ~model-internal-only?(o))
-        #"protected"
-      else
-        #"hidden"
-      end if;
   let function-type = llvm-lambda-type(back-end, o);
   let function
     = make(<llvm-function>,
@@ -129,15 +109,13 @@ define method emit-extern
            type: llvm-pointer-to(back-end, function-type),
            arguments: #(),
            linkage: #"external",
-           visibility: visibility,
            calling-convention: llvm-calling-convention(back-end, o));
   llvm-builder-define-global(back-end, name, function);
 end method;
 
 define method emit-extern
     (back-end :: <llvm-back-end>, module :: <llvm-module>,
-     ep :: <&shared-entry-point>,
-     #key import? :: <boolean>)
+     ep :: <&shared-entry-point>)
  => ();
   let (desc :: <llvm-entry-point-descriptor>, count :: false-or(<integer>))
     = llvm-entry-point-info(back-end, ep);
@@ -147,8 +125,7 @@ end method;
 // FFI
 
 define method emit-extern
-    (back-end :: <llvm-back-end>, module :: <llvm-module>, o :: <&c-function>,
-     #key import? :: <boolean>)
+    (back-end :: <llvm-back-end>, module :: <llvm-module>, o :: <&c-function>)
  => ();
   let name = o.c-function-name;
   if (name & ~llvm-builder-global-defined?(back-end, name))
@@ -164,7 +141,6 @@ define method emit-extern
     let global
       = make(<llvm-function>,
              linkage: #"external",
-             visibility: #"default",
              name: name,
              type: llvm-pointer-to(back-end, function-type),
              arguments: args,
@@ -174,8 +150,7 @@ define method emit-extern
 end method;
 
 define method emit-extern
-    (back-end :: <llvm-back-end>, module :: <llvm-module>, o :: <&objc-msgsend>,
-     #key import? :: <boolean>)
+  (back-end :: <llvm-back-end>, module :: <llvm-module>, o :: <&objc-msgsend>)
  => ();
   let name = o.c-function-name;
   if (~llvm-builder-global-defined?(back-end, name))
@@ -194,7 +169,6 @@ define method emit-extern
     let global
       = make(<llvm-function>,
              linkage: #"external",
-             visibility: #"default",
              name: name,
              type: llvm-pointer-to(back-end, function-type),
              arguments: #[],
@@ -204,8 +178,7 @@ define method emit-extern
 end method;
 
 define method emit-extern
-    (back-end :: <llvm-back-end>, module :: <llvm-module>, o :: <&c-variable>,
-     #key import? :: <boolean>)
+    (back-end :: <llvm-back-end>, module :: <llvm-module>, o :: <&c-variable>)
  => ();
   unless (llvm-builder-global-defined?(back-end, o.name))
     let global
@@ -213,7 +186,6 @@ define method emit-extern
              name: o.name,
              constant?: #f,
              linkage: if (o.dll-import?) #"dllimport" else #"external" end,
-             visibility: #"default",
              type: $llvm-i8*-type);
     llvm-builder-define-global(back-end, o.name, global);
   end unless;
@@ -233,14 +205,6 @@ define method emit-definition
       else
         #"internal"
       end;
-  let visibility
-    = if (linkage == #"internal")
-        #"default"
-      elseif (model-externally-visible?(o) & ~model-internal-only?(o))
-        #"protected"
-      else
-        #"hidden"
-      end;
   let global
     = make(<llvm-global-variable>,
            name: name,
@@ -248,7 +212,6 @@ define method emit-definition
            initializer: object,
            constant?: #f,       // FIXME
            linkage: linkage,
-           visibility: visibility,
            section: emit-definition-section(back-end, o));
   llvm-builder-define-global(back-end, name, global);
 end method;
@@ -327,22 +290,17 @@ define method emit-object-slot
 end method;
 
 define method emit-extern
-    (back-end :: <llvm-back-end>, module :: <llvm-module>, o,
-     #key import? :: <boolean>)
- => ()
+    (back-end :: <llvm-back-end>, module :: <llvm-module>, o) => ()
   let class = &object-class(o);
   let struct-type = llvm-object-type(back-end, o);
   let name = emit-name(back-end, module, o);
   unless (llvm-builder-global-defined?(back-end, name))
-    let visibility
-      = if (import?) #"default" else #"protected" end if;
     let global
       = make(<llvm-global-variable>,
              name: name,
              type: llvm-pointer-to(back-end, struct-type),
              constant?: #f,
-             linkage: #"external",
-             visibility: visibility);
+             linkage: #"external");
     llvm-builder-define-global(back-end, name, global);
   end unless;
 end method;
@@ -375,7 +333,6 @@ define method emit-indirection-definition
            initializer: emit-reference(back-end, module, o),
            constant?: #f,
            linkage: #"internal",
-           visibility: #"default",
            alignment: back-end-word-size(back-end),
            section: llvm-section-name(back-end, #"variables"));
   llvm-builder-define-global(back-end, name, global);
@@ -383,19 +340,6 @@ end method;
 
 define method emit-extern
     (back-end :: <llvm-back-end>, module :: <llvm-module>,
-     object :: <&raw-aggregate-type>,
-     #key import? :: <boolean>)
- => ()
+     object :: <&raw-aggregate-type>) => ()
   // These are virtual objects, no need to emit them
 end;
-
-// Visibility overrides
-
-define method model-internal-only? (o)
-  #f
-end method;
-
-define method model-internal-only? (o :: <&domain>)
-  #t
-end method;
-

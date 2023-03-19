@@ -158,6 +158,7 @@ define function emit-gluefile-system-init
               type: $init-code-function-ptr-type,
               arguments: #(),
               linkage: #"internal",
+              visibility: #"hidden",
               section: llvm-section-name(back-end, #"init-code"),
               calling-convention: $llvm-calling-convention-c);
     ins--block(back-end, make(<llvm-basic-block>, name: "bb.entry"));
@@ -171,7 +172,6 @@ define function emit-gluefile-system-init
                type: $init-code-function-ptr-type,
                arguments: #(),
                linkage: #"external",
-               visibility: #"hidden",
                section: llvm-section-name(back-end, #"init-code"),
                calling-convention: $llvm-calling-convention-c);
       llvm-builder-declare-global(back-end, init-function.llvm-global-name,
@@ -221,7 +221,6 @@ define function emit-gluefile-self-init
              type: user-init-function-ptr-type(back-end),
              arguments: #(),
              linkage: #"external",
-             visibility: #"hidden",
              section: llvm-section-name(back-end, #"init-code"),
              calling-convention: $llvm-calling-convention-c);
     llvm-builder-declare-global(back-end, init-function.llvm-global-name,
@@ -280,7 +279,6 @@ define function emit-gluefile-user-init
               type: user-init-function-ptr-type(back-end),
               arguments: #(),
               linkage: #"external",
-              visibility: #"default",
               section: llvm-section-name(back-end, #"init-code"),
               calling-convention: $llvm-calling-convention-c);
     ins--block(back-end, make(<llvm-basic-block>, name: "bb.entry"));

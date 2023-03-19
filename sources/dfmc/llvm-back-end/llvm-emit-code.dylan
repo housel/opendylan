@@ -191,14 +191,6 @@ define method emit-lambda-body
      linkage :: <symbol>, section :: <symbol>)
  => ();
   let function-name = emit-name(back-end, module, o);
-  let visibility
-    = if (linkage == #"internal")
-        #"default"
-      elseif (model-externally-visible?(o))
-        #"protected"
-      else
-        #"hidden"
-      end if;
   block ()
     o.code
       := back-end.llvm-builder-function
@@ -210,7 +202,6 @@ define method emit-lambda-body
                                      calling-convention-parameters),
               attribute-list: llvm-function-attributes(back-end, o),
               linkage: linkage,
-              visibility: visibility,
               section: llvm-section-name(back-end, section),
               calling-convention: calling-convention,
               personality: llvm-function-personality(back-end, o));
