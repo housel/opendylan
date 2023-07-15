@@ -1389,7 +1389,7 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
   }
   NUB_DEBUG({
     llvm::dbgs() << "Entry " << mangled_entry_name
-                 << " is " << llvm::format_hex(Entry->getAddress(), 18)
+                 << " is " << llvm::formatv("{0:x}", Entry->getAddress())
                  << "\n";
     ES.dump(llvm::dbgs());
   });

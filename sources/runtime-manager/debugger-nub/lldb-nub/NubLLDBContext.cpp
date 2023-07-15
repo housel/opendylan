@@ -333,10 +333,12 @@ namespace nub_private {
   }
 
   NubProcess::LookupSymbol NubLLDBContext::make_lookup_symbol
-    (const std::string &name, const llvm::JITEvaluatedSymbol &symbol)
+      (const std::string &name,
+       const llvm::orc::ExecutorSymbolDef &symboldef)
   {
-    auto callable { symbol.getFlags().isCallable() };
-    auto lookup { NubProcess::LookupSymbol(name, symbol.getAddress(), callable) };
+    auto callable { symboldef.getFlags().isCallable() };
+    auto address { symboldef.getAddress().getValue() };
+    auto lookup { NubProcess::LookupSymbol(name, address, callable) };
     if (callable) {
       lookup.language = 0;
       lookup.debug_start = LLDB_INVALID_ADDRESS;
@@ -373,7 +375,7 @@ namespace nub_private {
         NUB_DEBUG(llvm::dbgs() << "Creating ObjectLinkingLayer\n");
         auto OLL { std::make_unique<llvm::orc::ObjectLinkingLayer>(ES) };
         if (TT.isOSBinFormatELF()) {
-          NUB_DEBUG(llvm::dbgs() << "Adding the illustrious NubMachOSectionPlugin\n");
+          NUB_DEBUG(llvm::dbgs() << "Adding the illustrious NubELFNixSectionPlugin\n");
           OLL->addPlugin(std::make_unique<NubELFNixSectionPlugin>(*this));
         }
         else if (TT.isOSBinFormatMachO()) {
@@ -391,7 +393,7 @@ namespace nub_private {
       }
     };
     auto PlatformSetUp {
-      [this](llvm::orc::LLJIT &J) -> llvm::Error {
+      [this](llvm::orc::LLJIT &J) -> llvm::Expected<llvm::orc::JITDylibSP> {
         auto &TT { J.getTargetTriple() };
         NUB_DEBUG(llvm::dbgs() << "PlatformSetUp " << TT.str() << "\n");
 
@@ -401,12 +403,7 @@ namespace nub_private {
                                       "NubLLDBContext JIT session error: ");
           this->jit_error_code = -1;
         });
-
-        auto &MainJD { J.getMainJITDylib() };
-        // Use the main JITDylib to represent the debugger's target image;
-        // add a generator for resolving symbols within it
-        MainJD.addGenerator(std::make_unique<NubTargetDefinitionGenerator>(*this, TT));
-        return llvm::Error::success();
+        return nullptr; // no need for a platform JITDylib
       }
     };
     auto EJ { llvm::orc::LLJITBuilder()
@@ -420,6 +417,11 @@ namespace nub_private {
                                   "initialize_jit: ");
       return false;
     }
+    auto &MainJD { (*EJ)->getMainJITDylib() };
+    // Use the main JITDylib to represent the debugger's target image;
+    // add a generator for resolving symbols within it
+    auto &TT { (*EJ)->getTargetTriple() };
+    MainJD.addGenerator(std::make_unique<NubTargetDefinitionGenerator>(*this, TT));
 
     // Save it
     std::swap(this->jit, *EJ);

@@ -40,7 +40,7 @@ namespace nub_private {
 
     NubProcess::LookupSymbol make_lookup_symbol(lldb::SBSymbol &symbol) const;
     NubProcess::LookupSymbol make_lookup_symbol(const std::string &name,
-                                                const llvm::JITEvaluatedSymbol &symbol);
+                                                const llvm::orc::ExecutorSymbolDef &symboldef);
 
     lldb::tid_t function_call_thread;
     std::string function_call_expression;

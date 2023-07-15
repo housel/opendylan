@@ -40,7 +40,7 @@ llvm::Error NubTargetDefinitionGenerator::tryToGenerate(llvm::orc::LookupState &
         if (symbol.IsExternal()) {
           flags |= llvm::JITSymbolFlags::Exported;
         }
-        FoundSymbols[name] = llvm::JITEvaluatedSymbol(load_addr, flags);
+        FoundSymbols[name] = {llvm::orc::ExecutorAddr(load_addr), flags};
       }
       else {
         NUB_DEBUG(llvm::dbgs() << "  Not found\n");
