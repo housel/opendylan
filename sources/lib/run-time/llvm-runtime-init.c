@@ -3,10 +3,9 @@
 #include <stdio.h>
 
 #include "llvm-runtime.h"
+#include "mm.h"
 
-#ifdef GC_USE_BOEHM
-#include <gc/gc.h>
-#endif
+extern MMError dylan_init_memory_manager(void);
 
 void _Init_Run_Time(void)
 {
@@ -25,13 +24,7 @@ void _Init_Run_Time(void)
 #endif
     EstablishDylanExceptionHandlers();
 
-#ifdef GC_USE_BOEHM
-    GC_INIT();
-
-    // start the mark threads before the main entry point is reached
-    // so that the debugger nub can identify them
-    GC_start_mark_threads();
-#endif
+    dylan_init_memory_manager();
 
     primitive_initialize_thread_variables();
   }

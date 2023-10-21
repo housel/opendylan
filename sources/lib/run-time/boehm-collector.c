@@ -1071,19 +1071,14 @@ void primitive_mps_ld_merge(void *d_into, void *d_obj)
 
 MMError dylan_init_memory_manager(void)
 {
+#ifdef OPEN_DYLAN_BACKEND_HARP
   gc_teb_t gc_teb = current_gc_teb();
+  assert(!gc_teb->gc_teb_inside_tramp);
+#endif
 
   if (Prunning_under_dylan_debuggerQ == FALSE) {
     set_CONSOLE_CTRL_HANDLER(&DylanBreakControlHandler, TRUE);
   }
-
-  assert(!gc_teb->gc_teb_inside_tramp);
-
-  /* Not required for the dll version of Boehm. */
-  /* GC_init(); */
-
-  /* Call this to enable incrementality. This doesn't work with the MM GC. */
-  /* GC_enable_incremental(); */
 
   initialize_CRITICAL_SECTION(&polling_threads_lock);
 
@@ -1092,6 +1087,16 @@ MMError dylan_init_memory_manager(void)
     class_breakpoint_events[0] = create_EVENT(NULL, FALSE, FALSE, NULL);
     class_breakpoint_events[1] = create_EVENT(NULL, FALSE, FALSE, NULL);
   }
+
+  GC_INIT();
+
+  /* Call this to enable incrementality. This doesn't work with the MM GC. */
+  /* GC_enable_incremental(); */
+
+
+  // start the mark threads before the main entry point is reached
+  // so that the debugger nub can identify them
+  GC_start_mark_threads();
 
   return(0);
 }
