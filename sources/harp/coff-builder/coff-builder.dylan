@@ -750,6 +750,16 @@ end method;
 /// Fill in the housekeeping details, when the raw data is complete.
 
 define method fixup-coff-builder (builder :: <coff-builder>) => ()
+  // Add the SEH marker
+  let feat-name = "@feat.00";
+  let feat-symbol
+    = make(<coff-symbol>,
+           name: make-coff-string(builder, feat-name),
+           value: #x1,          // Compatible with /safeseh
+           section: coff-section-sym-absolute,
+           storage-class: $sym-static);
+  binary-element-add!(builder.binary-file.symbols, feat-name, feat-symbol);
+
   fixup-string-table(builder);
   fixup-symbol-table(builder);
   fixup-sections(builder);
