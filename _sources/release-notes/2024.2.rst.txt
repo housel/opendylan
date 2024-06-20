@@ -26,9 +26,6 @@ Compiler
 * The build rules for unified executables now properly depend on
   copying included run-time libraries such as libunwind.
 
-* Optimizations that allow the type of ``if`` expressions to be more
-  accurately estimated have been improved.
-
 Tools
 =====
 
@@ -56,6 +53,11 @@ System
 * The :const:`$machine-name` constant has been renamed to
   :const:`$machine-architecture`.  The old name will remain, for backward
   compatibility.
+
+Other
+-----
+
+* The obsolete (32-bit x86-only) ``stack-walker`` library was removed.
 
 Contributors
 ============

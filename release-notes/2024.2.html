@@ -569,8 +569,6 @@ repositories.</p>
 works properly.</p></li>
 <li><p>The build rules for unified executables now properly depend on
 copying included run-time libraries such as libunwind.</p></li>
-<li><p>Optimizations that allow the type of <code class="docutils literal notranslate"><span class="pre">if</span></code> expressions to be more
-accurately estimated have been improved.</p></li>
 </ul>
 </section>
 <section id="tools">
@@ -597,6 +595,12 @@ future release.</p></li>
 <li><p>The <a class="reference internal" href="../library-reference/system/operating-system.html#system:operating-system:$machine-name"><code class="xref dylan dylan-const docutils literal notranslate"><span class="pre">$machine-name</span></code></a> constant has been renamed to
 <a class="reference internal" href="../library-reference/system/operating-system.html#system:operating-system:$machine-architecture"><code class="xref dylan dylan-const docutils literal notranslate"><span class="pre">$machine-architecture</span></code></a>.  The old name will remain, for backward
 compatibility.</p></li>
+</ul>
+</section>
+<section id="other">
+<h3>Other<a class="headerlink" href="#other" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The obsolete (32-bit x86-only) <code class="docutils literal notranslate"><span class="pre">stack-walker</span></code> library was removed.</p></li>
 </ul>
 </section>
 </section>
@@ -647,6 +651,7 @@ compatibility.</p></li>
 <li><a class="reference internal" href="#tools">Tools</a></li>
 <li><a class="reference internal" href="#library-updates">Library Updates</a><ul>
 <li><a class="reference internal" href="#system">System</a></li>
+<li><a class="reference internal" href="#other">Other</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#contributors">Contributors</a></li>
