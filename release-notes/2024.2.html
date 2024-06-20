@@ -564,22 +564,11 @@ repositories.</p>
 </ul>
 <section id="compiler">
 <h2>Compiler<a class="headerlink" href="#compiler" title="Permalink to this heading">¶</a></h2>
-<ul>
+<ul class="simple">
 <li><p>Unified executables now export symbols so that call stack dumping
 works properly.</p></li>
 <li><p>The build rules for unified executables now properly depend on
 copying included run-time libraries such as libunwind.</p></li>
-<li><p>Optimizations that allow the type of <code class="docutils literal notranslate"><span class="pre">if</span></code> expressions to be more
-accurately estimated have been improved. For example, in this
-function:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">define</span> <span class="n">function</span> <span class="k">if</span><span class="o">-</span><span class="n">example</span> <span class="p">(</span><span class="n">arg</span> <span class="p">::</span> <span class="n">false</span><span class="o">-</span><span class="ow">or</span><span class="p">(</span><span class="o">&lt;</span><span class="n">integer</span><span class="o">&gt;</span><span class="p">))</span> <span class="o">=&gt;</span> <span class="p">(</span><span class="n">result</span> <span class="p">::</span> <span class="o">&lt;</span><span class="n">integer</span><span class="o">&gt;</span><span class="p">);</span>
-  <span class="nb">min</span><span class="p">(</span><span class="n">arg</span> <span class="o">|</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
-<span class="n">end</span><span class="p">;</span>
-</pre></div>
-</div>
-<p>the comparison can now be properly inlined because the first
-argument to <a class="reference external" href="https://opendylan.org/books/drm/Equality_and_Comparison#min"><code class="xref drm docutils literal notranslate"><span class="pre">min</span></code></a> is known to be an <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a>.</p>
-</li>
 </ul>
 </section>
 <section id="tools">
@@ -600,6 +589,14 @@ future release.</p></li>
 </section>
 <section id="library-updates">
 <h2>Library Updates<a class="headerlink" href="#library-updates" title="Permalink to this heading">¶</a></h2>
+<section id="io">
+<h3>IO<a class="headerlink" href="#io" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The performance of several subclasses of <a class="reference internal" href="../library-reference/io/streams.html#io:streams:[wrapper-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;wrapper-stream&gt;</span></code></a>
+has been improved by sealing the <a class="reference internal" href="../library-reference/io/streams.html#io:streams:inner-stream"><code class="xref dylan dylan-func docutils literal notranslate"><span class="pre">inner-stream</span></code></a> method for
+each subclass.</p></li>
+</ul>
+</section>
 <section id="system">
 <h3>System<a class="headerlink" href="#system" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
@@ -655,6 +652,7 @@ compatibility.</p></li>
 <li><a class="reference internal" href="#compiler">Compiler</a></li>
 <li><a class="reference internal" href="#tools">Tools</a></li>
 <li><a class="reference internal" href="#library-updates">Library Updates</a><ul>
+<li><a class="reference internal" href="#io">IO</a></li>
 <li><a class="reference internal" href="#system">System</a></li>
 </ul>
 </li>
