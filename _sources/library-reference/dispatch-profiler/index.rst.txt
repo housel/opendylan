@@ -37,9 +37,9 @@ Report Output Format
 
 After a profiling run, upon collection of dispatch statistics a
 profiling report can be written out. The report, sorted by ``COST``
-field, lists generic functions and call sites for which and method
-invocations present in the dispatch cache. The following fields appear
-in the report:
+field, lists generic functions and call sites for which any method
+invocations are present in the dispatch cache. The following fields
+appear in the report:
 
 ``GENERICS``
   The count of generic functions in an application or library
