@@ -32,7 +32,6 @@ define module dfmc-back-end
     allocate-registers,
 
     back-end-word-size,
-    back-end-lambda-size,
     back-end-record-repeated-object-sizes?,
     back-end-claim-interactor-bindings?,
 
