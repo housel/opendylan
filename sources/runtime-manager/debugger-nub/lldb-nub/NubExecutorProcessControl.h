@@ -23,8 +23,8 @@ namespace nub_private {
     llvm::Expected<llvm::orc::tpctypes::DylibHandle>
       loadDylib(const char *DylibPath) override;
 
-    llvm::Expected<std::vector<llvm::orc::tpctypes::LookupResult>>
-      lookupSymbols(llvm::ArrayRef<LookupRequest> Request) override;
+    void lookupSymbolsAsync(llvm::ArrayRef<LookupRequest> Request,
+                            SymbolLookupCompleteFn F) override;
 
     llvm::Expected<int32_t> runAsMain(llvm::orc::ExecutorAddr MainFnAddr,
                                       llvm::ArrayRef<std::string> Args) override;
@@ -48,20 +48,23 @@ namespace nub_private {
                               NubLLDBContext &nlc);
 
     // MemoryAccess methods
-    virtual void writeUInt8sAsync(llvm::ArrayRef<llvm::orc::tpctypes::UInt8Write> Ws,
-                                  WriteResultFn OnWriteComplete) override;
+    void writeUInt8sAsync(llvm::ArrayRef<llvm::orc::tpctypes::UInt8Write> Ws,
+                          WriteResultFn OnWriteComplete) override;
 
-    virtual void writeUInt16sAsync(llvm::ArrayRef<llvm::orc::tpctypes::UInt16Write> Ws,
-                                   WriteResultFn OnWriteComplete) override;
+    void writeUInt16sAsync(llvm::ArrayRef<llvm::orc::tpctypes::UInt16Write> Ws,
+                            WriteResultFn OnWriteComplete) override;
 
-    virtual void writeUInt32sAsync(llvm::ArrayRef<llvm::orc::tpctypes::UInt32Write> Ws,
-                                   WriteResultFn OnWriteComplete) override;
+    void writeUInt32sAsync(llvm::ArrayRef<llvm::orc::tpctypes::UInt32Write> Ws,
+                           WriteResultFn OnWriteComplete) override;
 
-    virtual void writeUInt64sAsync(llvm::ArrayRef<llvm::orc::tpctypes::UInt64Write> Ws,
-                                   WriteResultFn OnWriteComplete) override;
+    void writeUInt64sAsync(llvm::ArrayRef<llvm::orc::tpctypes::UInt64Write> Ws,
+                           WriteResultFn OnWriteComplete) override;
 
-    virtual void writeBuffersAsync(llvm::ArrayRef<llvm::orc::tpctypes::BufferWrite> Ws,
-                                   WriteResultFn OnWriteComplete) override;
+    void writeBuffersAsync(llvm::ArrayRef<llvm::orc::tpctypes::BufferWrite> Ws,
+                           WriteResultFn OnWriteComplete) override;
+
+    void writePointersAsync(llvm::ArrayRef<llvm::orc::tpctypes::PointerWrite> Ws,
+                            WriteResultFn OnWriteComplete) override;
 
     llvm::Error setup();
 
@@ -71,5 +74,3 @@ namespace nub_private {
   };
 
 } // namespace nub_private
-
-

@@ -134,23 +134,23 @@ namespace nub_private {
                          << "\n";
           });
           NubProcess::RegionKind kind;
-          if (name.equals(".eh_frame")) {
+          if (name == ".eh_frame") {
             kind = NubProcess::RegionKind::EHFrame;
           }
-          else if (name.equals(".init_array")
-                   || name.equals(".init_array.0")) {
+          else if (name == ".init_array"
+                   || name == ".init_array.0") {
             kind = NubProcess::RegionKind::InitArray;
           }
-          else if (name.equals(".dydat$m")) {
+          else if (name == ".dydat$m") {
             kind = NubProcess::RegionKind::DylanAmbiguous;
           }
-          else if (name.equals(".dyobj$m")) {
+          else if (name == ".dyobj$m") {
             kind = NubProcess::RegionKind::DylanStatic;
           }
-          else if (name.equals(".dyutr$m") || name.equals(".dyutr$r")) {
+          else if (name == ".dyutr$m" || name == ".dyutr$r") {
             kind = NubProcess::RegionKind::DylanUntraced;
           }
-          else if (name.equals(".dyhis$m")) {
+          else if (name == ".dyhis$m") {
             kind = NubProcess::RegionKind::DylanHistory;
           }
           else {
@@ -227,22 +227,22 @@ namespace nub_private {
                          << "\n";
           });
           NubProcess::RegionKind kind;
-          if (name.equals("__TEXT,__eh_frame")) {
+          if (name == "__TEXT,__eh_frame") {
             kind = NubProcess::RegionKind::EHFrame;
           }
-          else if (name.equals("__DATA,__mod_init_func")) {
+          else if (name == "__DATA,__mod_init_func") {
             kind = NubProcess::RegionKind::InitArray;
           }
-          else if (name.equals("__DATA,__dydat")) { // FIXME
+          else if (name == "__DATA,__dydat") { // FIXME
             kind = NubProcess::RegionKind::DylanAmbiguous;
           }
-          else if (name.equals("__DATA,__dyobj")) { // FIXME
+          else if (name == "__DATA,__dyobj") { // FIXME
             kind = NubProcess::RegionKind::DylanStatic;
           }
-          else if (name.equals("__DATA,__dyutr")) {
+          else if (name == "__DATA,__dyutr") {
             kind = NubProcess::RegionKind::DylanUntraced;
           }
-          else if (name.equals("__DATA,__dyhis")) {
+          else if (name == "__DATA,__dyhis") {
             kind = NubProcess::RegionKind::DylanHistory;
           }
           else {

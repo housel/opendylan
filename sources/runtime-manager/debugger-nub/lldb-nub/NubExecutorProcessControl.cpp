@@ -28,15 +28,11 @@ llvm::Expected<llvm::orc::tpctypes::DylibHandle> NubExecutorProcessControl::load
                                  "%s unimplemented", &__func__[0]);
 }
 
-llvm::Expected<std::vector<llvm::orc::tpctypes::LookupResult>> NubExecutorProcessControl::lookupSymbols(llvm::ArrayRef<LookupRequest> Request)
+void NubExecutorProcessControl::lookupSymbolsAsync(llvm::ArrayRef<LookupRequest> Request,
+                                                   SymbolLookupCompleteFn F)
 {
-  llvm::errs() << __func__ << "\n";
-  std::vector<llvm::orc::tpctypes::LookupResult> result;
-  for (auto &Item : Request) {
-    
-  }
-  return llvm::createStringError(llvm::inconvertibleErrorCode(),
-                                 "%s unimplemented", &__func__[0]);
+  F(llvm::createStringError(llvm::inconvertibleErrorCode(),
+                            "%s unimplemented", &__func__[0]));
 }
 
 llvm::Expected<int32_t> NubExecutorProcessControl::runAsMain(llvm::orc::ExecutorAddr MainFnAddr,
@@ -128,6 +124,14 @@ void NubExecutorProcessControl::writeBuffersAsync(llvm::ArrayRef<llvm::orc::tpct
   }
   this->nlc_.mutex.unlock();
   OnWriteComplete(llvm::Error::success());
+}
+
+void NubExecutorProcessControl::writePointersAsync(llvm::ArrayRef<llvm::orc::tpctypes::PointerWrite> Ws,
+                                                   WriteResultFn OnWriteComplete)
+{
+  llvm::errs() << "writePointers " << Ws.size() << "\n";
+  OnWriteComplete(llvm::createStringError(llvm::inconvertibleErrorCode(),
+                                          "%s unimplemented", &__func__[0]));
 }
 
 llvm::Error NubExecutorProcessControl::setup()

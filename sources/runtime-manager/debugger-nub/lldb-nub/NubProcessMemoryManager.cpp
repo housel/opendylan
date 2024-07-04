@@ -85,7 +85,7 @@ void NubProcessMemoryManager::allocate(const llvm::jitlink::JITLinkDylib *JD,
     using namespace llvm;
     using namespace llvm::jitlink;
 
-    if (AG.getMemLifetimePolicy() != llvm::orc::MemLifetimePolicy::Standard) {
+    if (AG.getMemLifetime() != llvm::orc::MemLifetime::Standard) {
       OnAllocated(llvm::createStringError(llvm::inconvertibleErrorCode(),
                                           "Non-Standard dealloc policy not implemented"));
       return;
