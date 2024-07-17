@@ -2,7 +2,6 @@
 #include "NubLLDBContext.h"
 #include "NubProcessMemoryManager.h"
 #include "NubExecutorProcessControl.h"
-#include "NubTargetDefinitionGenerator.h"
 
 #include <lldb/API/LLDB.h>
 

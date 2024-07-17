@@ -2,7 +2,6 @@
 #include "NubLLDBContext.h"
 #include "NubProcessMemoryManager.h"
 #include "NubExecutorProcessControl.h"
-#include "NubTargetDefinitionGenerator.h"
 
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/Format.h>
@@ -417,13 +416,8 @@ namespace nub_private {
                                   "initialize_jit: ");
       return false;
     }
-    auto &MainJD { (*EJ)->getMainJITDylib() };
-    // Use the main JITDylib to represent the debugger's target image;
-    // add a generator for resolving symbols within it
-    auto &TT { (*EJ)->getTargetTriple() };
-    MainJD.addGenerator(std::make_unique<NubTargetDefinitionGenerator>(*this, TT));
 
-    // Save it
+    // Save this wonderful JIT
     std::swap(this->jit, *EJ);
 
     return true;

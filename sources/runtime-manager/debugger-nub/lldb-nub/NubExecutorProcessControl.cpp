@@ -23,16 +23,73 @@ NubExecutorProcessControl::NubExecutorProcessControl(std::shared_ptr<llvm::orc::
 
 llvm::Expected<llvm::orc::tpctypes::DylibHandle> NubExecutorProcessControl::loadDylib(const char *DylibPath)
 {
-  llvm::errs() << __func__ << "\n";
-  return llvm::createStringError(llvm::inconvertibleErrorCode(),
-                                 "%s unimplemented", &__func__[0]);
+  llvm::errs() << __func__ << ": " << DylibPath << "\n";
+  if (DylibPath == nullptr) {
+    std::unique_lock<std::recursive_mutex> guard(this->nlc_.mutex);
+    auto module { this->nlc_.target.GetModuleAtIndex(0) };
+    auto address { module.GetObjectFileHeaderAddress().GetLoadAddress(this->nlc_.target) };
+    return llvm::orc::tpctypes::DylibHandle(address);
+  }
+  else {
+    return llvm::createStringError(llvm::inconvertibleErrorCode(),
+                                   "%s unimplemented", &__func__[0]);
+  }
 }
 
 void NubExecutorProcessControl::lookupSymbolsAsync(llvm::ArrayRef<LookupRequest> Request,
                                                    SymbolLookupCompleteFn F)
 {
-  F(llvm::createStringError(llvm::inconvertibleErrorCode(),
-                            "%s unimplemented", &__func__[0]));
+  std::vector<llvm::orc::tpctypes::LookupResult> R;
+  this->nlc_.mutex.lock();
+  for (auto &Lookup : Request) {
+    R.push_back(std::vector<llvm::orc::ExecutorSymbolDef>());
+    for (auto &kv : Lookup.Symbols) {
+      const auto &name = kv.first;
+      NUB_DEBUG(llvm::dbgs() << "NEPC Lookup " << *name << "\n");
+      auto name_str { (*name).str() };
+      const char *name_raw { name_str.c_str() };
+      if (this->TargetTriple.isOSBinFormatMachO() && name_raw[0] == '_') {
+        ++name_raw;
+      }
+      bool found = false;
+      auto context_list { this->nlc_.target.FindSymbols(name_raw) };
+      for (uint32_t i = 0, e = context_list.GetSize(); !found && i != e; ++i) {
+        auto context { context_list.GetContextAtIndex(i) };
+        auto symbol { context.GetSymbol() };
+        auto address { symbol.GetStartAddress() };
+        if (address.IsValid()) {
+          auto load_addr { address.GetLoadAddress(this->nlc_.target) };
+          llvm::JITSymbolFlags flags = llvm::JITSymbolFlags::None;
+          if (symbol.GetType() == lldb::eSymbolTypeCode) {
+            flags |= llvm::JITSymbolFlags::Callable;
+          }
+          if (symbol.IsExternal()) {
+            flags |= llvm::JITSymbolFlags::Exported;
+          }
+          R.back().push_back({llvm::orc::ExecutorAddr(load_addr), flags});
+          NUB_DEBUG({
+              llvm::dbgs() << "  Found at "
+                           << llvm::format_hex(load_addr, 18)
+                           << "\n";
+            });
+          found = true;
+          break;
+        }
+        else {
+          NUB_DEBUG(llvm::dbgs() << "  Not found\n");
+        }
+      }
+      if (!found
+          && kv.second == llvm::orc::SymbolLookupFlags::RequiredSymbol) {
+        this->nlc_.mutex.unlock();
+        llvm::orc::SymbolNameVector missing;
+        missing.push_back(name);
+        return F(llvm::make_error<llvm::orc::SymbolsNotFound>(SSP, std::move(missing)));
+      }
+    }
+  }
+  this->nlc_.mutex.unlock();
+  F(std::move(R));
 }
 
 llvm::Expected<int32_t> NubExecutorProcessControl::runAsMain(llvm::orc::ExecutorAddr MainFnAddr,
