@@ -41,8 +41,8 @@ NubProcess::~NubProcess()
   delete private_;
 }
 
-bool NubProcess::launch_process(const char *command, const char *args,
-                                const char *working_directory)
+bool NubProcess::open_process(const char *command, const char *args,
+                              const char *working_directory)
 {
   auto &np { *this->private_ };
   std::unique_lock<std::recursive_mutex> guard(np.mutex);
@@ -69,8 +69,9 @@ bool NubProcess::launch_process(const char *command, const char *args,
 
   np.launch.Clear();
   np.launch.SetListener(np.listener);
-  np.launch.SetLaunchFlags(lldb::eLaunchFlagDebug); // | lldb::eLaunchFlagStopAtEntry
-
+  np.launch.SetLaunchFlags(lldb::eLaunchFlagDebug
+                           | lldb::eLaunchFlagStopAtEntry
+                           | lldb::eLaunchFlagDisableASLR);
   // Set a breakpoint at the executable's "main" function
   lldb::SBFileSpecList module_list;
   module_list.Append(np.target.GetExecutable());
@@ -408,7 +409,7 @@ void NubProcess::application_restart()
   NUB_DEBUG({
     llvm::dbgs() << "application_restart from {"
                  << lldb::SBDebugger::StateAsCString(state)
-                 << "} state\n";
+                 << "} process state\n";
   });
 
   switch (np.nub_state) {
@@ -419,7 +420,8 @@ void NubProcess::application_restart()
   default:
     {
       // FIXME should implement relaunch
-      llvm::errs() << "Oops, nub state is " << np.nub_state << "\n";
+      llvm::errs() << "Oops, nub state is " << np.nub_state
+                   << ", relaunch isn't implemented yet\n";
       abort();
     }
     break;

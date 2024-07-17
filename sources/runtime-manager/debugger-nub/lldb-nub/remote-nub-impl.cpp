@@ -891,7 +891,7 @@ void Rtmgr_RemoteNub_i::register_exit_process_function(Rtmgr::RemoteNub::RTARGET
 
 Rtmgr::RemoteNub::RNUB Rtmgr_RemoteNub_i::open_local_tether(const char *command, const char *args, const Rtmgr::RemoteNub::STRING_SEQ &paths, const Rtmgr::RemoteNub::STRING_SEQ &lib_paths, const char *working_directory, Rtmgr::RemoteNub::NUBINT create_shell, Rtmgr::RemoteNub::NUBINT &success)
 {
-  auto result { this->nub_process_->launch_process(command, args, working_directory) };
+  auto result { this->nub_process_->open_process(command, args, working_directory) };
   success = result ? 1 : 0;
   return 0;                     // FIXME
 }

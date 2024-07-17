@@ -30,8 +30,8 @@ public:
   explicit NubProcess(const char *process_name);
   ~NubProcess();
 
-  bool launch_process(const char *command, const char *args,
-                      const char *working_directory);
+  bool open_process(const char *command, const char *args,
+                    const char *working_directory);
   bool attach_process(NUBPROCESS process);
 
   NUBPROCESS process() const;

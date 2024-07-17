@@ -288,7 +288,7 @@ namespace nub_private {
     : debugger(creator.create()),
       listener(std::string("Listener for ").append(process_name).c_str()),
       launch(nullptr),
-      nub_state(INITIAL),
+      nub_state(INERT),
       exit_process_function(LLDB_INVALID_ADDRESS),
       ssp(std::make_shared<llvm::orc::SymbolStringPool>()),
       exit_broadcaster_("nub event_dispatcher_thread"),
@@ -501,7 +501,7 @@ namespace nub_private {
     switch (state) {
     case lldb::eStateStopped:
       switch (this->nub_state) {
-      case INITIAL:
+      case INERT:
         abort();                  // This shouldn't happen
         break;
       case OPEN:
@@ -513,6 +513,21 @@ namespace nub_private {
           // We have a process now
           this->process = this->target.GetProcess();
           auto main_thread { this->process.GetSelectedThread() };
+          auto tid { main_thread.GetThreadID() };
+
+          // This had better be stopped at entry
+          auto us { this->process.GetUnixSignals() };
+          auto sigstop { us.GetSignalNumberFromName("SIGSTOP") };
+          if (main_thread.GetStopReason() != lldb::eStopReasonSignal
+              || main_thread.GetStopReasonDataAtIndex(0) != sigstop) {
+            llvm::errs() << "I don't know why we stopped here ("
+                         << main_thread.GetStopReason()
+                         << ", "
+                         << main_thread.GetStopReasonDataAtIndex(0)
+                         << ")\n";
+            this->backtrace(main_thread);
+            abort();
+          }
 
           // Install a persistent definition for dylan_mv
           {
@@ -522,8 +537,66 @@ namespace nub_private {
             this->target.EvaluateExpression(DYLAN_MV_DECL, options);
           }
 
-          // Enumerate the signals reserved by the runtime
+          // During run-time initialization, we need to ignore SIGSEGV
+          // and SIGBUS because BDW GC uses these to find memory area
+          // limits
+          auto sigsegv { us.GetSignalNumberFromName("SIGSEGV") };
+          us.SetShouldStop(sigsegv, false);
+          auto sigbus { us.GetSignalNumberFromName("SIGBUS") };
+          us.SetShouldStop(sigbus, false);
+
+          this->nub_state = INITIALIZING;
+          NUB_DEBUG(llvm::dbgs() << "Entering INITIALIZING state\n");
+
+          // The debugger expects a CREATE_PROCESS event at this point
+          NubProcess::StopReason create_process
+            (NubProcess::CREATE_PROCESS_DBG_EVENT, false, tid);
+          this->stop_reason_queue.emplace_back(create_process);
+          this->queue_condition.notify_all();
+        }
+        break;
+
+      case INITIALIZING:
+        {
+          // Enumerate the initial set of threads
+          lldb::SBThread main_thread;
+          for (size_t ti = 0, te = process.GetNumThreads(); ti != te; ++ti) {
+            auto thread { process.GetThreadAtIndex(ti) };
+
+            char description[8192];
+            thread.GetStopDescription(description, sizeof description);
+            NUB_DEBUG({
+                llvm::dbgs() << "Thread " << thread.GetThreadID()
+                             << " stop reason: " << thread.GetStopReason()
+                             << " description: " << description
+                             << "\n";
+            });
+            if (thread.GetStopReason() == lldb::eStopReasonBreakpoint
+                && thread.GetStopReasonDataAtIndex(0) == this->main_breakpoint.GetID()) {
+              this->thread_map[thread.GetThreadID()] = THREAD_MAIN;
+              main_thread = thread;
+            }
+            else {
+              // This thread was created by the GC or the Dylan
+              // run-time, so we won't need to notify of its existence
+              this->thread_map[thread.GetThreadID()] = THREAD_SYSTEM;
+            }
+          }
+          if (!main_thread.IsValid()) {
+            llvm::errs() << "I don't know what we're doing here\n";
+            abort();
+          }
+          auto tid { main_thread.GetThreadID() };
+
           if (auto us = this->process.GetUnixSignals()) {
+            // It should be safe to re-enable SIGSEGV and SIGBUS now
+            // that the garbage collector has finished initializing
+            auto sigsegv { us.GetSignalNumberFromName("SIGSEGV") };
+            us.SetShouldStop(sigsegv, true);
+            auto sigbus { us.GetSignalNumberFromName("SIGBUS") };
+            us.SetShouldStop(sigbus, true);
+
+            // Enumerate the signals reserved by the runtime
             for (size_t n = 0; ; n++) {
               lldb::SBStream expression;
               expression.Printf("spy_get_runtime_signal(%zu)", n);
@@ -541,35 +614,6 @@ namespace nub_private {
             }
           }
 
-          // Enumerate the initial set of threads
-          lldb::tid_t tid = LLDB_INVALID_THREAD_ID;
-          for (size_t ti = 0, te = process.GetNumThreads(); ti != te; ++ti) {
-            auto thread { process.GetThreadAtIndex(ti) };
-
-            char description[8192];
-            thread.GetStopDescription(description, sizeof description);
-            NUB_DEBUG({
-                llvm::dbgs() << "Thread " << thread.GetThreadID()
-                             << " stop reason: " << thread.GetStopReason()
-                             << " description: " << description
-                             << "\n";
-            });
-            if (thread.GetStopReason() == lldb::eStopReasonBreakpoint
-                && thread.GetStopReasonDataAtIndex(0) == this->main_breakpoint.GetID()) {
-              tid = thread.GetThreadID();
-              this->thread_map[tid] = THREAD_MAIN;
-            }
-            else {
-              // This thread was created by the GC or the Dylan
-              // run-time, so we won't need to notify of its existence
-              this->thread_map[thread.GetThreadID()] = THREAD_SYSTEM;
-            }
-          }
-          if (tid == LLDB_INVALID_THREAD_ID) {
-            llvm::errs() << "I don't know what we're doing here\n";
-            abort();
-          }
-
           // We won't need to stop at this breakpoint again (unless the
           // application is restarted)
           this->main_breakpoint.SetEnabled(false);
@@ -579,23 +623,6 @@ namespace nub_private {
             = this->target.BreakpointCreateByName("dylan_thread_trampoline");
           this->create_thread_breakpoint.SetEnabled(true);
           //this->debugger.HandleCommand("breakpoint list");
-
-          // This is the initial stop, so we create the sequence of stop
-          // events that the debugger is expecting
-          NubProcess::StopReason create_process
-            (NubProcess::CREATE_PROCESS_DBG_EVENT, true, tid);
-          this->stop_reason_queue.emplace_back(create_process);
-
-          // Assign indices to all of the shared libraries referenced by
-          // the executable, and insert LOAD_DLL events
-          for (std::vector<lldb::SBModule>::size_type i = 0, e = this->target.GetNumModules(); i != e; ++i) {
-            auto module { this->target.GetModuleAtIndex(i) };
-            this->modules.push_back(module);
-
-            NubProcess::StopReason load_dll(NubProcess::LOAD_DLL_DBG_EVENT, true, tid);
-            load_dll.library = i;
-            this->stop_reason_queue.emplace_back(load_dll);
-          }
 
           // A stop reason of this type for which first_hard_coded_breakpoint()
           // returns true is interpreted as <system-initialized-stop-reason>
@@ -801,10 +828,36 @@ namespace nub_private {
 
   void NubLLDBContext::dispatch_target_modules_loaded(lldb::SBEvent &event)
   {
+    std::unique_lock<std::recursive_mutex> guard(this->mutex);
+    auto num_modules { lldb::SBTarget::GetNumModulesFromEvent(event) };
+    for (uint32_t i = 0; i < num_modules; ++i) {
+      auto module { lldb::SBTarget::GetModuleAtIndexFromEvent(i, event) };
+      auto index { this->modules.size() };
+      this->modules.push_back(module);
+
+      bool real_stop = false;
+      for (auto &stop : this->stop_reason_queue) {
+        if (!stop.synthetic) {
+          real_stop = true;
+          break;
+        }
+      }
+      if (real_stop) {
+        llvm::errs() << "LOAD_DLL but we're already stopped for real, ignoring\n";
+      }
+      else {
+        NubProcess::StopReason load_dll(NubProcess::LOAD_DLL_DBG_EVENT, true, 0);
+        load_dll.library = index;
+        this->stop_reason_queue.emplace_back(load_dll);
+      }
+    }
   }
 
   void NubLLDBContext::dispatch_target_modules_unloaded(lldb::SBEvent &event)
   {
+    std::unique_lock<std::recursive_mutex> guard(this->mutex);
+    llvm::errs() << "Not ready to deal with module unload yet\n";
+    abort();
   }
 
   void NubLLDBContext::evaluate_function_call()

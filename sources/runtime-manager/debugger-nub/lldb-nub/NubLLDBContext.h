@@ -66,9 +66,10 @@ namespace nub_private {
     std::deque<NubProcess::StopReason> stop_reason_queue;
 
     enum NubState {
-      INITIAL,
+      INERT,
       OPEN,
       LAUNCHING,
+      INITIALIZING,
       RUNNING,
     } nub_state;
 
