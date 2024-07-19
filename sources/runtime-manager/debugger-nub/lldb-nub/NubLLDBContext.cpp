@@ -752,7 +752,8 @@ namespace nub_private {
             case lldb::eStopReasonSignal:
               {
                 auto sig { thread.GetStopReasonDataAtIndex(0) };
-                if (sig == process.GetUnixSignals().GetSignalNumberFromName("SIGTRAP")) {
+                auto us { process.GetUnixSignals() };
+                if (sig == us.GetSignalNumberFromName("SIGTRAP")) {
                   NubProcess::StopReason hard_coded_breakpoint
                     (NubProcess::HARD_CODED_BREAKPOINT_DBG_EVENT, false, tid);
                   hard_coded_breakpoint.exception_address = exception_address;
@@ -761,6 +762,15 @@ namespace nub_private {
                   this->queue_condition.notify_all();
                   NUB_DEBUG(llvm::dbgs() << "  Pushed HARD_CODED_BREAKPOINT for that one\n");
                   //this->debugger_.HandleCommand("bt all");
+                }
+                else if (sig == us.GetSignalNumberFromName("SIGSEGV")) {
+                  NubProcess::StopReason access_violation_exception
+                    (NubProcess::ACCESS_VIOLATION_EXCEPTION_DBG_EVENT, false, tid);
+                  access_violation_exception.exception_address = exception_address;
+                  access_violation_exception.first_hard_coded_breakpoint = 0;
+                  this->stop_reason_queue.emplace_back(access_violation_exception);
+                  this->queue_condition.notify_all();
+                  NUB_DEBUG(llvm::dbgs() << "  Pushed ACCESS_VIOLATION_EXCEPTION for that one\n");
                 }
                 else {
                   NUB_DEBUG(llvm::dbgs() << "  What to do??? signal = " << sig << "\n");
