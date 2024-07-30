@@ -1487,11 +1487,11 @@ end method;
 define method emit-computation
     (back-end :: <llvm-back-end>, m :: <llvm-module>, c :: <type-definition>) => ()
 end method;
+*/
 
 define method emit-computation
-    (back-end :: <llvm-back-end>, m :: <llvm-module>, c :: <type-redefinition>) => ()
+    (back-end :: <llvm-back-end>, m :: <llvm-module>, c :: <type-redefinition>) => ();
 end method;
-*/
 
 define method emit-computation
     (back-end :: <llvm-back-end>, m :: <llvm-module>,
