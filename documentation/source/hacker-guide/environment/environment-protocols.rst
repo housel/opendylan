@@ -3020,17 +3020,6 @@ Applications
 .. method:: run-application
    :specializer: <project-object>
 
-.. generic-function:: initialize-application-client
-   :open:
-
-   :signature: initialize-application-client (client application) => ()
-
-   :parameter client: An instance of :class:`<object>`.
-   :parameter application: An instance of :class:`<application>`.
-
-.. method:: initialize-application-client
-   :specializer: <object>, <application>
-
 .. generic-function:: attach-live-application
    :open:
 
