@@ -2593,9 +2593,9 @@
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>server</strong> – An instance of <a class="reference internal" href="#environment-protocols:environment-protocols:[server]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;server&gt;</span></code></a>.</p></li>
-<li><p><strong>addr</strong> – An instance of <a class="reference internal" href="#environment-protocols:environment-protocols:[address-object]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;address-object&gt;</span></code></a>.</p></li>
-<li><p><strong>size</strong> (<em>#key</em>) – An instance of <a class="reference internal" href="#environment-protocols:environment-protocols:[data-display-size]"><code class="xref dylan dylan-const docutils literal notranslate"><span class="pre">&lt;data-display-size&gt;</span></code></a>.</p></li>
+<li><p><strong>server</strong> – An instance of <a class="reference internal" href="#environment-protocols:environment-protocols:[server]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;server&gt;</span></code></a>. The backend dispatching object.</p></li>
+<li><p><strong>addr</strong> – An instance of <a class="reference internal" href="#environment-protocols:environment-protocols:[address-object]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;address-object&gt;</span></code></a>. The address at which to base the import.</p></li>
+<li><p><strong>size</strong> (<em>#key</em>) – An instance of <a class="reference internal" href="#environment-protocols:environment-protocols:[data-display-size]"><code class="xref dylan dylan-const docutils literal notranslate"><span class="pre">&lt;data-display-size&gt;</span></code></a>. The granularity at which to read data; defaults to <code class="docutils literal notranslate"><span class="pre">#&quot;word&quot;</span></code> (the runtime platform word-size).</p></li>
 <li><p><strong>format</strong> (<em>#key</em>) – An instance of <a class="reference internal" href="#environment-protocols:environment-protocols:[data-display-format]"><code class="xref dylan dylan-const docutils literal notranslate"><span class="pre">&lt;data-display-format&gt;</span></code></a>.</p></li>
 <li><p><strong>from-index</strong> (<em>#key</em>) – An instance of <code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code>.</p></li>
 <li><p><strong>to-index</strong> (<em>#key</em>) – An instance of <code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code>.</p></li>
@@ -2608,6 +2608,9 @@
 </ul>
 </dd>
 </dl>
+<p>Import a block of memory contents starting at the supplied address,
+and return the contents as formatted strings. Also returns the
+address that immediately follows the block that has been read.</p>
 </dd></dl>
 
 <dl class="dylan method">
@@ -2790,7 +2793,9 @@
 <dl class="dylan class">
 <dt class="sig sig-object dylan-api dylan" id="environment-protocols:environment-protocols:[component-object]">
 <span class="sig-name descname"><span class="pre">&lt;component-object&gt;</span></span> <em class="property"><span class="pre">Class</span></em><a class="headerlink" href="#environment-protocols:environment-protocols:[component-object]" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Represents a runtime “component”, i.e. a DLL/EXE file or a shared
+object file.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Superclasses<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#environment-protocols:environment-protocols:[application-object]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;application-object&gt;</span></code></a></p>
 </dd>
@@ -2968,7 +2973,8 @@
 <dl class="dylan generic-function">
 <dt class="sig sig-object dylan-api dylan" id="environment-protocols:environment-protocols:composite-object-contents">
 <span class="sig-name descname"><span class="pre">composite-object-contents</span></span> <em class="property"><span class="pre">Open</span> <span class="pre">Generic</span> <span class="pre">function</span></em><a class="headerlink" href="#environment-protocols:environment-protocols:composite-object-contents" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Returns the slot names and values of a composite instance.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Signature<span class="colon">:</span></dt>
 <dd class="field-odd"><p>composite-object-contents (server object #key inherited?) =&gt; (names values)</p>
 </dd>
@@ -2986,6 +2992,8 @@
 </ul>
 </dd>
 </dl>
+<p>All of the values are wrapped up in <a class="reference internal" href="#environment-protocols:environment-protocols:[environment-object]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;environment-object&gt;</span></code></a>
+instances, whereas the slot names are just returned as strings.</p>
 </dd></dl>
 
 <dl class="dylan method">
@@ -9183,6 +9191,9 @@
 </ul>
 </dd>
 </dl>
+<p>The <code class="docutils literal notranslate"><span class="pre">just-name?</span></code> keyword should be passed as <code class="docutils literal notranslate"><span class="pre">#t</span></code> when you want
+to test for playground-project-nature, but the project may not have
+been opened properly yet.</p>
 </dd></dl>
 
 <dl class="dylan function">
