@@ -551,6 +551,8 @@ define method register-thread-in-state-model
     := application.application-thread-counter + 1;
   thread-state-model(application, thread)
     := thread-state;
+  debugger-message("Registered thread %d in state model",
+                   thread-state.thread-state-thread-index);
 end method register-thread-in-state-model;
 
 

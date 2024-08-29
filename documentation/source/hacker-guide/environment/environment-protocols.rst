@@ -1044,14 +1044,18 @@ Address Objects
 
    :signature: address-read-memory-contents (server addr #key size format from-index to-index) => (printable-strings nxt)
 
-   :parameter server: An instance of :class:`<server>`.
-   :parameter addr: An instance of :class:`<address-object>`.
-   :parameter #key size: An instance of :const:`<data-display-size>`.
+   :parameter server: An instance of :class:`<server>`. The backend dispatching object.
+   :parameter addr: An instance of :class:`<address-object>`. The address at which to base the import.
+   :parameter #key size: An instance of :const:`<data-display-size>`. The granularity at which to read data; defaults to ``#"word"`` (the runtime platform word-size).
    :parameter #key format: An instance of :const:`<data-display-format>`.
    :parameter #key from-index: An instance of :class:`<integer>`.
    :parameter #key to-index: An instance of :class:`<integer>`.
    :value printable-strings: An instance of :class:`<sequence>`.
    :value nxt: An instance of :class:`<address-object>`.
+
+   Import a block of memory contents starting at the supplied address,
+   and return the contents as formatted strings. Also returns the
+   address that immediately follows the block that has been read.
 
 .. method:: address-read-memory-contents
    :specializer: <project-object>, <address-object>
@@ -1143,6 +1147,9 @@ Component Objects
 
 .. class:: <component-object>
 
+   Represents a runtime "component", i.e. a DLL/EXE file or a shared
+   object file.
+
    :superclasses: :class:`<application-object>`
 
 
@@ -1231,6 +1238,8 @@ Composite Objects
 .. generic-function:: composite-object-contents
    :open:
 
+   Returns the slot names and values of a composite instance.
+
    :signature: composite-object-contents (server object #key inherited?) => (names values)
 
    :parameter server: An instance of :class:`<server>`.
@@ -1238,6 +1247,9 @@ Composite Objects
    :parameter #key inherited?: An instance of :class:`<object>`.
    :value names: An instance of :class:`<sequence>`.
    :value values: An instance of :class:`<sequence>`.
+
+   All of the values are wrapped up in :class:`<environment-object>`
+   instances, whereas the slot names are just returned as strings.
 
 .. method:: composite-object-contents
    :specializer: <project-object>, <composite-object>
@@ -4085,6 +4097,10 @@ Playground
    :parameter project: An instance of :class:`<project-object>`.
    :parameter #key just-name?: An instance of :class:`<boolean>`.
    :value playground?: An instance of :class:`<boolean>`.
+
+   The ``just-name?`` keyword should be passed as ``#t`` when you want
+   to test for playground-project-nature, but the project may not have
+   been opened properly yet.
 
 .. function:: playground-application-filename
 

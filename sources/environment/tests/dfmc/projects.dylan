@@ -204,10 +204,18 @@ define test project-source-files-test ()
   end for;
 end test;
 
+define test project-build-files-test ()
+  check-true("Library full build file exists",
+             file-exists?(project-full-build-filename(*test-library*)));
+  check-true("Application full build file exists",
+             file-exists?(project-full-build-filename(*test-application*)));
+end test;
+
 /// projects suite
 
 define suite projects-suite ()
   test open-projects-test;
   test project-libraries-test;
   test project-source-files-test;
+  test project-build-files-test;
 end suite projects-suite;
