@@ -240,39 +240,6 @@ define open generic construct-thread-object
     #key)
  => (thread :: <remote-thread>);
 
-
-///// FIND-OR-MAKE-THREAD
-//    The access path maintains a list of active threads. This list is
-//    extended as new threads are created, and shortened when threads are
-//    destroyed. (Stop-reason information is used to do this). Every thread
-//    in the list has a unique nub-descriptor (a <NUBTHREAD>). This function
-//    searches the current state of the list and looks for a thread with the
-//    given descriptor. If it is found, it is returned. Otherwise, a new
-//    thread is added to the list and returned.
-
-define method find-or-make-thread
-  (ap :: <access-path>, thread :: <NUBTHREAD>,
-   #key priority)
-     => (thread :: <remote-thread>)
-  let i = 0;
-  let remote-thread = #f;
-  while ((~remote-thread) & (i < size(ap.threads)))
-    if (ap.threads[i].nub-descriptor = thread)
-      remote-thread := ap.threads[i];
-    else
-      i := i + 1;
-    end if
-  end while;
-  if (~remote-thread)
-    remote-thread :=
-      construct-thread-object
-      (ap.connection, thread, path: ap, priority: priority);
-    ap.threads := add! (ap.threads, remote-thread);
-  end if;
-  remote-thread;
-end method;
-
-
 ///// CONSTRUCT-LIBRARY-OBJECT
 //    Similar to CONSTRUCT-THREAD-OBJECT.
 

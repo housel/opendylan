@@ -50,7 +50,7 @@ end;
 // the client
 
 define function create-thread-stop-reason-handler
-    (process :: <NUBPROCESS>, thread :: <NUBTHREAD>,
+    (process :: <NUBPROCESS>, nub-thread :: <NUBTHREAD>,
      priority :: <integer>) => ()
   //let (path, application) = lookup-access-path-application(process);
   if (*current-access-paths*.size ~= 1)
@@ -58,11 +58,12 @@ define function create-thread-stop-reason-handler
   end if;
   let path = *current-access-paths*[0];
   let application = path.access-path-application-object;
-  let process = make (<remote-process>,
-                      nub-descriptor: process);
-  let thread =
-    find-or-make-thread
-    (path, thread, priority: priority);
+  let process = make (<remote-process>, nub-descriptor: process);
+
+  let thread
+    = construct-thread-object(path.connection, nub-thread, path: path);
+  path.threads := add!(path.threads, thread);
+  debugger-message("AP made new thread %=", thread);
   create-thread-event-handler
     (application, process: process, thread: thread);
   values();

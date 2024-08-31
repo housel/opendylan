@@ -469,17 +469,26 @@ define open generic first-debugger-invocation?
 define method construct-stop-reason
     (ap :: <access-path>, event-type :: <integer>,
      #key process, thread)
-       => (maybe-sr :: false-or(<stop-reason>))
-  let source-process :: <remote-process> =
-    process | get-debug-event-process (ap.connection);
-  let source-thread =
-    if (thread) thread
-    else
-      unless (profiler-event?(event-type))
-	find-or-make-thread
-	  (ap, get-debug-event-thread (ap.connection))
-      end unless;
-    end if;
+ => (maybe-sr :: false-or(<stop-reason>));
+  let source-process :: <remote-process>
+    = process
+    | get-debug-event-process(ap.connection);
+  let source-thread
+    = thread
+    | select (event-type)
+        $profiler, $profiler-unhandled => #f;
+        $create-process, $create-thread =>
+          let nub-thread = get-debug-event-thread(ap.connection);
+          let thread
+            = construct-thread-object(ap.connection, nub-thread, path: ap);
+          ap.threads := add!(ap.threads, thread);
+          debugger-message("AP made new thread %=", thread);
+          thread;
+        otherwise =>
+          let nub-thread = get-debug-event-thread(ap.connection);
+          find-element(ap.threads,
+                       method (t) t.nub-descriptor = nub-thread end);
+      end;
 
   let source-library = #f;
   let stop-reason = #f;
@@ -740,14 +749,6 @@ define method construct-stop-reason
                                  get-exception-address (ap.connection));
   end select;
 stop-reason;
-end method;
-
-define method profiler-event?
-    (event :: <integer>) => (profiling? :: <boolean>)
-  select (event)
-    $profiler, $profiler-unhandled => #t;
-    otherwise => #f;
-  end;
 end method;
 
 define constant $exception-subset =

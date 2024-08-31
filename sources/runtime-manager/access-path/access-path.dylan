@@ -41,6 +41,11 @@ define abstract class <access-path> (<object>)
 
   slot libraries :: <stretchy-vector> = make(<stretchy-vector>);
 
+  // Collection of active threads. This collection is extended as new
+  // threads are created, and shortened when threads are
+  // destroyed. (Stop-reason information is used to do this). Every
+  // thread in this collection has a unique nub-descriptor (a
+  // <NUBTHREAD>).
   slot threads :: <stretchy-vector> = make(<stretchy-vector>);
 
   slot register-set :: <vector>,
