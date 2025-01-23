@@ -121,24 +121,15 @@ define method interpret-stop-reason
        elseif (address-corresponds-to-primitive?
                 (application, code-location,
                  application.class-breakpoint-primitive))
-         // This is a hard-coded breakpoint within primitive-invoke-debugger.
-         // We know that the control string for the error msg is at top of
-         // stack, followed by a (raw) integer counting the format arguments,
-         // followed in turn by each format argument. We calculate the
-         // stack relative addresses and read the relevant values.
+         // This is a hard-coded breakpoint within class-allocation-break.
          use-thread-for-spy-functions(application, thread);
          dm-thread.thread-pause-state-description := #"unhandled-condition";
          block ()
-	   let class-address
-	     = calculate-stack-address(path, thread, 0);
-	   let size-address
-	     = calculate-stack-address(path, thread, 1);
-	   let size = as-integer(read-value(path, size-address));
-           let class = read-value(path, class-address);
+           let (size, class)
+             = debug-class-breakpoint-arguments(application, thread,
+                                                top-stack-frame);
 
-           // Construct our language-level stop reason for the dylan
-           // error. Note we are not formatting the string and
-           // arguments at this stage. We will do that later on demand.
+           // Construct our language-level stop reason for the break.
 	   maybe-modified-stop-reason :=
 	     make(<class-breakpoint-stop-reason>,
 		  process: process,
@@ -302,6 +293,28 @@ define function debug-primitive-format-arguments
   end if
 end function;
 
+define function debug-class-breakpoint-arguments
+    (application :: <debug-target>, thread :: <remote-thread>,
+     top-frame :: <function-frame>)
+ => (size, class);
+  let path = application.debug-target-access-path;
+  let platform-name = application.debug-target-platform-name;
+  if (platform-name == #"x86-win32")
+    // The HARP run-time explicitly pushes these two arguments onto
+    // the stack
+    let class-address
+      = calculate-stack-address(path, thread, 0);
+    let size-address
+      = calculate-stack-address(path, thread, 1);
+    let size = as-integer(read-value(path, size-address));
+    let class = read-value(path, class-address);
+    values(size, class)
+  else
+    // For other platforms, we make use of lexical variable debug
+    // information
+    error("debug-class-breakpoint-arguments not yet implemented for this platform");
+  end if
+end function;
 
 // Callback functions for the Debugger NUB to do explicit
 // stop-reason handling for clients during spy calls
