@@ -100,6 +100,7 @@ end method;
 ///// KILL-TARGET-APPLICATION
 
 define method kill-target-application(application :: <target-application>)
+  thread-debug-message("kill-target-application");
   dm-kill-application(application);
 end method;
 

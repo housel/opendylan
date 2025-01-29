@@ -674,6 +674,7 @@ define method initialize-interactive-threads
   // The Thread Manager is explicitly reserved for spawning
   // new application threads by running a particular deemed
   // safe spy function
+  debugger-message("Requesting: Thread Manager");
   application.dylan-thread-manager :=
   request-evaluator-thread(application,
                            name: "Thread Manager",
@@ -681,6 +682,7 @@ define method initialize-interactive-threads
 
   // The Spy Thread is explicitly reserved for running
   // Debugger Manager spy calls in the application space
+  debugger-message("Requesting: Spy Thread");
   let spy-thread =
     request-evaluator-thread(application,
                              name: "Spy Thread",
@@ -694,8 +696,10 @@ define method initialize-interactive-threads
 
   // In addition, a regular interactive thread is spawned at
   // the same time
+  debugger-message("Requesting: regular interactive thread");
   request-evaluator-thread(application,
                            thread: thread);
 
+  debugger-message("Done initializing interactive threads");
   application.application-initialized-interactive-threads? := #t;
 end method;
