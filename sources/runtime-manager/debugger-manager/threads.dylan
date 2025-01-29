@@ -119,6 +119,7 @@ define method thread-current-active-handlers
   unless (thread.cached-handlers)
     let path = application.debug-target-access-path;
     let teb = dylan-thread-environment-block-address(path, ap-thread);
+    error("thread-current-active-handlers doesn't work, the current-handlers TEB field isn't used");
     let addr = indexed-remote-value(teb, $TEB-current-handlers-offset);
     let handler-list = read-value(path, addr);
     thread.cached-handlers :=

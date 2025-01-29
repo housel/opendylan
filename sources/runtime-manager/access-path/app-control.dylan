@@ -111,6 +111,7 @@ define open generic close-application-on-connection
 //    This performs an immediate "stamp on the brakes".
 
 define method stop (ap :: <access-path>) => ()
+  debugger-message("STOP %=", application-state-running?(ap));
   if (application-state-running? (ap))
     stop-application (ap.connection);
     set-application-state (ap, #"stopped");

@@ -288,11 +288,13 @@ define function debugger-message
   if (*debugging-debugger?*)
     let string :: <byte-string> = as(<byte-string>, string);
     if (*debugger-stream*)
-      apply(format, *debugger-stream*, concatenate("### ", string, "\n"), args);
-      force-output(*debugger-stream*);
+      with-lock (*debugger-stream*.stream-lock)
+        apply(format, *debugger-stream*, concatenate("### ", string, "\n"), args);
+        force-output(*debugger-stream*);
+      end;
     else
       // apply(format-out, concatenate("\n### ", string, "\n"), args);
-      apply(nub-debug-message, string, args)
+      apply(nub-debug-message, string, args);
     end if;
   end if;
 end function;

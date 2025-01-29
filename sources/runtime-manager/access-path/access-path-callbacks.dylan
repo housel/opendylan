@@ -24,6 +24,7 @@ end method;
 
 define method deregister-access-path
     (ap :: <access-path>)
+  debugger-message("Deregister access path");
   with-lock (*access-path-lock*)
     remove!(*current-access-paths*, ap);
   end;

@@ -16,6 +16,7 @@ define constant $default-timeout = 200;
 define method stop-application
      (application :: <debug-target>,
       #key stop-reason = make(<debugger-stop-application-stop-reason>)) => ()
+  debugger-message("stop-application called!");
   application.application-stopped? := #t;
   application.debugger-generated-stop-reason := stop-reason;
 end method;
@@ -273,8 +274,10 @@ define method manage-running-application
     end if;
 
     // Perform a periodic poll of the stop
-    // button. (The application may be running now).
+          // button. (The application may be running now).
+    debugger-message("poll stop button");
     poll-for-stop-callback(application);
+    debugger-message("application-stopped? %=", application.application-stopped?);
     if (application.application-stopped?)
       stop (application.debug-target-access-path);
       application.application-stopped? := #f;

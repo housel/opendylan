@@ -544,7 +544,7 @@ define module access-path-implementation
   use format;
   use format-out;
   use print;
-  use streams, import: {<file-stream>, <stream>, force-output, close};
+  use streams, import: {<file-stream>, <stream>, force-output, close, stream-lock};
   use locators, import: {<file-locator>};
   use file-system;
   use byte-vector;
