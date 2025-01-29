@@ -102,6 +102,7 @@ Hackers.
    compiler/index
    runtime/index
    runtime-manager/index
+   environment/index
    duim/index
    topics/index
    glossary
