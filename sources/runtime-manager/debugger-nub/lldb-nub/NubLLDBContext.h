@@ -71,6 +71,7 @@ namespace nub_private {
       LAUNCHING,
       INITIALIZING,
       RUNNING,
+      STOPPING,
     } nub_state;
 
     // The system-initialized breakpoint

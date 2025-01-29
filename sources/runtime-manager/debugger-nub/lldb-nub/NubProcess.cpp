@@ -38,6 +38,7 @@ NubProcess::NubProcess(const char *process_name)
 
 NubProcess::~NubProcess()
 {
+  NUB_DEBUG(llvm::dbgs() << "~NubProcess()\n");
   delete private_;
 }
 
@@ -72,6 +73,7 @@ bool NubProcess::open_process(const char *command, const char *args,
   np.launch.SetLaunchFlags(lldb::eLaunchFlagDebug
                            | lldb::eLaunchFlagStopAtEntry
                            | lldb::eLaunchFlagDisableASLR);
+
   // Set a breakpoint at the executable's "main" function
   lldb::SBFileSpecList module_list;
   module_list.Append(np.target.GetExecutable());
@@ -444,14 +446,21 @@ void NubProcess::application_stop()
 {
   auto &np { *this->private_ };
   std::unique_lock<std::recursive_mutex> guard(np.mutex);
-  NUB_DEBUG(llvm::dbgs() << "Stop\n");
-  np.process.Stop();
+  if (np.process.GetState() == lldb::eStateRunning) {
+    np.nub_state = NubLLDBContext::STOPPING;
+    NUB_DEBUG(llvm::dbgs() << "Entering STOPPING state\n");
+    np.process.Stop();
+  }
 }
 
 void NubProcess::application_continue()
 {
   auto &np { *this->private_ };
   std::unique_lock<std::recursive_mutex> guard(np.mutex);
+  if (np.stop_reason_queue.empty()) {
+    llvm::errs() << "What do you think you're doing? Is it even really stopped?\n";
+    abort();
+  }
   np.clear_virtual_registers();
   bool synthetic = np.stop_reason_queue.front().synthetic;
   if (np.stop_reason_queue.front().code == NubProcess::EXIT_PROCESS_DBG_EVENT) {
@@ -478,9 +487,15 @@ void NubProcess::application_continue()
         llvm::errs() << "  thread " << stop.thread
                      << " stop " << stop_reason_name[stop.code] << "\n";
       }
-      abort();
+      if (!np.stop_reason_queue.front().synthetic) {
+        abort();
+      }
+      NUB_DEBUG(llvm::dbgs() << "Negating synthetic on next queue item\n");
+      np.stop_reason_queue.front().synthetic = false;
     }
-    np.process.Continue();
+    else {
+      np.process.Continue();
+    }
   }
 }
 
@@ -760,7 +775,7 @@ void NubProcess::wait_for_stop_reason_with_timeout
 {
   auto &np { *this->private_ };
   std::unique_lock<std::recursive_mutex> guard(np.mutex);
-  if (np.queue_condition.wait_for(guard, std::chrono::milliseconds(timeout),
+  if (np.queue_condition.wait_for(guard, std::chrono::duration<NUBINT>::max(),
                                   [&]{ return !np.stop_reason_queue.empty(); })) {
     stop = np.stop_reason_queue.front();
   }
@@ -786,6 +801,17 @@ NubProcess::TARGET_ADDRESS NubProcess::setup_function_call
   std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   auto frame { thread.GetFrameAtIndex(0) };
+
+  // Ensure that "struct dylan_mv" is defined
+  auto typelist { np.target.FindTypes("struct dylan_mv") };
+  if (typelist.GetSize() == 0) {
+    // Install a persistent definition for dylan_mv
+    NUB_DEBUG(llvm::dbgs() << "Installing struct dylan_mv\n");
+    lldb::SBExpressionOptions options;
+    options.SetLanguage(lldb::eLanguageTypeC99);
+    options.SetTopLevel(true);
+    np.target.EvaluateExpression("struct dylan_mv { void *primary_value; unsigned char mv_count; };", options);
+  }
 
   lldb::SBStream expression;
   expression.Print("((struct dylan_mv (*)(");
@@ -1285,13 +1311,18 @@ NubProcess::TARGET_ADDRESS NubProcess::dylan_thread_environment_block_address
 {
   auto &np { *this->private_ };
   std::unique_lock<std::recursive_mutex> guard(np.mutex);
+  if (np.nub_state != NubLLDBContext::RUNNING) {
+    NUB_DEBUG(llvm::dbgs() << "Not running yet, TEB not available!\n");
+    valid = 0;
+    return 0;
+  }
   auto thread { np.process.GetThreadByID(nubthread) };
   auto suspended { thread.IsSuspended() };
   if (suspended) {
     NUB_DEBUG(llvm::dbgs() << "Temporarily resuming thread!\n");
     thread.Resume();
   }
-  auto value { np.evaluate(thread, "(D) dylan_teb()", true) };
+  auto value { np.evaluate(thread, "(void *) dylan_teb()", true) };
   if (suspended) {
     thread.Suspend();
   }

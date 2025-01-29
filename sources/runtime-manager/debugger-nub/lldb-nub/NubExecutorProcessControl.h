@@ -6,7 +6,8 @@ namespace nub_private {
   class NubLLDBContext;
 
   class NubExecutorProcessControl : public llvm::orc::ExecutorProcessControl,
-                                    private llvm::orc::ExecutorProcessControl::MemoryAccess {
+                                    private llvm::orc::ExecutorProcessControl::MemoryAccess,
+                                    private llvm::orc::DylibManager {
   public:
     static llvm::Expected<std::unique_ptr<NubExecutorProcessControl>>
     Create(std::shared_ptr<llvm::orc::SymbolStringPool> SSP,

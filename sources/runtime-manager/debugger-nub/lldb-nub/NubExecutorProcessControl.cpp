@@ -18,6 +18,7 @@ NubExecutorProcessControl::NubExecutorProcessControl(std::shared_ptr<llvm::orc::
 {
   this->TargetTriple = llvm::Triple(nlc.target.GetTriple());
   this->MemAccess = this;
+  this->DylibMgr = this;
   this->MemMgr = this->owned_memory_manager_.get();
 }
 

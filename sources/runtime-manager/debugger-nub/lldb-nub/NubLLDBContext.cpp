@@ -17,9 +17,6 @@
 #endif
 
 namespace {
-  const char DYLAN_MV_DECL[]
-    = "struct dylan_mv { void *primary_value; unsigned char mv_count; };";
-
   /// Ensure LLDB initialization, deinitialization, and debugger
   /// singleton creation
   class DebuggerCreator {
@@ -48,6 +45,20 @@ namespace {
     lldb::SBDebugger create() {
       if (!this->debugger_) {
         this->debugger_ = lldb::SBDebugger::Create(false);
+#if 0
+        const char *categories[] = {
+          //"api",
+          "dyld",
+          "expr",
+          //"event",
+          "jit",
+          "process",
+          "state",
+          "thread",
+          nullptr
+        };
+        this->debugger_.EnableLog("lldb", categories);
+#endif
       }
       return this->debugger_;
     }
@@ -299,10 +310,19 @@ namespace nub_private {
 
   NubLLDBContext::~NubLLDBContext()
   {
+    NUB_DEBUG(llvm::dbgs() << "~NubLLDBContext() begins\n");
+
     // Tell the listener dispatch thread to exit, and join it when it
     // does
     this->exit_broadcaster_.BroadcastEventByType(1, true);
     this->event_dispatcher_thread_.join();
+    NUB_DEBUG(llvm::dbgs() << "~NubLLDBContext(), dispatcher joined\n");
+
+    this->function_call_result.Clear();
+    this->launch.Clear();
+    this->listener.Clear();
+    this->process.Clear();
+    this->target.Clear();
   }
 
   NubProcess::LookupSymbol NubLLDBContext::make_lookup_symbol(lldb::SBSymbol &symbol) const
@@ -515,6 +535,9 @@ namespace nub_private {
           auto main_thread { this->process.GetSelectedThread() };
           auto tid { main_thread.GetThreadID() };
 
+          llvm::errs() << "We have a process now (main thread " << tid << ")\n";
+          this->debugger.HandleCommand("breakpoint list");
+
           // This had better be stopped at entry
           auto us { this->process.GetUnixSignals() };
           auto sigstop { us.GetSignalNumberFromName("SIGSTOP") };
@@ -529,14 +552,6 @@ namespace nub_private {
             abort();
           }
 
-          // Install a persistent definition for dylan_mv
-          {
-            lldb::SBExpressionOptions options;
-            options.SetLanguage(lldb::eLanguageTypeC99);
-            options.SetTopLevel(true);
-            this->target.EvaluateExpression(DYLAN_MV_DECL, options);
-          }
-
           // During run-time initialization, we need to ignore SIGSEGV
           // and SIGBUS because BDW GC uses these to find memory area
           // limits
@@ -546,12 +561,22 @@ namespace nub_private {
           us.SetShouldStop(sigbus, false);
 
           this->nub_state = INITIALIZING;
-          NUB_DEBUG(llvm::dbgs() << "Entering INITIALIZING state\n");
+          NUB_DEBUG(llvm::dbgs() << "Entering INITIALIZING state, initial thread " << tid << "\n");
 
           // The debugger expects a CREATE_PROCESS event at this point
           NubProcess::StopReason create_process
             (NubProcess::CREATE_PROCESS_DBG_EVENT, false, tid);
           this->stop_reason_queue.emplace_back(create_process);
+
+          // Any modules-loaded events that happened before now were
+          // deferred (since no thread ID was available), so we post
+          // them now.
+          for (auto index = 0; index < this->modules.size(); ++index) {
+            NubProcess::StopReason load_dll(NubProcess::LOAD_DLL_DBG_EVENT, true, tid);
+            load_dll.library = index;
+            this->stop_reason_queue.emplace_back(load_dll);
+          }
+
           this->queue_condition.notify_all();
         }
         break;
@@ -792,6 +817,10 @@ namespace nub_private {
           }
         }
         break;
+
+      case STOPPING:
+        NUB_DEBUG(llvm::dbgs() << "Stopped in STOPPING, as expected\n");
+        break;
       }
       break;
 
@@ -855,10 +884,15 @@ namespace nub_private {
       if (real_stop) {
         llvm::errs() << "LOAD_DLL but we're already stopped for real, ignoring\n";
       }
-      else {
-        NubProcess::StopReason load_dll(NubProcess::LOAD_DLL_DBG_EVENT, true, 0);
+      else if (this->process.IsValid()) {
+        auto current_thread { this->process.GetSelectedThread() };
+        auto tid { current_thread.GetThreadID() };
+        NubProcess::StopReason load_dll(NubProcess::LOAD_DLL_DBG_EVENT, true, tid);
         load_dll.library = index;
         this->stop_reason_queue.emplace_back(load_dll);
+      }
+      else {
+        NUB_DEBUG(llvm::dbgs() << "LOAD_DLL before process create, defer\n");
       }
     }
   }
