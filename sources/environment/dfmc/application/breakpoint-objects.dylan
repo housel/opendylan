@@ -449,11 +449,15 @@ define method find-or-instantiate-proxy
           (application, bp,
            compilation-context: compilation-context);
     if (addr)
+      let return-callback
+        = if (member?(#"out", bp.breakpoint-directions))
+            curry(function-return-callback, application)
+          end if;
       let proxy
         = make(<function-entry-tracepoint>,
                address: addr,
                callback: curry(function-entry-callback, application),
-               return-callback: curry(function-return-callback, application),
+               return-callback: return-callback,
                breakpoint-object: bp);
       bp.application-object-proxy := proxy;
       proxy;

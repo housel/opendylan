@@ -17,8 +17,8 @@ end class;
 //    The superclass of all debug-points used to trace entry into
 //    functions.
 define open abstract class <entry-tracepoint> (<tracepoint>)
-  constant slot return-callback :: <function>,
-    required-init-keyword: return-callback:;
+  constant slot return-callback :: false-or(<function>),
+    init-value: #f, init-keyword: return-callback:;
 end class;
 
 ///// <SIMPLE-ENTRY-TRACEPOINT>
@@ -102,25 +102,28 @@ end method;
 define method handle-debug-point-event
     (app :: <debug-target>, bp :: <entry-tracepoint>,
      thr :: <remote-thread>)
-       => (interested? :: <boolean>)
+ => (interested? :: <boolean>)
   // We have just entered the trace callee.
-  let trace-callee-frame
-    = initialize-stack-trace (app.debug-target-access-path, thr);
-  let trace-caller-frame
-    = previous-frame (app.debug-target-access-path, trace-callee-frame);
-  let ptr
-    = frame-pointer (app.debug-target-access-path, trace-caller-frame);
-  let ret-addr
-    = frame-return-address (app.debug-target-access-path, trace-callee-frame);
-  let return-point =
-    make-return-tracepoint (app, bp, thr,
-                            address: ret-addr,
-                            callback: bp.return-callback,
-                            thread: thr,
-                            frame: ptr,
-                            entry: bp);
-  initialize-return-tracepoint (app, return-point, thr);
-  next-method ();
+  let callback = bp.return-callback;
+  if (callback)
+    let trace-callee-frame
+      = initialize-stack-trace (app.debug-target-access-path, thr);
+    let trace-caller-frame
+      = previous-frame (app.debug-target-access-path, trace-callee-frame);
+    let ptr
+      = frame-pointer (app.debug-target-access-path, trace-caller-frame);
+    let ret-addr
+      = frame-return-address (app.debug-target-access-path, trace-callee-frame);
+    let return-point =
+      make-return-tracepoint (app, bp, thr,
+                              address: ret-addr,
+                              callback: callback,
+                              thread: thr,
+                              frame: ptr,
+                              entry: bp);
+    initialize-return-tracepoint (app, return-point, thr);
+  end if;
+  next-method()
 end method;
 
 
