@@ -67,7 +67,7 @@ define method emit-definition
            type: llvm-pointer-to(back-end, $llvm-object-pointer-type),
            initializer: op--tag-integer(back-end, o.binding-interactor-id),
            constant?: #f,
-           linkage: #"external",
+           linkage: #"internal",
            visibility: #"default",
            section: llvm-section-name(back-end, #"history"));
   llvm-builder-define-global(back-end, name, global);
