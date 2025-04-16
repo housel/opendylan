@@ -390,8 +390,9 @@ namespace nub_private {
       return false;
     }
     auto Creator {
-      [this](llvm::orc::ExecutionSession &ES, const llvm::Triple &TT) -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
+      [this](llvm::orc::ExecutionSession &ES) -> llvm::Expected<std::unique_ptr<llvm::orc::ObjectLayer>> {
         NUB_DEBUG(llvm::dbgs() << "Creating ObjectLinkingLayer\n");
+        auto &TT { ES.getTargetTriple() };
         auto OLL { std::make_unique<llvm::orc::ObjectLinkingLayer>(ES) };
         if (TT.isOSBinFormatELF()) {
           NUB_DEBUG(llvm::dbgs() << "Adding the illustrious NubELFNixSectionPlugin\n");
