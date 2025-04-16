@@ -115,11 +115,10 @@ namespace nub_private {
     // JIT
     std::shared_ptr<llvm::orc::SymbolStringPool> ssp;
     std::unique_ptr<llvm::orc::LLJIT> jit;
-    std::vector<llvm::orc::JITDylib *> jds;
 
-    using regions = std::vector<NubProcess::Region>;
-    std::map<llvm::orc::JITDylib *, regions> jd_regions;
+    llvm::orc::SymbolMap jit_symbols;
 
+    std::vector<NubProcess::Region> jd_regions;
     NubProcess::NUBINT jit_error_code;
 
     bool initialize_jit();

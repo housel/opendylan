@@ -166,7 +166,7 @@ namespace nub_private {
           else {
             continue;
           }
-          this->nlc_.jd_regions[&JD].push_back
+          this->nlc_.jd_regions.push_back
             (NubProcess::Region(kind,
                                 range.getStart().getValue(),
                                 range.getEnd().getValue()));
@@ -258,7 +258,7 @@ namespace nub_private {
           else {
             continue;
           }
-          this->nlc_.jd_regions[&JD].push_back
+          this->nlc_.jd_regions.push_back
             (NubProcess::Region(kind,
                                 range.getStart().getValue(),
                                 range.getEnd().getValue()));
@@ -269,7 +269,7 @@ namespace nub_private {
 
     llvm::Error notifyFailed(llvm::orc::MaterializationResponsibility &MR) override {
       auto &JD { MR.getTargetJITDylib() };
-      this->nlc_.jd_regions[&JD].clear();
+      this->nlc_.jd_regions.clear();
       llvm::errs() << "NubMachOSectionPlugin notifyFailed for "
                    << JD.getName()
                    << "\n";

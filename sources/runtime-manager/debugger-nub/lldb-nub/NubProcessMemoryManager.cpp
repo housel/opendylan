@@ -147,13 +147,14 @@ void NubProcessMemoryManager::deallocate(std::vector<FinalizedAlloc> Allocs,
     std::unique_ptr<FinalizedAllocInfo> FAI
       { Alloc.release().toPtr<FinalizedAllocInfo *>() };
     for (auto Addr : FAI->addresses) {
-      NUB_DEBUG(llvm::errs() << "Deallocated " << llvm::format_hex(Addr, 18) << "\n");
+      NUB_DEBUG(llvm::errs() << "Hoarded " << llvm::format_hex(Addr, 18) << "\n");
       addresses.push_back(Addr);
     }
   }
 
-  this->nlc_.mutex.lock();
   llvm::Error deallocate_error = llvm::Error::success();
+#if 0
+  this->nlc_.mutex.lock();
   for (auto Addr : addresses) {
     lldb::SBError error = this->nlc_.process.DeallocateMemory(Addr);
     if (error.Fail()) {
@@ -163,6 +164,7 @@ void NubProcessMemoryManager::deallocate(std::vector<FinalizedAlloc> Allocs,
     }
   }
   this->nlc_.mutex.unlock();
+#endif
   OnDeallocated(std::move(deallocate_error));
 }
 

@@ -1336,6 +1336,38 @@ NubProcess::TARGET_ADDRESS NubProcess::dylan_thread_environment_block_address
   }
 }
 
+namespace {
+  class JITSymbolsGenerator : public llvm::orc::DefinitionGenerator {
+  public:
+    JITSymbolsGenerator(llvm::orc::SymbolMap &symbols)
+      : jit_symbols_(symbols) {
+    }
+
+    llvm::Error tryToGenerate(llvm::orc::LookupState &LS,
+                              llvm::orc::LookupKind K,
+                              llvm::orc::JITDylib &JD,
+                              llvm::orc::JITDylibLookupFlags JDLookupFlags,
+                              const llvm::orc::SymbolLookupSet &LookupSet) override {
+      llvm::orc::SymbolMap ResolvedSymbols;
+      for (auto &KV : LookupSet) {
+        auto I = jit_symbols_.find(KV.first), E = jit_symbols_.end();
+        if (I != E) {
+          ResolvedSymbols.insert_or_assign(KV.first, I->second);
+        }
+      }
+      if (ResolvedSymbols.empty()) {
+        return llvm::Error::success();
+      }
+      else {
+        return JD.define(llvm::orc::absoluteSymbols(std::move(ResolvedSymbols)));
+      }
+    }
+
+  private:
+    llvm::orc::SymbolMap jit_symbols_;
+  };
+};
+
 NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vector<NubProcess::DownloadRecord> &records, const char *entry_name, std::vector<NubProcess::Region> &regions, std::vector<NubProcess::LookupSymbol> &symbols)
 {
   auto &np { *this->private_ };
@@ -1351,9 +1383,7 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
   auto &ES { np.jit->getExecutionSession() };
 
   // Create a JITDylib to represent this code download
-  auto id { static_cast<unsigned>(np.jds.size()) };
-  auto name { std::string(llvm::Twine("download_code_").concat(llvm::Twine(id)).str()) };
-  auto EJD { ES.createJITDylib(name) };
+  auto EJD { ES.createJITDylib("download_code") };
   if (!EJD) {
     llvm::logAllUnhandledErrors(EJD.takeError(), llvm::errs(),
                                 "download_code: ");
@@ -1361,15 +1391,16 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
   }
   // Add previous JITDylibs and the target process' symbols to its
   // link order
-  for (auto I = np.jds.rbegin(), E = np.jds.rend(); I != E; ++I) {
-    EJD->addToLinkOrder(**I);
-  }
+  EJD->addGenerator(std::make_unique<JITSymbolsGenerator>(np.jit_symbols));
   EJD->addToLinkOrder(*(np.jit->getProcessSymbolsJITDylib()));
 
-  np.jds.push_back(&*EJD);
-  NUB_DEBUG(np.jds.back()->dump(llvm::dbgs()));
+  NUB_DEBUG(EJD->dump(llvm::dbgs()));
 
+  np.jd_regions.clear();
   np.jit_error_code = 0;
+
+  auto mangled_entry_name { np.jit->mangleAndIntern(entry_name) };
+  auto lookup_set { llvm::orc::SymbolLookupSet(mangled_entry_name) };
 
   // Parse the passed-in bitcode records and add them to the JIT
   for (const auto &record : records) {
@@ -1392,10 +1423,20 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
       (*M)->print(llvm::dbgs(), nullptr);
     });
 
+    // Identify external symbols that need to be resolved by the JIT
+    for (auto const &GO : (*M)->global_objects()) {
+      if (GO.hasName()
+          && !GO.isDeclaration()
+          && !GO.hasLocalLinkage()
+          && !GO.getName().starts_with("llvm.")) {
+        lookup_set.add(np.jit->mangleAndIntern(GO.getName()));
+      }
+    }
+
     // Package the parsed module as a ThreadSafeModule and add it to
     // the JIT
     auto TSM { llvm::orc::ThreadSafeModule(std::move(*M), std::move(context)) };
-    if (auto E = np.jit->addIRModule(*np.jds.back(), std::move(TSM))) {
+    if (auto E = np.jit->addIRModule(*EJD, std::move(TSM))) {
       llvm::logAllUnhandledErrors(std::move(E), llvm::errs());
       return -1;
     };
@@ -1405,14 +1446,14 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
   bool debug { llvm::DebugFlag };
   llvm::DebugFlag = false;
   auto SearchOrder {
-    llvm::orc::makeJITDylibSearchOrder(np.jds.back(),
+    llvm::orc::makeJITDylibSearchOrder(&*EJD,
                                        llvm::orc::JITDylibLookupFlags::MatchAllSymbols)
   };
-  auto mangled_entry_name { np.jit->mangleAndIntern(entry_name) };
-  auto Entry { ES.lookup(SearchOrder, mangled_entry_name) };
+  lookup_set.removeDuplicates();
+  auto lookup_symbols { ES.lookup(SearchOrder, lookup_set) };
   llvm::DebugFlag = debug;
-  if (!Entry) {
-    llvm::logAllUnhandledErrors(Entry.takeError(), llvm::errs(),
+  if (!lookup_symbols) {
+    llvm::logAllUnhandledErrors(lookup_symbols.takeError(), llvm::errs(),
                                 "download_code: ");
     return -1;
   }
@@ -1420,18 +1461,26 @@ NubProcess::NUBINT NubProcess::download_code(NUBTHREAD nubthread, const std::vec
     ES.dump(llvm::errs());
     return np.jit_error_code;
   }
-  NUB_DEBUG({
-    llvm::dbgs() << "Entry " << mangled_entry_name
-                 << " is " << llvm::formatv("{0:x}", Entry->getAddress())
-                 << "\n";
-    ES.dump(llvm::dbgs());
-  });
 
-  symbols.emplace_back(np.make_lookup_symbol(entry_name, *Entry));
+  NUB_DEBUG(ES.dump(llvm::dbgs()));
+  for (const auto &KV : *lookup_symbols) {
+    NUB_DEBUG({
+      llvm::dbgs() << "Resolved " << KV.first
+                   << " to " << llvm::formatv("{0:x}", KV.second.getAddress())
+                   << "\n";
+    });
+    symbols.emplace_back(np.make_lookup_symbol((*KV.first).str(), KV.second));
 
-  auto *JD { np.jds.back() };
-  regions = np.jd_regions[JD];
+    np.jit_symbols.insert_or_assign(KV.first, KV.second);
+  }
 
-  NUB_DEBUG(llvm::dbgs() << "download_code JITDylib " << name << " succeeded\n");
+  regions = np.jd_regions;
+
+  if (auto E = ES.removeJITDylib(*EJD)) {
+    llvm::logAllUnhandledErrors(std::move(E), llvm::errs());
+    return -1;
+  };
+
+  NUB_DEBUG(llvm::dbgs() << "download_code JITDylib succeeded\n");
   return 0;
 }
