@@ -209,6 +209,7 @@ bootstrap-stage-3: bootstrap-stage-3-dirs \
                    bootstrap-stage-3-libraries \
                    bootstrap-stage-3-statics \
                    bootstrap-stage-3-runtime \
+                   bootstrap-stage-3-nub \
                    bootstrap-stage-3-jamfiles
 
 bootstrap-stage-3-dirs:
@@ -250,6 +251,11 @@ bootstrap-stage-3-runtime:
 	    $(BOOTSTRAP_3_RTGVARS) \
 	    install; \
 	done
+
+bootstrap-stage-3-nub:
+	@echo Building Open Dylan debugger nub...
+	$(MAKE) -C sources/runtime-manager/debugger-nub/lldb-nub install \
+          OPEN_DYLAN_USER_INSTALL=$(BOOTSTRAP_3_ROOT)
 
 bootstrap-stage-3-jamfiles:
 	@OPEN_DYLAN_USER_INSTALL=$(BOOTSTRAP_3_ROOT) \

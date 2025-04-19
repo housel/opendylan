@@ -6,8 +6,12 @@ subdir		= sources/runtime-manager/debugger-nub/lldb-nub
 
 VPATH		= $(srcdir)
 
+BIN_DEST        = $(OPEN_DYLAN_USER_INSTALL)/bin
+
 CC		= @CC@
 CXX		= @CXX@
+
+INSTALL         = @INSTALL@
 
 IDL		= $(top_srcdir)/sources/runtime-manager/debugger-nub/remote-nub.idl
 
@@ -71,6 +75,10 @@ remote-nub-skels.o: remote-nub-skels.cpp remote-nub.h
 main.o: main.cpp remote-nub.h
 	$(CXX) -MMD -c $(CXXFLAGS) $(OMNIORB_CFLAGS) \
 	    -o $@ $(srcdir)/main.cpp
+
+install: dylan-debugger-nub
+	$(INSTALL) -d $(BIN_DEST)
+	$(INSTALL) -s dylan-debugger-nub $(BIN_DEST)
 
 clean:
 	rm -f dylan-debugger-nub $(OBJS) $(OBJS:%.o=%.d) remote-nub.h remote-nub-skels.cpp
