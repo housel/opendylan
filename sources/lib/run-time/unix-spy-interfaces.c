@@ -8,6 +8,7 @@
 /* ********************************************************************* */
 
 #include <stdlib.h>
+#include <unistd.h>
 #include <dlfcn.h>
 #include "unix-types.h"
 #include "spy-interfaces.h"
@@ -52,6 +53,11 @@ SPY_INTERFACE int spy_get_runtime_signal(size_t n)
   else {
     return -1;
   }
+}
+
+SPY_INTERFACE int spy_get_page_size(void)
+{
+  return sysconf(_SC_PAGESIZE);
 }
 
 SPY_INTERFACE int spy_register_exception_handler_data(void *base, void *limit)

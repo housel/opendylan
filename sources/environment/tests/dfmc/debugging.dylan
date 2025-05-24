@@ -368,6 +368,8 @@ define suite dfmc-environment-debugging-suite
              select ($os-name)
                #"win32" =>
                  #t;
+               #"freebsd", #"linux" =>
+                 $machine-architecture == #"x86_64";
                otherwise =>
                  values(#f, "debugging is not yet supported on this platform");
              end select

@@ -134,7 +134,7 @@ Rtmgr::RemoteNub::NUBINT Rtmgr_RemoteNub_i::page_relative_address(Rtmgr::RemoteN
 
 Rtmgr::RemoteNub::NUBINT Rtmgr_RemoteNub_i::virtual_page_size()
 {
-  return this->nub_process_->virtual_page_size();
+  NUB_UNIMPLEMENTED();
 }
 
 Rtmgr::RemoteNub::NUB_ERROR Rtmgr_RemoteNub_i::download_code
@@ -258,7 +258,7 @@ void Rtmgr_RemoteNub_i::write_double_float_to_process_memory(Rtmgr::RemoteNub::R
 void Rtmgr_RemoteNub_i::read_byte_string_from_process_memory(Rtmgr::RemoteNub::RTARGET_ADDRESS address, Rtmgr::RemoteNub::NUBINT sz, ::CORBA::String_out buffer, Rtmgr::RemoteNub::NUB_ERROR &status)
 {
   buffer = CORBA::string_alloc(sz);
-  this->nub_process_->read_byte_string_from_process_memory(address, sz, buffer.ptr(), status);
+  this->nub_process_->read_from_process_memory(address, sz, buffer.ptr(), status);
   if (status == 0) {
     buffer[sz] = '\0';
   }
@@ -266,7 +266,7 @@ void Rtmgr_RemoteNub_i::read_byte_string_from_process_memory(Rtmgr::RemoteNub::R
 
 void Rtmgr_RemoteNub_i::write_byte_string_to_process_memory(Rtmgr::RemoteNub::RTARGET_ADDRESS address, Rtmgr::RemoteNub::NUBINT sz, const char *buffer, Rtmgr::RemoteNub::NUB_ERROR &status)
 {
-  this->nub_process_->write_byte_string_to_process_memory(address, sz, buffer, status);
+  this->nub_process_->write_to_process_memory(address, sz, buffer, status);
 }
 
 Rtmgr::RemoteNub::RTARGET_ADDRESS Rtmgr_RemoteNub_i::read_value_from_process_register_in_stack_frame

@@ -77,7 +77,7 @@ define method read-dylan-value
 
   // If this is the first read in a new debugger transaction then flush the cache
   if (ap.new-debugger-transaction?)
-    ap.pages-safe-to-read-cache := make (<set>);
+    remove-all-keys!(ap.pages-safe-to-read-cache);
     ap.new-debugger-transaction? := #f;
   end if;
 

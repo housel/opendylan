@@ -28,7 +28,7 @@ define library dfmc-environment-test-suite
   // Back-ends
   use dfmc-back-end-implementations;
   use access-path;
-  use local-access-path;
+  use ddapp-access-path;
   use remote-access-path;
 
   export dfmc-environment-test-suite;

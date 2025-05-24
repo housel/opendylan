@@ -5,10 +5,11 @@
 #include <unistd.h>
 
 #include "nub-server-impl.h"
+#include "ddapp.h"
 
 using namespace std;
 
-int main(int argc, char *argv[])
+int corba_main(int argc, char *argv[])
 {
   try {
     // Initialize the ORB
@@ -64,4 +65,21 @@ int main(int argc, char *argv[])
     std::cerr << "Caught CORBA::Exception: " << ex._name() << std::endl;
   }
   return 0;
+}
+
+int ddapp_main()
+{
+  // Communicate with ddapp-access-path over stdin/stdout
+  DDAPProtocol ddapp(0, 1);
+  return ddapp.run();
+}
+
+int main(int argc, char *argv[])
+{
+  if (argc == 1) {
+    return ddapp_main();
+  }
+  else {
+    return corba_main(argc, argv);
+  }
 }

@@ -74,6 +74,5 @@ define test simple-breakpoint-test ()
                    wait-for-stop-reason-aux(access-path),
                    "Stop at process exit");
 
-  check-no-errors(close-application(access-path),
-                  "Close access path");
+  check-no-errors("Close access path", close-application(access-path));
 end test;

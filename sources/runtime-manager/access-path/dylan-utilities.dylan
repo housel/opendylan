@@ -86,8 +86,8 @@ define open generic calculate-step-into-on-connection
 
 define method dylan-thread-environment-block-address
     (ap :: <access-path>, thread :: <remote-thread>)
-       => (teb :: <remote-value>)
-  teb-on-connection(ap.connection, thread);
+ => (teb :: <remote-value>)
+  teb-on-connection(ap.connection, thread)
 end method;
 
 define open generic teb-on-connection

@@ -316,6 +316,5 @@ AC_CONFIG_FILES(Makefile
                 sources/jamfiles/Makefile
                 sources/jamfiles/config.jam
                 sources/lib/run-time/Makefile
-                sources/runtime-manager/debugger-nub/lldb-debugger-server/Makefile
                 sources/runtime-manager/debugger-nub/lldb-nub/Makefile)
 AC_OUTPUT

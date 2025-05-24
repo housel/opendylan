@@ -26,15 +26,7 @@ define generic as-integer
 
 define inline method as-integer
     (x :: <remote-value>) => (i :: <abstract-integer>)
-  if (primitive-machine-word-unsigned-greater-than?
-	(primitive-unwrap-machine-word(x),
-	 primitive-unwrap-machine-word(coerce-integer-to-machine-word(#x1fffffff))))
-    make(<double-integer>,
-	 high: $minimum-unsigned-machine-word,
-	 low: x);
-  else
-    coerce-machine-word-to-integer(x);
-  end if;
+  coerce-machine-word-to-abstract-integer(x)
 end method;
 
 define inline method as-integer

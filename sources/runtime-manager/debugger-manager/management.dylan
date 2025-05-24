@@ -275,10 +275,9 @@ define method manage-running-application
 
     // Perform a periodic poll of the stop
           // button. (The application may be running now).
-    debugger-message("poll stop button");
     poll-for-stop-callback(application);
-    debugger-message("application-stopped? %=", application.application-stopped?);
     if (application.application-stopped?)
+      debugger-message("application-stopped? is set");
       stop (application.debug-target-access-path);
       application.application-stopped? := #f;
       use-thread-for-spy-functions(application, #f);

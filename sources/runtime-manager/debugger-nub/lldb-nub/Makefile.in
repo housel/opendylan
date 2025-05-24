@@ -31,7 +31,8 @@ LLDB_LIBS       = @LLDB_LIBS@
 LLDB_OBJS       = NubProcess.o \
                   NubLLDBContext.o \
                   NubExecutorProcessControl.o \
-                  NubProcessMemoryManager.o
+                  NubProcessMemoryManager.o \
+                  ddapp.o
 
 OBJS            = $(LLDB_OBJS) \
 		  nub-server-impl.o \
@@ -62,6 +63,9 @@ NubExecutorProcessControl.o: NubExecutorProcessControl.cpp
 NubProcessMemoryManager.o: NubProcessMemoryManager.cpp
 	$(CXX) -MMD -c $(CXXFLAGS) $(LLDB_CXXFLAGS) $(LLDB_CPPFLAGS) \
             -I. -o $@ $(srcdir)/NubProcessMemoryManager.cpp
+ddapp.o: ddapp.cpp
+	$(CXX) -MMD -c $(CXXFLAGS) $(LLDB_CXXFLAGS) $(LLDB_CPPFLAGS) \
+            -I. -o $@ $(srcdir)/ddapp.cpp
 
 nub-server-impl.o: nub-server-impl.cpp remote-nub.h
 	$(CXX) -MMD -c $(CXXFLAGS) $(OMNIORB_CFLAGS) \

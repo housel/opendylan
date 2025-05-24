@@ -436,6 +436,7 @@ end module;
 define module access-path-nub
 
   create
+    *default-local-debugger-connection*,
     string-as-remote-value-on-connection,
     start-application-on-connection,
     attach-application-on-connection,
@@ -466,6 +467,8 @@ define module access-path-nub
     page-relative-address-on-connection,
     download-code-on-connection,
     perform-coff-relocation-on-connection,
+    $timed-out,
+    $create-process,
     wait-for-stop-reason-with-timeout,
     wait-for-stop-reason-no-timeout,
     get-debug-event-process-exit-code,
@@ -502,6 +505,9 @@ define module access-path-nub
     read-frame-lexicals,
     older-stack-frame-on-connection?,
     register-interactive-segment-on-connection,
+    $breakpoint-exists,
+    $breakpoint-does-not-exist,
+    $breakpoint-ok,
     set-breakpoint-in-application,
     clear-breakpoint-in-application,
     recover-breakpoint-in-application,
@@ -536,7 +542,8 @@ define module access-path-implementation
   use dylan-extensions,
      import: {<machine-word>,
               <double-integer>,
-              $minimum-unsigned-machine-word, integer-as-raw},
+              $minimum-unsigned-machine-word, integer-as-raw,
+              debug-name},
      export: all;
   use dylan-primitives;
   use machine-word-lowlevel;
@@ -544,7 +551,8 @@ define module access-path-implementation
   use format;
   use format-out;
   use print;
-  use streams, import: {<file-stream>, <stream>, force-output, close, stream-lock};
+  use pprint;
+  use streams, import: {<file-stream>, <stream>, force-output, close, stream-lock, write};
   use locators, import: {<file-locator>};
   use file-system;
   use byte-vector;

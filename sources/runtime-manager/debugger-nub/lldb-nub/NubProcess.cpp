@@ -110,6 +110,11 @@ NubProcess::NUBPROCESS NubProcess::process() const
   return this->private_->process.GetProcessID();
 }
 
+bool NubProcess::little_endianQ() const
+{
+  return this->private_->process.GetByteOrder() == lldb::eByteOrderLittle;
+}
+
 NubProcess::NUBINT NubProcess::remote_value_byte_size() const
 {
   return this->private_->process.GetAddressByteSize();
@@ -133,6 +138,23 @@ void NubProcess::get_library_version(NUBLIBRARY dll, NUBINT &maj, NUBINT &min)
   module.GetVersion(versions, 2);
   maj = versions[0];
   min = versions[1];
+}
+
+std::string NubProcess::get_library_version(NUBLIBRARY dll)
+{
+  auto &np { *this->private_ };
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
+  lldb::SBModule &module { np.modules[dll] };
+  uint32_t versions[3];
+  uint32_t nversions = module.GetVersion(versions, 3);
+  std::string version;
+  for (uint32_t i = 0; i < nversions; ++i) {
+    if (i > 0) {
+      version += ".";
+    }
+    version += std::to_string(versions[i]);
+  }
+  return std::move(version);
 }
 
 std::string NubProcess::get_library_filename(NUBLIBRARY dll)
@@ -202,6 +224,52 @@ NubProcess::NUBINT NubProcess::page_write_permission(TARGET_ADDRESS address)
   return 1;                     // Debugger can always write
 }
 
+NubProcess::NUBINT NubProcess::get_memory_region_info(TARGET_ADDRESS address, MemoryRegionInfo &info)
+{
+  auto &np { *this->private_ };
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
+  auto regions { np.process.GetMemoryRegions() };
+  NUB_DEBUG({
+    llvm::dbgs() << "Seeking address " << llvm::format("0x%016" PRIx64, address) << "\n";
+    for(uint32_t i = 0, e = regions.GetSize(); i != e; ++i) {
+      lldb::SBMemoryRegionInfo pr_info;
+      regions.GetMemoryRegionAtIndex(i, pr_info);
+      lldb::SBStream stream;
+      pr_info.GetDescription(stream);
+      llvm::dbgs() << "Region " << stream.GetData()
+                   << " " << pr_info.GetName()
+                   << "\n";
+    }
+  });
+
+  lldb::SBMemoryRegionInfo pr_info;
+  if (np.process.GetMemoryRegionInfo(address, pr_info)) {
+    NUB_DEBUG({
+      lldb::SBStream stream;
+      pr_info.GetDescription(stream);
+      llvm::dbgs() << "Address " << llvm::format("0x%016" PRIx64, address)
+                   << " in region: " << stream.GetData()
+                   << "\n";
+    });
+    info.start = pr_info.GetRegionBase();
+    info.end = pr_info.GetRegionEnd();
+    NUBINT page_size = pr_info.GetPageSize();
+    if (page_size == 0) {
+      info.page_size = np.process_page_size;
+    }
+    else {
+      info.page_size = page_size;
+    }
+    info.readable = pr_info.IsReadable();
+    info.writable = pr_info.IsWritable();
+    info.executable = pr_info.IsExecutable();
+    return 0;
+  }
+  else {
+    return 1;
+  }
+}
+
 NubProcess::NUBINT NubProcess::page_relative_address
     (TARGET_ADDRESS address, NUBINT &offset)
 {
@@ -220,17 +288,11 @@ NubProcess::NUBINT NubProcess::page_relative_address
   return address / pagesize;
 }
 
-NubProcess::NUBINT NubProcess::virtual_page_size()
-{
-  return getpagesize();
-}
-
 NubProcess::TARGET_ADDRESS NubProcess::read_value_from_process_memory
   (TARGET_ADDRESS address, NUB_ERROR &status)
 {
   auto &np { *this->private_ };
   std::unique_lock<std::recursive_mutex> guard(np.mutex);
-
 
   lldb::SBError error;
   auto value { np.process.ReadPointerFromMemory(address, error) };
@@ -298,7 +360,7 @@ void NubProcess::write_value_to_process_memory
   }
 }
 
-void NubProcess::read_byte_string_from_process_memory
+void NubProcess::read_from_process_memory
     (TARGET_ADDRESS address, NUBINT sz, void *buffer, NUB_ERROR &status)
 {
   if (sz > 0) {
@@ -309,11 +371,13 @@ void NubProcess::read_byte_string_from_process_memory
     np.process.ReadMemory(address, buffer, sz, error);
     if (error.Success()) {
       std::string str(reinterpret_cast<const std::string::value_type*>(buffer), sz);
+#if 0
       NUB_DEBUG({
         llvm::dbgs() << "Read " << sz << " bytes from "
                      << llvm::format("0x%016" PRIx64, address)
                      << ": \"" << str << "\"\n";
       });
+#endif
       status = 0;
     }
     else {
@@ -323,7 +387,7 @@ void NubProcess::read_byte_string_from_process_memory
   }
 }
 
-void NubProcess::write_byte_string_to_process_memory
+void NubProcess::write_to_process_memory
     (TARGET_ADDRESS address, NUBINT sz, const void *buffer, NUB_ERROR &status)
 {
   auto &np { *this->private_ };
@@ -494,6 +558,7 @@ void NubProcess::application_continue()
       np.stop_reason_queue.front().synthetic = false;
     }
     else {
+      NUB_DEBUG(llvm::dbgs() << "Process continue!\n");
       np.process.Continue();
     }
   }
@@ -527,6 +592,7 @@ void NubProcess::application_continue_unhandled()
       }
       abort();
     }
+    NUB_DEBUG(llvm::dbgs() << "Process continue!\n");
     np.process.Continue();
   }
 }
@@ -566,9 +632,13 @@ NubProcess::NUB_ERROR NubProcess::set_stepping_control_on_thread
           = { NubLLDBContext::BreakpointClassification(operation),
               std::move(breakpoint) };
         NUB_DEBUG({
+            lldb::SBStream stream;
+            np.breakpoint_map[loc].breakpoint.GetDescription(stream);
             llvm::dbgs() << "    Created a breakpoint (ID " << id << ") at "
                          << llvm::format("0x%016" PRIx64, loc)
-                         << " for step operation " << operation << "\n";
+                         << " for step operation " << operation
+                         << ": " << stream.GetData()
+                         << "\n";
           });
 
           np.stepping_breakpoint_addresses.push_back(loc);
@@ -699,6 +769,59 @@ NubProcess::NUB_ERROR NubProcess::kill_application()
   }
 }
 
+NubProcess::NUB_ERROR NubProcess::set_breakpoints(const std::vector<TARGET_ADDRESS> &addresses)
+{
+  auto &np { *this->private_ };
+  std::unique_lock<std::recursive_mutex> guard(np.mutex);
+
+  // Set requested breakpoints that aren't already set
+  std::set<TARGET_ADDRESS> requested;
+  for (const auto &address : addresses) {
+    requested.insert(address);
+    auto i = np.breakpoint_map.find(address);
+    if (i == np.breakpoint_map.end()) {
+      auto breakpoint { np.target.BreakpointCreateByAddress(address) };
+      if (breakpoint.GetNumLocations() == 1) {
+        breakpoint.SetEnabled(true);
+        auto id { breakpoint.GetID() };
+        np.breakpoint_map[address]
+          = {NubLLDBContext::APPLICATION_BREAKPOINT, std::move(breakpoint)};
+        NUB_DEBUG({
+            lldb::SBStream stream;
+            np.breakpoint_map[address].breakpoint.GetDescription(stream);
+            llvm::dbgs() << "Created a breakpoint (ID " << id << ") at "
+                         << llvm::format("0x%016" PRIx64, address)
+                         << ": " << stream.GetData()
+                         << "\n";
+          });
+      }
+      else {
+        llvm::errs() << "SET_BREAKPOINT_FAILED\n";
+        return SET_BREAKPOINT_FAILED;
+      }
+    }
+  }
+
+  // Clear existing breakpoints that weren't requested
+  for (auto I = np.breakpoint_map.begin(), E = np.breakpoint_map.end(); I != E; ++I) {
+    if (requested.find(I->first) == requested.end()) {
+      NUB_DEBUG({
+        llvm::dbgs() << "Clearing breakpoint (ID "
+                     << I->second.breakpoint.GetID() << ") at "
+                     << llvm::format("0x%016" PRIx64, I->first)
+                     << "\n";
+      });
+      if (!np.target.BreakpointDelete(I->second.breakpoint.GetID())) {
+        NUB_DEBUG(llvm::dbgs() << "CLEAR_BREAKPOINT_FAILED\n");
+        return CLEAR_BREAKPOINT_FAILED;
+      }
+      np.breakpoint_map.erase(I);
+    }
+  }
+
+  return OK;
+}
+
 NubProcess::NUB_ERROR NubProcess::set_breakpoint(TARGET_ADDRESS address)
 {
   auto &np { *this->private_ };
@@ -718,7 +841,6 @@ NubProcess::NUB_ERROR NubProcess::set_breakpoint(TARGET_ADDRESS address)
         llvm::dbgs().flush();
       });
       i->second.breakpoint.SetEnabled(true);
-      //np.debugger.HandleCommand("breakpoint list");
       return OK;
     }
   }
@@ -730,12 +852,14 @@ NubProcess::NUB_ERROR NubProcess::set_breakpoint(TARGET_ADDRESS address)
       np.breakpoint_map[address]
         = {NubLLDBContext::APPLICATION_BREAKPOINT, std::move(breakpoint)};
       NUB_DEBUG({
+        lldb::SBStream stream;
+        np.breakpoint_map[address].breakpoint.GetDescription(stream);
         llvm::dbgs() << "Created a breakpoint (ID " << id << ") at "
                      << llvm::format("0x%016" PRIx64, address)
+                     << ": " << stream.GetData()
                      << "\n";
         llvm::dbgs().flush();
       });
-      //np.debugger.HandleCommand("breakpoint list");
       return OK;
     }
     else {
@@ -1020,12 +1144,15 @@ std::vector<NubProcess::StackFrame> NubProcess::read_stack_vectors
   std::unique_lock<std::recursive_mutex> guard(np.mutex);
   auto thread { np.process.GetThreadByID(nubthread) };
   auto real_frame_count { thread.GetNumFrames() };
+  if (frame_count == 0) {
+    frame_count = real_frame_count;
+  }
   NUB_DEBUG({
     llvm::dbgs() << "read_stack_vectors " << nubthread
                  << ": reading " << frame_count
                  << " of " << real_frame_count << " frames\n";
   });
-  std::vector<NubProcess::StackFrame> result(real_frame_count);
+  std::vector<NubProcess::StackFrame> result(frame_count);
   for (uint32_t i = 0; i < frame_count; ++i) {
     auto frame { thread.GetFrameAtIndex(i) };
     result[i].frame_pointer = frame.GetFP();

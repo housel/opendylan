@@ -109,11 +109,11 @@ define method handle-debug-point-event
         #f
       end if;
 
-    debugger-message("handle-debug-point-event\n"
-		     "\nTHREAD:%= TOPF:%= TOPFP:%=\n"
-		     "\nCALLINGF:%= CALLINGFP:%=\n"
-		     "\nBPCALLINGF:%= BPUSEF:%=",
-		     thread, top-frame-now, top-frame-pointer,
+    debugger-message("handle-debug-point-event"
+		     " THREAD:%= TOPFP:%= "
+		     " CALLINGF:%= CALLINGFP:%="
+		     " BPCALLINGF:%= BPUSEF:%=",
+		     thread, top-frame-pointer,
 		     calling-frame-now, calling-frame-pointer,
 		     bp.calling-frame, bp.used-frame);
 
@@ -296,8 +296,9 @@ define method setup-interactor
     (application :: <debug-target>, thread :: <remote-thread>,
      symbolic-C-entry-point :: <string>, symbolic-dll :: false-or(<string>),
      return-spec :: <symbol>, #rest args)
-       => (transaction-id :: <object>)
-  debugger-message("setup-interactor %= running on %=", thread, current-thread().thread-name-internal);
+ => (transaction-id :: <object>)
+  debugger-message("setup-interactor %= running on %=, invoker: %s",
+                   thread, current-thread().thread-name-internal);
 
   let recovery-manager =
       find-symbol(application.debug-target-access-path,
@@ -360,6 +361,7 @@ define method setup-interactor
 
     // This will tell us the address to register our breakpoint. Construct the
     // breakpoint object, caching all important information.
+    debugger-message("setup-interactor registering interactor return at %=", return-address);
     debug-point :=
       make(<interactor-return-breakpoint>,
            address: return-address,
@@ -381,8 +383,9 @@ define method setup-interactor
 
   // Actually use the registered debug point as the transaction ID, since it
   // is guaranteed to be unique.
+  debugger-message("setup-interactor transaction/return: %=", debug-point);
 
-  debug-point;
+  debug-point
 end method;
 
 

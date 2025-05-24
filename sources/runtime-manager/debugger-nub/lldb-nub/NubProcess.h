@@ -36,6 +36,8 @@ public:
 
   NUBPROCESS process() const;
 
+  bool little_endianQ() const;
+
   NUBINT remote_value_byte_size() const;
   NUBINT get_process_page_fault_count();
   NUBINT thread_os_priority(NUBTHREAD nubthread);
@@ -44,6 +46,7 @@ public:
   TARGET_ADDRESS get_library_base_address(NUBLIBRARY dll);
 
   void get_library_version(NUBLIBRARY dll, NUBINT &maj, NUBINT &min);
+  std::string get_library_version(NUBLIBRARY dll);
 
   std::string get_library_filename(NUBLIBRARY dll);
   std::string get_library_undecorated_name(NUBLIBRARY dll);
@@ -58,8 +61,17 @@ public:
   NUBINT page_read_permission(TARGET_ADDRESS address);
   NUBINT page_write_permission(TARGET_ADDRESS address);
 
+  struct MemoryRegionInfo {
+    TARGET_ADDRESS start;       // Start/base address of the region
+    TARGET_ADDRESS end;         // End address of the region
+    NUBINT page_size;           // Page size (in bytes) for the region
+    bool readable;
+    bool writable;
+    bool executable;
+  };
+  NUBINT get_memory_region_info(TARGET_ADDRESS address, MemoryRegionInfo &info);
+
   NUBINT page_relative_address(TARGET_ADDRESS address, NUBINT &offset);
-  NUBINT virtual_page_size();
 
   TARGET_ADDRESS read_value_from_process_memory(TARGET_ADDRESS address,
                                                NUB_ERROR &status);
@@ -82,9 +94,9 @@ public:
   void write_double_float_to_process_memory
     (TARGET_ADDRESS address, DOUBLE value,
      NUB_ERROR &status);
-  void read_byte_string_from_process_memory
+  void read_from_process_memory
     (TARGET_ADDRESS address, NUBINT sz, void *buffer, NUB_ERROR &status);
-  void write_byte_string_to_process_memory
+  void write_to_process_memory
     (TARGET_ADDRESS address, NUBINT sz, const void *buffer, NUB_ERROR &status);
 
   TARGET_ADDRESS read_value_from_process_register_in_stack_frame
@@ -153,6 +165,7 @@ public:
     BREAKPOINT_WAS_DISABLED = 8,
   };
 
+  NUB_ERROR set_breakpoints(const std::vector<TARGET_ADDRESS> &addresses);
   NUB_ERROR set_breakpoint(TARGET_ADDRESS address);
   NUB_ERROR clear_breakpoint(TARGET_ADDRESS address);\
   // void recover_breakpoint(NUBTHREAD thread);

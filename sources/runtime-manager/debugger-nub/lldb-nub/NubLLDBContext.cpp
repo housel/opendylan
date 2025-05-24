@@ -22,7 +22,9 @@ namespace {
   class DebuggerCreator {
   public:
     DebuggerCreator() {
+#if 1
       llvm::DebugFlag = true;
+#endif
 
       // Initialize compilation support for JIT use
 #if 0
@@ -299,6 +301,7 @@ namespace nub_private {
     : debugger(creator.create()),
       listener(std::string("Listener for ").append(process_name).c_str()),
       launch(nullptr),
+      process_page_size(0),
       nub_state(INERT),
       exit_process_function(LLDB_INVALID_ADDRESS),
       ssp(std::make_shared<llvm::orc::SymbolStringPool>()),
@@ -537,7 +540,6 @@ namespace nub_private {
           auto tid { main_thread.GetThreadID() };
 
           llvm::errs() << "We have a process now (main thread " << tid << ")\n";
-          this->debugger.HandleCommand("breakpoint list");
 
           // This had better be stopped at entry
           auto us { this->process.GetUnixSignals() };
@@ -567,6 +569,13 @@ namespace nub_private {
           // The debugger expects a CREATE_PROCESS event at this point
           NubProcess::StopReason create_process
             (NubProcess::CREATE_PROCESS_DBG_EVENT, false, tid);
+          auto executable { this->target.GetExecutable() };
+          for (auto index = 0; index < this->modules.size(); ++index) {
+            if (this->modules[index].GetFileSpec() == executable) {
+              create_process.library = index;
+              break;
+            }
+          }
           this->stop_reason_queue.emplace_back(create_process);
 
           // Any modules-loaded events that happened before now were
@@ -640,6 +649,10 @@ namespace nub_private {
             }
           }
 
+          // Retrieve the system page size
+          auto page_size_value { this->evaluate(main_thread, "spy_get_page_size()") };
+          this->process_page_size = page_size_value.GetValueAsSigned(0);
+
           // We won't need to stop at this breakpoint again (unless the
           // application is restarted)
           this->main_breakpoint.SetEnabled(false);
@@ -648,7 +661,6 @@ namespace nub_private {
           this->create_thread_breakpoint
             = this->target.BreakpointCreateByName("dylan_thread_trampoline");
           this->create_thread_breakpoint.SetEnabled(true);
-          //this->debugger.HandleCommand("breakpoint list");
 
           // A stop reason of this type for which first_hard_coded_breakpoint()
           // returns true is interpreted as <system-initialized-stop-reason>
@@ -668,7 +680,6 @@ namespace nub_private {
 
       case RUNNING:
         NUB_DEBUG(llvm::dbgs() << "Stopped in RUNNING, for whatever reason\n");
-        //this->debugger.HandleCommand("bt all");
         {
           auto queue_count { this->stop_reason_queue.size() };
           for (size_t ti = 0, te = process.GetNumThreads(); ti != te; ++ti) {
@@ -762,7 +773,6 @@ namespace nub_private {
                     this->stop_reason_queue.emplace_back(system_initialized);
                     this->queue_condition.notify_all();
                     NUB_DEBUG(llvm::dbgs() << "  Pushed HARD_CODED_BREAKPOINT for that one\n");
-                    //this->debugger_.HandleCommand("bt all");
                   }
                   break;
 #endif
@@ -787,7 +797,6 @@ namespace nub_private {
                   this->stop_reason_queue.emplace_back(hard_coded_breakpoint);
                   this->queue_condition.notify_all();
                   NUB_DEBUG(llvm::dbgs() << "  Pushed HARD_CODED_BREAKPOINT for that one\n");
-                  //this->debugger_.HandleCommand("bt all");
                 }
                 else if (sig == us.GetSignalNumberFromName("SIGSEGV")) {
                   NubProcess::StopReason access_violation_exception
@@ -874,6 +883,7 @@ namespace nub_private {
       auto module { lldb::SBTarget::GetModuleAtIndexFromEvent(i, event) };
       auto index { this->modules.size() };
       this->modules.push_back(module);
+      NUB_DEBUG(llvm::dbgs() << "Module loaded: " << module.GetFileSpec().GetFilename() << "\n");
 
       bool real_stop = false;
       for (auto &stop : this->stop_reason_queue) {

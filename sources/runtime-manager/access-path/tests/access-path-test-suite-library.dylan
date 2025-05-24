@@ -9,7 +9,8 @@ define library access-path-test-suite
   use common-dylan;
   use testworks;
   use access-path;
-  use local-access-path;
+  //use local-access-path;
+  use ddapp-access-path;
   use remote-access-path;
   use dylan-orb;
   use dfmc-mangling;

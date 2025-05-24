@@ -86,12 +86,14 @@ define method make (class == <remote-thread>, #rest keys, #key, #all-keys)
 end method;
 
 define method print-object
-  (t :: <remote-thread>, stream :: <stream>) => ()
-  format(stream, "{Remote Thread [%=, %=, %=, %=, %=, %=]}",
-	 t.thread-name, t.nub-descriptor, t.thread-state,
-	 t.os-thread-priority, t.thread-stack, t.thread-suspended?);
-end;
-
+    (t :: <remote-thread>, stream :: <stream>) => ()
+  printing-logical-block (stream, prefix: "{", suffix: "}")
+    let obj-class = t.object-class;
+    write(stream, obj-class.debug-name);
+    format(stream, " instance name: %=, suspended?: %=, stack: %=",
+           t.thread-name, t.thread-suspended?, t.thread-stack);
+  end;
+end method;
 
 ///// <REMOTE LIBRARY>
 

@@ -38,6 +38,8 @@ namespace nub_private {
     lldb::SBListener listener;
     lldb::SBLaunchInfo launch;
 
+    long process_page_size;
+
     NubProcess::LookupSymbol make_lookup_symbol(lldb::SBSymbol &symbol) const;
     NubProcess::LookupSymbol make_lookup_symbol(const std::string &name,
                                                 const llvm::orc::ExecutorSymbolDef &symboldef);

@@ -9,8 +9,9 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 ///// Constant codes used by the debugger nub.
 
-define constant $ok                            = 7;
-define constant $exists                        = 1;
+define constant $breakpoint-exists             = 1;
+define constant $breakpoint-does-not-exist     = 2;
+define constant $breakpoint-ok                 = 7;
 
 ///// EXPORTED GENERIC FUNCTIONS
 
@@ -73,7 +74,7 @@ define method enable-breakpoint
     set-breakpoint-in-application (ap.connection, address);
 
   // Attempt to map the success code to a legal success boolean.
-  (success-code == $ok);
+  success-code == $breakpoint-ok
 end method;
 
 define open generic set-breakpoint-in-application
@@ -91,7 +92,7 @@ define method disable-breakpoint
     clear-breakpoint-in-application (ap.connection, address);
 
   // Map the returned success code onto a boolean.
-  (success-code == $ok);
+  success-code == $breakpoint-ok
 end method;
 
 define open generic clear-breakpoint-in-application
@@ -118,7 +119,7 @@ define method query-breakpoint?
     query-breakpoint-in-application (ap.connection, address);
 
   // Map the code onto a boolean.
-  (code == $exists);
+  code == $breakpoint-exists
 end method;
 
 define open generic query-breakpoint-in-application

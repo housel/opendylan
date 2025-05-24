@@ -32,7 +32,7 @@ end class;
 //    A debugger connection to a process known to be running on the same
 //    machine as the development environment.
 
-define class <local-debugger-connection> (<debugger-connection>)
+define open abstract class <local-debugger-connection> (<debugger-connection>)
 end class;
 
 
@@ -47,14 +47,6 @@ define open abstract class <remote-debugger-connection> (<debugger-connection>)
     required-init-keyword: password:;
   slot connection-open? :: <boolean> = #f;
 end class;
-
-
-///// Make sure that <debugger-connection> is instantiable.
-
-define method make (class == <debugger-connection>, #rest keys, #key)
-    => (connection)
-  apply (make, <local-debugger-connection>, keys);
-end method;
 
 
 ///// <DEBUGGER-CONNECTION-FAILURE>
@@ -149,8 +141,7 @@ end method;
 //    no real nub server or debugger connection, this object serves as
 //    a place-holder for it.
 
-define constant *default-local-debugger-connection* =
-        make (<debugger-connection>);
+define variable *default-local-debugger-connection* :: false-or(<local-debugger-connection>) = #f;
 
 
 ///// HOST-MACHINE
@@ -158,6 +149,7 @@ define constant *default-local-debugger-connection* =
 
 define function host-machine () => (connection :: <debugger-connection>)
   *default-local-debugger-connection*
+    | error("No default local debugger connection instance supplied")
 end function;
 
 

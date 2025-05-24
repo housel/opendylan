@@ -90,8 +90,12 @@ end function;
 define method output-computation
     (stream :: <stream>, depth :: <integer>, seen :: <object-set>, c :: <computation>)
   indentd(stream, depth);
-  if (c.temporary & c.temporary.used?)
-    format(stream, "%s := ", c.temporary);
+  if (c.temporary)
+    if (c.temporary.used?)
+      format(stream, "%s := ", c.temporary);
+    else
+      format(stream, "`%s` := ", c.temporary);
+    end if;
   end if;
   print-computation(stream, c);
   if (*output-computation-source-origins?*)

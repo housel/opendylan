@@ -28,6 +28,9 @@ SPY_INTERFACE int spy_load_extension_component (char *name);
 /* Returns the nth signal reserved for use by the garbage collector or
    other runtime support.  */
 SPY_INTERFACE int spy_get_runtime_signal(size_t n);
+
+/* Returns the virtual memory page size */
+SPY_INTERFACE int spy_get_page_size(void);
 #endif
 
 /* Registers LLVM exception handler data with the unwinder */

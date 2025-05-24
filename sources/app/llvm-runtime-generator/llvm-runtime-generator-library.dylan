@@ -16,6 +16,7 @@ define library llvm-runtime-generator
   use dfmc-back-end;
   use dfmc-llvm-back-end;
   use dfmc-llvm-linker;
+  use dfmc-debug-back-end;
 end library;
 
 define module llvm-runtime-generator

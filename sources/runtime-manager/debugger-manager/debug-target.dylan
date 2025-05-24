@@ -197,7 +197,7 @@ define open abstract class <debug-target> (<object>)
   // This is a cache of the pages which have been read from during
   // the current debugger transaction. It is guaranteed that these
   // pages can be read safely using the access-path.
-  slot pages-safe-to-read-cache :: <set> = make(<set>);
+  constant slot pages-safe-to-read-cache :: <set> = make(<set>);
 /*
   // This slot holds info about the MM entry functions so that we
   // can detect when threads are in the MM at the start of debugger
