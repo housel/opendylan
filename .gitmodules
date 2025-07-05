@@ -46,3 +46,6 @@
 [submodule "sources/lib/columnist"]
 	path = sources/lib/columnist
 	url = https://github.com/cgay/columnist
+[submodule "sources/lib/base64"]
+	path = sources/lib/base64
+	url = https://github.com/dylan-lang/base64.git
