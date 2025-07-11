@@ -230,9 +230,6 @@ end class;
 define class <write-watchpoint-stop-reason> (<watchpoint-stop-reason>)
 end class;
 
-define class <execute-watchpoint-stop-reason> (<watchpoint-stop-reason>)
-end class;
-
 define abstract class <exception-stop-reason> (<basic-stop-reason>)
 
   constant slot stop-reason-exception-address :: <remote-value>,

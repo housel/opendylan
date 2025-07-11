@@ -210,8 +210,6 @@ define module access-path
       query-read-watchpoint?,
       enable-write-watchpoint, disable-write-watchpoint,
       query-write-watchpoint?,
-      enable-execute-watchpoint, disable-execute-watchpoint,
-      query-execute-watchpoint?,
       recover-breakpoint,
 
       ///// Stepping at source code level.
@@ -271,7 +269,6 @@ define module access-path
       <watchpoint-stop-reason>,
       <read-watchpoint-stop-reason>,
       <write-watchpoint-stop-reason>,
-      <execute-watchpoint-stop-reason>,
       <exception-stop-reason>,
       stop-reason-exception-address,
       stop-reason-exception-first-chance?,

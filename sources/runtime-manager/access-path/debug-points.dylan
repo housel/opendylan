@@ -52,18 +52,6 @@ define generic query-write-watchpoint?
     (ap :: <access-path>, address :: <remote-value>)
       => (success :: <boolean>);
 
-define generic enable-execute-watchpoint
-    (ap :: <access-path>, address :: <remote-value>, size :: <integer>)
-      => (success :: <boolean>);
-
-define generic disable-execute-watchpoint
-    (ap :: <access-path>, address :: <remote-value>)
-      => (success :: <boolean>);
-
-define generic query-execute-watchpoint?
-    (ap :: <access-path>, address :: <remote-value>)
-      => (success :: <boolean>);
-
 
 ///// ENABLE-BREAKPOINT
 
@@ -175,34 +163,6 @@ end method;
 ///// QUERY-WRITE-WATCHPOINT?
 
 define method query-write-watchpoint?
-    (ap :: <access-path>, address :: <remote-value>)
-      => (success :: <boolean>)
-  #f
-end method;
-
-
-///// ENABLE-EXECUTE-WATCHPOINT
-
-define method enable-execute-watchpoint
-    (ap :: <access-path>, address :: <remote-value>, size :: <integer>)
-      => (success :: <boolean>)
-  #f
-end method;
-
-
-///// DISABLE-EXECUTE-WATCHPOINT
-
-define method disable-execute-watchpoint
-    (ap :: <access-path>, address :: <remote-value>)
-      => (success :: <boolean>)
-  #f
-end method;
-
-
-///// QUERY-EXECUTE-WATCHPOINT?
-
-
-define method query-execute-watchpoint?
     (ap :: <access-path>, address :: <remote-value>)
       => (success :: <boolean>)
   #f
