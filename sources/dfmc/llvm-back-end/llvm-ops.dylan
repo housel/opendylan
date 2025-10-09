@@ -234,6 +234,38 @@ define method op--stack-allocate-vector
   new-vector
 end method;
 
+// Fill in the callargs vector
+define method op--callargs
+    (back-end :: <llvm-back-end>, arguments :: <sequence>)
+ => (callargs :: <llvm-value>);
+  let module = back-end.llvm-builder-module;
+  let word-size = back-end-word-size(back-end);
+  if (empty?(arguments))
+    // Return the canonical empty vector, as callargs might not exist
+    emit-reference(back-end, module, dylan-value(#"%empty-vector"))
+  else
+    let sov-class :: <&class> = dylan-value(#"<simple-object-vector>");
+    let callargs = llvm-builder-local(back-end, $callargs-name);
+    let callargs-cast = op--object-pointer-cast(back-end, callargs, sov-class);
+
+    // Fill in the size slot for this particular call
+    let size-slot-ptr
+      = op--getslotptr(back-end, callargs-cast, sov-class, #"size");
+    let size-ref = op--tag-integer(back-end, arguments.size);
+    ins--store(back-end, size-ref, size-slot-ptr);
+
+    // Fill in the arguments
+    for (arg in arguments, index :: <integer> from 0)
+      let slot-ptr
+        = op--getslotptr(back-end, callargs-cast, sov-class,
+                         #"vector-element", index);
+      ins--store(back-end, arg, slot-ptr, alignment: word-size);
+    end for;
+
+    callargs
+  end if
+end method;
+
 define method op--object-mm-wrapper
     (back-end :: <llvm-back-end>, object)
  => (wrapper :: <llvm-value>);

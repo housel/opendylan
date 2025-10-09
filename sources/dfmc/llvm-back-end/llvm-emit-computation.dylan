@@ -718,6 +718,13 @@ define method emit-computation
   end if;
 end method;
 
+// Calling conventions:
+// IEP: arg, arg, ..., next-methods, function [fastcc]
+// MEP: function, next-methods, callargs-vector [fastcc]
+// Engine: engine-node, function, callargs-vector [fastcc]
+// XEP: function, callargs-vector [fastcc]
+// Apply MEP: next-methods, lambda, callargs-vector [fastcc]
+
 // Call a known top-level method with no further next methods
 define method emit-call
     (back-end :: <llvm-back-end>, m :: <llvm-module>,
@@ -789,7 +796,7 @@ define method emit-call
     // Cast to the appropriate MEP (or engine-node entry point) type
     let parameter-types
       = make(<simple-object-vector>,
-             size: c.arguments.size + 2,
+             size: 3,
              fill: $llvm-object-pointer-type);
     let return-type = llvm-reference-type(back-end, back-end.%mv-struct-type);
     let mep-type
@@ -800,12 +807,14 @@ define method emit-call
     let mep-cast
       = ins--bitcast(back-end, mep, llvm-pointer-to(back-end, mep-type));
 
+    let callargs
+      = op--callargs(back-end, map(curry(emit-reference, back-end, m),
+                                   c.arguments));
     op--call(back-end, mep-cast,
-             concatenate(vector(fn, next),
-                         map(curry(emit-reference, back-end, m),
-                             c.arguments)),
+             vector(fn, next, callargs),
              type: return-type,
-             calling-convention: $llvm-calling-convention-c)
+             calling-convention:
+               llvm-back-end-calling-convention-fast(back-end))
   ins--else
     op--call-iep(back-end, mep,
                  map(curry(emit-reference, back-end, m), c.arguments),
@@ -821,10 +830,11 @@ define method emit-call
  => (call :: <llvm-value>);
   let engine = emit-reference(back-end, m, c.engine-node);
   let function = emit-reference(back-end, m, f);
-
+  let callargs
+    = op--callargs(back-end, map(curry(emit-reference, back-end, m),
+                                 c.arguments));
   op--chain-to-engine-entry-point(back-end, engine, function,
-                                  map(curry(emit-reference, back-end, m),
-                                      c.arguments))
+                                  callargs)
 end method;
 
 // Calls to general functions using the XEP
@@ -841,10 +851,8 @@ define method emit-call
 
   // Cast to the appropriate XEP type
   let parameter-types
-    = make(<simple-object-vector>, size: c.arguments.size + 2);
-  parameter-types[0] := $llvm-object-pointer-type; // function
-  parameter-types[1] := back-end.%type-table["iWord"]; // argument count
-  fill!(parameter-types, $llvm-object-pointer-type, start: 2);
+    = vector($llvm-object-pointer-type,  // function
+             $llvm-object-pointer-type); // arguments
   let return-type = llvm-reference-type(back-end, back-end.%mv-struct-type);
   let xep-type
     = make(<llvm-function-type>,
@@ -854,12 +862,13 @@ define method emit-call
   let xep-cast
     = ins--bitcast(back-end, xep, llvm-pointer-to(back-end, xep-type));
 
+  let callargs
+    = op--callargs(back-end,
+                   map(curry(emit-reference, back-end, m), c.arguments));
   op--call(back-end, xep-cast,
-           concatenate(vector(fn, c.arguments.size),
-                       map(curry(emit-reference, back-end, m),
-                           c.arguments)),
+           vector(fn, callargs),
            type: return-type,
-           calling-convention: $llvm-calling-convention-c)
+           calling-convention: llvm-back-end-calling-convention-fast(back-end))
 end method;
 
 // Possibly congruent calls to a generic function
@@ -869,8 +878,10 @@ define method emit-call
  => (call :: <llvm-value>);
   if (call-congruent?(c))
     let gfn = emit-reference(back-end, m, f);
-    op--engine-node-call(back-end, gfn,
-                         map(curry(emit-reference, back-end, m), c.arguments))
+    let callargs
+      = op--callargs(back-end,
+                     map(curry(emit-reference, back-end, m), c.arguments));
+    op--engine-node-call(back-end, gfn, callargs)
   else
     next-method()
   end if
@@ -917,43 +928,28 @@ define method emit-call
  => (call :: <llvm-value>);
   let word-size = back-end-word-size(back-end);
 
+  // Retrieve the MEP entry point
+  let fn = emit-reference(back-end, m, c.function);
+  let fn-cast = op--object-pointer-cast(back-end, fn, #"<keyword-method>");
+  let mep-slot-ptr
+    = op--getslotptr(back-end, fn-cast, #"<keyword-method>", #"mep");
+  let mep = ins--load(back-end, mep-slot-ptr, alignment: word-size);
+
   // Shift required arguments into or out of the optionals vector as
   // needed
   let stacksave = ins--call-intrinsic(back-end, "llvm.stacksave", #[]);
   let argument-refs
     = map(curry(emit-reference, back-end, m), c.arguments);
   let nreq = spec-argument-number-required(f.signature-spec);
-  let fn = emit-reference(back-end, m, c.function);
   let shift-count = (size(c.arguments) - 1) - nreq;
   let shifted-argument-refs
     = op--shift-rest-arguments(back-end, fn, argument-refs, shift-count);
-
-  // Retrieve the MEP entry point
-  let fn-cast = op--object-pointer-cast(back-end, fn, #"<keyword-method>");
-  let mep-slot-ptr
-    = op--getslotptr(back-end, fn-cast, #"<keyword-method>", #"mep");
-  let mep = ins--load(back-end, mep-slot-ptr, alignment: word-size);
-
-  // Cast it to the appropriate MEP type
-  let parameter-types
-    = vector($llvm-object-pointer-type,  // method
-             $llvm-object-pointer-type); // next-methods
-  let return-type = llvm-reference-type(back-end, back-end.%mv-struct-type);
-  let mep-type
-    = make(<llvm-function-type>,
-           return-type: return-type,
-           parameter-types: parameter-types,
-           varargs?: #t);
-  let mep-cast
-    = ins--bitcast(back-end, mep, llvm-pointer-to(back-end, mep-type));
+  let callargs = op--callargs(back-end, shifted-argument-refs);
 
   let next = emit-reference(back-end, m, c.next-methods);
 
-  let call
-    = op--call(back-end, mep-cast,
-               concatenate(vector(fn, next), shifted-argument-refs),
-               type: return-type,
-               calling-convention: $llvm-calling-convention-c);
+  // Call the MEP
+  let call = op--chain-to-mep(back-end, mep, fn, next, callargs);
   ins--call-intrinsic(back-end, "llvm.stackrestore", vector(stacksave));
   call
 end method;

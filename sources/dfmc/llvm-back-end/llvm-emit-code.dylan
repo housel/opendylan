@@ -72,6 +72,7 @@ define method emit-code
 end method;
 
 define constant $extra-parameter-name = ".extra";
+define constant $callargs-name = ".callargs";
 
 define method emit-code
     (back-end :: <llvm-back-end>, module :: <llvm-module>, o :: <&iep>,
@@ -206,6 +207,16 @@ define method emit-lambda-body
               calling-convention: calling-convention,
               personality: llvm-function-personality(back-end, o));
 
+    // Determine the maximum needed call argument vector size
+    let argument-vector-size :: <integer> = 0;
+    for-computations (c in o)
+      if (instance?(c, <function-call>))
+        let effective-function = call-effective-function(c);
+        argument-vector-size
+          := max(argument-vector-size, call-argument-size(c, effective-function));
+      end if;
+    end;
+
     // Emit the entry block
     ins--block(back-end, make(<llvm-basic-block>, name: "bb.entry"));
 
@@ -243,6 +254,12 @@ define method emit-lambda-body
 
       // Emit debug information for the function
       emit-lambda-dbg-function(back-end, o);
+
+      // Allocate callargs if needed
+      unless (zero?(argument-vector-size))
+        ins--local(back-end, $callargs-name,
+                   op--stack-allocate-vector(back-end, argument-vector-size));
+      end unless;
 
       // Emit definitions for temporaries
       let e :: <lambda-lexical-environment> = o.environment;
@@ -309,4 +326,47 @@ define method llvm-function-attributes
        return-attributes: return-attributes,
        function-attributes: function-attributes,
        parameter-attributes: parameter-attributes)
+end method;
+
+define method call-argument-size
+    (c :: <function-call>, f)
+ => (argument-size :: <integer>)
+  0
+end method;
+
+define method call-argument-size
+    (c :: <simple-call>, f :: <&iep>)
+ => (argument-size :: <integer>)
+  0
+end method;
+
+define method call-argument-size
+    (c :: <method-call>, f :: <&iep>)
+ => (argument-size :: <integer>)
+  0
+end method;
+
+define method call-argument-size
+    (c :: <method-call>, f)
+ => (argument-size :: <integer>)
+  size(c.arguments)
+end method;
+
+define method call-argument-size
+    (c :: <simple-call>, f)
+ => (argument-size :: <integer>)
+  size(c.arguments)
+end method;
+
+define method call-argument-size
+    (c :: <engine-node-call>, f)
+ => (argument-size :: <integer>)
+  size(c.arguments)
+end method;
+
+define method call-argument-size
+    (c :: <method-apply>, f :: <&keyword-method>)
+ => (argument-size :: <integer>)
+  let nreq = spec-argument-number-required(f.signature-spec);
+  nreq + 1
 end method;
