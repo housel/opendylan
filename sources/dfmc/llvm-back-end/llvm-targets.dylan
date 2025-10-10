@@ -186,7 +186,6 @@ define method llvm-back-end-calling-convention-fast
   $llvm-calling-convention-c
 end method;
 
-
 /// Concrete LLVM back-end subclasses
 
 // x86-windows
@@ -226,6 +225,33 @@ end method;
 define method llvm-back-end-data-layout
     (back-end :: <llvm-x86_64-darwin-back-end>) => (layout :: <string>);
   "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
+end method;
+
+// aarch64-darwin
+
+define class <llvm-aarch64-darwin-back-end> (<llvm-aarch64-back-end>,
+                                             <llvm-darwin-back-end>)
+end class;
+
+register-back-end(<llvm-aarch64-darwin-back-end>,
+                  #"llvm", #"aarch64-darwin");
+
+define method llvm-back-end-target-triple
+    (back-end :: <llvm-aarch64-darwin-back-end>) => (triple :: <string>);
+  "arm64-apple-macosx14.0.0"
+end method;
+
+define method llvm-back-end-data-layout
+    (back-end :: <llvm-aarch64-darwin-back-end>) => (layout :: <string>);
+  "e-m:o-i64:64-i128:128-n32:64-S128"
+end method;
+
+define method llvm-back-end-calling-convention-fast
+    (back-end :: <llvm-aarch64-darwin-back-end>)
+ => (calling-convention :: <integer>);
+  // We're forced to use the ordinary C calling convention for IEPs
+  // and primitives on AArch64 Darwin as well.
+  $llvm-calling-convention-c
 end method;
 
 // x86-linux
