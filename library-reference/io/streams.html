@@ -989,9 +989,6 @@ again (or any other buffer for the same stream) has undefined results.</p>
 <dl class="simple">
 <dt><a class="reference internal" href="#io:streams:[byte]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte&gt;</span></code></a></dt><dd><p>A type representing limited integers in the range 0 to 255 inclusive.</p>
 </dd>
-<dt><a class="reference internal" href="#io:streams:[byte-character]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte-character&gt;</span></code></a></dt><dd><p>A type representing 8-bit characters that instances of
-<a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a> can contain.</p>
-</dd>
 <dt><a class="reference internal" href="#io:streams:[byte-vector]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte-vector&gt;</span></code></a></dt><dd><p>A subtype of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#vector"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;vector&gt;</span></code></a> whose element-type is <a class="reference internal" href="#io:streams:[byte]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte&gt;</span></code></a>.</p>
 </dd>
 </dl>
@@ -1377,29 +1374,6 @@ init-keyword.</p>
 </dd>
 <dt class="field-odd">Discussion<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A type representing limited integers in the range 0 to 255 inclusive.</p>
-</dd>
-<dt class="field-even">Operations<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><a class="reference internal" href="#io:streams:type-for-file-stream"><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">type-for-file-stream</span></code></a></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="dylan type">
-<dt class="sig sig-object dylan-api dylan" id="io:streams:[byte-character]">
-<span class="sig-name descname"><span class="pre">&lt;byte-character&gt;</span></span> <em class="property"><span class="pre">Type</span></em><a class="headerlink" href="#io:streams:[byte-character]" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A type representing 8-bit characters that instances of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a> can contain.</p>
-</dd>
-<dt class="field-even">Supertypes<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://opendylan.org/books/drm/Simple_Object_Classes#character"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;character&gt;</span></code></a></p>
-</dd>
-<dt class="field-odd">Discussion<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A type representing 8-bit characters that instances of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a>
-can contain.</p>
 </dd>
 <dt class="field-even">Operations<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
@@ -2626,10 +2600,6 @@ to the next newline sequence.</p>
 second value returned is <a class="reference external" href="https://opendylan.org/books/drm/Other_Built-In_Objects_Defined#true"><code class="xref drm docutils literal notranslate"><span class="pre">#t</span></code></a> if the read terminated with a
 newline or <a class="reference external" href="https://opendylan.org/books/drm/Other_Built-In_Objects_Defined#false"><code class="xref drm docutils literal notranslate"><span class="pre">#f</span></code></a> if the read terminated because it came to the end
 of the stream.</p>
-<p>The type of the result string is chosen so that the string can
-contain characters of <em>input-stream</em> ‘s element type. For example,
-if the element type is <a class="reference internal" href="#io:streams:[byte-character]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte-character&gt;</span></code></a>, the string will be a
-<a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a>.</p>
 <p>If <em>input-stream</em> is at its end immediately upon calling
 <code class="docutils literal notranslate"><span class="pre">read-line</span></code> (that is, the end of stream appears to be at the end
 of an empty line), then the end-of-stream behavior and the
@@ -3564,8 +3534,8 @@ a given file.</p>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>filename</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
-<li><p><strong>element-type</strong> – One of <a class="reference internal" href="#io:streams:[byte-character]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte-character&gt;</span></code></a>,
-or <a class="reference internal" href="#io:streams:[byte]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte&gt;</span></code></a>, or <a class="reference external" href="https://opendylan.org/books/drm/Other_Built-In_Objects_Defined#false"><code class="xref drm docutils literal notranslate"><span class="pre">#f</span></code></a>.</p></li>
+<li><p><strong>element-type</strong> – One of <code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;character&gt;</span></code>,
+or <a class="reference internal" href="#io:streams:[byte]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte&gt;</span></code></a>, or <code class="docutils literal notranslate"><span class="pre">#f</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Values<span class="colon">:</span></dt>
@@ -4252,7 +4222,6 @@ write to the stream.</p>
 <li><a class="reference internal" href="#io:streams:[buffer]"><code class="docutils literal notranslate"><span class="pre">&lt;buffer&gt;</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:[buffered-stream]"><code class="docutils literal notranslate"><span class="pre">&lt;buffered-stream&gt;</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:[byte]"><code class="docutils literal notranslate"><span class="pre">&lt;byte&gt;</span></code></a></li>
-<li><a class="reference internal" href="#io:streams:[byte-character]"><code class="docutils literal notranslate"><span class="pre">&lt;byte-character&gt;</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:byte-storage-address([buffer])"><code class="docutils literal notranslate"><span class="pre">byte-storage-address(&lt;buffer&gt;)</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:byte-storage-offset-address([buffer])"><code class="docutils literal notranslate"><span class="pre">byte-storage-offset-address(&lt;buffer&gt;)</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:[byte-string-stream]"><code class="docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></a></li>

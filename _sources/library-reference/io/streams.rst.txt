@@ -545,10 +545,6 @@ The following types are used in operations that involve buffers.
 :type:`<byte>`
    A type representing limited integers in the range 0 to 255 inclusive.
 
-:type:`<byte-character>`
-   A type representing 8-bit characters that instances of
-   :drm:`<byte-string>` can contain.
-
 :type:`<byte-vector>`
    A subtype of :drm:`<vector>` whose element-type is :type:`<byte>`.
 
@@ -926,21 +922,6 @@ are exported from the *streams* module.
    :description:
 
       A type representing limited integers in the range 0 to 255 inclusive.
-
-   :operations:
-
-     - :gf:`type-for-file-stream`
-
-.. type:: <byte-character>
-
-   :type:    A type representing 8-bit characters that instances of :drm:`<byte-string>` can contain.
-
-   :supertypes: :drm:`<character>`
-
-   :description:
-
-      A type representing 8-bit characters that instances of :drm:`<byte-string>`
-      can contain.
 
    :operations:
 
@@ -1864,11 +1845,6 @@ are exported from the *streams* module.
      newline or :drm:`#f` if the read terminated because it came to the end
      of the stream.
 
-     The type of the result string is chosen so that the string can
-     contain characters of *input-stream* 's element type. For example,
-     if the element type is :type:`<byte-character>`, the string will be a
-     :drm:`<byte-string>`.
-
      If *input-stream* is at its end immediately upon calling
      ``read-line`` (that is, the end of stream appears to be at the end
      of an empty line), then the end-of-stream behavior and the
@@ -2594,8 +2570,8 @@ are exported from the *streams* module.
    :signature: type-for-file-stream *filename* *element-type* #rest #all-keys => *file-stream-type*
 
    :parameter filename: An instance of :drm:`<object>`.
-   :parameter element-type: One of :type:`<byte-character>`,
-     or :type:`<byte>`, or :drm:`#f`.
+   :parameter element-type: One of :type:`<character>`,
+     or :type:`<byte>`, or ``#f``.
    :value file-stream-type: An instance of :drm:`<type>`.
 
    :description:
