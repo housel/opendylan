@@ -40,6 +40,7 @@ Open Proposals (under consideration)
 1    Process       Draft      :doc:`dep-0001-dep-process`
 6    Standard      Draft      :doc:`dep-0006-single-file-library`
 13   Standard      Draft      :doc:`dep-0013-multi-assignment`
+14   Standard      Draft      :doc:`dep-0014-unicode`
 ==== ============= ========== =============================================
 
 
@@ -61,6 +62,7 @@ All Proposals by Number
 11   Standard      Final      :doc:`dep-0011-numeric-literal-syntax`
 12   Standard      Final      :doc:`dep-0012-string-literals`
 13   Standard      Draft      :doc:`dep-0013-multi-assignment`
+14   Standard      Draft      :doc:`dep-0014-unicode`
 ==== ============= ========== =============================================
 
 .. toctree::
@@ -78,3 +80,4 @@ All Proposals by Number
    dep-0011-numeric-literal-syntax
    dep-0012-string-literals
    dep-0013-multi-assignment
+   dep-0014-unicode
