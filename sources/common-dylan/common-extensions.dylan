@@ -30,61 +30,6 @@ define inline function true?
 end function true?;
 
 
-define open generic concatenate!
-    (sequence :: <sequence>, #rest more-sequences)
- => (result-sequence :: <sequence>);
-
-define method concatenate!
-    (s :: <sequence>, #rest more) => (result-sequence :: <sequence>)
-  apply(concatenate, s, more);
-end method concatenate!;
-
-define method concatenate!
-    (vector :: <stretchy-vector>, #rest more)
- => (vector :: <stretchy-vector>)
-  for (sv in more)
-    for (e in sv)
-      add!(vector, e);
-    end for;
-  end for;
-  vector
-end method concatenate!;
-
-// from jonathan, 97nov21
-define method concatenate! (x :: <list>, #rest more) => (z :: <list>)
-  // find first non-empty arg., to be destructively updated and returned
-  iterate find-result (r :: <list> = x, i :: <integer> = 0)
-    if (i = size(more))
-      r
-    elseif (empty?(r))
-      find-result(as(<list>, more[i]), i + 1) // skip empty arg prefix
-    else
-      // p points into r (which is growing).  p is non-empty.
-      iterate connect (p :: <list> = r, i :: <integer> = i)
-        if (i = size(more))
-          r
-        else
-          // find next non-empty arg. to add
-          let x = as(<list>, more[i]);
-          if (empty?(x))
-            connect(p, i + 1)      // skip empty arg
-          else
-            // cdr to end of p and side-effect tail
-             iterate find-tail (p :: <list> = p)
-              if (empty?(tail(p)))
-                tail(p) := x;      // DESTRUCTIVE UPDATE
-                connect(x, i + 1)  // connect next arg
-              else
-                find-tail(tail(p))
-              end if
-            end iterate
-          end if
-        end if;
-      end iterate
-    end if
-  end iterate
-end method;
-
 define open generic difference
     (sequence-1 :: <sequence>, sequence-2 :: <sequence>,
      #key test :: <function>)

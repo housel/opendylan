@@ -220,6 +220,7 @@ define interface-specification-suite dylan-collections-specification-suite ()
       (<sequence>, #"key", #"start", #"end") => (<sequence>);
   function concatenate (<sequence>, #"rest") => (<sequence>);
   function concatenate-as (<type>, <sequence>, #"rest") => (<sequence>);
+  open generic function concatenate! (<sequence>, #"rest") => (<sequence>);
   open generic function replace-subsequence!
       (<sequence>, <sequence>, #"key", #"start", #"end") => (<sequence>);
   open generic function subsequence-position
@@ -430,6 +431,7 @@ define suite dylan-test-suite ()
   suite dylan-control-test-suite;
   suite dylan-core-specification-suite;
   suite dylan-core-test-suite;
+  suite dylan-functions-test-suite;
   suite dylan-extensions-specification-suite;
   suite dylan-linearization-test-suite;
   suite dylan-macros-test-suite;
