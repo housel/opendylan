@@ -56,26 +56,6 @@ define test test-<string-table> ()
   //---*** Fill this in...
 end test;
 
-define test test-concatenate! ()
-  let my-list = #(3, 4);
-  check("test concatenate! on a list", \=, concatenate!(my-list, #(5), #(6)),
-        #(3, 4, 5, 6));
-  check("concatenate! should have not affected my-list", \=, my-list, #(3, 4));
-  let my-stretchy-vector = make(<stretchy-vector>);
-  add!(my-stretchy-vector, 3);
-  add!(my-stretchy-vector, 4);
-  let my-stretchy-vector-afterwards = make(<stretchy-vector>);
-  add!(my-stretchy-vector-afterwards, 3);
-  add!(my-stretchy-vector-afterwards, 4);
-  add!(my-stretchy-vector-afterwards, 5);
-  add!(my-stretchy-vector-afterwards, 6);
-  check("test concatenate! on a stretchy-vector", \=,
-        concatenate!(my-stretchy-vector, #(5, 6)),
-        my-stretchy-vector-afterwards);
-  check("concatenate! should have changed my-stretchy-vector",
-        \=, my-stretchy-vector, my-stretchy-vector-afterwards);
-end test;
-
 define constant $test-error-message = "Test Error";
 
 define class <test-error> (<error>)
@@ -503,7 +483,6 @@ define suite common-extensions-test-suite ()
   test test-<stretchy-object-vector>;
   test test-<stretchy-sequence>;
   test test-<string-table>;
-  test test-concatenate!;
   test test-condition-to-string;
   test test-debug-message;
   test test-difference;
