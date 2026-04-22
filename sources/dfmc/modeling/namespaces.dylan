@@ -1535,6 +1535,7 @@ define &module dylan
    copy-sequence,
    concatenate-as,
    concatenate,
+   concatenate!,                // DEP 14
    replace-subsequence!,
    reverse,
    reverse!,

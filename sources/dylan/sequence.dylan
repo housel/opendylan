@@ -18,6 +18,10 @@ define sealed generic concatenate
     (sequence1 :: <sequence>, #rest sequences :: <sequence>)
  => (result-sequence :: <sequence>);
 
+define open generic concatenate!
+    (sequence :: <sequence>, #rest more-sequences :: <sequence>)
+ => (result-sequence :: <sequence>);
+
 define constant <sequence-type>
   = type-union(subclass(<sequence>), <limited-sequence-type>);
 
@@ -136,6 +140,16 @@ define inline method concatenate(
   apply(concatenate-as, type-for-copy(first-seq), first-seq, rest-seqs)
 end;
 
+
+//
+// CONCATENATE!
+//
+
+define method concatenate!
+    (sequence :: <sequence>, #rest more-sequences)
+ => (result-sequence :: <sequence>)
+  apply(concatenate, sequence, more-sequences)
+end method concatenate!;
 
 //
 // CONCATENATE-AS

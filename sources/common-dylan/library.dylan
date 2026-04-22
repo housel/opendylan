@@ -124,7 +124,6 @@ define module common-extensions
          $unsupplied, unsupplied, unsupplied?, supplied?,
          $unfound,    unfound,    unfound?,    found?,
          true?, false?,
-         concatenate!,
          condition-to-string,
          difference,
          position,
