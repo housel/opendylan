@@ -177,6 +177,21 @@ end method add!;
 
 
 //
+// CONCATENATE!
+//
+
+define method concatenate!
+    (vector :: <limited-stretchy-vector>, #rest more)
+ => (vector :: <limited-stretchy-vector>)
+  for (sv in more)
+    for (e in sv)
+      add!(vector, e);
+    end for;
+  end for;
+  vector
+end method concatenate!;
+
+//
 // SIZE-SETTER
 //
 
@@ -552,6 +567,10 @@ define macro limited-stretchy-vector-minus-constructor-definer
              (vector :: "<stretchy-" ## ?name ## "-vector>",
               target :: "<" ## ?name ## ">",
               #key test = \==, count = unsupplied())
+          => (vector :: "<stretchy-" ## ?name ## "-vector>");
+
+         define sealed copy-down-method concatenate!
+             (vector :: "<stretchy-" ## ?name ## "-vector>", #rest more)
           => (vector :: "<stretchy-" ## ?name ## "-vector>");
          }
 end macro;

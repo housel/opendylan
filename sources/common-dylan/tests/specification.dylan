@@ -43,7 +43,6 @@ define interface-specification-suite common-extensions-specification-suite ()
   open abstract class <stretchy-sequence> (<stretchy-collection>, <sequence>);
   sealed instantiable class <stretchy-object-vector> (<stretchy-vector>);
   sealed instantiable class <string-table> (<table>);
-  open generic function concatenate! (<sequence>, #"rest") => (<sequence>);
   function position
       (<sequence>, <object>, #"key", #"test", #"start", #"end", #"skip")
    => (false-or(<integer>));
