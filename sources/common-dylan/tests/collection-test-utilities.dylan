@@ -125,6 +125,7 @@ define constant $instantiable-collection-classes
          <simple-vector>,
          <stretchy-vector>,
          <string>,
+         <string-builder>,
          <table>,
          <vector>);
 
