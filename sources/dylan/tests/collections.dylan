@@ -102,6 +102,29 @@ define test test-<byte-string> ()
     test-collection-class(<byte-string>, instantiable?: #t);
 end;
 
+/*
+define test test-<string-builder> ()
+  test-collection-class(<string-builder>, instantiable?: #t);
+end;
+*/
+
+define test test-<string-builder>-functions ()
+  let b = make(<string-builder>);
+  check-true("add! returns <string-builder> argument", b == add!(b, ' '));
+  check-equal("size after adding one character", 1, b.size);
+  check-true("concatenate! returns <string-builder> argument",
+             b == concatenate!(b, "this", " ", "is", " ", "wondrous"));
+  check-equal("size after concatenation", 17, b.size);
+  check-equal("contents after build", " this is wondrous", as(<string>, b));
+
+  check-equal("setter returns new value", 0, b.size := 0);
+  check-equal("contents after clearing", "", as(<string>, b));
+
+  concatenate!(b, "grow");
+  check-equal("setter expands size", 10, b.size := 10);
+  check-equal("contents after expansion", "grow      ", as(<string>, b));
+end;
+
 define test test-<table> ()
     test-collection-class(<table>, instantiable?: #t);
 end;
@@ -131,6 +154,7 @@ define suite dylan-collections-test-suite ()
   test test-<range>;
   test test-<string>;
   test test-<byte-string>;
+  test test-<string-builder>-functions;
   test test-<table>;
   test test-<object-table>;
 end suite dylan-collections-test-suite;
