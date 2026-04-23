@@ -1596,6 +1596,8 @@ define &module dylan
    as-uppercase,
    as-uppercase!,
 
+   <string-builder>,            // DEP 14
+
    <table>,
    <object-table>,
 
