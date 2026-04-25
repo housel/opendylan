@@ -23,7 +23,7 @@ define class <string-builder> (<mutable-sequence>, <stretchy-collection>)
 end class;
 
 define sealed inline method make
-    (class == <string-builder>, #rest all-keys, #key byte-capacity = 0)
+    (class == <string-builder>, #rest all-keys, #key size = 0, byte-capacity = 0)
  => (builder :: <string-builder>);
   let representation
     = if (zero?(byte-capacity))
@@ -31,7 +31,11 @@ define sealed inline method make
       else
         make(<string-builder-representation>, size: byte-capacity)
       end if;
-  next-method(class, representation: representation)
+  let instance = next-method(class, representation: representation);
+  if (size > 0)
+    size-setter(size, instance);
+  end;
+  instance
 end method;
 
 define sealed inline method element-type
@@ -51,6 +55,72 @@ define inline function skip-utf-8
         primitive-the(<integer>, $utf-8-increment[ash(representation[i], -4)])
       end;
   i + skip
+end function;
+
+define inline function decode-utf-8
+    (representation :: <string-builder-representation>, i :: <integer>,
+     space :: <integer>)
+ => (character :: <character>, new-i :: <integer>)
+  let byte0 = without-bounds-checks representation[i] end;
+  // See Unicode Standard Table 3-7
+  case
+    byte0 < #x80 =>
+      values(as(<character>, byte0), i + 1);
+
+    byte0 < #xC2 =>
+      error("Invalid UTF-8 sequence %x", byte0);
+
+    byte0 < #xE0 & space >= 2 =>
+      // 00000yyyyyxxxxxx => 110yyyyy 10xxxxxx
+      let byte1 = without-bounds-checks representation[i + 1] end;
+      if (#x80 <= byte1 & byte1 <= #xBF)
+        let code-point
+          = logior(ash(logand(byte0, #b00011111), 6),
+                   logand(byte1, #b111111));
+        values(as(<character>, code-point), i + 2)
+      else
+        error("Invalid UTF-8 sequence");
+      end if;
+
+    byte0 < #xF0 & space >= 3 =>
+      // zzzzyyyyyyxxxxxx => 1110zzzz 10yyyyyy 10xxxxxx
+      let byte1 = without-bounds-checks representation[i + 1] end;
+      let byte2 = without-bounds-checks representation[i + 2] end;
+      if (#x80 <= byte1 & byte1 <= #xBF
+            & #x80 <= byte2 & byte2 <= #xBF)
+        let code-point
+          = logior(ash(logand(byte0, #b00001111), 12),
+                   ash(logand(byte1, #b111111), 6),
+                   logand(byte2, #b111111));
+        // NB not checking for the surrogate code points #D800 through #DFFF,
+        // which fall into this range, or for other malformed ranges
+        values(as(<character>, code-point), i + 3)
+      else
+        error("Invalid UTF-8 sequence");
+      end if;
+
+    byte0 < #xF5 & space >= 4 =>
+      // 000uuuuuzzzzyyyyyyxxxxxx => 11110uuu 10uuzzzz 10yyyyyy 10xxxxxx
+      let byte1 = without-bounds-checks representation[i + 1] end;
+      let byte2 = without-bounds-checks representation[i + 2] end;
+      let byte3 = without-bounds-checks representation[i + 2] end;
+      if (#x80 <= byte1 & byte1 <= #xBF
+            & #x80 <= byte2 & byte2 <= #xBF
+            & #x80 <= byte3 & byte3 <= #xBF)
+        let code-point
+          = logior(ash(logand(byte0, #b00001111), 18),
+                   ash(logand(byte1, #b111111), 12),
+                   ash(logand(byte2, #b111111), 6),
+                   logand(byte3, #b111111));
+        // NB not checking for malformed ranges
+        values(as(<character>, code-point), i + 3)
+      else
+        error("Invalid UTF-8 sequence");
+      end if;
+
+    otherwise =>
+      error("Invalid UTF-8 sequence");
+  end case
 end function;
 
 define sealed method size
@@ -102,7 +172,7 @@ define method size-setter
   finally
     if (count = new-size)
       builder.byte-size := i;
-    else
+    elseif (new-size >= 0)
       // Grow representation, fill with ' '
       let increment = new-size - count;
       let (representation, start) = string-builder-reserve(builder, increment);
@@ -110,6 +180,8 @@ define method size-setter
                             primitive-repeated-slot-offset(representation),
                             integer-as-raw(i), integer-as-raw(increment),
                             primitive-character-as-raw(' '));
+    else
+      error("Invalid size %d", new-size);
     end if
   end for;
   new-size
@@ -218,3 +290,104 @@ define sealed inline method as (class == <string>, builder :: <string-builder>)
   end if
 end method as;
 
+define inline sealed method element
+    (builder :: <string-builder>, index :: <integer>,
+     #key default = unsupplied())
+ => (character :: <character>)
+  let bytes = builder.byte-size;
+  let representation = builder.builder-representation;
+  for (i = 0 then skip-utf-8(representation, i), count from 0,
+       while: count < index & i < bytes)
+  finally
+    if (count = index & i < bytes)
+      decode-utf-8(representation, i, bytes - i);
+    elseif (unsupplied?(default))
+      element-range-error(builder, index)
+    else
+      check-type(default, element-type(builder));
+      default
+    end if
+  end for
+end method;
+
+define inline sealed method element-no-bounds-check
+    (builder :: <string-builder>, index :: <integer>, #key default = unsupplied())
+ => (character :: <character>)
+  element(builder, index, default: default)
+end method;
+
+define inline sealed method element-setter
+    (new-value :: <character>, builder :: <string-builder>,
+     index :: <integer>)
+ => (new-value :: <character>)
+  let bytes = builder.byte-size;
+  let representation = builder.builder-representation;
+  for (i = 0 then skip-utf-8(representation, i), count from 0,
+       while: count < index & i < bytes)
+  finally
+    if (count = index)
+      if (i < bytes)
+        // Save the representation following the existing element at
+        // this index
+        let post-i = skip-utf-8(representation, i);
+        let save = copy-sequence(representation, start: post-i, end: bytes);
+
+        // Truncate the representation at this index, and use add!
+        // to append the new-value
+        builder.byte-size := i;
+        add!(builder, new-value);
+
+        // Replace the following representation
+        let (representation, start) = string-builder-reserve(builder, save.size);
+        primitive-replace-bytes!
+          (representation, primitive-repeated-slot-offset(representation),
+           integer-as-raw(start),
+           save, primitive-repeated-slot-offset(save),
+           integer-as-raw(0),
+           integer-as-raw(save.size));
+      else
+        add!(builder, new-value);
+      end if
+    elseif (index < 0)
+      element-range-error(builder, index)
+    else
+      builder.size := index;
+      add!(builder, new-value);
+    end if
+  end for;
+  new-value
+end method;
+
+define inline sealed method element-no-bounds-check-setter
+    (new-value :: <string-builder>, builder :: <string-builder>,
+     index :: <integer>)
+ => (new-value :: <character>)
+  element-setter(new-value, builder, index)
+end method;
+
+define method copy-sequence
+    (builder :: <string-builder>,
+     #key start: first :: <integer> = 0, end: last = unsupplied())
+ => (copy :: <string-builder>);
+  let bytes = builder.byte-size;
+  let representation = builder.builder-representation;
+  for (i = 0 then skip-utf-8(representation, i), count from 0,
+       while: count < first & i < bytes)
+  finally
+    if (count = first)
+      if (~supplied?(last))
+        let instance = make(<string-builder>);
+        instance.builder-representation
+          := copy-sequence(builder.builder-representation, start: i, end: bytes);
+        instance.byte-size := bytes - i;
+        instance
+      else
+        error("Can't copy a non-empty <string-builder> yet");
+      end if
+    elseif (first < 0)
+      invalid-sequence-start-error(builder, first);
+    else
+      invalid-sequence-bounds-error(builder, first, count);
+    end if
+  end for
+end method;
