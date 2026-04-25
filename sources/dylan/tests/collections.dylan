@@ -102,11 +102,9 @@ define test test-<byte-string> ()
     test-collection-class(<byte-string>, instantiable?: #t);
 end;
 
-/*
 define test test-<string-builder> ()
   test-collection-class(<string-builder>, instantiable?: #t);
 end;
-*/
 
 define test test-<string-builder>-functions ()
   let b = make(<string-builder>);
@@ -123,6 +121,19 @@ define test test-<string-builder>-functions ()
   concatenate!(b, "grow");
   check-equal("setter expands size", 10, b.size := 10);
   check-equal("contents after expansion", "grow      ", as(<string>, b));
+
+  add!(b, '\<90DD>');
+  check-equal("unihan character expands size by 1", 11, b.size);
+  check-equal("element decodes unihan character", #x90DD, as(<integer>, element(b, 10)));
+
+  // Ranges for different cases in UTF-8 encoding
+  for (start in #[#x0000, #x0080, #x0800, #x1000, #xD000, #xE000, #x10000,
+                  #x40000, #x100000])
+    b.size := 0;
+    add!(b, as(<character>, start));
+    check-equal("size after adding one character", 1, b.size);
+    check-equal("round-trip character", start, as(<integer>, first(b)));
+  end for;
 end;
 
 define test test-<table> ()
@@ -154,6 +165,7 @@ define suite dylan-collections-test-suite ()
   test test-<range>;
   test test-<string>;
   test test-<byte-string>;
+  test test-<string-builder>;
   test test-<string-builder>-functions;
   test test-<table>;
   test test-<object-table>;
