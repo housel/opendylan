@@ -14,6 +14,8 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define constant $max-lexer-code :: <integer> = 255;
 
+define constant $max-character-code-point :: <integer> = #x10FFFF;
+
 define constant $ascii-8-bit-extensions
   = as(<string>, vector(as(<character>, 128),
                         '-',
@@ -764,7 +766,7 @@ define method hex-escape-character
     = parse-integer(source-location,
                     source-location.source-location-record.contents,
                     radix: 16, start: start, stop-at-non-digit?: #t);
-  if (code > $max-lexer-code)
+  if (code > $max-character-code-point)
     note(<character-code-too-large>,
          source-location:
             record-position-as-location
