@@ -71,7 +71,7 @@ define test character-literal-test ()
   assert-signals(<invalid-token>, read-fragment("'21'"));
   assert-signals(<invalid-token>, read-fragment("'\\j'"));
   assert-signals(<invalid-token>, read-fragment("'\\<gg>'"));
-  assert-signals(<character-code-too-large>, read-fragment("'\\<fff>'"));
+  assert-signals(<character-code-too-large>, read-fragment("'\\<1fffff>'"));
 end test character-literal-test;
 
 define test decimal-integer-literal-test ()
