@@ -332,6 +332,15 @@ define method collection-element-type
   element-type(collection)
 end method collection-element-type;
 
+define method collection-fillable?
+    (collection :: <stretchy-sequence>) => (fillable? :: <boolean>)
+  instance?(#f, collection-element-type(collection))
+end method collection-fillable?;
+
+define method collection-fillable?
+    (collection :: <collection>) => (fillable? :: <boolean>)
+  #f
+end method collection-fillable?;
 
 define method limited-collection-element-types
     (class :: subclass(<collection>)) => (element-types :: <sequence>)
@@ -1024,7 +1033,7 @@ define method do-test-size-setter
     (name :: <string>, collection :: <stretchy-collection>) => ()
   if (instance?(collection, <sequence>))
     let new-size = size(collection) + 5;
-    if (instance?(#f, collection-element-type(collection)))
+    if (collection-fillable?(collection))
       check-equal(format-to-string("%s resizes", name),
                   begin
                     size(collection) := new-size;
@@ -1391,8 +1400,7 @@ define method do-test-nth-setter
                    copy[n] = item
                  end);
     instance?(sequence, <stretchy-collection>)
-      & (n = size(sequence) |
-           instance?(#f, collection-element-type(sequence))) =>
+      & (n = size(sequence) | collection-fillable?(sequence)) =>
       check-true(name,
                  begin
                    let copy = shallow-copy(sequence);
