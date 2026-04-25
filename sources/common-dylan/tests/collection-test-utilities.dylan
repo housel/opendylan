@@ -326,11 +326,20 @@ define method collection-type-element-type
   <character>
 end method collection-type-element-type;
 
+define method collection-type-element-type
+    (class :: subclass(<string-builder>)) => (element-type :: <class>)
+  <character>
+end method collection-type-element-type;
 
 define method collection-element-type
     (collection :: <collection>) => (element-type :: <type>)
   element-type(collection)
 end method collection-element-type;
+
+define method collection-fillable?
+    (collection :: <string-builder>) => (fillable? :: <boolean>)
+  #t
+end method collection-fillable?;
 
 define method collection-fillable?
     (collection :: <stretchy-sequence>) => (fillable? :: <boolean>)
@@ -354,6 +363,11 @@ end method limited-collection-element-types;
 
 define method limited-collection-element-types
     (class :: subclass(<string>)) => (element-types :: <sequence>)
+  #[]
+end method limited-collection-element-types;
+
+define method limited-collection-element-types
+    (class :: subclass(<string-builder>)) => (element-types :: <sequence>)
   #[]
 end method limited-collection-element-types;
 
