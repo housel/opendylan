@@ -13,13 +13,16 @@ define inline-only function get-application-filename () => (res :: <string>)
                                 ()
                              end);
 
-  let buffer = make(<byte-string>, size: length, fill: '\0');
-  let len = raw-as-integer(%call-c-function("application_filename_name")
-                             (buffer :: <raw-byte-string>,
-                              length :: <raw-c-unsigned-int>)
-                             => (res :: <raw-c-unsigned-int>)
-                             (primitive-string-as-raw(buffer),
-                              integer-as-raw(length))
-                          end);
-  copy-sequence(buffer, end: len);
+  with-string-builder-byte-storage-to-string (buffer, length)
+    let raw-length
+      = %call-c-function("application_filename_name")
+            (buffer :: <raw-pointer>,
+             length :: <raw-c-unsigned-int>)
+         => (res :: <raw-c-unsigned-int>)
+            (primitive-cast-raw-as-pointer
+               (primitive-unwrap-machine-word(buffer)),
+             integer-as-raw(length))
+        end;
+    raw-as-integer(raw-length)
+  end
 end;
