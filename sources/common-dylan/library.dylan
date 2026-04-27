@@ -65,7 +65,8 @@ end module byte-vector;
 define module byte-storage
   create \with-stack-byte-storage,
          byte-storage-address,
-         \with-object-byte-storage;
+         \with-object-byte-storage,
+         \with-string-builder-byte-storage-to-string;
 end module byte-storage;
 
 define module common-extensions
