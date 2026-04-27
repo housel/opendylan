@@ -9,18 +9,20 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 define inline-only function get-application-filename
     () => (filename :: false-or(<byte-string>))
   let exe-path = "/proc/self/exe";
-  let buffer = make(<byte-string>, size: 8192, fill: '\0');
-  let count
-    = raw-as-integer(%call-c-function ("readlink")
-                       (path :: <raw-byte-string>,
-                        buffer :: <raw-byte-string>,
-                        bufsize :: <raw-c-size-t>)
-                       => (count :: <raw-c-ssize-t>)
-                       (primitive-string-as-raw(exe-path),
-                        primitive-string-as-raw(buffer),
-                        integer-as-raw(8192))
-                    end);
-  unless (count = -1)
-    copy-sequence(buffer, end: count)
+  let path-max = 8192;
+  with-string-builder-byte-storage-to-string (buffer, path-max)
+    let count
+      = raw-as-integer
+          (%call-c-function ("readlink")
+               (path :: <raw-byte-string>,
+                buffer :: <raw-pointer>,
+                bufsize :: <raw-c-size-t>)
+            => (count :: <raw-c-ssize-t>)
+               (primitive-string-as-raw(exe-path),
+                primitive-cast-raw-as-pointer
+                  (primitive-unwrap-machine-word(buffer)),
+                integer-as-raw(path-max))
+           end);
+    min(count, 0)
   end;
 end;
