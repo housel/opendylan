@@ -814,6 +814,10 @@ define &module dylan-extensions
     <stretchy-sequence>;
 
   create
+    <string-builder-representation>,
+    string-builder-reserve;
+
+  create
     power-of-two-ceiling;
 
   create

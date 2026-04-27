@@ -61,3 +61,27 @@ define macro with-object-byte-storage
          end }
 end macro;
 
+///
+/// WITH-STRING-BUILDER-BYTE-STORAGE-TO-STRING
+///
+
+define macro with-string-builder-byte-storage-to-string
+  { with-string-builder-byte-storage-to-string (?:name,  ?size:expression)
+      ?:body
+    end }
+    => { begin
+           let reserved-size :: <integer> = ?size;
+           let builder = make(<string-builder>, byte-capacity: reserved-size);
+           let (representation, start)
+             = string-builder-reserve(builder, reserved-size);
+           let final-size :: <integer>
+             = with-object-byte-storage (addr = representation)
+                 let ?name :: <machine-word> = u%+(addr, start);
+                 ?body;
+               end;
+           if (final-size < reserved-size)
+             string-builder-reserve(builder, final-size - reserved-size);
+           end if;
+           as(<string>, builder)
+         end }
+end macro;
