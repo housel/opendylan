@@ -29,13 +29,10 @@ define module gnu-as-outputter
   use format;
   use format-out;
   use streams;
-  use streams-internals, import: {<byte-file-stream>, <byte-char-file-stream>};
   use file-system;
-  use file-system-internals;
   use operating-system;
   use harp-for-extenders;
   use binary-manager;
   use binary-builder;
   use binary-outputter;
-
 end module;
