@@ -137,7 +137,7 @@ define module streams-internals
   export <typed-stream>,
          <general-typed-stream>,
          <byte-element-stream>,
-         <byte-char-element-stream>;
+         <character-element-stream>;
 
   // Efficient querying direction
   export readable?, writable?, closed?, read-only?, write-only?, read-write?;
@@ -185,7 +185,7 @@ define module streams-internals
          stream-locator,
          writable-file-stream-position-setter,
          <general-file-stream>,
-         <byte-char-file-stream>;
+         <character-file-stream>;
 
   // Multi-buffered streams
   export <buffer-vector>,
@@ -197,7 +197,7 @@ define module streams-internals
          read-4-aligned-bytes, read-8-aligned-bytes,
          <general-multi-buffered-stream>,
          <byte-multi-buffered-stream>,
-         <byte-char-multi-buffered-stream>;
+         <character-multi-buffered-stream>;
 
   // Sequence streams
   export clear-contents,

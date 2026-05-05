@@ -280,13 +280,13 @@ define module file-system-internals
   // File streams
   use streams-internals,
     export: { <general-file-stream>,
-              <byte-char-file-stream> };
+              <character-file-stream> };
 
   // Multi-buffered streams
   use streams-internals,
     export: { <general-multi-buffered-stream>,
               <byte-multi-buffered-stream>,
-              <byte-char-multi-buffered-stream> };
+              <character-multi-buffered-stream> };
 end module file-system-internals;
 
 define module settings

@@ -107,8 +107,8 @@ define method client-class-for-element-type
 end;
 
 define method client-class-for-element-type
-    (class == <ssl-socket>, element-type == <character>) => (class == <byte-char-ssl-socket>)
-  <byte-char-ssl-socket>
+    (class == <ssl-socket>, element-type == <character>) => (class == <character-ssl-socket>)
+  <character-ssl-socket>
 end;
 
 define method client-class-for-element-type
@@ -120,7 +120,7 @@ define class <general-ssl-socket> (<ssl-socket>, <general-typed-stream>)
   inherited slot stream-element-type = <character>;
 end;
 
-define class <byte-char-ssl-socket> (<ssl-socket>, <general-typed-stream>)
+define class <character-ssl-socket> (<ssl-socket>, <general-typed-stream>)
   inherited slot stream-element-type = <character>;
 end;
 
