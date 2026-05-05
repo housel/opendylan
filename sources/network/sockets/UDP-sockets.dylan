@@ -14,7 +14,7 @@ end class;
 define class <byte-UDP-socket> (<UDP-socket>, <byte-element-stream>, <sealed-object>)
 end class;
 
-define class <byte-char-UDP-socket> (<UDP-socket>, <byte-char-element-stream>, <sealed-object>)
+define class <character-UDP-socket> (<UDP-socket>, <character-element-stream>, <sealed-object>)
 end class;
 
 define class <general-UDP-socket> (<UDP-socket>, <general-typed-stream>, <sealed-object>)
@@ -52,8 +52,8 @@ end method;
 
 define method client-class-for-element-type
     (class == <UDP-socket>, element-type == <character>)
-  => (class == <byte-char-UDP-socket>)
-  <byte-char-UDP-socket>
+  => (class == <character-UDP-socket>)
+  <character-UDP-socket>
 end method;
 
 define method make (class == <UDP-socket>, #rest initargs,

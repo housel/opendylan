@@ -45,8 +45,8 @@ define sealed class <general-file-stream>
   keyword encoding:;
 end class;
 
-define sealed class <byte-char-file-stream>
-    (<file-stream>, <byte-char-element-stream>)
+define sealed class <character-file-stream>
+    (<file-stream>, <character-element-stream>)
   inherited slot stream-element-type = <character>;
   keyword encoding:;
 end class;
@@ -57,7 +57,7 @@ define sealed class <byte-file-stream>
   keyword encoding:;
 end class;
 
-define copy-down-buffered-stream <byte-char-file-stream>
+define copy-down-buffered-stream <character-file-stream>
    element <character> sequence <byte-string>;
 
 define copy-down-buffered-stream <byte-file-stream>
@@ -134,7 +134,7 @@ define method type-for-file-stream
      element-type == <character>, encoding :: <object>,
      #key, #all-keys)
  => (file-stream-type :: subclass(<file-stream>))
-  <byte-char-file-stream>
+  <character-file-stream>
 end method type-for-file-stream;
 
 define method type-for-file-stream

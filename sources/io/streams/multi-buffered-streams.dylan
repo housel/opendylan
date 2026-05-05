@@ -84,8 +84,8 @@ define sealed primary class <general-multi-buffered-stream>
   keyword encoding:;
 end class;
 
-define sealed primary class <byte-char-multi-buffered-stream>
-    (<multi-buffered-stream>, <byte-char-element-stream>)
+define sealed primary class <character-multi-buffered-stream>
+    (<multi-buffered-stream>, <character-element-stream>)
   inherited slot stream-element-type = <character>;
   keyword encoding:;
 end class;
@@ -190,7 +190,7 @@ define sealed method type-for-multi-buffered-stream
      element-type == <character>, encoding :: <object>,
      #key)
  => (multi-buffered-stream-type /* ---*** :: subclass(<multi-buffered-stream>) */)
-  <byte-char-multi-buffered-stream>
+  <character-multi-buffered-stream>
 end method type-for-multi-buffered-stream;
 
 define sealed method type-for-multi-buffered-stream
