@@ -50,8 +50,8 @@ define method initialize
   end
 end method initialize;
 
-define open abstract class <byte-char-element-stream> (<typed-stream>)
-end class <byte-char-element-stream>;
+define open abstract class <character-element-stream> (<typed-stream>)
+end class <character-element-stream>;
 
 define open abstract class <byte-element-stream> (<typed-stream>)
   inherited slot sequence-type        = <byte-vector>;
@@ -76,7 +76,7 @@ define method coerce-to-element
 end method coerce-to-element;
 
 define sealed inline method coerce-to-element
-    (stream :: <byte-char-element-stream>, buffer :: <buffer>, index :: <integer>)
+    (stream :: <character-element-stream>, buffer :: <buffer>, index :: <integer>)
  => (element)
   byte-to-byte-char(buffer-ref(buffer, index))
 end method coerce-to-element;
@@ -105,7 +105,7 @@ define method coerce-from-element
 end method coerce-from-element;
 
 define sealed inline method coerce-from-element
-    (stream :: <byte-char-element-stream>, buffer :: <buffer>, index :: <integer>, elt)
+    (stream :: <character-element-stream>, buffer :: <buffer>, index :: <integer>, elt)
  => (element)
   buffer-ref(buffer, index) := byte-char-to-byte(elt)
 end method coerce-from-element;
@@ -138,7 +138,7 @@ define method coerce-to-sequence
 end method coerce-to-sequence;
 
 define inline method coerce-to-sequence
-    (stream :: <byte-char-element-stream>,
+    (stream :: <character-element-stream>,
      buffer :: <buffer>, buf-start :: <integer>,
      sequence :: <sequence>, seq-start :: <integer>,
      count :: <integer>) => ()
@@ -177,7 +177,7 @@ define method coerce-from-sequence
 end method coerce-from-sequence;
 
 define inline method coerce-from-sequence
-    (stream :: <byte-char-element-stream>,
+    (stream :: <character-element-stream>,
      buffer :: <buffer>, buf-start :: <integer>,
      sequence :: <sequence>, seq-start :: <integer>,
      count :: <integer>) => ()

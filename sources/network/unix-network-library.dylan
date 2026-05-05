@@ -277,8 +277,8 @@ define module sockets-internals
               recv};  //  use unix-recv-buffer instead
   use sockets, export: all;
   create
-    <general-TCP-socket>, <byte-char-TCP-socket>, <byte-TCP-socket>;
+    <general-TCP-socket>, <character-TCP-socket>, <byte-TCP-socket>;
 
   create
-    <general-UDP-socket>, <byte-char-UDP-socket>, <byte-UDP-socket>;
+    <general-UDP-socket>, <character-UDP-socket>, <byte-UDP-socket>;
 end module sockets-internals;
