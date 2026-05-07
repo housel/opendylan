@@ -263,7 +263,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0011-numeric-literal-syntax.html">Numeric Literal Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0012-string-literals.html">String Literal Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0013-multi-assignment.html">Multiple Value Assignment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0014-unicode.html">Unicode</a></li>
 </ul>
 </li>
 </ul>
@@ -349,7 +348,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../common-dylan/simple-profiling.html">The simple-profiling Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../common-dylan/simple-random.html">The simple-random Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../common-dylan/simple-timers.html">The simple-timers Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../common-dylan/byte-storage.html">The byte-storage Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../common-dylan/transcendentals.html">The transcendentals Module</a></li>
 </ul>
 </li>
@@ -730,8 +728,8 @@ disjoint subclasses of <code class="docutils literal notranslate"><span class="p
 <em>FooA</em> (an 8-bit character version) or <em>FooW</em> (a 16-bit character
 version). In Dylan, only the name <em>Foo</em> will be defined, but it will be
 a generic function with separate methods for arguments of types
-<code class="docutils literal notranslate"><span class="pre">&lt;C-string&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;C-unicode-string&gt;</span></code>, or <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a>.
-(Only the 8-bit versions will be supported in the
+<code class="docutils literal notranslate"><span class="pre">&lt;C-string&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;C-unicode-string&gt;</span></code>, <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a> or
+<a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#unicode-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;unicode-string&gt;</span></code></a>. (Only the 8-bit versions will be supported in the
 initial implementation, both because the compiler is not ready to handle
 Unicode and because it will not work on Windows 95.)</p>
 </section>

@@ -263,7 +263,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0011-numeric-literal-syntax.html">Numeric Literal Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0012-string-literals.html">String Literal Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0013-multi-assignment.html">Multiple Value Assignment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0014-unicode.html">Unicode</a></li>
 </ul>
 </li>
 </ul>
@@ -349,7 +348,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../common-dylan/simple-profiling.html">The simple-profiling Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../common-dylan/simple-random.html">The simple-random Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../common-dylan/simple-timers.html">The simple-timers Module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../common-dylan/byte-storage.html">The byte-storage Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../common-dylan/transcendentals.html">The transcendentals Module</a></li>
 </ul>
 </li>
@@ -921,7 +919,7 @@ are:</p>
 <ul class="simple">
 <li><p><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte-character&gt;</span></code>
 The file is accessed as a sequence of 8-bit characters.</p></li>
-<li><p><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;unicode-character&gt;</span></code>
+<li><p><a class="reference internal" href="../io/streams.html#io:streams:[unicode-character]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;unicode-character&gt;</span></code></a>
 The file is accessed as a sequence of 16-bit Unicode characters.</p></li>
 <li><p><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte&gt;</span></code>
 The file is accessed as a sequence of unsigned 8-bit integers.</p></li>
@@ -1771,7 +1769,7 @@ a file path.</p>
 </dd>
 <dt class="field-even">Values<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>separator</strong> – An instance of <a class="reference internal" href="../../proposals/dep-0014-unicode.html#dylan:dylan:[character]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;character&gt;</span></code></a>.</p></li>
+<li><p><strong>separator</strong> – An instance of <code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;character&gt;</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Discussion<span class="colon">:</span></dt>
@@ -1977,7 +1975,7 @@ entity.</p></li>
 <code class="docutils literal notranslate"><span class="pre">#&quot;create&quot;</span></code>. Default value: depends on the value of <em>direction</em>.</p></li>
 <li><p><strong>buffer-size</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a>.</p></li>
 <li><p><strong>element-type</strong> (<em>#key</em>) – One of <code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte-character&gt;</span></code>,
-<code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;unicode-character&gt;</span></code>, or <code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte&gt;</span></code>, or <a class="reference external" href="https://opendylan.org/books/drm/Other_Built-In_Objects_Defined#false"><code class="xref drm docutils literal notranslate"><span class="pre">#f</span></code></a>.</p></li>
+<a class="reference internal" href="../io/streams.html#io:streams:[unicode-character]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;unicode-character&gt;</span></code></a>, or <code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte&gt;</span></code>, or <a class="reference external" href="https://opendylan.org/books/drm/Other_Built-In_Objects_Defined#false"><code class="xref drm docutils literal notranslate"><span class="pre">#f</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Values<span class="colon">:</span></dt>
@@ -2008,7 +2006,7 @@ in the file named by <em>filename</em>. This allows file elements to be
 represented abstractly; for instance, contiguous elements could be
 treated as a single database record. This init-keyword defaults to
 something useful, potentially based on the properties of the file;
-<code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte-character&gt;</span></code> and <code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;unicode-character&gt;</span></code> are likely choices.
+<code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte-character&gt;</span></code> and <a class="reference internal" href="../io/streams.html#io:streams:[unicode-character]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;unicode-character&gt;</span></code></a> are likely choices.
 See <a class="reference internal" href="#options-when-creating-file-streams">Options when creating file streams</a>.</p>
 </p>
 </dd>

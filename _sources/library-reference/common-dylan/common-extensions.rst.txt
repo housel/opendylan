@@ -1381,6 +1381,19 @@ Debugging
 Types
 =====
 
+.. class:: <byte-character>
+   :sealed:
+
+   The class of 8-bit characters that instances of :drm:`<byte-string>` can
+   contain.
+
+   :superclasses: :drm:`<character>`
+
+   :description:
+
+     The class of 8-bit characters that instances of :drm:`<byte-string>`
+     can contain.
+
 .. function:: false-or
 
    Returns a union type comprised of ``singleton(#f)`` and one or more types.
