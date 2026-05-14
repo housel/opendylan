@@ -60,7 +60,7 @@ define test test-colorize-stream ()
   check-instance?("colorize-stream(file stream) returns a <coloring-stream>",
                   <coloring-stream>, c);
 
-  let string-stream = make(<byte-string-stream>, direction: #"output");
+  let string-stream = make(<string-stream>, direction: #"output");
   let c = colorize-stream(string-stream);
   check-instance?("colorize-stream(string stream) returns a <null-coloring-stream>",
                   <null-coloring-stream>, c);

@@ -253,11 +253,6 @@ register-stream-class-info("<string-stream>", <string-stream>,
                            output-stream?: #t,
                            element-type: <character>);
 
-register-stream-class-info("<byte-string-stream>", <byte-string-stream>,
-                           input-stream?: #t,
-                           output-stream?: #t,
-                           element-type: <character>);
-
 define sideways method make-stream-tests-of-size
     (class :: subclass(<string-stream>), stream-size :: <integer>)
  => (tests :: <sequence>)
@@ -574,7 +569,7 @@ define sideways method make-stream-tests-of-size
                     contents: character-sequence,
                     direction: #"output",
                     make-function: method () => (stream :: <indenting-stream>)
-                                     let string-stream = make(<byte-string-stream>);
+                                     let string-stream = make(<string-stream>);
                                      make(class, inner-stream: string-stream)
                                    end))
         end method add-stream-test-info;
@@ -749,10 +744,6 @@ define test test-position-sequence-stream ()
   positionable-stream-test(<sequence-stream>, #());
 end test;
 
-define test test-position-alt-string-streams ()
-  positionable-stream-test(<byte-string-stream>, "yo baby!");
-end test;
-
 // <string-stream> stretchy vector tests
 define test test-stretchy-stream ()
   begin
@@ -810,10 +801,6 @@ define test test-<string-stream> ()
   test-stream-class(<string-stream>, instantiable?: #t);
 end test;
 
-define test test-<byte-string-stream> ()
-  test-stream-class(<byte-string-stream>, instantiable?: #t);
-end test;
-
 define test test-<wrapper-stream> ()
   test-stream-class(<wrapper-stream>, instantiable?: #t);
 end test;
@@ -846,7 +833,6 @@ define suite streams-test-suite ()
   test test-<sequence-stream>;
   test test-bug-1360;
   test test-<string-stream>;
-  test test-<byte-string-stream>;
   test test-<wrapper-stream>;
   test test-<buffered-stream>;
   test test-<indenting-stream>;
@@ -873,7 +859,6 @@ define suite streams-test-suite ()
   test test-next-input-buffer;
   test test-outer-stream-setter;
   test test-outer-stream;
-  test test-position-alt-string-streams;
   test test-position-sequence-stream;
   test test-position-string-streams;
   test test-stream-lock-setter;
