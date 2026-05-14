@@ -47,11 +47,9 @@ define method format-to-string (control-string :: <byte-string>, #rest args)
     => result :: <byte-string>;
   // Format-to-string is typically used for small amounts of output, so
   // use a smaller string to collect the contents.
-  let s :: <byte-string-stream>
-    = make(<byte-string-stream>,
-           contents: make(<byte-string>, size: 32), direction: #"output");
-  apply(format, s, control-string, args);
-  s.stream-contents
+  with-output-to-string (s)
+    apply(format, s, control-string, args);
+  end
 end method;
 
 
@@ -151,15 +149,13 @@ define method format (stream :: <stream>, control-string :: <byte-string>,
         if (field)
           // Capture output in string and compute padding.
           // Assume the output is very small in length.
-          let s :: <byte-string-stream>
-            = make(<byte-string-stream>,
-                   contents: make(<byte-string>, size: 80),
-                   direction: #"output");
-          if (do-dispatch(control-string[field-spec-end], s,
-                          element(args, arg-i, default: #f)))
-            arg-i := arg-i + 1;
-          end;
-          let output :: <byte-string> = s.stream-contents;
+          let output
+            = with-output-to-string (s)
+                if (do-dispatch(control-string[field-spec-end], s,
+                                element(args, arg-i, default: #f)))
+                  arg-i := arg-i + 1;
+                end;
+              end;
           let output-len :: <integer> = output.size;
           let padding :: <integer> = (abs(field) - output-len);
           case
