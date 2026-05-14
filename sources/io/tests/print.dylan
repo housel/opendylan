@@ -120,7 +120,7 @@ define method check-print
   check-equal(concatenate("print ", name, " matches print-to-string"),
               begin
                 let stream
-                  = make(<byte-string-stream>, direction: #"output");
+                  = make(<string-stream>, direction: #"output");
                 apply(print, object, stream, args);
                 stream-contents(stream)
               end,
