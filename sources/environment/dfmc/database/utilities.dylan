@@ -94,12 +94,10 @@ define class <dfmc-type-expression-object> (<complex-type-expression-object>)
 end;
 
 define method environment-object-primitive-name
-  (server :: <server>, expression :: <dfmc-type-expression-object>) => (result :: false-or(<string>));
-  let s :: <byte-string-stream>
-    = make(<byte-string-stream>,
-           contents: make(<byte-string>, size: 32), direction: #"output");
-  print(expression.compiler-object-proxy, s, escape?: #f);
-  s.stream-contents
+    (server :: <server>, expression :: <dfmc-type-expression-object>) => (result :: false-or(<string>));
+  with-output-to-string (s)
+    print(expression.compiler-object-proxy, s, escape?: #f);
+  end
 end;
 
 define function make-environment-object-for-type-expression

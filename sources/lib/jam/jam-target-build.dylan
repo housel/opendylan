@@ -422,7 +422,7 @@ define method jam-target-build
                               msg :: <byte-string>, #key end: _end)
       if (~slot-initialized?(command, action-command-output-stream))
         command.action-command-output-stream
-          := make(<byte-string-stream>, direction: #"output");
+          := make(<string-stream>, direction: #"output");
       end if;
       write(command.action-command-output-stream, msg, end: _end);
     end method,
