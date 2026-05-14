@@ -82,9 +82,9 @@ define generic type-estimate-debug-name (x) => (dn :: <string>);
 
 define method type-estimate-debug-name(o :: <object>) => (dn :: <string>)
   // Last-ditch attempt: just print it to a string.
-  let str = make(<byte-string-stream>, direction: #"output");
-  format(str, "%s", o);
-  stream-contents(str)
+  with-output-to-string (str)
+    print-message(o, str)
+  end
 end;
 
 define method type-estimate-debug-name(o :: <&object>) => (dn :: <string>)

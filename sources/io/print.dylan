@@ -1117,9 +1117,9 @@ define method print-to-string
           circle? :: <boolean>, pretty? :: <boolean>, escape? :: <boolean>)
  => (result :: <byte-string>);
   // Assume it is a small amount of printing.
-  let s = make(<byte-string-stream>, contents: "", direction: #"output");
-  apply(print, object, s, args);
-  s.stream-contents
+  with-output-to-string (s)
+    apply(print, object, s, args);
+  end
 end method;
 
 

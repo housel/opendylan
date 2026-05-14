@@ -85,14 +85,13 @@ define method format
         if (field)
           // Capture output in string and compute padding.
           // Assume the output is very small in length.
-          let s = make(<byte-string-stream>,
-                       contents: make(<byte-string>, size: 80),
-                       direction: #"output");
-          if (do-dispatch(control-string[field-spec-end], s,
-                          element(args, arg-i, default: #f)))
-            arg-i := arg-i + 1
-          end;
-          let output = s.stream-contents;
+          let output
+            = with-output-to-string (s)
+                if (do-dispatch(control-string[field-spec-end], s,
+                                element(args, arg-i, default: #f)))
+                  arg-i := arg-i + 1
+                end;
+              end;
           let output-len :: <integer> = output.size;
           let padding :: <integer> = (abs(field) - output-len);
           case
