@@ -121,7 +121,7 @@ The coloring-stream Module
      .. code-block:: dylan
 
         let text
-          = with-output-to-string (s :: <byte-string-stream>)
+          = with-output-to-string (s)
               let force-ansi? = stream-supports-color?(*standard-output*);
               let s = colorize-stream(s, force-ansi?: force-ansi?);
               ...
