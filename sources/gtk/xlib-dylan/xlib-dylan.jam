@@ -1,6 +1,0 @@
-{
-  local _dll = [ FDLLName $(IMAGE) ] ;
-  local _modules = x11 ;
-  LinkPkgConfigLibraries $(_dll) : $(_modules) ;
-  #ObjectPkgConfigCcFlags $(_cs) : $(_modules) ;
-}
