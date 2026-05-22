@@ -4,7 +4,11 @@ copyright: See LICENSE file in this distribution.
 define constant <gsize> = <C-unsigned-long>;
 define constant <guint> = <C-unsigned-int>;
 define constant <gpointer> = <C-void*>;
+
 define constant <gchar> = <C-signed-char>;
+define constant <gchar*> = <C-signed-char*>;
+define C-pointer-type <gchar**> => <gchar*>;
+
 define constant <guchar> = <C-unsigned-char>;
 define constant <gint> = <C-signed-int>;
 define constant <glong> = <C-signed-long>;
@@ -206,7 +210,8 @@ define table $gtype-table = {
                              $G-TYPE-FLOAT        => <gfloat>,
                              $G-TYPE-DOUBLE       => <gdouble>,
                              $G-TYPE-STRING       => <GString>,
-                             $G-TYPE-POINTER      => <gpointer>
+                             $G-TYPE-POINTER      => <gpointer>,
+                             $G-TYPE-PARAM        => <GParamSpec>
                              };
 
 define function dylan-meta-marshaller (closure :: <GClosure>,
@@ -280,9 +285,36 @@ define function g-signal-connect(instance :: <GObject>,
                            run-after?);
 end function g-signal-connect;
 
-define open generic g-value-to-dylan-helper (id, address) => (dylan-instance);
+define open generic g-value-to-dylan-helper
+    (id :: <object>, address :: <machine-word>)
+ => (dylan-instance);
 
-define method g-value-to-dylan-helper (type, address) => (dylan-instance)
+define method g-value-to-dylan-helper
+    (g-type :: <ffi-integer> /* GType */, address :: <machine-word>)
+ => (dylan-instance)
+  let type = as(<symbol>, g-type-name(g-type));
+  g-value-to-dylan-helper(type, address)
+end method g-value-to-dylan-helper;
+
+define method g-value-to-dylan-helper
+    (id == #"GStrv", address :: <machine-word>)
+ => (dylan-instance)
+  let vec = c-type-cast(<gchar**>, address);
+  let vec-size
+    = for (index from 0, until: null-pointer?(pointer-value(vec, index: index)))
+      finally
+	index
+      end for;
+  let dylan-instance = make(<vector>, size: vec-size);
+  for (index from 0 below vec-size)
+    dylan-instance[index] := pointer-value(vec, index: index);
+  end for;
+  dylan-instance
+end method;
+
+define method g-value-to-dylan-helper
+    (type, address :: <machine-word>)
+ => (dylan-instance)
   error("Unknown type %=", type);
 end method g-value-to-dylan-helper;
 
@@ -297,9 +329,9 @@ define function g-value-to-dylan (instance :: <GValue>)
     else
       select (g-type)
         $G-TYPE-NONE    => #f;
-        $G-TYPE-CHAR    => g-value-get-char(instance);
+        $G-TYPE-CHAR    => g-value-get-schar(instance);
         $G-TYPE-UCHAR   => g-value-get-uchar(instance);
-        $G-TYPE-BOOLEAN => (g-value-get-boolean(instance) = 1);
+        $G-TYPE-BOOLEAN => g-value-get-boolean(instance);
         $G-TYPE-INT     => g-value-get-int(instance);
         $G-TYPE-UINT    => g-value-get-uint(instance);
         $G-TYPE-LONG    => g-value-get-long(instance);
@@ -313,10 +345,8 @@ define function g-value-to-dylan (instance :: <GValue>)
         $G-TYPE-STRING  => g-value-get-string(instance);
         $G-TYPE-POINTER => g-value-get-pointer(instance);
         $G-TYPE-BOXED   => #f;
-        $G-TYPE-PARAM   => #f;
+        $G-TYPE-PARAM   => g-value-get-param(instance);
         $G-TYPE-OBJECT  => #f;
-        g-type-from-name("GdkEvent") => g-value-to-dylan-helper(#"GdkEvent", address-thunk());
-        g-type-from-name("CairoContext") => g-value-to-dylan-helper(#"CairoContext", address-thunk());
         otherwise       => g-value-to-dylan-helper(g-type, address-thunk());
       end select;
     end if;
@@ -325,7 +355,7 @@ end function g-value-to-dylan;
 
 define macro property-getter-definer
   { define property-getter ?:name :: ?type:name on ?class:name end }
-  => { define method "@" ## ?name (object :: ?class) => (res)
+  => { define inline-only method "@" ## ?name (object :: ?class) => (res)
          with-stack-structure (foo :: <GValue>)
            g-object-get-property(object, ?"name", foo);
            g-value-to-dylan(foo);
@@ -341,7 +371,7 @@ end;
 
 define macro property-setter-definer
   { define property-setter ?:name :: ?type:name on ?class:name end }
-  => { define method "@" ## ?name ## "-setter" (res, object :: ?class) => (res)
+  => { define inline-only method "@" ## ?name ## "-setter" (res, object :: ?class) => (res)
          with-stack-structure (gvalue :: <GValue>)
            // FIXME: hack, because we cannot request initialization with zero
            // from with-stack-structure
