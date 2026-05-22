@@ -1,7 +1,7 @@
 {
   local _dll = [ FDLLName $(IMAGE) ] ;
-  local _modules = gtk+-3.0 ;
+  local _modules = gtk4 ;
   LinkPkgConfigLibraries $(_dll) : $(_modules) ;
-  local _cs = support.c ;
-  ObjectPkgConfigCcFlags $(_cs) : $(_modules) ;
+  # local _cs = ;
+  # ObjectPkgConfigCcFlags $(_cs) : $(_modules) ;
 }
