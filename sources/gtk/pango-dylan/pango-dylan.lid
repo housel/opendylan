@@ -3,5 +3,5 @@ target-type: dll
 executable: pango-dylan
 files: library
        pango
-       pango-cairo
+       properties
 jam-includes: pango-dylan.jam

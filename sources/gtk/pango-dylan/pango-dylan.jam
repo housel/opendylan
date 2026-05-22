@@ -1,6 +1,7 @@
 {
   local _dll = [ FDLLName $(IMAGE) ] ;
-  local _modules = pango pangocairo ;
+  local _modules = pango ;
   LinkPkgConfigLibraries $(_dll) : $(_modules) ;
-  #ObjectPkgConfigCcFlags $(_cs) : $(_modules) ;
+  # local _cs = ;
+  # ObjectPkgConfigCcFlags $(_cs) : $(_modules) ;
 }
