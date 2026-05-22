@@ -6,7 +6,6 @@ define library gmodule
   use common-dylan;
   use c-ffi;
   use glib;
-  use gobject;
 
   export gmodule;
 end library;
@@ -16,7 +15,6 @@ define module gmodule
   use common-dylan;
   use c-ffi;
   use glib;
-  use gobject-glue;
 
   export
     <GModuleFlags*>,
@@ -24,7 +22,12 @@ define module gmodule
     $g-module-bind-mask,
     $g-module-bind-local,
     $g-module-bind-lazy,
+    <GModuleError*>,
+    <GModuleError>,
+    $g-module-error-check-failed,
+    $g-module-error-failed,
     g-module-supported,
+    g-module-error-quark,
     g-module-error,
     g-module-build-path,
     g-module-symbol,
