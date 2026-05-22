@@ -10,6 +10,8 @@ define property-setter rowstride :: <C-signed-int> on <GdkPixbuf> end;
 define property-getter rowstride :: <C-signed-int> on <GdkPixbuf> end;
 define property-setter pixels :: <C-void*> on <GdkPixbuf> end;
 define property-getter pixels :: <C-void*> on <GdkPixbuf> end;
+define property-setter pixel-bytes :: <GBytes> on <GdkPixbuf> end;
+define property-getter pixel-bytes :: <GBytes> on <GdkPixbuf> end;
 define property-setter n-channels :: <C-signed-int> on <GdkPixbuf> end;
 define property-getter n-channels :: <C-signed-int> on <GdkPixbuf> end;
 define property-setter height :: <C-signed-int> on <GdkPixbuf> end;
