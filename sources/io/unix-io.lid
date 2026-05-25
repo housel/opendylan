@@ -5,6 +5,7 @@ Files:  library
         streams/defs
         streams/stream
         streams/sequence-stream
+        streams/string-stream
         streams/native-buffer
         streams/buffer
         streams/typed-stream
