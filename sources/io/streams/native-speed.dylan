@@ -59,7 +59,7 @@ define macro copy-down-stream-definer
           => (n-read) }
 end macro;
 
-define copy-down-stream <byte-string-stream>
+define copy-down-stream <string-stream>
    element <character> sequence <byte-string>;
 
 define macro copy-down-buffered-stream-definer
