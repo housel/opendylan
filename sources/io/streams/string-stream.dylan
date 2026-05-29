@@ -10,12 +10,8 @@ define open primary class <string-stream> (<sequence-stream>)
   inherited slot stream-sequence = make(<string>);
 end class <string-stream>;
 
-define sealed class <byte-string-stream> (<string-stream>)
-  inherited slot stream-sequence = make(<byte-string>);
-end class <byte-string-stream>;
-
-define sealed domain lock-stream (<byte-string-stream>);
-define sealed domain unlock-stream (<byte-string-stream>);
+define sealed domain lock-stream (<string-stream>);
+define sealed domain unlock-stream (<string-stream>);
 
 
 /// Macros
@@ -57,25 +53,20 @@ define method type-for-sequence-stream
   <string-stream>
 end method type-for-sequence-stream;
 
-define method type-for-sequence-stream
-    (contents :: <byte-string>) => (type :: singleton(<byte-string-stream>))
-  <byte-string-stream>
-end method type-for-sequence-stream;
-
 /// Seal some domains
 
-define sealed domain make (singleton(<byte-string-stream>));
-define sealed domain initialize (<byte-string-stream>);
-define sealed domain read-element (<byte-string-stream>);
-define sealed domain unread-element (<byte-string-stream>, <object>);
-define sealed domain peek (<byte-string-stream>);
-define sealed domain read (<byte-string-stream>, <integer>);
-define sealed domain read-into! (<byte-string-stream>, <integer>, <mutable-sequence>);
-define sealed domain stream-input-available? (<byte-string-stream>);
-define sealed domain write-element (<byte-string-stream>, <object>);
-define sealed domain write (<byte-string-stream>, <sequence>);
-define sealed domain stream-at-end? (<byte-string-stream>);
-define sealed domain stream-size (<byte-string-stream>);
-define sealed domain clear-contents (<byte-string-stream>);
-define sealed domain stream-contents (<byte-string-stream>);
-define sealed domain stream-contents-as (<type>, <byte-string-stream>);
+define sealed domain make (singleton(<string-stream>));
+define sealed domain initialize (<string-stream>);
+define sealed domain read-element (<string-stream>);
+define sealed domain unread-element (<string-stream>, <object>);
+define sealed domain peek (<string-stream>);
+define sealed domain read (<string-stream>, <integer>);
+define sealed domain read-into! (<string-stream>, <integer>, <mutable-sequence>);
+define sealed domain stream-input-available? (<string-stream>);
+define sealed domain write-element (<string-stream>, <object>);
+define sealed domain write (<string-stream>, <sequence>);
+define sealed domain stream-at-end? (<string-stream>);
+define sealed domain stream-size (<string-stream>);
+define sealed domain clear-contents (<string-stream>);
+define sealed domain stream-contents (<string-stream>);
+define sealed domain stream-contents-as (<type>, <string-stream>);

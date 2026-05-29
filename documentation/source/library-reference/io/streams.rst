@@ -202,7 +202,6 @@ the image below. Classes shown in bold are all instantiable.
 - :class:`<file-stream>`
 - :class:`<sequence-stream>`
 - :class:`<string-stream>`
-- :class:`<byte-string-stream>`
 - :class:`<wrapper-stream>`
 - :class:`<indenting-stream>`
 
@@ -937,51 +936,6 @@ are exported from the *streams* module.
 
      - :gf:`byte-storage-address`
 
-.. class:: <byte-string-stream>
-   :open:
-   :instantiable:
-
-   The class of streams over byte strings.
-
-   :superclasses: :class:`<string-stream>`
-
-   :keyword contents: A general instance of :drm:`<sequence>`.
-   :keyword direction: Specifies the direction of the stream. It must
-     be one of ``#"input"``, ``#"output"``, or ``#"input-output"``.
-     Default value: ``#"input"``.
-   :keyword start: An instance of :drm:`<integer>`. This specifies the
-     start position of the sequence to be streamed over. Only valid when
-     ``direction:`` is ``#"input"``. Default value: 0.
-   :keyword end: An instance of :drm:`<integer>`. This specifies the
-     sequence position immediately after the portion of the sequence to
-     stream over. Only valid when ``direction:`` is ``#"input"``. Default
-     value: *contents.size*.
-
-   :description:
-
-     The class of streams over byte strings. It is a subclass of
-     :class:`<string-stream>`.
-
-     The class supports the same init-keywords as
-     :class:`<sequence-stream>`.
-
-     The ``contents:`` init-keyword is used as the input for an input
-     stream, and as the initial storage for an output stream.
-
-     The ``start:`` and ``end:`` init-keywords specify the portion of the
-     byte string to create the stream over: ``start:`` is inclusive and
-     ``end:`` is exclusive. The default is to stream over the entire byte
-     string.
-
-   :operations:
-
-     - :meth:`make(<byte-string-stream>)`
-
-   :seealso:
-
-     - :meth:`make(<byte-string-stream>)`
-     - :class:`<sequence-stream>`
-
 .. class:: <byte-vector>
    :sealed:
 
@@ -1432,43 +1386,6 @@ are exported from the *streams* module.
      - :gf:`stream-lock-setter`
      - :gf:`unlock-stream`
      - :macro:`with-stream-locked`
-
-.. method:: make
-   :specializer: <byte-string-stream>
-
-   Creates and opens a stream over a byte string.
-
-   :signature: make *byte-string-stream-class* #key *contents* *direction* *start* *end* => *byte-string-stream-instance*
-
-   :parameter byte-string-stream-class: The class :class:`<byte-string-stream>`.
-   :parameter #key contents: An instance of :drm:`<string>`.
-   :parameter #key direction: One of ``#"input"``, ``#"output"``, or
-     ``#"input-output"``. Default value: ``#"input"``.
-   :parameter #key start: An instance of :drm:`<integer>`. Default value: 0.
-   :parameter #key end: An instance of :drm:`<integer>`. Default value: *contents.size*.
-   :value byte-string-stream-instance: An instance of :class:`<byte-string-stream>`.
-
-   :description:
-
-     Creates and opens a stream over a byte string.
-
-     This method returns an instance of :class:`<byte-string-stream>`.
-     If supplied, *contents* describes the contents of the stream. The
-     *direction*, *start*, and *end* init-keywords are as for
-     :meth:`make <make(<sequence-stream>)>` on
-     :class:`<sequence-stream>`.
-
-   :example:
-
-     .. code-block:: dylan
-
-       let stream = make(<byte-string-stream>,
-                         direction: #"output");
-
-   :seealso:
-
-     - :class:`<byte-string-stream>`
-     - :meth:`make(<sequence-stream>)`
 
 .. method:: make
    :specializer: <sequence-stream>
@@ -2023,9 +1940,8 @@ are exported from the *streams* module.
      used by the stream.
 
      The :class:`<sequence-stream>` class can be used for streaming over all
-     sequences, but there are also subclasses :class:`<string-stream>` and
-     :class:`<byte-string-stream>` which
-     are specialized for streaming over strings.
+     sequences, but there is also a subclasses :class:`<string-stream>` which
+     is specialized for streaming over strings.
 
      The ``start:`` and ``end:`` init-keywords specify the portion of the
      sequence to create the stream over: ``start:`` is inclusive and
