@@ -107,7 +107,6 @@ define module streams
          \with-input-from-string,
          <sequence-stream>,
          <string-stream>,
-         <byte-string-stream>,
          type-for-sequence-stream,
          stream-limit;
 
