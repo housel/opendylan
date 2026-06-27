@@ -859,17 +859,19 @@ DLLs from a third party.</p>
 <div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="na">Base-Address</span><span class="o">:</span><span class="w"> </span><span class="s">*address*</span>
 </pre></div>
 </div>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 2026.2: </span>Because Windows versions starting with Windows Vista and
+Windows Server 2008 implement Address Space Layout Randomization for
+improved security, providing an initial base address is no longer
+useful.</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This keyword is only used on Windows and is ignored on other
 platforms.</p>
 </div>
 <p>This keyword specifies the base address of the Windows DLL built from
-this Dylan library. Since Windows versions since Windows Vista and
-Windows Server 2008 use Address Space Layout Randomization for
-improved security, providing an initial base address is no longer
-useful.</p>
-<p>If provided, <em>address</em> must be a hexadecimal value. For
+this Dylan library. If provided, <em>address</em> must be a hexadecimal value. For
 convenience, you can use either Dylan (<code class="docutils literal notranslate"><span class="pre">#xNNNNNNNN</span></code>) or C
 (<code class="docutils literal notranslate"><span class="pre">0xNNNNNNNN</span></code>) notations when specifying the address.</p>
 <p>This base address is ignored when building a <code class="docutils literal notranslate"><span class="pre">.EXE</span></code> file.</p>
