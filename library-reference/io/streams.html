@@ -263,6 +263,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0011-numeric-literal-syntax.html">Numeric Literal Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0012-string-literals.html">String Literal Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0013-multi-assignment.html">Multiple Value Assignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0014-unicode.html">Unicode</a></li>
 </ul>
 </li>
 </ul>
@@ -693,8 +694,6 @@ exported from the <a class="reference internal" href="../system/file-system.html
 <li><p><a class="reference internal" href="#io:streams:[file-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;file-stream&gt;</span></code></a></p></li>
 <li><p><a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a></p></li>
 <li><p><a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a></p></li>
-<li><p><a class="reference internal" href="#io:streams:[byte-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></a></p></li>
-<li><p><a class="reference internal" href="#io:streams:[unicode-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;unicode-string-stream&gt;</span></code></a></p></li>
 <li><p><a class="reference internal" href="#io:streams:[wrapper-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;wrapper-stream&gt;</span></code></a></p></li>
 <li><p><a class="reference internal" href="#io:streams:[indenting-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;indenting-stream&gt;</span></code></a></p></li>
 </ul>
@@ -991,12 +990,6 @@ again (or any other buffer for the same stream) has undefined results.</p>
 <dl class="simple">
 <dt><a class="reference internal" href="#io:streams:[byte]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte&gt;</span></code></a></dt><dd><p>A type representing limited integers in the range 0 to 255 inclusive.</p>
 </dd>
-<dt><a class="reference internal" href="#io:streams:[byte-character]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte-character&gt;</span></code></a></dt><dd><p>A type representing 8-bit characters that instances of
-<a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a> can contain.</p>
-</dd>
-<dt><a class="reference internal" href="#io:streams:[unicode-character]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;unicode-character&gt;</span></code></a></dt><dd><p>A type representing Unicode characters that instances of
-<a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#unicode-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;unicode-string&gt;</span></code></a> can contain.</p>
-</dd>
 <dt><a class="reference internal" href="#io:streams:[byte-vector]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte-vector&gt;</span></code></a></dt><dd><p>A subtype of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#vector"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;vector&gt;</span></code></a> whose element-type is <a class="reference internal" href="#io:streams:[byte]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte&gt;</span></code></a>.</p>
 </dd>
 </dl>
@@ -1038,7 +1031,7 @@ Unicode character stream wrapping an 8-bit character stream.</p>
 
 <span class="k">define</span><span class="w"> </span><span class="nb">method</span><span class="w"> </span><span class="n">read-element</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;unicode-stream&gt;</span><span class="p">,</span>
 <span class="w">  </span><span class="k">#key</span><span class="w"> </span><span class="n">on-end-of-stream</span><span class="p">)</span>
-<span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">ch</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;unicode-character&gt;</span><span class="p">)</span>
+<span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">ch</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;character&gt;</span><span class="p">)</span>
 <span class="w">  </span><span class="k">let</span><span class="w"> </span><span class="n">first-char</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read-element</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">inner-stream</span><span class="p">,</span>
 <span class="w">                                </span><span class="n">on-end-of-stream</span><span class="p">);</span>
 <span class="w">  </span><span class="k">let</span><span class="w"> </span><span class="n">second-char</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read-element</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">inner-stream</span><span class="p">,</span>
@@ -1392,29 +1385,6 @@ init-keyword.</p>
 </dl>
 </dd></dl>
 
-<dl class="dylan type">
-<dt class="sig sig-object dylan-api dylan" id="io:streams:[byte-character]">
-<span class="sig-name descname"><span class="pre">&lt;byte-character&gt;</span></span> <em class="property"><span class="pre">Type</span></em><a class="headerlink" href="#io:streams:[byte-character]" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A type representing 8-bit characters that instances of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a> can contain.</p>
-</dd>
-<dt class="field-even">Supertypes<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://opendylan.org/books/drm/Simple_Object_Classes#character"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;character&gt;</span></code></a></p>
-</dd>
-<dt class="field-odd">Discussion<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A type representing 8-bit characters that instances of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a>
-can contain.</p>
-</dd>
-<dt class="field-even">Operations<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><a class="reference internal" href="#io:streams:type-for-file-stream"><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">type-for-file-stream</span></code></a></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="dylan method">
 <dt class="sig sig-object dylan-api dylan" id="io:streams:byte-storage-address([buffer])">
 <span class="sig-name descname"><span class="pre">byte-storage-address(&lt;buffer&gt;)</span></span> <em class="property"><span class="pre">Sealed</span> <span class="pre">Method</span></em><a class="headerlink" href="#io:streams:byte-storage-address([buffer])" title="Link to this definition">¶</a></dt>
@@ -1424,58 +1394,6 @@ Provided for use by <a class="reference internal" href="../common-dylan/byte-sto
 <dt class="field-odd">See also<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><a class="reference internal" href="../common-dylan/byte-storage.html#common-dylan:byte-storage:byte-storage-address"><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">byte-storage-address</span></code></a></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="dylan class">
-<dt class="sig sig-object dylan-api dylan" id="io:streams:[byte-string-stream]">
-<span class="sig-name descname"><span class="pre">&lt;byte-string-stream&gt;</span></span> <em class="property"><span class="pre">Open</span> <span class="pre">Instantiable</span> <span class="pre">Class</span></em><a class="headerlink" href="#io:streams:[byte-string-stream]" title="Link to this definition">¶</a></dt>
-<dd><p>The class of streams over byte strings.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Superclasses<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a></p>
-</dd>
-<dt class="field-even">Init-Keywords<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>contents</strong> – A general instance of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#sequence"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;sequence&gt;</span></code></a>.</p></li>
-<li><p><strong>direction</strong> – Specifies the direction of the stream. It must
-be one of <code class="docutils literal notranslate"><span class="pre">#&quot;input&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">#&quot;output&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">#&quot;input-output&quot;</span></code>.
-Default value: <code class="docutils literal notranslate"><span class="pre">#&quot;input&quot;</span></code>.</p></li>
-<li><p><strong>start</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a>. This specifies the
-start position of the sequence to be streamed over. Only valid when
-<code class="docutils literal notranslate"><span class="pre">direction:</span></code> is <code class="docutils literal notranslate"><span class="pre">#&quot;input&quot;</span></code>. Default value: 0.</p></li>
-<li><p><strong>end</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a>. This specifies the
-sequence position immediately after the portion of the sequence to
-stream over. Only valid when <code class="docutils literal notranslate"><span class="pre">direction:</span></code> is <code class="docutils literal notranslate"><span class="pre">#&quot;input&quot;</span></code>. Default
-value: <em>contents.size</em>.</p></li>
-</ul>
-</dd>
-<dt class="field-odd">Discussion<span class="colon">:</span></dt>
-<dd class="field-odd"><p><p>The class of streams over byte strings. It is a subclass of
-<a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a>.</p>
-<p>The class supports the same init-keywords as
-<a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a>.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">contents:</span></code> init-keyword is used as the input for an input
-stream, and as the initial storage for an output stream.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">start:</span></code> and <code class="docutils literal notranslate"><span class="pre">end:</span></code> init-keywords specify the portion of the
-byte string to create the stream over: <code class="docutils literal notranslate"><span class="pre">start:</span></code> is inclusive and
-<code class="docutils literal notranslate"><span class="pre">end:</span></code> is exclusive. The default is to stream over the entire byte
-string.</p>
-</p>
-</dd>
-<dt class="field-even">Operations<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><a class="reference internal" href="#io:streams:make([byte-string-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make(&lt;byte-string-stream&gt;)</span></code></a></p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-odd">See also<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><a class="reference internal" href="#io:streams:make([byte-string-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make(&lt;byte-string-stream&gt;)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a></p></li>
 </ul>
 </p>
 </dd>
@@ -2093,54 +2011,6 @@ streams from multiple threads.</p>
 </dd></dl>
 
 <dl class="dylan method">
-<dt class="sig sig-object dylan-api dylan" id="io:streams:make([byte-string-stream])">
-<span class="sig-name descname"><span class="pre">make(&lt;byte-string-stream&gt;)</span></span> <em class="property"><span class="pre">Method</span></em><a class="headerlink" href="#io:streams:make([byte-string-stream])" title="Link to this definition">¶</a></dt>
-<dd><p>Creates and opens a stream over a byte string.</p>
-<dl class="field-list">
-<dt class="field-odd">Signature<span class="colon">:</span></dt>
-<dd class="field-odd"><p>make <em>byte-string-stream-class</em> #key <em>contents</em> <em>direction</em> <em>start</em> <em>end</em> =&gt; <em>byte-string-stream-instance</em></p>
-</dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>byte-string-stream-class</strong> – The class <a class="reference internal" href="#io:streams:[byte-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></a>.</p></li>
-<li><p><strong>contents</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code></a>.</p></li>
-<li><p><strong>direction</strong> (<em>#key</em>) – One of <code class="docutils literal notranslate"><span class="pre">#&quot;input&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">#&quot;output&quot;</span></code>, or
-<code class="docutils literal notranslate"><span class="pre">#&quot;input-output&quot;</span></code>. Default value: <code class="docutils literal notranslate"><span class="pre">#&quot;input&quot;</span></code>.</p></li>
-<li><p><strong>start</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a>. Default value: 0.</p></li>
-<li><p><strong>end</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a>. Default value: <em>contents.size</em>.</p></li>
-</ul>
-</dd>
-<dt class="field-odd">Values<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>byte-string-stream-instance</strong> – An instance of <a class="reference internal" href="#io:streams:[byte-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></a>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Discussion<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>Creates and opens a stream over a byte string.</p>
-<p>This method returns an instance of <a class="reference internal" href="#io:streams:[byte-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></a>.
-If supplied, <em>contents</em> describes the contents of the stream. The
-<em>direction</em>, <em>start</em>, and <em>end</em> init-keywords are as for
-<a class="reference internal" href="#io:streams:make([sequence-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make</span></code></a> on
-<a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a>.</p>
-</p>
-</dd>
-<dt class="field-odd">Example<span class="colon">:</span></dt>
-<dd class="field-odd"><div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="k">let</span><span class="w"> </span><span class="n">stream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="nc">&lt;byte-string-stream&gt;</span><span class="p">,</span>
-<span class="w">                  </span><span class="k">direction:</span><span class="w"> </span><span class="ss">#&quot;output&quot;</span><span class="p">);</span>
-</pre></div>
-</div>
-</dd>
-<dt class="field-even">See also<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><a class="reference internal" href="#io:streams:[byte-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></a></p></li>
-<li><p><a class="reference internal" href="#io:streams:make([sequence-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make(&lt;sequence-stream&gt;)</span></code></a></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="dylan method">
 <dt class="sig sig-object dylan-api dylan" id="io:streams:make([sequence-stream])">
 <span class="sig-name descname"><span class="pre">make(&lt;sequence-stream&gt;)</span></span> <em class="property"><span class="pre">Method</span></em><a class="headerlink" href="#io:streams:make([sequence-stream])" title="Link to this definition">¶</a></dt>
 <dd><p>Creates and opens a stream over a sequence.</p>
@@ -2243,49 +2113,6 @@ supplied, <em>contents</em> describes the contents of the stream. The
 <dd class="field-even"><p><ul class="simple">
 <li><p><a class="reference internal" href="#io:streams:make([sequence-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make(&lt;sequence-stream&gt;)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="dylan method">
-<dt class="sig sig-object dylan-api dylan" id="io:streams:make([unicode-string-stream])">
-<span class="sig-name descname"><span class="pre">make(&lt;unicode-string-stream&gt;)</span></span> <em class="property"><span class="pre">Method</span></em><a class="headerlink" href="#io:streams:make([unicode-string-stream])" title="Link to this definition">¶</a></dt>
-<dd><p>Creates and opens a stream over a Unicode string.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Signature<span class="colon">:</span></dt>
-<dd class="field-odd"><p>make <em>unicode-string-stream-class</em> #key <em>contents</em> <em>direction</em> <em>start</em> <em>end</em> =&gt; <em>unicode-string-stream-instance</em></p>
-</dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>unicode-string-stream-class</strong> – The class <a class="reference internal" href="#io:streams:[unicode-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;unicode-string-stream&gt;</span></code></a>.</p></li>
-<li><p><strong>contents</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#unicode-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;unicode-string&gt;</span></code></a>.</p></li>
-<li><p><strong>direction</strong> (<em>#key</em>) – One of <code class="docutils literal notranslate"><span class="pre">#&quot;input&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">#&quot;output&quot;</span></code>, or
-<code class="docutils literal notranslate"><span class="pre">#&quot;input-output&quot;</span></code>. Default value: <code class="docutils literal notranslate"><span class="pre">#&quot;input&quot;</span></code>.</p></li>
-<li><p><strong>start</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a>. Default value: 0.</p></li>
-<li><p><strong>end</strong> (<em>#key</em>) – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a>. Default value: <em>contents.size</em>.</p></li>
-</ul>
-</dd>
-<dt class="field-odd">Values<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>unicode-string-stream-instance</strong> – An instance of <a class="reference internal" href="#io:streams:[unicode-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;unicode-string-stream&gt;</span></code></a>.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Discussion<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>Creates and opens a stream over a Unicode string.</p>
-<p>This method returns a new instance of
-<a class="reference internal" href="#io:streams:[unicode-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;unicode-string-stream&gt;</span></code></a>. If supplied, <em>contents</em> describes
-the contents of the stream, and must be an instance of
-<a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#unicode-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;unicode-string&gt;</span></code></a>. The <em>direction</em>, <em>start</em>, and <em>end</em>
-init-keywords are as for <a class="reference internal" href="#io:streams:make([sequence-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make</span></code></a> on
-<a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a>.</p>
-</p>
-</dd>
-<dt class="field-odd">See also<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><a class="reference internal" href="#io:streams:make([sequence-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make(&lt;sequence-stream&gt;)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#io:streams:[unicode-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;unicode-string-stream&gt;</span></code></a></p></li>
 </ul>
 </p>
 </dd>
@@ -2661,10 +2488,6 @@ to the next newline sequence.</p>
 second value returned is <a class="reference external" href="https://opendylan.org/books/drm/Other_Built-In_Objects_Defined#true"><code class="xref drm docutils literal notranslate"><span class="pre">#t</span></code></a> if the read terminated with a
 newline or <a class="reference external" href="https://opendylan.org/books/drm/Other_Built-In_Objects_Defined#false"><code class="xref drm docutils literal notranslate"><span class="pre">#f</span></code></a> if the read terminated because it came to the end
 of the stream.</p>
-<p>The type of the result string is chosen so that the string can
-contain characters of <em>input-stream</em> ‘s element type. For example,
-if the element type is <a class="reference internal" href="#io:streams:[byte-character]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte-character&gt;</span></code></a>, the string will be a
-<a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a>.</p>
 <p>If <em>input-stream</em> is at its end immediately upon calling
 <code class="docutils literal notranslate"><span class="pre">read-line</span></code> (that is, the end of stream appears to be at the end
 of an empty line), then the end-of-stream behavior and the
@@ -2903,9 +2726,8 @@ value: <em>contents.size</em>.</p></li>
 <p>If <code class="docutils literal notranslate"><span class="pre">contents:</span></code> is a stretchy vector, then it is the only storage
 used by the stream.</p>
 <p>The <a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a> class can be used for streaming over all
-sequences, but there are also subclasses <a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a>,
-<a class="reference internal" href="#io:streams:[byte-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></a>, and <a class="reference internal" href="#io:streams:[unicode-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;unicode-string-stream&gt;</span></code></a>, which
-are specialized for streaming over strings.</p>
+sequences, but there is also a subclasses <a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a> which
+is specialized for streaming over strings.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">start:</span></code> and <code class="docutils literal notranslate"><span class="pre">end:</span></code> init-keywords specify the portion of the
 sequence to create the stream over: <code class="docutils literal notranslate"><span class="pre">start:</span></code> is inclusive and
 <code class="docutils literal notranslate"><span class="pre">end:</span></code> is exclusive. The default is to stream over the entire
@@ -2920,10 +2742,9 @@ sequence.</p>
 </dd>
 <dt class="field-odd">See also<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><a class="reference internal" href="#io:streams:[byte-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></a></p></li>
+<li><p><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></p></li>
 <li><p><a class="reference internal" href="#io:streams:make([sequence-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make(&lt;sequence-stream&gt;)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a></p></li>
-<li><p><a class="reference internal" href="#io:streams:[unicode-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;unicode-string-stream&gt;</span></code></a></p></li>
 </ul>
 </p>
 </dd>
@@ -3599,8 +3420,8 @@ a given file.</p>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>filename</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a>.</p></li>
-<li><p><strong>element-type</strong> – One of <a class="reference internal" href="#io:streams:[byte-character]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte-character&gt;</span></code></a>,
-<a class="reference internal" href="#io:streams:[unicode-character]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;unicode-character&gt;</span></code></a>, or <a class="reference internal" href="#io:streams:[byte]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte&gt;</span></code></a>, or <a class="reference external" href="https://opendylan.org/books/drm/Other_Built-In_Objects_Defined#false"><code class="xref drm docutils literal notranslate"><span class="pre">#f</span></code></a>.</p></li>
+<li><p><strong>element-type</strong> – One of <a class="reference internal" href="../../proposals/dep-0014-unicode.html#dylan:dylan:[character]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;character&gt;</span></code></a>,
+or <a class="reference internal" href="#io:streams:[byte]"><code class="xref dylan dylan-type docutils literal notranslate"><span class="pre">&lt;byte&gt;</span></code></a>, or <code class="docutils literal notranslate"><span class="pre">#f</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Values<span class="colon">:</span></dt>
@@ -3657,84 +3478,7 @@ considers appropriate.</p>
 <li><p><a class="reference internal" href="#io:streams:make([sequence-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make(&lt;sequence-stream&gt;)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a></p></li>
 <li><p><a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a></p></li>
-<li><p><a class="reference internal" href="#io:streams:[byte-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></a></p></li>
-<li><p><a class="reference internal" href="#io:streams:[unicode-string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;unicode-string-stream&gt;</span></code></a></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="dylan type">
-<dt class="sig sig-object dylan-api dylan" id="io:streams:[unicode-character]">
-<span class="sig-name descname"><span class="pre">&lt;unicode-character&gt;</span></span> <em class="property"><span class="pre">Type</span></em><a class="headerlink" href="#io:streams:[unicode-character]" title="Link to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The type that represents Unicode characters.</p>
-</dd>
-<dt class="field-even">Supertypes<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://opendylan.org/books/drm/Simple_Object_Classes#character"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;character&gt;</span></code></a></p>
-</dd>
-<dt class="field-odd">Discussion<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A type representing Unicode characters that instances of
-<a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#unicode-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;unicode-string&gt;</span></code></a> can contain.</p>
-</dd>
-<dt class="field-even">Operations<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><a class="reference internal" href="#io:streams:type-for-file-stream"><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">type-for-file-stream</span></code></a></p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="dylan class">
-<dt class="sig sig-object dylan-api dylan" id="io:streams:[unicode-string-stream]">
-<span class="sig-name descname"><span class="pre">&lt;unicode-string-stream&gt;</span></span> <em class="property"><span class="pre">Open</span> <span class="pre">Instantiable</span> <span class="pre">Class</span></em><a class="headerlink" href="#io:streams:[unicode-string-stream]" title="Link to this definition">¶</a></dt>
-<dd><p>The class of streams over Unicode strings.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Superclasses<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a></p>
-</dd>
-<dt class="field-even">Init-Keywords<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>contents</strong> – A general instance of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#sequence"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;sequence&gt;</span></code></a>.</p></li>
-<li><p><strong>direction</strong> – Specifies the direction of the stream. It must
-be one of <code class="docutils literal notranslate"><span class="pre">#&quot;input&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">#&quot;output&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">#&quot;input-output&quot;</span></code>.
-Default value: <code class="docutils literal notranslate"><span class="pre">#&quot;input&quot;</span></code>.</p></li>
-<li><p><strong>start</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a>. This specifies the
-start position of the sequence to be streamed over. Only valid when
-<code class="docutils literal notranslate"><span class="pre">direction:</span></code> is <code class="docutils literal notranslate"><span class="pre">#&quot;input&quot;</span></code>. Default value: 0.</p></li>
-<li><p><strong>end</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a>. This specifies the
-sequence position immediately after the portion of the sequence to
-stream over. Only valid when <code class="docutils literal notranslate"><span class="pre">direction:</span></code> is <code class="docutils literal notranslate"><span class="pre">#&quot;input&quot;</span></code>. Default
-value: <em>contents.size</em>.</p></li>
-</ul>
-</dd>
-<dt class="field-odd">Discussion<span class="colon">:</span></dt>
-<dd class="field-odd"><p><p>The class of streams over Unicode strings. It is a subclass of
-<a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a>.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">contents:</span></code> init-keyword is used as the input for an input
-stream, and as the initial storage for an output stream. If it is a
-stretchy vector, then it is the only storage used by the stream.</p>
-<p>The class supports the same init-keywords as
-<a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a>.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">start:</span></code> and <code class="docutils literal notranslate"><span class="pre">end:</span></code> init-keywords specify the portion of the
-Unicode string to create the stream over: <code class="docutils literal notranslate"><span class="pre">start:</span></code> is inclusive and
-<code class="docutils literal notranslate"><span class="pre">end:</span></code> is exclusive. The default is to stream over the entire
-Unicode string.</p>
-</p>
-</dd>
-<dt class="field-even">Operations<span class="colon">:</span></dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><a class="reference internal" href="#io:streams:make([unicode-string-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make(&lt;unicode-string-stream&gt;)</span></code></a></p></li>
-</ul>
-</p>
-</dd>
-<dt class="field-odd">See also<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><a class="reference internal" href="#io:streams:make([unicode-string-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make(&lt;unicode-string-stream&gt;)</span></code></a></p></li>
-<li><p><a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a></p></li>
+<li><p><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></p></li>
 </ul>
 </p>
 </dd>
@@ -4070,7 +3814,7 @@ character stream.</p>
 
 <span class="k">define</span><span class="w"> </span><span class="nb">method</span><span class="w"> </span><span class="n">read-element</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;unicode-stream&gt;</span><span class="p">,</span>
 <span class="w">  </span><span class="k">#key</span><span class="w"> </span><span class="n">on-end-of-stream</span><span class="p">)</span>
-<span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">ch</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;unicode-character&gt;</span><span class="p">)</span>
+<span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">ch</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;character&gt;</span><span class="p">)</span>
 <span class="w">  </span><span class="k">let</span><span class="w"> </span><span class="n">first-char</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read-element</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">inner-stream</span><span class="p">,</span>
 <span class="w">                                </span><span class="n">on-end-of-stream</span><span class="p">);</span>
 <span class="w">  </span><span class="k">let</span><span class="w"> </span><span class="n">second-char</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read-element</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">inner-stream</span><span class="p">,</span>
@@ -4136,11 +3880,11 @@ write to the stream. The value of <code class="docutils literal notranslate"><sp
 <p>If the stream is positionable, and it is not positioned at its end,
 <code class="docutils literal notranslate"><span class="pre">write</span></code> overwrites elements in the stream and then advances the
 stream’s position to be beyond the last element written.</p>
-<p><em>Implementation Note:</em> Buffered streams are intended to provide a very
-efficient implementation of <code class="docutils literal notranslate"><span class="pre">write</span></code>, particularly when sequence is an
-instance of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a>, <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#unicode-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;unicode-string&gt;</span></code></a>,
-<a class="reference internal" href="#io:streams:[byte-vector]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-vector&gt;</span></code></a>, or <a class="reference internal" href="#io:streams:[buffer]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;buffer&gt;</span></code></a>, and the stream’s element
-type is the same as the element type of sequence.</p>
+<p><em>Implementation Note:</em> Buffered streams are intended to provide a
+very efficient implementation of <code class="docutils literal notranslate"><span class="pre">write</span></code>, particularly when
+sequence is an instance of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a>,
+<a class="reference internal" href="#io:streams:[byte-vector]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-vector&gt;</span></code></a>, or <a class="reference internal" href="#io:streams:[buffer]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;buffer&gt;</span></code></a>, and the stream’s
+element type is the same as the element type of sequence.</p>
 </p>
 </dd>
 <dt class="field-even">Example<span class="colon">:</span></dt>
@@ -4363,9 +4107,7 @@ write to the stream.</p>
 <li><a class="reference internal" href="#io:streams:[buffer]"><code class="docutils literal notranslate"><span class="pre">&lt;buffer&gt;</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:[buffered-stream]"><code class="docutils literal notranslate"><span class="pre">&lt;buffered-stream&gt;</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:[byte]"><code class="docutils literal notranslate"><span class="pre">&lt;byte&gt;</span></code></a></li>
-<li><a class="reference internal" href="#io:streams:[byte-character]"><code class="docutils literal notranslate"><span class="pre">&lt;byte-character&gt;</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:byte-storage-address([buffer])"><code class="docutils literal notranslate"><span class="pre">byte-storage-address(&lt;buffer&gt;)</span></code></a></li>
-<li><a class="reference internal" href="#io:streams:[byte-string-stream]"><code class="docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:[byte-vector]"><code class="docutils literal notranslate"><span class="pre">&lt;byte-vector&gt;</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:close"><code class="docutils literal notranslate"><span class="pre">close</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:close([file-stream])"><code class="docutils literal notranslate"><span class="pre">close(&lt;file-stream&gt;)</span></code></a></li>
@@ -4385,10 +4127,8 @@ write to the stream.</p>
 <li><a class="reference internal" href="#io:streams:inner-stream-setter"><code class="docutils literal notranslate"><span class="pre">inner-stream-setter</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:[invalid-file-permissions-error]"><code class="docutils literal notranslate"><span class="pre">&lt;invalid-file-permissions-error&gt;</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:lock-stream"><code class="docutils literal notranslate"><span class="pre">lock-stream</span></code></a></li>
-<li><a class="reference internal" href="#io:streams:make([byte-string-stream])"><code class="docutils literal notranslate"><span class="pre">make(&lt;byte-string-stream&gt;)</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:make([sequence-stream])"><code class="docutils literal notranslate"><span class="pre">make(&lt;sequence-stream&gt;)</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:make([string-stream])"><code class="docutils literal notranslate"><span class="pre">make(&lt;string-stream&gt;)</span></code></a></li>
-<li><a class="reference internal" href="#io:streams:make([unicode-string-stream])"><code class="docutils literal notranslate"><span class="pre">make(&lt;unicode-string-stream&gt;)</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:new-line"><code class="docutils literal notranslate"><span class="pre">new-line</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:outer-stream"><code class="docutils literal notranslate"><span class="pre">outer-stream</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:outer-stream-setter"><code class="docutils literal notranslate"><span class="pre">outer-stream-setter</span></code></a></li>
@@ -4422,8 +4162,6 @@ write to the stream.</p>
 <li><a class="reference internal" href="#io:streams:synchronize-output"><code class="docutils literal notranslate"><span class="pre">synchronize-output</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:type-for-file-stream"><code class="docutils literal notranslate"><span class="pre">type-for-file-stream</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:type-for-sequence-stream"><code class="docutils literal notranslate"><span class="pre">type-for-sequence-stream</span></code></a></li>
-<li><a class="reference internal" href="#io:streams:[unicode-character]"><code class="docutils literal notranslate"><span class="pre">&lt;unicode-character&gt;</span></code></a></li>
-<li><a class="reference internal" href="#io:streams:[unicode-string-stream]"><code class="docutils literal notranslate"><span class="pre">&lt;unicode-string-stream&gt;</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:unlock-stream"><code class="docutils literal notranslate"><span class="pre">unlock-stream</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:unread-element"><code class="docutils literal notranslate"><span class="pre">unread-element</span></code></a></li>
 <li><a class="reference internal" href="#io:streams:wait-for-io-completion"><code class="docutils literal notranslate"><span class="pre">wait-for-io-completion</span></code></a></li>
