@@ -54,6 +54,7 @@ define inline method concrete-limited-vector-class
   end select;
 end method;
 
+define limited-vector <character>     (fill: ' ');
 define limited-vector <machine-word>  (fill: as(<machine-word>, 0));
 define limited-vector <single-float>  (fill: 0.0);
 define limited-vector <double-float>  (fill: as(<double-float>, 0.0));
