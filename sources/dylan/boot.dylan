@@ -456,6 +456,8 @@ define leaf repeated-instance-allocator
 define repeated-instance-allocator
   (double-byte, double-byte, <double-byte>, integer-as-raw);
 define repeated-instance-allocator
+  (character, character, <character>, primitive-character-as-raw);
+define repeated-instance-allocator
   (word, word, <machine-word>, primitive-unwrap-machine-word);
 // define repeated-instance-allocator
 //   (double-word, double-word, <double-integer>, primitive-unwrap-double-integer);
