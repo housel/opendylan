@@ -164,6 +164,8 @@ define limited-element-type-mappings (<vector>)
     => <simple-integer-vector>;
   <machine-word>
     => <simple-machine-word-vector>;
+  <character>
+    => <simple-character-vector>;
   <single-float>
     => <simple-single-float-vector>;
   <double-float>
