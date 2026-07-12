@@ -765,6 +765,7 @@ define &module dylan-extensions
     <simple-byte-vector>,
     <simple-double-byte-vector>,
     <simple-integer-vector>,
+    <simple-character-vector>,
     <simple-machine-word-vector>,
     <simple-single-float-vector>,
     <simple-double-float-vector>;
