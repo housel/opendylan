@@ -82,6 +82,8 @@ AM_INIT_AUTOMAKE
 AC_PROG_INSTALL
 AC_PROG_LN_S
 
+AC_PATH_PROG([PYTHON],[python])
+
 AC_PATH_PROG(PERL, perl, no)
 test "$PERL" = no && AC_MSG_ERROR([
 perl is required to build Open Dylan])
