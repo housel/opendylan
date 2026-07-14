@@ -49,3 +49,6 @@
 [submodule "sources/app/dylan-emacs-support"]
 	path = sources/app/dylan-emacs-support
 	url = https://github.com/dylan-lang/dylan-emacs-support
+[submodule "sources/lib/run-time/external/simdutf"]
+        path = sources/lib/run-time/external/simdutf
+        url = https://github.com/simdutf/simdutf.git
