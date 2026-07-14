@@ -6,6 +6,8 @@ subdir		= sources/lib/run-time
 
 VPATH		= $(srcdir)
 
+simdutf_srcdir  = $(srcdir)/external/simdutf
+
 LIBDEST         = $(OPEN_DYLAN_USER_INSTALL)/lib
 INCDEST         = $(OPEN_DYLAN_USER_INSTALL)/include/opendylan
 
@@ -108,17 +110,23 @@ else ifeq ($(OPEN_DYLAN_TARGET_PLATFORM),x86_64-darwin)
 endif
 
 CC = @CC@
+CXX = @CXX@
 AR = ar -rcs
 
+PYTHON = @PYTHON@
+
 CFLAGS		= $(PLATFORM_CFLAGS) -Wall -O -g -I$(srcdir) @DEFS@ @CPPFLAGS@
+CXXFLAGS        = -std=c++17 -nostdlib++ -fno-rtti -fno-exceptions \
+                  $(PLATFORM_CFLAGS) -Wall -O -g -I$(srcdir) @DEFS@ @CPPFLAGS@
 LFLAGS		= $(PLATFORM_LFLAGS)
 
 HARP_CFLAGS     = -DOPEN_DYLAN_BACKEND_HARP
 
-LLVM_CFLAGS     = -DOPEN_DYLAN_BACKEND_LLVM \
-	          -DOPEN_DYLAN_RUNTIME_HEADER=\"llvm-$(OPEN_DYLAN_TARGET_PLATFORM)-runtime.h\" \
-		  -I. \
-		  -fexceptions -O2 -g
+LLVM_CPPFLAGS   = -DOPEN_DYLAN_BACKEND_LLVM \
+                  -DOPEN_DYLAN_RUNTIME_HEADER=\"llvm-$(OPEN_DYLAN_TARGET_PLATFORM)-runtime.h\" \
+                  -I.
+LLVM_CFLAGS     = $(LLVM_CPPFLAGS) -fexceptions -O2 -g
+LLVM_CXXFLAGS   = $(LLVM_CPPFLAGS) -O2 -g
 LLVM_LFLAGS     = -fexceptions -O2 -g
 
 C_CFLAGS        = -DOPEN_DYLAN_BACKEND_C
@@ -132,6 +140,7 @@ HARP_RUNTIME_OBJS = \
 		  $(OBJDIR_HARP)/demangle.o \
 		  $(OBJDIR_HARP)/thread-utils.o \
 		  $(OBJDIR_HARP)/trace.o \
+                  $(OBJDIR_HARP)/unicode-support.o \
 		  $(OBJDIR_HARP)/unix-harp-support.o \
 		  $(OBJDIR_HARP)/unix-spy-interfaces.o \
 		  $(OBJDIR_HARP)/unix-threads-primitives.o \
@@ -158,6 +167,7 @@ LLVM_RUNTIME_OBJS = \
 		  $(OBJDIR_LLVM)/stack-walker.o \
 		  $(OBJDIR_LLVM)/demangle.o \
 		  $(OBJDIR_LLVM)/thread-utils.o \
+                  $(OBJDIR_LLVM)/unicode-support.o \
 		  $(OBJDIR_LLVM)/unix-spy-interfaces.o \
 		  $(OBJDIR_LLVM)/llvm-runtime-init.o \
 		  $(OBJDIR_LLVM)/llvm-nlx.o \
@@ -193,6 +203,7 @@ C_RUNTIME_OBJS	= $(OBJDIR_C)/break.o \
 		  $(OBJDIR_C)/demangle.o \
 		  $(OBJDIR_C)/thread-utils.o \
 		  $(OBJDIR_C)/trace.o \
+                  $(OBJDIR_C)/unicode-support.o \
 		  $(OBJDIR_C)/unix-spy-interfaces.o \
 		  $(OBJDIR_C)/c-run-time.o \
 		  $(OBJDIR_C)/c-support.o \
@@ -231,6 +242,14 @@ $(OBJDIR_LLVM)/%.o: %.c $(LLVM_RUNTIME_HEADER)
 $(OBJDIR_LLVM)/%.o: %.bc
 	mkdir -p $(OBJDIR_LLVM)
 	$(CC) $(LFLAGS) $(LLVM_LFLAGS) -c -o $@ $<
+
+$(OBJDIR_LLVM)/unicode-support.o: unicode-support.cpp simdutf.h simdutf.cpp
+	mkdir -p $(OBJDIR_LLVM)
+	$(CXX) $(CXXFLAGS) $(LLVM_CXXFLAGS) -MMD -c -o $@ $<
+
+simdutf.h simdutf.cpp:
+	$(PYTHON) $(simdutf_srcdir)/singleheader/amalgamate.py \
+	    --no-zip --no-readme --with-utf8 --with-utf32 --output-dir .
 
 $(OBJDIR_C)/%.o: $(srcdir)/%.c
 	mkdir -p $(OBJDIR_C)
@@ -274,6 +293,7 @@ install: $(PLATFORM_INSTALL_RUNTIMES)
 clean:
 	rm -rf $(OBJDIR_HARP) $(OBJDIR_LLVM) $(OBJDIR_C)
 	rm -f $(LLVM_RUNTIME_GEN) $(LLVM_RUNTIME_HEADER)
+	rm -f simdutf.h simdutf.cpp simdutf_c.h amalgamation_demo.*
 	rm -f mach_exc*
 
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
