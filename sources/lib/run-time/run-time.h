@@ -1885,6 +1885,13 @@ extern dylan_value VECTOR_REF_OR_F(dylan_value v, int offset);
 #define primitive_string_as_raw(v)              (((dylan_byte_string*)v)->data)
 extern dylan_value primitive_raw_as_string(DBSTR buffer);
 
+/* UNICODE */
+extern DSINT primitive_utf_8_as_utf_32_size(dylan_value x, DSINT offset, DSINT byte_offset, DSINT size);
+extern DSINT primitive_utf_32_as_utf_8_size(dylan_value x, DSINT offset, DSINT codepoint_offset, DSINT size);
+extern DBOOL primitive_validate_utf_8(dylan_value x, DSINT offset, DSINT byte_offset, DSINT size);
+extern DSINT primitive_transcode_utf_32_as_utf_8(dylan_value dst, DSINT dst_base_offset, DSINT dst_offset, dylan_value src, DSINT src_base_offset, DSINT src_offset, DSINT size);
+extern DSINT primitive_transcode_utf_8_as_utf_32(dylan_value dst, DSINT dst_base_offset, DSINT dst_offset, dylan_value src, DSINT src_base_offset, DSINT src_offset, DSINT size);
+
 /* CALLING CONVENTION PRIMITIVES */
 
 #define primitive_function_parameter()                  ((dylan_value)(get_teb()->function))
