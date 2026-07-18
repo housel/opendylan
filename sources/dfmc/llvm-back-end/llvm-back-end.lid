@@ -14,6 +14,7 @@ files:   llvm-back-end-library
 	 llvm-primitives-nlx
 	 llvm-primitives-machine-word
 	 llvm-primitives-symbol
+         llvm-primitives-unicode
 	 llvm-primitives-float
 	 llvm-primitives-debug
 	 llvm-primitives-ffi

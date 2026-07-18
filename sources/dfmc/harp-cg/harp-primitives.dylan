@@ -2128,6 +2128,13 @@ define &primitive-descriptor primitive-strlen;
 define &primitive-descriptor primitive-string-as-raw, emitter: op--string-as-raw;
 define &primitive-descriptor primitive-raw-as-string;
 
+// Unicode.
+define &c-primitive-descriptor primitive-utf-8-as-utf-32-size;
+define &c-primitive-descriptor primitive-utf-32-as-utf-8-size;
+define &c-primitive-descriptor primitive-validate-utf-8;
+define &c-primitive-descriptor primitive-transcode-utf-8-as-utf-32;
+define &c-primitive-descriptor primitive-transcode-utf-32-as-utf-8;
+
 // Instance.
 define &primitive-descriptor primitive-object-class, emitter: op--object-class;
 define &primitive-descriptor primitive-slot-value, emitter: op--slot-element;
