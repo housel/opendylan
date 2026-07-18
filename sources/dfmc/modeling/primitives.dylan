@@ -480,6 +480,33 @@ define side-effect-free stateless indefinite-extent &primitive primitive-string-
 define side-effect-free stateless indefinite-extent &primitive primitive-raw-as-string
     (r :: <raw-byte-string>) => (x :: <byte-string>);
 
+/// UNICODE
+
+define side-effect-free stateless dynamic-extent &primitive primitive-utf-8-as-utf-32-size
+    (x :: <object>, offset :: <raw-integer>, byte-offset :: <raw-integer>,
+     size :: <raw-integer>)
+ => (size :: <raw-integer>);
+define side-effect-free stateless dynamic-extent &primitive primitive-utf-32-as-utf-8-size
+    (x :: <object>, offset :: <raw-integer>, codepoint-offset :: <raw-integer>,
+     size :: <raw-integer>)
+ => (size :: <raw-integer>);
+
+define side-effect-free stateless dynamic-extent &primitive primitive-validate-utf-8
+    (x :: <object>, offset :: <raw-integer>, byte-offset :: <raw-integer>,
+     size :: <raw-integer>)
+ => (valid? :: <raw-boolean>);
+
+define side-effecting stateless dynamic-extent &primitive primitive-transcode-utf-8-as-utf-32
+    (dst :: <object>, dst-base-offset :: <raw-integer>, dst-offset :: <raw-integer>,
+     src :: <object>, src-base-offset :: <raw-integer>, src-offset :: <raw-integer>,
+     size :: <raw-integer>)
+ => (transcoded-size :: <raw-integer>);
+define side-effecting stateless dynamic-extent &primitive primitive-transcode-utf-32-as-utf-8
+    (dst :: <object>, dst-base-offset :: <raw-integer>, dst-offset :: <raw-integer>,
+     src :: <object>, src-base-offset :: <raw-integer>, src-offset :: <raw-integer>,
+     size :: <raw-integer>)
+ => (transcoded-size :: <raw-integer>);
+
 /// INSTANCE
 
 define side-effect-free stateless dynamic-extent &primitive-and-override primitive-object-class

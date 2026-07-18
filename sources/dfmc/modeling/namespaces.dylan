@@ -431,6 +431,14 @@ define &module dylan-primitives
     primitive-string-as-raw,
     primitive-raw-as-string;
 
+  // Unicode
+  create
+    primitive-utf-8-as-utf-32-size,
+    primitive-utf-32-as-utf-8-size,
+    primitive-validate-utf-8,
+    primitive-transcode-utf-8-as-utf-32,
+    primitive-transcode-utf-32-as-utf-8;
+
   // Calling Convention.
   create
     primitive-function-parameter,
