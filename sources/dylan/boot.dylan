@@ -383,17 +383,18 @@ define inline function system-allocate-simple-instance
     (class-implementation-class(class), fill: fill)
 end function;
 
+define constant <nonnegative-integer> = limited(<integer>, min: 0);
 
 define generic system-allocate-repeated-instance
     (class :: <class>, type :: <type>, fill,
-     repeated-size :: <integer>, repeated-fill)
+     repeated-size :: <nonnegative-integer>, repeated-fill)
  => (instance);
 
 /// REPEATED OBJECT INSTANCE ALLOCATION -- DEFAULT
 
 define inline method system-allocate-repeated-instance
     (class :: <class>, type :: <type>, fill,
-     repeated-size :: <integer>, repeated-fill)
+     repeated-size :: <nonnegative-integer>, repeated-fill)
  => (instance)
   system-allocate-repeated-object-instance(class, fill, repeated-size, repeated-fill)
 end method;
@@ -403,14 +404,14 @@ define macro repeated-instance-allocator-definer
     => { define ?adj repeated-instance-allocator-aux (?name, ?alloc, ?type, ?unboxer);
 
          define inline-only function "system-allocate-repeated-" ## ?name ## "-instance"
-             (class :: <class>, fill, repeated-size :: <integer>, repeated-fill :: ?type)
+             (class :: <class>, fill, repeated-size :: <nonnegative-integer>, repeated-fill :: ?type)
            "system-allocate-repeated-" ## ?name ## "-instance-i"
              (class-implementation-class(class), fill, repeated-size, repeated-fill)
          end function;
 
          define inline method system-allocate-repeated-instance
              (class :: <class>, type == ?type, fill,
-              repeated-size :: <integer>, repeated-fill :: ?type)
+              repeated-size :: <nonnegative-integer>, repeated-fill :: ?type)
           => (instance)
            "system-allocate-repeated-" ## ?name ## "-instance"
              (class, fill, repeated-size, repeated-fill)
@@ -440,7 +441,7 @@ define macro repeated-instance-allocator-aux-definer
   { define repeated-instance-allocator-aux (?:name, ?alloc:name, ?type:name, ?unboxer:name) }
     => { define inline-only function "system-allocate-repeated-" ## ?name ## "-instance-i"
              (iclass :: <implementation-class>, fill,
-              repeated-size :: <integer>, repeated-fill :: ?type)
+              repeated-size :: <nonnegative-integer>, repeated-fill :: ?type)
            let size-offset       = iclass.instance-storage-size;
            let raw-size-offset   = iclass.instance-storage-size;
            let raw-number-words  = integer-as-raw($number-header-words + size-offset);
@@ -456,7 +457,7 @@ define macro repeated-instance-allocator-aux-definer
   { define leaf repeated-instance-allocator-aux (?:name, ?alloc:name, ?type:name, ?unboxer:name) }
     => { define inline-only function "system-allocate-repeated-" ## ?name ## "-instance-i"
              (iclass :: <implementation-class>, fill,
-              repeated-size :: <integer>, repeated-fill :: ?type)
+              repeated-size :: <nonnegative-integer>, repeated-fill :: ?type)
            let size-offset       = iclass.instance-storage-size;
            let raw-size-offset   = iclass.instance-storage-size;
            let raw-number-words  = integer-as-raw($number-header-words + size-offset);
@@ -502,7 +503,7 @@ define repeated-instance-allocator
 /// TERMINATED REPEATED BYTE ALLOCATION
 
 define inline-only function system-allocate-repeated-byte-instance-terminated-i
-    (iclass :: <implementation-class>, repeated-size :: <integer>, fill)
+    (iclass :: <implementation-class>, repeated-size :: <nonnegative-integer>, fill)
   let size-offset = iclass.instance-storage-size;
   let nul-adjust = 1;  // extra byte for nul terminator
   primitive-byte-allocate-leaf-filled-terminated
@@ -516,20 +517,20 @@ define inline-only function system-allocate-repeated-byte-instance-terminated-i
 end function;
 
 define inline-only function system-allocate-repeated-byte-instance-terminated
-    (class :: <class>, repeated-size :: <integer>, fill)
+    (class :: <class>, repeated-size :: <nonnegative-integer>, fill)
   system-allocate-repeated-byte-instance-terminated-i(class-implementation-class(class), repeated-size, fill)
 end function;
 
 /// WEAK REPEATED INSTANCES
 
 define inline-only function system-allocate-weak-repeated-instance
-    (class :: <class>, repeated-size :: <integer>, fill, assoc-link)
+    (class :: <class>, repeated-size :: <nonnegative-integer>, fill, assoc-link)
   system-allocate-weak-repeated-instance-i(class-implementation-class(class),
                                            repeated-size, fill, assoc-link)
 end function;
 
 define inline-only function system-allocate-weak-repeated-instance-i
-    (iclass :: <implementation-class>, repeated-size :: <integer>, fill, assoc-link)
+    (iclass :: <implementation-class>, repeated-size :: <nonnegative-integer>, fill, assoc-link)
   let size-offset = iclass.instance-storage-size;
   primitive-allocate-weak-in-awl-pool
     (integer-as-raw($number-header-words + size-offset + repeated-size),
@@ -543,13 +544,13 @@ end function;
 
 
 define inline-only function system-allocate-strong-repeated-instance
-    (class :: <class>, repeated-size :: <integer>, fill)
+    (class :: <class>, repeated-size :: <nonnegative-integer>, fill)
   system-allocate-strong-repeated-instance-i
     (class-implementation-class(class), repeated-size, fill)
 end function;
 
 define inline-only function system-allocate-strong-repeated-instance-i
-    (iclass :: <implementation-class>, repeated-size :: <integer>, fill)
+    (iclass :: <implementation-class>, repeated-size :: <nonnegative-integer>, fill)
   let size-offset = iclass.instance-storage-size;
   primitive-allocate-in-awl-pool
     (integer-as-raw($number-header-words + size-offset + repeated-size),

@@ -346,7 +346,7 @@ end method;
 
 define inline method system-allocate-repeated-instance
     (class == <byte-string>, type == <byte-character>, fill,
-     repeated-size :: <integer>, repeated-fill :: <byte-character>)
+     repeated-size :: <nonnegative-integer>, repeated-fill :: <byte-character>)
  => (instance :: <byte-string>)
   system-allocate-repeated-byte-instance-terminated
     (<byte-string>, repeated-size, repeated-fill);
