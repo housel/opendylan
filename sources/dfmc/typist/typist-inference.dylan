@@ -300,7 +300,7 @@ define method type-estimate-call-from-site(call :: <method-call>,
               unless (^subtype?(arg-type, dylan-value(#"<stretchy-collection>")))
                 let unsupplied = dylan-value(#"unsupplied-object");
                 let ts = get-parameter(#"size");
-                unless (ts == unsupplied)
+                unless (ts == unsupplied | ~instance?(ts, <integer>) | ts < 0)
                   size := ts;
                 end;
                 let td = get-parameter(#"dimensions");
