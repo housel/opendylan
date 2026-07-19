@@ -261,7 +261,6 @@
 <li class="toctree-l2"><a class="reference internal" href="proposals/dep-0011-numeric-literal-syntax.html">Numeric Literal Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="proposals/dep-0012-string-literals.html">String Literal Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="proposals/dep-0013-multi-assignment.html">Multiple Value Assignment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="proposals/dep-0014-unicode.html">Unicode</a></li>
 </ul>
 </li>
 </ul>
@@ -2140,16 +2139,41 @@
     <td><img src="_static/minus.png" class="toggler"
               id="toggle-21" style="display: none" alt="-" /></td>
     <td>
-        <code class="xref">&lt;byte-vector&gt;</code></td><td>
+        <code class="xref">&lt;byte-character&gt;</code></td><td>
     <em></em></td>
   </tr>
   <tr class="cg-21">
     <td></td>
     <td>&#160;&#160;&#160;
-        <a href="library-reference/common-dylan/byte-vector.html#common-dylan:byte-vector:[byte-vector]"><code class="xref">common-dylan:byte-vector:&lt;byte-vector&gt;</code></a> <em>(type)</em></td><td>
+        <a href="library-reference/common-dylan/common-extensions.html#common-dylan:common-extensions:[byte-character]"><code class="xref">common-dylan:common-extensions:&lt;byte-character&gt;</code></a> <em>(class)</em></td><td>
     <em></em></td>
   </tr>
   <tr class="cg-21">
+    <td></td>
+    <td>&#160;&#160;&#160;
+        <a href="library-reference/io/streams.html#io:streams:[byte-character]"><code class="xref">io:streams:&lt;byte-character&gt;</code></a> <em>(type)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="library-reference/io/streams.html#io:streams:[byte-string-stream]"><code class="xref">&lt;byte-string-stream&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td><img src="_static/minus.png" class="toggler"
+              id="toggle-22" style="display: none" alt="-" /></td>
+    <td>
+        <code class="xref">&lt;byte-vector&gt;</code></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="cg-22">
+    <td></td>
+    <td>&#160;&#160;&#160;
+        <a href="library-reference/common-dylan/byte-vector.html#common-dylan:byte-vector:[byte-vector]"><code class="xref">common-dylan:byte-vector:&lt;byte-vector&gt;</code></a> <em>(type)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="cg-22">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/io/streams.html#io:streams:[byte-vector]"><code class="xref">io:streams:&lt;byte-vector&gt;</code></a> <em>(class)</em></td><td>
@@ -2157,18 +2181,18 @@
   </tr>
   <tr>
     <td><img src="_static/minus.png" class="toggler"
-              id="toggle-22" style="display: none" alt="-" /></td>
+              id="toggle-23" style="display: none" alt="-" /></td>
     <td>
         <code class="xref">&lt;byte&gt;</code></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-22">
+  <tr class="cg-23">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/common-dylan/byte-vector.html#common-dylan:byte-vector:[byte]"><code class="xref">common-dylan:byte-vector:&lt;byte&gt;</code></a> <em>(type)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-22">
+  <tr class="cg-23">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/io/streams.html#io:streams:[byte]"><code class="xref">io:streams:&lt;byte&gt;</code></a> <em>(type)</em></td><td>
@@ -2422,30 +2446,30 @@
   </tr>
   <tr>
     <td><img src="_static/minus.png" class="toggler"
-              id="toggle-23" style="display: none" alt="-" /></td>
+              id="toggle-24" style="display: none" alt="-" /></td>
     <td>
         <code class="xref">byte-storage-address</code></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-23">
+  <tr class="cg-24">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/common-dylan/byte-storage.html#common-dylan:byte-storage:byte-storage-address"><code class="xref">common-dylan:byte-storage:byte-storage-address</code></a> <em>(generic function)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-23">
+  <tr class="cg-24">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/common-dylan/byte-storage.html#common-dylan:byte-storage:byte-storage-address([byte-string])"><code class="xref">common-dylan:byte-storage:byte-storage-address(&lt;byte-string&gt;)</code></a> <em>(method)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-23">
+  <tr class="cg-24">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/common-dylan/byte-storage.html#common-dylan:byte-storage:byte-storage-address([byte-vector])"><code class="xref">common-dylan:byte-storage:byte-storage-address(&lt;byte-vector&gt;)</code></a> <em>(method)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-23">
+  <tr class="cg-24">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/io/streams.html#io:streams:byte-storage-address([buffer])"><code class="xref">io:streams:byte-storage-address(&lt;buffer&gt;)</code></a> <em>(method)</em></td><td>
@@ -2459,24 +2483,24 @@
   </tr>
   <tr>
     <td><img src="_static/minus.png" class="toggler"
-              id="toggle-24" style="display: none" alt="-" /></td>
+              id="toggle-25" style="display: none" alt="-" /></td>
     <td>
         <code class="xref">byte-vector-fill</code></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-24">
+  <tr class="cg-25">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/common-dylan/byte-vector.html#common-dylan:byte-vector:byte-vector-fill"><code class="xref">common-dylan:byte-vector:byte-vector-fill</code></a> <em>(generic function)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-24">
+  <tr class="cg-25">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/common-dylan/byte-vector.html#common-dylan:byte-vector:byte-vector-fill([byte-vector],[byte-character])"><code class="xref">common-dylan:byte-vector:byte-vector-fill(&lt;byte-vector&gt;, &lt;byte-character&gt;)</code></a> <em>(method)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-24">
+  <tr class="cg-25">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/common-dylan/byte-vector.html#common-dylan:byte-vector:byte-vector-fill([byte-vector],[integer])"><code class="xref">common-dylan:byte-vector:byte-vector-fill(&lt;byte-vector&gt;, &lt;integer&gt;)</code></a> <em>(method)</em></td><td>
@@ -2738,12 +2762,6 @@
     <td></td>
     <td>
         <a href="library-reference/sql/index.html#sql:sql:[character-not-in-repertoire]"><code class="xref">&lt;character-not-in-repertoire&gt;</code></a> <em>(class)</em></td><td>
-    <em></em></td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>
-        <a href="proposals/dep-0014-unicode.html#dylan:dylan:[character]"><code class="xref">&lt;character&gt;</code></a> <em>(class)</em></td><td>
     <em></em></td>
   </tr>
   <tr>
@@ -3174,18 +3192,18 @@
   </tr>
   <tr>
     <td><img src="_static/minus.png" class="toggler"
-              id="toggle-25" style="display: none" alt="-" /></td>
+              id="toggle-26" style="display: none" alt="-" /></td>
     <td>
         <code class="xref">call-debugger-function</code></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-25">
+  <tr class="cg-26">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="hacker-guide/runtime-manager/debugger-manager.html#debugger-manager:debugger-manager:call-debugger-function"><code class="xref">debugger-manager:debugger-manager:call-debugger-function</code></a> <em>(generic function)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-25">
+  <tr class="cg-26">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="hacker-guide/runtime-manager/debugger-manager.html#debugger-manager:debugger-manager:call-debugger-function([debug-target],[function])"><code class="xref">debugger-manager:debugger-manager:call-debugger-function(&lt;debug-target&gt;, &lt;function&gt;)</code></a> <em>(method)</em></td><td>
@@ -3319,30 +3337,30 @@
   </tr>
   <tr>
     <td><img src="_static/minus.png" class="toggler"
-              id="toggle-26" style="display: none" alt="-" /></td>
+              id="toggle-27" style="display: none" alt="-" /></td>
     <td>
         <code class="xref">ceiling</code></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-26">
+  <tr class="cg-27">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/language-extensions/numbers.html#dylan:dylan:ceiling"><code class="xref">dylan:dylan:ceiling</code></a> <em>(generic function)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-26">
+  <tr class="cg-27">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/language-extensions/numbers.html#dylan:dylan:ceiling([float])"><code class="xref">dylan:dylan:ceiling(&lt;float&gt;)</code></a> <em>(method)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-26">
+  <tr class="cg-27">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/language-extensions/numbers.html#dylan:dylan:ceiling([integer])"><code class="xref">dylan:dylan:ceiling(&lt;integer&gt;)</code></a> <em>(method)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-26">
+  <tr class="cg-27">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/language-extensions/numbers.html#dylan:dylan:ceiling([machine-number])"><code class="xref">dylan:dylan:ceiling(&lt;machine-number&gt;)</code></a> <em>(method)</em></td><td>
@@ -3350,24 +3368,24 @@
   </tr>
   <tr>
     <td><img src="_static/minus.png" class="toggler"
-              id="toggle-27" style="display: none" alt="-" /></td>
+              id="toggle-28" style="display: none" alt="-" /></td>
     <td>
         <code class="xref">ceiling/</code></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-27">
+  <tr class="cg-28">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/language-extensions/numbers.html#dylan:dylan:ceiling/"><code class="xref">dylan:dylan:ceiling/</code></a> <em>(generic function)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-27">
+  <tr class="cg-28">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/language-extensions/numbers.html#dylan:dylan:ceiling/([integer],[integer])"><code class="xref">dylan:dylan:ceiling/(&lt;integer&gt;, &lt;integer&gt;)</code></a> <em>(method)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-27">
+  <tr class="cg-28">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/language-extensions/numbers.html#dylan:dylan:ceiling/([machine-number],[machine-number])"><code class="xref">dylan:dylan:ceiling/(&lt;machine-number&gt;, &lt;machine-number&gt;)</code></a> <em>(method)</em></td><td>
@@ -3531,18 +3549,18 @@
   </tr>
   <tr>
     <td><img src="_static/minus.png" class="toggler"
-              id="toggle-28" style="display: none" alt="-" /></td>
+              id="toggle-29" style="display: none" alt="-" /></td>
     <td>
         <code class="xref">close</code></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-28">
+  <tr class="cg-29">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/io/streams.html#io:streams:close"><code class="xref">io:streams:close</code></a> <em>(generic function)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-28">
+  <tr class="cg-29">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/io/streams.html#io:streams:close([file-stream])"><code class="xref">io:streams:close(&lt;file-stream&gt;)</code></a> <em>(method)</em></td><td>
@@ -3712,18 +3730,18 @@
   </tr>
   <tr>
     <td><img src="_static/minus.png" class="toggler"
-              id="toggle-29" style="display: none" alt="-" /></td>
+              id="toggle-30" style="display: none" alt="-" /></td>
     <td>
         <code class="xref">command-function</code></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-29">
+  <tr class="cg-30">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="duim-reference/frames.html#duim:duim-frames:command-function"><code class="xref">duim:duim-frames:command-function</code></a> <em>(generic function)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-29">
+  <tr class="cg-30">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/sql/index.html#sql:sql:command-function"><code class="xref">sql:sql:command-function</code></a> <em>(generic function)</em></td><td>
@@ -3779,18 +3797,18 @@
   </tr>
   <tr>
     <td><img src="_static/minus.png" class="toggler"
-              id="toggle-30" style="display: none" alt="-" /></td>
+              id="toggle-31" style="display: none" alt="-" /></td>
     <td>
         <code class="xref">common-dylan</code></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-30">
+  <tr class="cg-31">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/common-dylan/index.html#common-dylan"><code class="xref">common-dylan</code></a> <em>(library)</em></td><td>
     <em></em></td>
   </tr>
-  <tr class="cg-30">
+  <tr class="cg-31">
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/common-dylan/index.html#common-dylan:common-dylan"><code class="xref">common-dylan:common-dylan</code></a> <em>(module)</em></td><td>
@@ -3875,22 +3893,9 @@
     <em></em></td>
   </tr>
   <tr>
-    <td><img src="_static/minus.png" class="toggler"
-              id="toggle-31" style="display: none" alt="-" /></td>
+    <td></td>
     <td>
-        <code class="xref">concatenate!</code></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-31">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="library-reference/common-dylan/common-extensions.html#common-dylan:common-extensions:concatenate!"><code class="xref">common-dylan:common-extensions:concatenate!</code></a> <em>(generic function)</em></td><td>
-    <em></em></td>
-  </tr>
-  <tr class="cg-31">
-    <td></td>
-    <td>&#160;&#160;&#160;
-        <a href="proposals/dep-0014-unicode.html#dylan:dylan:concatenate!"><code class="xref">dylan:dylan:concatenate!</code></a> <em>(generic function)</em></td><td>
+        <a href="library-reference/common-dylan/common-extensions.html#common-dylan:common-extensions:concatenate!"><code class="xref">concatenate!</code></a> <em>(generic function)</em></td><td>
     <em></em></td>
   </tr>
   <tr>
@@ -10512,6 +10517,12 @@
   <tr class="cg-77">
     <td></td>
     <td>&#160;&#160;&#160;
+        <a href="library-reference/io/streams.html#io:streams:make([byte-string-stream])"><code class="xref">io:streams:make(&lt;byte-string-stream&gt;)</code></a> <em>(method)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="cg-77">
+    <td></td>
+    <td>&#160;&#160;&#160;
         <a href="library-reference/io/streams.html#io:streams:make([sequence-stream])"><code class="xref">io:streams:make(&lt;sequence-stream&gt;)</code></a> <em>(method)</em></td><td>
     <em></em></td>
   </tr>
@@ -10519,6 +10530,12 @@
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/io/streams.html#io:streams:make([string-stream])"><code class="xref">io:streams:make(&lt;string-stream&gt;)</code></a> <em>(method)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr class="cg-77">
+    <td></td>
+    <td>&#160;&#160;&#160;
+        <a href="library-reference/io/streams.html#io:streams:make([unicode-string-stream])"><code class="xref">io:streams:make(&lt;unicode-string-stream&gt;)</code></a> <em>(method)</em></td><td>
     <em></em></td>
   </tr>
   <tr class="cg-77">
@@ -16062,12 +16079,6 @@
   <tr>
     <td></td>
     <td>
-        <a href="proposals/dep-0014-unicode.html#dylan:dylan:[string-builder]"><code class="xref">&lt;string-builder&gt;</code></a> <em>(class)</em></td><td>
-    <em></em></td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>
         <a href="library-reference/sql/index.html#sql:sql:[string-data-length-mismatch]"><code class="xref">&lt;string-data-length-mismatch&gt;</code></a> <em>(class)</em></td><td>
     <em></em></td>
   </tr>
@@ -16100,12 +16111,6 @@
     <td></td>
     <td>&#160;&#160;&#160;
         <a href="library-reference/common-dylan/common-extensions.html#common-dylan:common-extensions:[string-table]"><code class="xref">common-dylan:common-extensions:&lt;string-table&gt;</code></a> <em>(class)</em></td><td>
-    <em></em></td>
-  </tr>
-  <tr>
-    <td></td>
-    <td>
-        <a href="proposals/dep-0014-unicode.html#dylan:dylan:[string]"><code class="xref">&lt;string&gt;</code></a> <em>(class)</em></td><td>
     <em></em></td>
   </tr>
   <tr>
@@ -18429,6 +18434,18 @@
     <td></td>
     <td>
         <a href="hacker-guide/runtime-manager/access-path.html#access-path:access-path:[unhandled-stop-reason]"><code class="xref">&lt;unhandled-stop-reason&gt;</code></a> <em>(class)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="library-reference/io/streams.html#io:streams:[unicode-character]"><code class="xref">&lt;unicode-character&gt;</code></a> <em>(type)</em></td><td>
+    <em></em></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td>
+        <a href="library-reference/io/streams.html#io:streams:[unicode-string-stream]"><code class="xref">&lt;unicode-string-stream&gt;</code></a> <em>(class)</em></td><td>
     <em></em></td>
   </tr>
   <tr>

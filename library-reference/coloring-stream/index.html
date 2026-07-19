@@ -263,7 +263,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0011-numeric-literal-syntax.html">Numeric Literal Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0012-string-literals.html">String Literal Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0013-multi-assignment.html">Multiple Value Assignment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../proposals/dep-0014-unicode.html">Unicode</a></li>
 </ul>
 </li>
 </ul>
@@ -643,7 +642,7 @@ be created. Otherwise, calling <code class="docutils literal notranslate"><span 
 </div>
 <p>Or, using <code class="docutils literal notranslate"><span class="pre">force-ansi?</span></code>:</p>
 <div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="k">let</span><span class="w"> </span><span class="n">text</span>
-<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">with-output-to-string</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">with-output-to-string</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;byte-string-stream&gt;</span><span class="p">)</span>
 <span class="w">      </span><span class="k">let</span><span class="w"> </span><span class="n">force-ansi?</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stream-supports-color?</span><span class="p">(</span><span class="vg">*standard-output*</span><span class="p">);</span>
 <span class="w">      </span><span class="k">let</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">colorize-stream</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="k">force-ansi?:</span><span class="w"> </span><span class="n">force-ansi?</span><span class="p">);</span>
 <span class="w">      </span><span class="p">...</span>
