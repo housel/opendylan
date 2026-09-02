@@ -40,29 +40,10 @@ DUIM-Layouts`_. Only :class:`<basic-composite-pane>`, :class:`<leaf-pane>`,
 and :class:`<layout>` have any subclasses defined. See `Subclasses of
 \<layout\>`_ for details of the subclasses of :class:`<layout>`.
 
-.. table:: Overall class hierarchy for the DUIM-Layouts library
+.. figure:: images/layouts-classes.svg
+   :align: center
 
-    +---------+------------------------+---------------------------------+
-    | <sheet> |                        |                                 |
-    +---------+------------------------+---------------------------------+
-    |         | <basic-composite-pane> |                                 |
-    +---------+------------------------+---------------------------------+
-    |         |                        | <single-child-composite-pane>   |
-    +---------+------------------------+---------------------------------+
-    |         |                        | <multiple-child-composite-pane> |
-    +---------+------------------------+---------------------------------+
-    |         | <layout>               | See `Subclasses of \<layout\>`_ |
-    +---------+------------------------+---------------------------------+
-    |         | <leaf-pane>            |                                 |
-    +---------+------------------------+---------------------------------+
-    |         |                        | <null-pane>                     |
-    +---------+------------------------+---------------------------------+
-    |         | <drawing-pane>         |                                 |
-    +---------+------------------------+---------------------------------+
-    |         | <simple-pane>          |                                 |
-    +---------+------------------------+---------------------------------+
-    |         | <top-level-sheet>      |                                 |
-    +---------+------------------------+---------------------------------+
+   Overall class hierarchy for the DUIM-Layouts library
 
 All the actual layouts provided by the DUIM-Layouts library are
 subclasses of the base :class:`<layout>` class, and are described in
@@ -89,30 +70,12 @@ different types of pane are supplied by the DUIM-Layouts library.
 Subclasses of <layout>
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The subclasses of :class:`<layout>` are shown in :ref:`subclasses-of-the-layout-class`
+The subclasses of :class:`<layout>` are shown below.
 
+.. figure:: images/layouts-layout-classes.svg
+   :align: center
 
-.. _subclasses-of-the-layout-class:
-
-.. table:: Subclasses of the <layout> class
-
-    +----------+-------------------+---------------+
-    | <layout> |                   |               |
-    +----------+-------------------+---------------+
-    |          | <row-layout>      |               |
-    +----------+-------------------+---------------+
-    |          | <column-layout>   |               |
-    +----------+-------------------+---------------+
-    |          | <fixed-layout>    |               |
-    +----------+-------------------+---------------+
-    |          | <pinboard-layout> |               |
-    +----------+-------------------+---------------+
-    |          | <stack-layout>    |               |
-    +----------+-------------------+---------------+
-    |          | <table-layout>    |               |
-    +----------+-------------------+---------------+
-    |          |                   | <grid-layout> |
-    +----------+-------------------+---------------+
+   Subclasses of the <layout> class
 
 The layouts provided by DUIM fall roughly into two categories:
 

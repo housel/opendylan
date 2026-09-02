@@ -564,53 +564,12 @@ DUIM-Layouts library are shown in <a class="reference internal" href="#the-class
 DUIM-Layouts</a>. Only <code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;basic-composite-pane&gt;</span></code>, <a class="reference internal" href="#duim-layouts:duim-layouts:[leaf-pane]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;leaf-pane&gt;</span></code></a>,
 and <a class="reference internal" href="#duim-layouts:duim-layouts:[layout]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;layout&gt;</span></code></a> have any subclasses defined. See <a class="reference internal" href="#subclasses-of-layout">Subclasses of
 &lt;layout&gt;</a> for details of the subclasses of <a class="reference internal" href="#duim-layouts:duim-layouts:[layout]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;layout&gt;</span></code></a>.</p>
-<div class="table-wrapper docutils container" id="id1">
-<table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Overall class hierarchy for the DUIM-Layouts library</span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
-<tbody>
-<tr class="row-odd"><td><p>&lt;sheet&gt;</p></td>
-<td></td>
-<td></td>
-</tr>
-<tr class="row-even"><td></td>
-<td><p>&lt;basic-composite-pane&gt;</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td></td>
-<td></td>
-<td><p>&lt;single-child-composite-pane&gt;</p></td>
-</tr>
-<tr class="row-even"><td></td>
-<td></td>
-<td><p>&lt;multiple-child-composite-pane&gt;</p></td>
-</tr>
-<tr class="row-odd"><td></td>
-<td><p>&lt;layout&gt;</p></td>
-<td><p>See <a class="reference internal" href="#subclasses-of-layout">Subclasses of &lt;layout&gt;</a></p></td>
-</tr>
-<tr class="row-even"><td></td>
-<td><p>&lt;leaf-pane&gt;</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td></td>
-<td></td>
-<td><p>&lt;null-pane&gt;</p></td>
-</tr>
-<tr class="row-even"><td></td>
-<td><p>&lt;drawing-pane&gt;</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td></td>
-<td><p>&lt;simple-pane&gt;</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td></td>
-<td><p>&lt;top-level-sheet&gt;</p></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</div>
+<figure class="align-center" id="id1">
+<img alt="../_images/layouts-classes.svg" src="../_images/layouts-classes.svg" />
+<figcaption>
+<p><span class="caption-text">Overall class hierarchy for the DUIM-Layouts library</span><a class="headerlink" href="#id1" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>All the actual layouts provided by the DUIM-Layouts library are
 subclasses of the base <a class="reference internal" href="#duim-layouts:duim-layouts:[layout]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;layout&gt;</span></code></a> class, and are described in
 <a class="reference internal" href="#subclasses-of-layout">Subclasses of &lt;layout&gt;</a>. In addition, a number of
@@ -636,46 +595,13 @@ used when no other more suitable class is available.</p></li>
 </section>
 <section id="subclasses-of-layout">
 <h3>Subclasses of &lt;layout&gt;<a class="headerlink" href="#subclasses-of-layout" title="Link to this heading">¶</a></h3>
-<p>The subclasses of <a class="reference internal" href="#duim-layouts:duim-layouts:[layout]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;layout&gt;</span></code></a> are shown in <a class="reference internal" href="#subclasses-of-the-layout-class"><span class="std std-ref">Subclasses of the &lt;layout&gt; class</span></a></p>
-<div class="table-wrapper docutils container" id="id2">
-<span id="subclasses-of-the-layout-class"></span><span id="subclasses-of-the-layout-class"></span><table class="docutils align-default" id="id2">
-<caption><span class="caption-text">Subclasses of the &lt;layout&gt; class</span><a class="headerlink" href="#id2" title="Link to this table">¶</a></caption>
-<tbody>
-<tr class="row-odd"><td><p>&lt;layout&gt;</p></td>
-<td></td>
-<td></td>
-</tr>
-<tr class="row-even"><td></td>
-<td><p>&lt;row-layout&gt;</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td></td>
-<td><p>&lt;column-layout&gt;</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td></td>
-<td><p>&lt;fixed-layout&gt;</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td></td>
-<td><p>&lt;pinboard-layout&gt;</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td></td>
-<td><p>&lt;stack-layout&gt;</p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td></td>
-<td><p>&lt;table-layout&gt;</p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td></td>
-<td></td>
-<td><p>&lt;grid-layout&gt;</p></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>The subclasses of <a class="reference internal" href="#duim-layouts:duim-layouts:[layout]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;layout&gt;</span></code></a> are shown below.</p>
+<figure class="align-center" id="id2">
+<img alt="../_images/layouts-layout-classes.svg" src="../_images/layouts-layout-classes.svg" />
+<figcaption>
+<p><span class="caption-text">Subclasses of the &lt;layout&gt; class</span><a class="headerlink" href="#id2" title="Link to this image">¶</a></p>
+</figcaption>
+</figure>
 <p>The layouts provided by DUIM fall roughly into two categories:</p>
 <ul class="simple">
 <li><p>Layout classes that calculate the position and size of their children
