@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Unicode" href="dep-0014-unicode.html" /><link rel="prev" title="String Literal Syntax" href="dep-0012-string-literals.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="A Quick Tour of Dylan" href="../about/index.html" /><link rel="prev" title="Multiple Value Assignment" href="dep-0013-multi-assignment.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Multiple Value Assignment - Open Dylan</title>
+        <title>Unicode - Open Dylan</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
@@ -265,8 +265,8 @@
 <li class="toctree-l2"><a class="reference internal" href="dep-0010-element-otherwise.html">Defaulted Element Reference Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dep-0011-numeric-literal-syntax.html">Numeric Literal Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dep-0012-string-literals.html">String Literal Syntax</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Multiple Value Assignment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dep-0014-unicode.html">Unicode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dep-0013-multi-assignment.html">Multiple Value Assignment</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Unicode</a></li>
 </ul>
 </li>
 </ul>
@@ -511,12 +511,12 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="https://github.com/dylan-lang/opendylan/blob/master/documentation/source/proposals/dep-0013-multi-assignment.rst?plain=true" title="View this page">
+  <a class="muted-link" href="https://github.com/dylan-lang/opendylan/blob/master/documentation/source/proposals/dep-0014-unicode.rst?plain=true" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
 </div><div class="edit-this-page">
-  <a class="muted-link" href="https://github.com/dylan-lang/opendylan/edit/master/documentation/source/proposals/dep-0013-multi-assignment.rst" title="Edit this page">
+  <a class="muted-link" href="https://github.com/dylan-lang/opendylan/edit/master/documentation/source/proposals/dep-0014-unicode.rst" title="Edit this page">
     <svg><use href="#svg-pencil"></use></svg>
     <span class="visually-hidden">Edit this page</span>
   </a>
@@ -535,13 +535,13 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="multiple-value-assignment">
-<h1>Multiple Value Assignment<a class="headerlink" href="#multiple-value-assignment" title="Link to this heading">¶</a></h1>
+          <section id="unicode">
+<h1>Unicode<a class="headerlink" href="#unicode" title="Link to this heading">¶</a></h1>
 <div class="table-wrapper docutils container">
 <table class="docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p>DEP #:</p></td>
-<td><p>13</p></td>
+<td><p>14</p></td>
 </tr>
 <tr class="row-even"><td><p>Type:</p></td>
 <td><p>Standards Track</p></td>
@@ -550,214 +550,244 @@
 <td><p>Yes</p></td>
 </tr>
 <tr class="row-even"><td><p>Author:</p></td>
-<td><p>Carl Gay</p></td>
+<td><p>Peter S. Housel</p></td>
 </tr>
 <tr class="row-odd"><td><p>Status:</p></td>
 <td><p>Draft</p></td>
 </tr>
 <tr class="row-even"><td><p>Created:</p></td>
-<td><p>10-Dec-2024</p></td>
+<td><p>21-Apr-2026</p></td>
 </tr>
 <tr class="row-odd"><td><p>Last-Modified:</p></td>
-<td><p>10-Dec-2024</p></td>
+<td><p>21-Apr-2026</p></td>
 </tr>
 <tr class="row-even"><td><p>Post-History:</p></td>
 <td><p>None</p></td>
 </tr>
 <tr class="row-odd"><td><p>Target-Version:</p></td>
-<td><p>2025.1</p></td>
+<td><p>2026.2</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <section id="abstract">
 <h2>Abstract<a class="headerlink" href="#abstract" title="Link to this heading">¶</a></h2>
-<p>Add new syntax to assign multiple variables from a single multi-valued expression.</p>
+<p>This proposal changes the <code class="xref dylan dylan-lib docutils literal notranslate"><span class="pre">dylan</span></code> library, along with other
+associated system libraries, to support Unicode as it is currently used.</p>
 </section>
 <section id="specification">
 <h2>Specification<a class="headerlink" href="#specification" title="Link to this heading">¶</a></h2>
-<p>The DRM defines the syntax of assignment expressions to be:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">place</span> <span class="o">:=</span> <span class="n">new</span><span class="o">-</span><span class="n">value</span>
-</pre></div>
-</div>
-<p>This DEP adds new syntax on the left hand side to allow for multiple <em>places</em> to be set
-from the multiple values returned by the <code class="docutils literal notranslate"><span class="pre">new-value</span></code> expression, which we rename here
-to <code class="docutils literal notranslate"><span class="pre">new-values</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">place1</span><span class="p">,</span> <span class="n">place2</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span> <span class="o">:=</span> <span class="n">new</span><span class="o">-</span><span class="n">values</span>
-</pre></div>
-</div>
-<p>The first return value is assigned to <em>place1</em>, the second value to <em>place2</em>, etc.  The
-last <em>place</em> may be preceded by <code class="docutils literal notranslate"><span class="pre">#rest</span></code>, in which case it is assigned a sequence
-containing all the remaining values.</p>
-<p>If there are more <em>places</em> than values returned by <code class="docutils literal notranslate"><span class="pre">new-values</span></code>, the extra <em>places</em> are
-assigned the value <a class="reference external" href="https://opendylan.org/books/drm/Other_Built-In_Objects_Defined#false"><code class="xref drm docutils literal notranslate"><span class="pre">#f</span></code></a>.</p>
-<p>The name <code class="docutils literal notranslate"><span class="pre">_</span></code> (underscore) may be used to indicate that a value is to be ignored. For
-example, <code class="docutils literal notranslate"><span class="pre">(_,</span> <span class="pre">remainder)</span> <span class="pre">:=</span> <span class="pre">round(3.2)</span></code> will ignore the first return value and assign
-<code class="docutils literal notranslate"><span class="pre">remainder</span></code> the value <code class="docutils literal notranslate"><span class="pre">0.2</span></code>.</p>
-<p>The order of assignment of values to <em>places</em> is unspecified.</p>
-<section id="bnf-changes">
-<h3>BNF Changes<a class="headerlink" href="#bnf-changes" title="Link to this heading">¶</a></h3>
-<p>No changes are required to the Dylan BNF as described in the DRM.  <code class="docutils literal notranslate"><span class="pre">LEAF</span> <span class="pre">:=</span> <span class="pre">EXPRESSION</span></code>
-is already valid and <code class="docutils literal notranslate"><span class="pre">(</span> <span class="pre">EXPRESSION</span> <span class="pre">)</span></code> syntax is a valid <code class="docutils literal notranslate"><span class="pre">LEAF</span></code> production.</p>
+<p>The following sections define the changes to the <code class="xref dylan dylan-lib docutils literal notranslate"><span class="pre">dylan</span></code> library
+and other core libraries.</p>
+<section id="dylan-library">
+<h3><code class="docutils literal notranslate"><span class="pre">dylan</span></code> Library<a class="headerlink" href="#dylan-library" title="Link to this heading">¶</a></h3>
+<p>This proposal includes modifications to the base <code class="xref dylan dylan-lib docutils literal notranslate"><span class="pre">dylan</span></code> library
+as defined in the <em>Dylan Reference Manual</em> to explicitly specify its
+relationship with the Unicode standard. It also changes the default
+<a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code></a> class to be immutable, and provides mechanisms for
+constructing immutable strings.</p>
+<section id="characters">
+<h4>Characters<a class="headerlink" href="#characters" title="Link to this heading">¶</a></h4>
+<p>The definition of <a class="reference external" href="https://opendylan.org/books/drm/Simple_Object_Classes#character"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;character&gt;</span></code></a> is modified as follows:</p>
+<dl class="dylan class">
+<dt class="sig sig-object dylan-api dylan" id="dylan:dylan:[character]">
+<span class="sig-name descname"><span class="pre">&lt;character&gt;</span></span> <em class="property"><span class="pre">Sealed</span> <span class="pre">Class</span></em><a class="headerlink" href="#dylan:dylan:[character]" title="Link to this definition">¶</a></dt>
+<dd><p>The class of characters representing code points in the Unicode
+code space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Superclasses<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://opendylan.org/books/drm/Object_Classes#object"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;object&gt;</span></code></a></p>
+</dd>
+<dt class="field-even">Discussion<span class="colon">:</span></dt>
+<dd class="field-even"><p>The class of characters corresponding to the entire range of
+code points from U+0000 through U+10FFFF as defined by the
+Unicode standard core specification.</p>
+</dd>
+<dt class="field-odd">Operations<span class="colon">:</span></dt>
+<dd class="field-odd"><p><p>The following operations on <a class="reference external" href="https://opendylan.org/books/drm/Simple_Object_Classes#character"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;character&gt;</span></code></a> objects are
+supported:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../library-reference/language-extensions/numbers.html#dylan:dylan:["><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">&lt;</span></code></a></p></li>
+<li><p><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">as-uppercase</span></code></p></li>
+<li><p><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">as-lowercase</span></code></p></li>
+<li><p><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">as</span></code></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
+<section id="strings">
+<h4>Strings<a class="headerlink" href="#strings" title="Link to this heading">¶</a></h4>
+<p>The definition of <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code></a> is modified as follows:</p>
+<dl class="dylan class">
+<dt class="sig sig-object dylan-api dylan" id="dylan:dylan:[string]">
+<span class="sig-name descname"><span class="pre">&lt;string&gt;</span></span> <em class="property"><span class="pre">Open</span> <span class="pre">Abstract</span> <span class="pre">Instantiable</span> <span class="pre">Class</span></em><a class="headerlink" href="#dylan:dylan:[string]" title="Link to this definition">¶</a></dt>
+<dd><p>The class of sequences with elements that are Unicode characters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Superclasses<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#sequence"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;sequence&gt;</span></code></a></p>
+</dd>
+<dt class="field-even">Init-Keywords<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>size</strong> – An instance of <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a> specifying the size
+of the string, with a default value of 0.</p></li>
+<li><p><strong>fill</strong> – An instance of type <a class="reference external" href="https://opendylan.org/books/drm/Simple_Object_Classes#character"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;character&gt;</span></code></a> specifying the value for each element, with a default value of <code class="docutils literal notranslate"><span class="pre">'</span> <span class="pre">'</span></code> (U+0020 SPACE).</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Discussion<span class="colon">:</span></dt>
+<dd class="field-odd"><p><p>The <a class="reference internal" href="#dylan:dylan:[string]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code></a> class represents a sequence of Unicode
+characters. It has no direct instances; <a class="reference external" href="https://opendylan.org/books/drm/Constructing_and_Initializing_Instances#make"><code class="xref drm docutils literal notranslate"><span class="pre">make</span></code></a> on
+<a class="reference internal" href="#dylan:dylan:[string]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code></a> will return an instance of an immutable
+concrete subclass.</p>
+<p>The element type of <a class="reference internal" href="#dylan:dylan:[string]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code></a> is <a class="reference internal" href="#dylan:dylan:[character]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;character&gt;</span></code></a>.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>The <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a> and <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#unicode-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;unicode-string&gt;</span></code></a> concrete classes
+are removed.</p>
+<p>Methods of <a class="reference external" href="https://opendylan.org/books/drm/Coercing_and_Copying_Objects#as-uppercase."><code class="xref drm docutils literal notranslate"><span class="pre">as-uppercase!</span></code></a> and <a class="reference external" href="https://opendylan.org/books/drm/Coercing_and_Copying_Objects#as-lowercase."><code class="xref drm docutils literal notranslate"><span class="pre">as-lowercase!</span></code></a> are no longer
+provided for the default string classes, as they do not represent
+mutable collections.</p>
+<p>The <a class="reference external" href="https://opendylan.org/books/drm/Coercing_and_Copying_Objects#as-uppercase"><code class="xref drm docutils literal notranslate"><span class="pre">as-uppercase</span></code></a> and <a class="reference external" href="https://opendylan.org/books/drm/Coercing_and_Copying_Objects#as-lowercase"><code class="xref drm docutils literal notranslate"><span class="pre">as-lowercase</span></code></a> functions are not
+recommended for general text strings because they only implement a
+simple character-by-character case mapping, rather than a
+language-specific (or locale-specific) case conversion.</p>
+<p>A method for <a class="reference external" href="https://opendylan.org/books/drm/Constructing_and_Initializing_Instances#limited"><code class="xref drm docutils literal notranslate"><span class="pre">limited</span></code></a> specialized on <code class="docutils literal notranslate"><span class="pre">limited(&lt;string&gt;)</span></code> is no
+longer provided.</p>
+</section>
+<section id="string-construction">
+<h4>String Construction<a class="headerlink" href="#string-construction" title="Link to this heading">¶</a></h4>
+<p>Instances of <a class="reference internal" href="#dylan:dylan:[string-builder]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-builder&gt;</span></code></a> can be used to construct
+immutable strings.</p>
+<dl class="dylan class">
+<dt class="sig sig-object dylan-api dylan" id="dylan:dylan:[string-builder]">
+<span class="sig-name descname"><span class="pre">&lt;string-builder&gt;</span></span> <em class="property"><span class="pre">Sealed</span> <span class="pre">Class</span></em><a class="headerlink" href="#dylan:dylan:[string-builder]" title="Link to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>The class of objects maintaining state during the construction of
+<a class="reference internal" href="#dylan:dylan:[string]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code></a> instances.</p>
+<dl class="field-list">
+<dt class="field-odd">superclasses<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;mutable-sequence&gt;</span></code> <code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;stretchy-collection&gt;</span></code></p>
+</dd>
+<dt class="field-even">keyword byte-capacity<span class="colon">:</span></dt>
+<dd class="field-even"><p>An instance of <a class="reference external" href="https://opendylan.org/books/drm/Number_Classes#integer"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;integer&gt;</span></code></a> giving the initial storage capacity of the builder for storing UTF-8 encoding bytes, with a default value of 0.</p>
+</dd>
+<dt class="field-odd">description<span class="colon">:</span></dt>
+<dd class="field-odd"><blockquote>
+<div><p>The <a class="reference internal" href="#dylan:dylan:[string-builder]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-builder&gt;</span></code></a> class represents a state object
+used for constructing immutable instances of <a class="reference internal" href="#dylan:dylan:[string]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code></a>.</p>
+<p>For efficiency, at construction time a <code class="docutils literal notranslate"><span class="pre">byte-capacity:</span></code> can be
+specified, giving an estimate of the number of UTF-8 bytes the
+builder will require. Storage will grow automatically as needed.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">operations<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">add!</span></code></p></li>
+<li><p><a class="reference internal" href="#dylan:dylan:concatenate!"><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">concatenate!</span></code></a></p></li>
+<li><p><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">as</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+</section>
+<section id="concatenation">
+<h4>Concatenation<a class="headerlink" href="#concatenation" title="Link to this heading">¶</a></h4>
+<p>The <a class="reference internal" href="#dylan:dylan:concatenate!"><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">concatenate!</span></code></a> function (previously provided in
+<a class="reference internal" href="../library-reference/common-dylan/common-extensions.html#common-dylan:common-extensions"><code class="xref dylan dylan-mod docutils literal notranslate"><span class="pre">common-extensions</span></code></a>) is provided for use with
+<a class="reference internal" href="#dylan:dylan:[string-builder]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-builder&gt;</span></code></a> as well as for other uses</p>
+<dl class="dylan generic-function">
+<dt class="sig sig-object dylan-api dylan" id="dylan:dylan:concatenate!">
+<span class="sig-name descname"><span class="pre">concatenate!</span></span> <em class="property"><span class="pre">Open</span> <span class="pre">Generic</span> <span class="pre">function</span></em><a class="headerlink" href="#dylan:dylan:concatenate!" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+<section id="common-dylan-library">
+<h3><code class="docutils literal notranslate"><span class="pre">common-dylan</span></code> Library<a class="headerlink" href="#common-dylan-library" title="Link to this heading">¶</a></h3>
+<p>This proposal adds a new <code class="xref dylan dylan-mod docutils literal notranslate"><span class="pre">string-encoding</span></code> module to the
+<code class="xref dylan dylan-lib docutils literal notranslate"><span class="pre">common-dylan</span></code> library.</p>
+<section id="string-builder-operations">
+<h4><a class="reference internal" href="#dylan:dylan:[string-builder]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-builder&gt;</span></code></a> Operations<a class="headerlink" href="#string-builder-operations" title="Link to this heading">¶</a></h4>
+<p>The following functions add encoded bytes to a <a class="reference internal" href="#dylan:dylan:[string-builder]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-builder&gt;</span></code></a>.</p>
+</section>
+</section>
+<section id="collections-library">
+<h3><code class="docutils literal notranslate"><span class="pre">collections</span></code> Library<a class="headerlink" href="#collections-library" title="Link to this heading">¶</a></h3>
+</section>
+<section id="io-library">
+<h3><code class="docutils literal notranslate"><span class="pre">io</span></code> Library<a class="headerlink" href="#io-library" title="Link to this heading">¶</a></h3>
+</section>
+<section id="system-library">
+<h3><code class="docutils literal notranslate"><span class="pre">system</span></code> Library<a class="headerlink" href="#system-library" title="Link to this heading">¶</a></h3>
+</section>
+</section>
+<section id="motivation">
+<h2>Motivation<a class="headerlink" href="#motivation" title="Link to this heading">¶</a></h2>
+<p>The language defined in the Dylan Reference Manual reflected the
+practice for text representation of its time, suppporting both
+byte-oriented single-byte character sets and multi-byte character
+sets, along with the original UCS-2 (16-bit) version of
+Unicode. Subsequent to this, however, software systems have evolved in
+a number of ways:</p>
+<ul class="simple">
+<li><p>Unicode UCS-2 is no longer adequate for representing the entire
+repertoire of the Unicode Character Set, which defines code points
+ranging from 0 through #x10FFFF.</p></li>
+<li><p>The UTF-8 encoding of Unicode has become the most common text
+representation on the Web, in file I/O, and in programming interfaces.</p></li>
+</ul>
+<p>The facilities within the Dylan Reference Manual did not take
+internationalized text processing into account. Though this is a large
+area beyond the scope of the <code class="xref dylan dylan-lib docutils literal notranslate"><span class="pre">dylan</span></code> library itself, the base
+language definition and the core associated system libraries should be
+designed to work well in concert with specialized text processing
+libraries.</p>
+<p>This proposal follows the example of languages such as Python, Go, and
+Rust in choosing to treat text strings as sequences of Unicode code
+points, following the Unicode principle of representing “characters,
+not glyphs”. Other programming languages such as Swift take a
+different approach, choosing to explicitly embody the concept of a
+<em>grapheme cluster</em>. We did not choose to do this, as segmentation into
+graphemes can sometimes depend on the application, and because we wish
+minimize the amount of character database information that needs to be
+provided by the base run-time libraries.</p>
 </section>
 <section id="rationale">
 <h2>Rationale<a class="headerlink" href="#rationale" title="Link to this heading">¶</a></h2>
-<p>Multiple value assignment syntax naturally matches the existing multiple value binding
-syntax provided by <a class="reference external" href="https://opendylan.org/books/drm/Local_Declaration_Macros#let"><code class="xref drm docutils literal notranslate"><span class="pre">let</span></code></a> and can occasionally be a useful tool to make code more
-concise.</p>
 </section>
-<section id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
-<p>Some examples from the Open Dylan sources that can be made more concise:</p>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="c1">// This occurs a lot in dfmc/conversion/convert.dylan</span>
-<span class="k">let</span><span class="w"> </span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">join-2x1!</span><span class="p">(</span><span class="nb">first</span><span class="p">,</span><span class="w"> </span><span class="nb">last</span><span class="p">,</span><span class="w"> </span><span class="n">comp</span><span class="p">);</span><span class="w"> </span><span class="nb">first</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">f</span><span class="p">;</span><span class="w">  </span><span class="nb">last</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">l</span><span class="p">;</span><span class="w"> </span><span class="c1">// old</span>
-<span class="p">(</span><span class="nb">first</span><span class="p">,</span><span class="w"> </span><span class="nb">last</span><span class="p">)</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">join-2x1!</span><span class="p">(</span><span class="nb">first</span><span class="p">,</span><span class="w"> </span><span class="nb">last</span><span class="p">,</span><span class="w"> </span><span class="n">comp</span><span class="p">);</span><span class="w">                     </span><span class="c1">// new</span>
-</pre></div>
-</div>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="c1">// old:</span>
-<span class="k">define</span><span class="w"> </span><span class="nb">sealed</span><span class="w"> </span><span class="nb">method</span><span class="w"> </span><span class="n">set-union!</span>
-<span class="w">    </span><span class="p">(</span><span class="n">set1</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;bit-set&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">set2</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;bit-set&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">set1</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;bit-set&gt;</span><span class="p">)</span>
-<span class="w">  </span><span class="k">let</span><span class="w"> </span><span class="p">(</span><span class="nb">vector</span><span class="p">,</span><span class="w"> </span><span class="n">pad</span><span class="p">)</span>
-<span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">bit-vector-or!</span><span class="p">(</span><span class="n">set1</span><span class="p">.</span><span class="n">member-vector</span><span class="p">,</span><span class="w"> </span><span class="n">set2</span><span class="p">.</span><span class="n">member-vector</span><span class="p">,</span>
-<span class="w">                     </span><span class="k">pad1:</span><span class="w"> </span><span class="n">set1</span><span class="p">.</span><span class="n">member-vector-pad</span><span class="p">,</span>
-<span class="w">                     </span><span class="k">pad2:</span><span class="w"> </span><span class="n">set2</span><span class="p">.</span><span class="n">member-vector-pad</span><span class="p">);</span>
-<span class="w">  </span><span class="n">set1</span><span class="p">.</span><span class="n">member-vector</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">vector</span><span class="p">;</span>
-<span class="w">  </span><span class="n">set1</span><span class="p">.</span><span class="n">member-vector-pad</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">pad</span><span class="p">;</span>
-<span class="w">  </span><span class="n">set1</span>
-<span class="k">end</span><span class="w"> </span><span class="nb">method</span><span class="p">;</span>
-
-<span class="c1">// new:</span>
-<span class="k">define</span><span class="w"> </span><span class="nb">sealed</span><span class="w"> </span><span class="nb">method</span><span class="w"> </span><span class="n">set-union!</span>
-<span class="w">    </span><span class="p">(</span><span class="n">set1</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;bit-set&gt;</span><span class="p">,</span><span class="w"> </span><span class="n">set2</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;bit-set&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">set1</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;bit-set&gt;</span><span class="p">)</span>
-<span class="w">  </span><span class="p">(</span><span class="n">set1</span><span class="p">.</span><span class="n">member-vector</span><span class="p">,</span><span class="w"> </span><span class="n">set1</span><span class="p">.</span><span class="n">member-vector-pad</span><span class="p">)</span>
-<span class="w">    </span><span class="o">:=</span><span class="w"> </span><span class="n">bit-vector-or!</span><span class="p">(</span><span class="n">set1</span><span class="p">.</span><span class="n">member-vector</span><span class="p">,</span><span class="w"> </span><span class="n">set2</span><span class="p">.</span><span class="n">member-vector</span><span class="p">,</span>
-<span class="w">                      </span><span class="k">pad1:</span><span class="w"> </span><span class="n">set1</span><span class="p">.</span><span class="n">member-vector-pad</span><span class="p">,</span>
-<span class="w">                      </span><span class="k">pad2:</span><span class="w"> </span><span class="n">set2</span><span class="p">.</span><span class="n">member-vector-pad</span><span class="p">);</span>
-<span class="w">  </span><span class="n">set1</span>
-<span class="k">end</span><span class="w"> </span><span class="nb">method</span><span class="p">;</span>
-</pre></div>
-</div>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="c1">// old:</span>
-<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">below</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
-<span class="w">  </span><span class="k">let</span><span class="w"> </span><span class="p">(</span><span class="nb">thread</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">join-thread</span><span class="p">(</span><span class="n">threads</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
-<span class="w">  </span><span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
-<span class="k">end</span><span class="w"> </span><span class="k">for</span><span class="p">;</span>
-
-<span class="c1">// new:</span>
-<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">below</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
-<span class="w">  </span><span class="p">(</span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">results</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">join-thread</span><span class="p">(</span><span class="n">threads</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
-<span class="k">end</span><span class="w"> </span><span class="k">for</span><span class="p">;</span>
-</pre></div>
-</div>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="c1">// old:</span>
-<span class="k">define</span><span class="w"> </span><span class="nb">method</span><span class="w"> </span><span class="n">stop-profiling-type</span>
-<span class="w">    </span><span class="p">(</span><span class="n">state</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;profiling-state&gt;</span><span class="p">,</span><span class="w"> </span><span class="nb">keyword</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;cpu-profiling-type&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">()</span>
-<span class="w">  </span><span class="k">when</span><span class="w"> </span><span class="p">(</span><span class="nb">element</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="ss">#&quot;cpu-profiling&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">default:</span><span class="w"> </span><span class="l">#f</span><span class="p">))</span>
-<span class="w">    </span><span class="k">let</span><span class="w"> </span><span class="p">(</span><span class="n">seconds</span><span class="p">,</span><span class="w"> </span><span class="n">microseconds</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timer-stop</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="ss">#&quot;cpu-profiling-timer&quot;</span><span class="p">]);</span>
-<span class="w">    </span><span class="n">state</span><span class="p">[</span><span class="ss">#&quot;cpu-time-seconds&quot;</span><span class="p">]</span><span class="w">      </span><span class="o">:=</span><span class="w"> </span><span class="n">seconds</span><span class="p">;</span>
-<span class="w">    </span><span class="n">state</span><span class="p">[</span><span class="ss">#&quot;cpu-time-microseconds&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">microseconds</span><span class="p">;</span>
-<span class="w">    </span><span class="n">state</span><span class="p">[</span><span class="ss">#&quot;cpu-profiling&quot;</span><span class="p">]</span><span class="w">         </span><span class="o">:=</span><span class="w"> </span><span class="l">#f</span><span class="p">;</span>
-<span class="w">    </span><span class="n">state</span><span class="p">[</span><span class="ss">#&quot;cpu-profiling-timer&quot;</span><span class="p">]</span><span class="w">   </span><span class="o">:=</span><span class="w"> </span><span class="l">#f</span><span class="p">;</span>
-<span class="w">  </span><span class="k">end</span>
-<span class="k">end</span><span class="w"> </span><span class="nb">method</span><span class="w"> </span><span class="n">stop-profiling-type</span><span class="p">;</span>
-
-<span class="c1">// new:</span>
-<span class="k">define</span><span class="w"> </span><span class="nb">method</span><span class="w"> </span><span class="n">stop-profiling-type</span>
-<span class="w">    </span><span class="p">(</span><span class="n">state</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;profiling-state&gt;</span><span class="p">,</span><span class="w"> </span><span class="nb">keyword</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="nc">&lt;cpu-profiling-type&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">()</span>
-<span class="w">  </span><span class="k">when</span><span class="w"> </span><span class="p">(</span><span class="nb">element</span><span class="p">(</span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="ss">#&quot;cpu-profiling&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">default:</span><span class="w"> </span><span class="l">#f</span><span class="p">))</span>
-<span class="w">    </span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="ss">#&quot;cpu-time-seconds&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">state</span><span class="p">[</span><span class="ss">#&quot;cpu-time-microseconds&quot;</span><span class="p">])</span>
-<span class="w">      </span><span class="o">:=</span><span class="w"> </span><span class="n">timer-stop</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="ss">#&quot;cpu-profiling-timer&quot;</span><span class="p">]);</span>
-<span class="w">    </span><span class="n">state</span><span class="p">[</span><span class="ss">#&quot;cpu-profiling&quot;</span><span class="p">]</span><span class="w">         </span><span class="o">:=</span><span class="w"> </span><span class="l">#f</span><span class="p">;</span>
-<span class="w">    </span><span class="n">state</span><span class="p">[</span><span class="ss">#&quot;cpu-profiling-timer&quot;</span><span class="p">]</span><span class="w">   </span><span class="o">:=</span><span class="w"> </span><span class="l">#f</span><span class="p">;</span>
-<span class="w">  </span><span class="k">end</span>
-<span class="k">end</span><span class="w"> </span><span class="nb">method</span><span class="w"> </span><span class="n">stop-profiling-type</span><span class="p">;</span>
-</pre></div>
-</div>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="c1">// old:</span>
-<span class="k">let</span><span class="w"> </span><span class="p">(</span><span class="n">sec</span><span class="p">,</span><span class="w"> </span><span class="n">nsec</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">%timer-current-time</span><span class="p">();</span>
-<span class="n">timer</span><span class="p">.</span><span class="n">timer-started-seconds</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">sec</span><span class="p">;</span>
-<span class="n">timer</span><span class="p">.</span><span class="n">timer-started-nanoseconds</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">nsec</span><span class="p">;</span>
-
-<span class="c1">// new:</span>
-<span class="p">(</span><span class="n">timer</span><span class="p">.</span><span class="n">timer-started-seconds</span><span class="p">,</span><span class="w"> </span><span class="n">timer</span><span class="p">.</span><span class="n">timer-started-nanoseconds</span><span class="p">)</span>
-<span class="w">  </span><span class="o">:=</span><span class="w"> </span><span class="n">%timer-current-time</span><span class="p">();</span>
-</pre></div>
-</div>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="c1">// old:</span>
-<span class="k">let</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="k">#rest</span><span class="w"> </span><span class="n">arguments</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tokenize-command-line</span><span class="p">(</span><span class="n">command-line</span><span class="p">);</span>
-<span class="vg">*application-name*</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
-<span class="vg">*application-arguments*</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nb">apply</span><span class="p">(</span><span class="nb">vector</span><span class="p">,</span><span class="w"> </span><span class="n">arguments</span><span class="p">);</span>
-
-<span class="c1">// new:</span>
-<span class="p">(</span><span class="vg">*application-name*</span><span class="p">,</span><span class="w"> </span><span class="k">#rest</span><span class="w"> </span><span class="vg">*application-arguments*</span><span class="p">)</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">tokenize-command-line</span><span class="p">(</span><span class="n">command-line</span><span class="p">);</span>
-</pre></div>
-</div>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="c1">// old:</span>
-<span class="k">let</span><span class="w"> </span><span class="p">(</span><span class="n">ins</span><span class="p">,</span><span class="w"> </span><span class="n">outs</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">split-operation-arguments</span><span class="p">(</span><span class="n">request-arguments</span><span class="p">(</span><span class="n">request</span><span class="p">));</span>
-<span class="n">request-in-args</span><span class="p">(</span><span class="n">request</span><span class="p">)</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">ins</span><span class="p">;</span>
-<span class="n">request-out-args</span><span class="p">(</span><span class="n">request</span><span class="p">)</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">outs</span><span class="p">;</span>
-
-<span class="c1">// new:</span>
-<span class="p">(</span><span class="n">request-in-args</span><span class="p">(</span><span class="n">request</span><span class="p">),</span><span class="w"> </span><span class="n">request-out-args</span><span class="p">(</span><span class="n">request</span><span class="p">))</span>
-<span class="w">  </span><span class="o">:=</span><span class="w"> </span><span class="n">split-operation-arguments</span><span class="p">(</span><span class="n">request-arguments</span><span class="p">(</span><span class="n">request</span><span class="p">));</span>
-</pre></div>
-</div>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="c1">// old:</span>
-<span class="k">let</span><span class="w"> </span><span class="p">(</span><span class="n">_n</span><span class="p">,</span><span class="w"> </span><span class="n">_what</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">goto-position-dialog</span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="w"> </span><span class="n">what</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="ss">#&quot;line&quot;</span><span class="p">);</span>
-<span class="n">n</span><span class="w">    </span><span class="o">:=</span><span class="w"> </span><span class="n">_n</span><span class="p">;</span>
-<span class="n">what</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">_what</span>
-
-<span class="c1">// new:</span>
-<span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">what</span><span class="p">)</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">goto-position-dialog</span><span class="p">(</span><span class="n">window</span><span class="p">,</span><span class="w"> </span><span class="n">what</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="ss">#&quot;line&quot;</span><span class="p">);</span>
-</pre></div>
-</div>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="c1">// old:</span>
-<span class="k">let</span><span class="w"> </span><span class="p">(</span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame-size</span><span class="p">(</span><span class="n">dialog</span><span class="p">);</span>
-<span class="no">$buffer-box-width</span><span class="w">  </span><span class="o">:=</span><span class="w"> </span><span class="n">width</span><span class="p">;</span>
-<span class="no">$buffer-box-height</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">height</span><span class="p">;</span>
-
-<span class="c1">// new:</span>
-<span class="p">(</span><span class="no">$buffer-box-width</span><span class="p">,</span><span class="w"> </span><span class="no">$buffer-box-height</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame-size</span><span class="p">(</span><span class="n">dialog</span><span class="p">);</span>
-</pre></div>
-</div>
-</section>
-<section id="alternatives-considered">
-<h2>Alternatives Considered<a class="headerlink" href="#alternatives-considered" title="Link to this heading">¶</a></h2>
-<ol class="arabic">
-<li><p>One might consider it desirable to allow the left hand side of <code class="docutils literal notranslate"><span class="pre">:=</span></code> expressions to
-omit the parentheses in multiple value assignments when it is unambiguous. That is, to
-allow both <code class="docutils literal notranslate"><span class="pre">(a,</span> <span class="pre">b)</span> <span class="pre">:=</span> <span class="pre">f()</span></code> and <code class="docutils literal notranslate"><span class="pre">a,</span> <span class="pre">b</span> <span class="pre">:=</span> <span class="pre">f()</span></code> as long as no ambiguity exists.</p>
-<p>In certain contexts parentheses would be required for disambiguation, for example in a
-argument list context:</p>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="nb">vector</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">f</span><span class="p">())</span>
-</pre></div>
-</div>
-<p>Is the above equivalent to <code class="docutils literal notranslate"><span class="pre">vector(a,</span> <span class="pre">f())</span></code> or <code class="docutils literal notranslate"><span class="pre">vector(f())</span></code>?</p>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="nb">vector</span><span class="p">((</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">f</span><span class="p">())</span>
-</pre></div>
-</div>
-<p>The above is unambiguously equivalent to <code class="docutils literal notranslate"><span class="pre">vector(f())</span></code> since multiple value
-assignment always returns the first assigned value.</p>
-<p>However, in a body context (i.e., a sequence of semicolon delimited statements)
-omitting the parentheses may be desirable as it is less “noisy”:</p>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="p">...;</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">f</span><span class="p">();</span><span class="w"> </span><span class="p">...</span>
-</pre></div>
-</div>
-<p><strong>Decision:</strong> To remove any ambiguity, and to match the existence of parentheses for
-multiple value <em>bindings</em> with <a class="reference external" href="https://opendylan.org/books/drm/Local_Declaration_Macros#let"><code class="xref drm docutils literal notranslate"><span class="pre">let</span></code></a>, parentheses will be <em>required</em> for multiple
-value assignments.</p>
-</li>
-</ol>
+<section id="backwards-compatibility">
+<h2>Backwards Compatibility<a class="headerlink" href="#backwards-compatibility" title="Link to this heading">¶</a></h2>
+<p>This proposal sacrifices backward compatibility in a number of areas:</p>
+<ul class="simple">
+<li><p>Code that referenced the <a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#byte-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;byte-string&gt;</span></code></a> and
+<a class="reference external" href="https://opendylan.org/books/drm/Collection_Classes#unicode-string"><code class="xref drm docutils literal notranslate"><span class="pre">&lt;unicode-string&gt;</span></code></a> classes is no longer acccepted.</p></li>
+<li><p>Code can no longer expect that strings are mutable and can be
+constructed by assigning or replacing elements, and must instead use
+<a class="reference internal" href="#dylan:dylan:[string-builder]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-builder&gt;</span></code></a> or a higher-level method such as
+<a class="reference internal" href="../library-reference/io/streams.html#io:streams:with-output-to-string"><code class="xref dylan dylan-macro docutils literal notranslate"><span class="pre">with-output-to-string</span></code></a>.</p></li>
+<li><p>Code can no longer assume that accessing random elements of a string
+happens in constant time. Sequential access to string elements should use
+<a class="reference external" href="https://opendylan.org/books/drm/Collection_Operations#forward-iteration-protocol"><code class="xref drm docutils literal notranslate"><span class="pre">forward-iteration-protocol</span></code></a> (or <a class="reference external" href="https://opendylan.org/books/drm/Collection_Operations#backward-iteration-protocol"><code class="xref drm docutils literal notranslate"><span class="pre">backward-iteration-protocol</span></code></a>).</p></li>
+<li><p>The implementation of file streams previously made no accomodation
+for different character set encodings.</p></li>
+</ul>
 </section>
 <section id="reference-implementation">
 <h2>Reference Implementation<a class="headerlink" href="#reference-implementation" title="Link to this heading">¶</a></h2>
-<p>TODO: permalink</p>
+<p>The current reference implementation may be found at <a class="reference external" href="https://github.com/housel/opendylan/tree/unicode-support-2026">the author’s unicode-support-2026 branch</a>.</p>
 </section>
-<section id="revision-history">
-<h2>Revision History<a class="headerlink" href="#revision-history" title="Link to this heading">¶</a></h2>
-<p>The revision history of this document is available here:
-<a class="reference external" href="https://github.com/dylan-lang/opendylan/commits/master/documentation/source/proposals/dep-0013-multi-assignment.rst">https://github.com/dylan-lang/opendylan/commits/master/documentation/source/proposals/dep-0013-multi-assignment.rst</a></p>
+<section id="copyright">
+<h2>Copyright<a class="headerlink" href="#copyright" title="Link to this heading">¶</a></h2>
+<p>This document may be freely redistributed.</p>
 </section>
 </section>
 
@@ -766,23 +796,23 @@ value assignments.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="dep-0014-unicode.html">
+          <a class="next-page" href="../about/index.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Unicode</div>
+                <div class="title">A Quick Tour of Dylan</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="dep-0012-string-literals.html">
+          <a class="prev-page" href="dep-0013-multi-assignment.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">String Literal Syntax</div>
+                <div class="title">Multiple Value Assignment</div>
                 
               </div>
             </a>
@@ -816,17 +846,42 @@ value assignments.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Multiple Value Assignment</a><ul>
+<li><a class="reference internal" href="#">Unicode</a><ul>
 <li><a class="reference internal" href="#abstract">Abstract</a></li>
 <li><a class="reference internal" href="#specification">Specification</a><ul>
-<li><a class="reference internal" href="#bnf-changes">BNF Changes</a></li>
+<li><a class="reference internal" href="#dylan-library"><code class="docutils literal notranslate"><span class="pre">dylan</span></code> Library</a><ul>
+<li><a class="reference internal" href="#characters">Characters</a><ul>
+<li><a class="reference internal" href="#dylan:dylan:[character]"><code class="docutils literal notranslate"><span class="pre">&lt;character&gt;</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#strings">Strings</a><ul>
+<li><a class="reference internal" href="#dylan:dylan:[string]"><code class="docutils literal notranslate"><span class="pre">&lt;string&gt;</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#string-construction">String Construction</a><ul>
+<li><a class="reference internal" href="#dylan:dylan:[string-builder]"><code class="docutils literal notranslate"><span class="pre">&lt;string-builder&gt;</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#concatenation">Concatenation</a><ul>
+<li><a class="reference internal" href="#dylan:dylan:concatenate!"><code class="docutils literal notranslate"><span class="pre">concatenate!</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#common-dylan-library"><code class="docutils literal notranslate"><span class="pre">common-dylan</span></code> Library</a><ul>
+<li><a class="reference internal" href="#string-builder-operations"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-builder&gt;</span></code> Operations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#collections-library"><code class="docutils literal notranslate"><span class="pre">collections</span></code> Library</a></li>
+<li><a class="reference internal" href="#io-library"><code class="docutils literal notranslate"><span class="pre">io</span></code> Library</a></li>
+<li><a class="reference internal" href="#system-library"><code class="docutils literal notranslate"><span class="pre">system</span></code> Library</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#motivation">Motivation</a></li>
 <li><a class="reference internal" href="#rationale">Rationale</a></li>
-<li><a class="reference internal" href="#examples">Examples</a></li>
-<li><a class="reference internal" href="#alternatives-considered">Alternatives Considered</a></li>
+<li><a class="reference internal" href="#backwards-compatibility">Backwards Compatibility</a></li>
 <li><a class="reference internal" href="#reference-implementation">Reference Implementation</a></li>
-<li><a class="reference internal" href="#revision-history">Revision History</a></li>
+<li><a class="reference internal" href="#copyright">Copyright</a></li>
 </ul>
 </li>
 </ul>

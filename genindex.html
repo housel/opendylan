@@ -264,6 +264,7 @@
 <li class="toctree-l2"><a class="reference internal" href="proposals/dep-0011-numeric-literal-syntax.html">Numeric Literal Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="proposals/dep-0012-string-literals.html">String Literal Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="proposals/dep-0013-multi-assignment.html">Multiple Value Assignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="proposals/dep-0014-unicode.html">Unicode</a></li>
 </ul>
 </li>
 </ul>
@@ -1035,10 +1036,6 @@
 </li>
         <li><a href="duim-reference/gadgets.html#duim:duim-gadgets:[button]">&lt;button&gt;</a>
 </li>
-        <li><a href="library-reference/common-dylan/common-extensions.html#common-dylan:common-extensions:[byte-character]">&lt;byte-character&gt;</a>, <a href="library-reference/io/streams.html#io:streams:[byte-character]">[1]</a>
-</li>
-        <li><a href="library-reference/io/streams.html#io:streams:[byte-string-stream]">&lt;byte-string-stream&gt;</a>
-</li>
         <li><a href="library-reference/c-ffi/index.html#index-104">&lt;byte-string&gt; class</a>, <a href="library-reference/c-ffi/index.html#index-105">[1]</a>
 </li>
         <li><a href="library-reference/common-dylan/byte-vector.html#common-dylan:byte-vector:[byte-vector]">&lt;byte-vector&gt;</a>, <a href="library-reference/io/streams.html#io:streams:[byte-vector]">[1]</a>
@@ -1188,6 +1185,8 @@
         <li><a href="library-reference/system/locators.html#system:locators:[cgi-url]">&lt;cgi-url&gt;</a>
 </li>
         <li><a href="library-reference/sql/index.html#sql:sql:[character-not-in-repertoire]">&lt;character-not-in-repertoire&gt;</a>
+</li>
+        <li><a href="proposals/dep-0014-unicode.html#dylan:dylan:[character]">&lt;character&gt;</a>
 </li>
         <li><a href="duim-reference/gadgets.html#duim:duim-gadgets:[check-box]">&lt;check-box&gt;</a>
 </li>
@@ -2101,6 +2100,8 @@
 </li>
         <li><a href="library-reference/common-dylan/common-extensions.html#common-dylan:common-extensions:[stretchy-sequence]">&lt;stretchy-sequence&gt;</a>
 </li>
+        <li><a href="proposals/dep-0014-unicode.html#dylan:dylan:[string-builder]">&lt;string-builder&gt;</a>
+</li>
         <li><a href="library-reference/sql/index.html#sql:sql:[string-data-length-mismatch]">&lt;string-data-length-mismatch&gt;</a>
 </li>
         <li><a href="library-reference/sql/index.html#sql:sql:[string-data-right-truncation]">&lt;string-data-right-truncation&gt;</a>
@@ -2108,6 +2109,8 @@
         <li><a href="library-reference/io/streams.html#io:streams:[string-stream]">&lt;string-stream&gt;</a>
 </li>
         <li><a href="library-reference/collections/table-extensions.html#collections:table-extensions:[string-table]">&lt;string-table&gt;</a>, <a href="library-reference/common-dylan/common-extensions.html#common-dylan:common-extensions:[string-table]">[1]</a>
+</li>
+        <li><a href="proposals/dep-0014-unicode.html#dylan:dylan:[string]">&lt;string&gt;</a>
 </li>
         <li><a href="hacker-guide/compiler/notes-warnings-errors.html#dfmc-conditions:dfmc-conditions:[style-warning]">&lt;style-warning&gt;</a>
 </li>
@@ -2214,10 +2217,6 @@
         <li><a href="library-reference/sql/index.html#sql:sql:[unhandled-diagnostic]">&lt;unhandled-diagnostic&gt;</a>
 </li>
         <li><a href="hacker-guide/runtime-manager/access-path.html#access-path:access-path:[unhandled-stop-reason]">&lt;unhandled-stop-reason&gt;</a>
-</li>
-        <li><a href="library-reference/io/streams.html#io:streams:[unicode-character]">&lt;unicode-character&gt;</a>
-</li>
-        <li><a href="library-reference/io/streams.html#io:streams:[unicode-string-stream]">&lt;unicode-string-stream&gt;</a>
 </li>
         <li><a href="library-reference/sql/index.html#sql:sql:[unique-constraint]">&lt;unique-constraint&gt;</a>
 </li>
@@ -3533,7 +3532,7 @@
 </li>
         <li><a href="library-reference/system/operating-system.html#index-0">COMSPEC</a>
 </li>
-        <li><a href="library-reference/common-dylan/common-extensions.html#common-dylan:common-extensions:concatenate!">concatenate!</a>
+        <li><a href="library-reference/common-dylan/common-extensions.html#common-dylan:common-extensions:concatenate!">concatenate!</a>, <a href="proposals/dep-0014-unicode.html#dylan:dylan:concatenate!">[1]</a>
 </li>
         <li><a href="hacker-guide/compiler/notes-warnings-errors.html#dfmc-conditions:dfmc-conditions:condition-block">condition-block</a>
 </li>
@@ -6237,8 +6236,6 @@
         <li><a href="duim-reference/dcs.html#duim-dcs:duim-dcs:make">make</a>
 
         <ul>
-          <li><a href="library-reference/io/streams.html#io:streams:make([byte-string-stream])">make(&lt;byte-string-stream&gt;)</a>
-</li>
           <li><a href="library-reference/system/date.html#system:date:make([date])">make(&lt;date&gt;)</a>
 </li>
           <li><a href="library-reference/system/file-system.html#system:file-system:make([file-stream])">make(&lt;file-stream&gt;)</a>
@@ -6250,8 +6247,6 @@
           <li><a href="duim-reference/layouts.html#duim-layouts:duim-layouts:make([space-requirement])">make(&lt;space-requirement&gt;)</a>
 </li>
           <li><a href="library-reference/io/streams.html#io:streams:make([string-stream])">make(&lt;string-stream&gt;)</a>
-</li>
-          <li><a href="library-reference/io/streams.html#io:streams:make([unicode-string-stream])">make(&lt;unicode-string-stream&gt;)</a>
 </li>
           <li><a href="library-reference/c-ffi/index.html#c-ffi:c-ffi:make(subclass([c-pointer]))">make(subclass(&lt;C-pointer&gt;))</a>
 </li>
@@ -6367,10 +6362,10 @@
 </li>
         <li><a href="duim-reference/sheets.html#duim-sheets:duim-sheets:medium-background">medium-background</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="duim-reference/sheets.html#duim-sheets:duim-sheets:medium-background-setter">medium-background-setter</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="duim-reference/sheets.html#duim-sheets:duim-sheets:medium-brush">medium-brush</a>
 </li>
         <li><a href="duim-reference/sheets.html#duim-sheets:duim-sheets:medium-brush-setter">medium-brush-setter</a>
