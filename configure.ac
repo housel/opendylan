@@ -287,6 +287,28 @@ AC_LINK_IFELSE([], [AC_MSG_RESULT(none needed)],
                                [AC_MSG_RESULT(not found)
                                 LIBS="$save_LIBS"])])
 
+LLVM_COMPONENTS="core support"
+AC_CHECK_PROGS(LLVM_CONFIG, [llvm-config-22 llvm-config])
+AS_IF([$LLVM_CONFIG --version >/dev/null 2>&1],
+      [NUB_LLVM_CPPFLAGS="$($LLVM_CONFIG --cppflags)"
+       NUB_LLVM_CXXFLAGS="$($LLVM_CONFIG --cxxflags)"
+       NUB_LLVM_LDFLAGS="$($LLVM_CONFIG --ldflags)"
+       NUB_LLVM_LIBS="$($LLVM_CONFIG --libs $LLVM_COMPONENTS) $($LLVM_CONFIG --system-libs)"
+       AC_MSG_CHECKING(for LLDB library)
+       save_LDFLAGS="$LDFLAGS"
+       save_LIBS="$LIBS"
+       LDFLAGS="$LDFLAGS $NUB_LLVM_LDFLAGS"
+       LIBS="$LIBS -llldb"
+       AC_LINK_IFELSE([], [NUB_LLDB=yes], [NUB_LLDB=no])
+       AC_MSG_RESULT($NUB_LLDB)
+       LIBS="$save_LIBS"
+       LDFLAGS="$save_LDFLAGS"])
+AC_SUBST(NUB_LLVM_CPPFLAGS)
+AC_SUBST(NUB_LLVM_CXXFLAGS)
+AC_SUBST(NUB_LLVM_LDFLAGS)
+AC_SUBST(NUB_LLVM_LIBS)
+AC_SUBST(NUB_LLDB)
+
 AS_ECHO(["
 Targeting '${target}' ('${OPEN_DYLAN_TARGET_PLATFORM}')
 
@@ -304,6 +326,6 @@ AS_ECHO(["  C back-end collector                                    ${C_COLLECTO
 AC_CONFIG_FILES(Makefile
                 sources/jamfiles/Makefile
                 sources/jamfiles/config.jam
-                sources/lib/run-time/Makefile)
-
+                sources/lib/run-time/Makefile
+                sources/runtime-manager/debugger-nub/lldb-nub/Makefile)
 AC_OUTPUT

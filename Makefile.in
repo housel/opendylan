@@ -37,6 +37,7 @@ BOOTSTRAP_1_PRIMITIVE_LIBS = \
         bootstrap-stage-2-runtime bootstrap-stage-2-jamfiles cli2 \
 	bootstrap-stage-3 bootstrap-stage-3-dirs bootstrap-stage-3-libraries \
         bootstrap-stage-3-runtime bootstrap-stage-3-jamfiles cli3 \
+        bootstrap-stage-3-nub \
 	all install install-stage dist clean check \
 	check-submodules
 
@@ -204,11 +205,14 @@ BOOTSTRAP_3_ENV = \
         OPEN_DYLAN_USER_ROOT=$(BOOTSTRAP_3_ROOT) \
         OPEN_DYLAN_USER_REGISTRIES=$(BOOTSTRAP_3_REGISTRY)
 
+BOOTSTRAP_3_NUByes = bootstrap-stage-3-nub
+
 bootstrap-stage-3: bootstrap-stage-3-dirs \
                    bootstrap-stage-3-libraries \
                    bootstrap-stage-3-statics \
                    bootstrap-stage-3-runtime \
-                   bootstrap-stage-3-jamfiles
+                   bootstrap-stage-3-jamfiles \
+                   $(BOOTSTRAP_3_NUB@NUB_LLDB@)
 
 bootstrap-stage-3-dirs:
 	@for d in $(BUILD_SUBDIRS); do mkdir -p Bootstrap.3/$$d; done
@@ -253,6 +257,10 @@ bootstrap-stage-3-runtime:
 bootstrap-stage-3-jamfiles:
 	@OPEN_DYLAN_USER_INSTALL=$(BOOTSTRAP_3_ROOT) \
 	  $(MAKE) -C sources/jamfiles install
+
+bootstrap-stage-3-nub:
+	@OPEN_DYLAN_USER_INSTALL=$(BOOTSTRAP_3_ROOT) \
+	  $(MAKE) -C sources/runtime-manager/debugger-nub/lldb-nub install
 
 cli3:
 	@$(BOOTSTRAP_3_ENV) $(BOOTSTRAP_3_COMPILER)
@@ -329,6 +337,7 @@ clean:
 	rm -rf $(srcdir)/sources/runtime-manager/debugger-nub/protocol
 	rm -rf $(srcdir)/sources/runtime-manager/debugger-nub/skeletons
 	rm -rf $(srcdir)/sources/runtime-manager/debugger-nub/stubs
+	$(MAKE) -C sources/runtime-manager/debugger-nub/lldb-nub clean
 
 distclean: clean
 	-find $(srcdir) -name '*~' -exec rm {} \;
@@ -345,6 +354,7 @@ distclean: clean
 	-rm -rf documentation/*/build
 	-rm -f  sources/jamfiles/Makefile sources/jamfiles/config.jam
 	-rm -f  sources/lib/run-time/Makefile
+	-rm -f  sources/runtime-manager/debugger-nub/lldb-nub/Makefile
 
 mostlyclean:
 
