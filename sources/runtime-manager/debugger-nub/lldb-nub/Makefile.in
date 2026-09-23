@@ -1,0 +1,47 @@
+srcdir		= @srcdir@
+top_srcdir	= @top_srcdir@
+top_builddir	= @top_builddir@
+
+subdir		= sources/runtime-manager/debugger-nub/lldb-nub
+
+VPATH		= $(srcdir)
+
+BIN_DEST        = $(OPEN_DYLAN_USER_INSTALL)/bin
+
+CC		= @CC@
+CXX		= @CXX@
+
+CFLAGS          = @CFLAGS@
+CXXFLAGS        = @CXXFLAGS@
+LDFLAGS         = @LDFLAGS@
+
+NUB_LLVM_CPPFLAGS = @NUB_LLVM_CPPFLAGS@
+NUB_LLVM_CXXFLAGS = @NUB_LLVM_CXXFLAGS@
+NUB_LLVM_LDFLAGS  = @NUB_LLVM_LDFLAGS@
+NUB_LLVM_LIBS     = @NUB_LLVM_LIBS@
+
+INSTALL         = @INSTALL@
+
+OBJS            = main.o
+
+%.o: %.cpp
+	$(CXX) -MMD -c -o $@ $(CFLAGS) $(CXXFLAGS) \
+	  $(NUB_LLVM_CPPFLAGS) $(NUB_LLVM_CXXFLAGS) $<
+
+all: dylan-debugger-nub
+
+dylan-debugger-nub: $(OBJS)
+	$(CXX) -o dylan-debugger-nub $(LDFLAGS) $(NUB_LLVM_LDFLAGS) \
+	  $(OBJS) $(NUB_LLVM_LIBS) -llldb
+
+install: dylan-debugger-nub
+	$(INSTALL) -d $(BIN_DEST)
+	$(INSTALL) -s dylan-debugger-nub $(BIN_DEST)
+
+clean:
+	rm -f dylan-debugger-nub $(OBJS) $(OBJS:%.o=%.d)
+
+Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
+	cd $(top_builddir) && ./config.status $(subdir)/Makefile
+
+-include $(OBJS:%.o=%.d)
