@@ -23,7 +23,8 @@ NUB_LLVM_LIBS     = @NUB_LLVM_LIBS@
 INSTALL         = @INSTALL@
 
 OBJS            = main.o \
-		  DebuggerNub.o
+		  DebuggerNub.o \
+                  DDAPProtocol.o
 
 %.o: %.cpp
 	$(CXX) -MMD -c -o $@ $(CFLAGS) $(CXXFLAGS) \

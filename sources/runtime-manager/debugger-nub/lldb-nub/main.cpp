@@ -6,6 +6,6 @@ int main(int argc, char *argv[])
   lldb::SBDebugger::Initialize();
   lldb::SBDebugger debugger { };
   DebuggerNub nub { debugger };
-
-  return 0;
+  DDAPProtocol ddapp(nub, 0, 1);
+  return ddapp.run();
 }
