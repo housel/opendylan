@@ -22,7 +22,8 @@ NUB_LLVM_LIBS     = @NUB_LLVM_LIBS@
 
 INSTALL         = @INSTALL@
 
-OBJS            = main.o
+OBJS            = main.o \
+		  DebuggerNub.o
 
 %.o: %.cpp
 	$(CXX) -MMD -c -o $@ $(CFLAGS) $(CXXFLAGS) \
