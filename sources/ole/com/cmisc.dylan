@@ -525,7 +525,7 @@ define constant <LPENUMSTATPROPSETSTG> = <Interface>;
 
 define C-struct <StorageLayout>
   sealed inline-only slot LayoutType-value :: <DWORD>;
-  sealed inline-only slot pwcsElementName-value :: <C-unicode-string>;
+  sealed inline-only slot pwcsElementName-value :: <C-utf-16-string>;
   sealed inline-only slot cOffset-value  :: <LARGE-INTEGER>;
   sealed inline-only slot cBytes-value   :: <LARGE-INTEGER>;
   pack: 8;
@@ -935,7 +935,7 @@ define C-function CreateDataCache
 end;
 
 define C-function StgCreateDocfile
-  parameter pwcsName   ::  /* const */ <C-unicode-string>;
+  parameter pwcsName   ::  /* const */ <C-utf-16-string>;
   parameter grfMode    :: <DWORD>;
   parameter reserved   :: <DWORD>;
   output parameter ppstgOpen :: <Interface*> /* IStorage */;
@@ -953,7 +953,7 @@ define C-function StgCreateDocfileOnILockBytes
 end;
 
 define C-function StgOpenStorage
-  parameter pwcsName   ::  /* const */ <C-unicode-string>;
+  parameter pwcsName   ::  /* const */ <C-utf-16-string>;
   parameter pstgPriority :: <Interface> /* IStorage */;
   parameter grfMode    :: <DWORD>;
   parameter snbExclude :: <SNB>;
@@ -975,7 +975,7 @@ define C-function StgOpenStorageOnILockBytes
 end;
 
 define C-function StgIsStorageFile
-  parameter pwcsName   ::  /* const */ <C-unicode-string>;
+  parameter pwcsName   ::  /* const */ <C-utf-16-string>;
   result status :: <C-HRESULT>;
   c-name: "StgIsStorageFile", c-modifiers: "__stdcall";
 end;
@@ -987,7 +987,7 @@ define C-function StgIsStorageILockBytes
 end;
 
 define C-function StgSetTimes
-  parameter lpszName   :: <C-unicode-string>;
+  parameter lpszName   :: <C-utf-16-string>;
   parameter pctime     :: /* const */ <LPFILETIME>;
   parameter patime     :: /* const */ <LPFILETIME>;
   parameter pmtime     :: /* const */ <LPFILETIME>;

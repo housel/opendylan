@@ -279,7 +279,7 @@ arg2:\Ainput parameter <I> \:\: \/\* const \*\/ <P>\;=\
 	\/\* constant \*\/ input parameter $1 \:\: $2\;
 
 ! types of potential output parameters in COM:
-!    <C-unicode-string>	OK
+!    <C-utf-16-string>	OK
 !    <C-void*>		OK
 !    <CLSID>		no
 !    <DWORD>		OK
@@ -292,7 +292,7 @@ arg2:\Ainput parameter <I> \:\: \/\* const \*\/ <P>\;=\
 !    <ULONG>		OK
 !
 ! types of potential output parameters in COM:
-!    <C-unicode-string>	OK
+!    <C-utf-16-string>	OK
 !    <C-void*>		changed to <Interface>
 !    <CLSID>		no
 !    <DWORD>		OK

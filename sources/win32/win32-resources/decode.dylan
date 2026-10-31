@@ -33,7 +33,7 @@ define sealed method encode-resource
 end method encode-resource;
 
 define sealed method encode-resource
-    (resource-id :: <C-unicode-string>) => (raw-id :: <raw-resource-id>)
+    (resource-id :: <C-utf-16-string>) => (raw-id :: <raw-resource-id>)
   as(<raw-resource-id>, resource-id)		// this should work
 end method encode-resource;
 
