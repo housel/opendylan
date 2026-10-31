@@ -17,7 +17,7 @@ define inline-only constant <INT> = <C-int>;
 define inline-only constant <BOOL> = <C-Boolean>;
 
 define inline-only constant <LPSTR> = <C-string>;
-define inline-only constant <LPWSTR> = <C-unicode-string>;
+define inline-only constant <LPWSTR> = <C-utf-16-string>;
 define inline-only constant <LPVOID> = <C-void*>;
 define inline-only constant <PVOID> = <C-void*>;
 define inline-only constant <C-BYTE*> = <C-unsigned-char*>;

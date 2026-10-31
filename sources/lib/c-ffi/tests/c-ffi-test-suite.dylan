@@ -196,9 +196,9 @@ define interface-specification-suite c-ffi-specification-suite ()
   function c-string-constant (<byte-string>) => (<C-string>);
   primary instantiable class <C-string*> (<C-statically-typed-pointer>);
 
-  open instantiable class <c-unicode-string> (<c-unsigned-short*>, <string>);
-  function c-unicode-string-constant (<string>) => (<C-unicode-string>);
-  primary instantiable class <c-unicode-string*> (<c-statically-typed-pointer>);
+  open instantiable class <C-utf-16-string> (<c-unsigned-short*>, <string>);
+  function c-utf-16-string-constant (<string>) => (<C-utf-16-string>);
+  primary instantiable class <C-utf-16-string*> (<c-statically-typed-pointer>);
 
   abstract instantiable class <C-boolean> (<C-raw-signed-int>);
 

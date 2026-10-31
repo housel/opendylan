@@ -22,7 +22,7 @@ define module Win32-common
   use common-dylan;
   use C-FFI , export: { null-pointer, null-pointer?, pointer-address,
 		        pointer-value, pointer-value-setter, size-of,
-		        <C-void*>, <C-pointer>, <C-string>, <C-unicode-string>,
+		        <C-void*>, <C-pointer>, <C-string>, <C-utf-16-string>,
 		     	pointer-cast, destroy, \with-stack-structure,
 		        pointer-value-address, c-type-cast,
 		        c-callable-wrapper-definer, \with-c-string } ;

@@ -26,7 +26,7 @@ define sealed method make (class == <BSTR>, #rest args,
   end
 end method;
 
-define sealed method as( class == <BSTR>, data :: <C-unicode-string> ) => v :: <BSTR>;
+define sealed method as( class == <BSTR>, data :: <C-utf-16-string> ) => v :: <BSTR>;
   SysAllocString(data)
 end;
 
@@ -34,7 +34,7 @@ define sealed method as( class == <BSTR>, data :: <BSTR> ) => v :: <BSTR>;
   data
 end;
 
-// This might become redundant if the method on <C-unicode-string> is
+// This might become redundant if the method on <C-utf-16-string> is
 // defined appropriately so that it can be inherited.	???
 define method as (class == <BSTR>, s :: <string>) => v :: <BSTR>;
   let length :: <integer> = size(s);
@@ -83,7 +83,7 @@ define constant $NULL-BSTR :: <BSTR> = null-pointer(<BSTR>);
 
 define open generic copy-as-BSTR (data) => (string :: <BSTR>);
 
-define sealed method copy-as-BSTR (string :: <C-unicode-string>)
+define sealed method copy-as-BSTR (string :: <C-utf-16-string>)
  => (string :: <BSTR>)
   if ( null-pointer?(string) )
     $NULL-BSTR

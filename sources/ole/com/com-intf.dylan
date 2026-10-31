@@ -2805,7 +2805,7 @@ define open generic IStorage/CreateStream (This, pwcsName,
 
 define C-callable-wrapper of IStorage/CreateStream
   input parameter This :: <mapped-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   input parameter grfMode :: <DWORD>;
   input parameter reserved1 :: <DWORD>;
   input parameter reserved2 :: <DWORD>;
@@ -2816,7 +2816,7 @@ end;
 
 define inline-only C-function IStorage_CreateStream
   input parameter This :: <C-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   input parameter grfMode :: <DWORD>;
   input parameter reserved1 :: <DWORD>;
   input parameter reserved2 :: <DWORD>;
@@ -2826,7 +2826,7 @@ define inline-only C-function IStorage_CreateStream
 end;
 
 define method IStorage/CreateStream(This :: <C-interface>,
-		pwcsName :: <C-unicode-string>, grfMode :: <ffi-integer>,
+		pwcsName :: <C-utf-16-string>, grfMode :: <ffi-integer>,
 		reserved1 :: <ffi-integer>, reserved2 :: <ffi-integer>)
 		=> (status :: <HRESULT>, pstm :: <Interface>)
   IStorage_CreateStream(This, pwcsName, grfMode, reserved1,
@@ -2839,7 +2839,7 @@ define open generic IStorage/OpenStream (This, pwcsName,
 
 define C-callable-wrapper of IStorage/OpenStream
   input parameter This :: <mapped-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   input parameter reserved1 :: <C-void*>;
   input parameter grfMode :: <DWORD>;
   input parameter reserved2 :: <DWORD>;
@@ -2850,7 +2850,7 @@ end;
 
 define inline-only C-function IStorage_OpenStream
   input parameter This :: <C-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   input parameter reserved1 :: <C-void*>;
   input parameter grfMode :: <DWORD>;
   input parameter reserved2 :: <DWORD>;
@@ -2860,7 +2860,7 @@ define inline-only C-function IStorage_OpenStream
 end;
 
 define method IStorage/OpenStream(This :: <C-interface>,
-		pwcsName :: <C-unicode-string>, reserved1 :: <C-pointer>,
+		pwcsName :: <C-utf-16-string>, reserved1 :: <C-pointer>,
 		grfMode :: <ffi-integer>, reserved2 :: <ffi-integer>)
 		=> (status :: <HRESULT>, pstm :: <Interface>)
   IStorage_OpenStream(This, pwcsName, reserved1, grfMode,
@@ -2873,7 +2873,7 @@ define open generic IStorage/CreateStorage (This, pwcsName,
 
 define C-callable-wrapper of IStorage/CreateStorage
   input parameter This :: <mapped-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   input parameter grfMode :: <DWORD>;
   input parameter reserved1 :: <DWORD>;
   input parameter reserved2 :: <DWORD>;
@@ -2884,7 +2884,7 @@ end;
 
 define inline-only C-function IStorage_CreateStorage
   input parameter This :: <C-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   input parameter grfMode :: <DWORD>;
   input parameter reserved1 :: <DWORD>;
   input parameter reserved2 :: <DWORD>;
@@ -2894,7 +2894,7 @@ define inline-only C-function IStorage_CreateStorage
 end;
 
 define method IStorage/CreateStorage(This :: <C-interface>,
-		pwcsName :: <C-unicode-string>, grfMode :: <ffi-integer>,
+		pwcsName :: <C-utf-16-string>, grfMode :: <ffi-integer>,
 		reserved1 :: <ffi-integer>, reserved2 :: <ffi-integer>)
 		=> (status :: <HRESULT>, pstg :: <Interface>)
   IStorage_CreateStorage(This, pwcsName, grfMode, reserved1,
@@ -2907,7 +2907,7 @@ define open generic IStorage/OpenStorage (This, pwcsName,
 
 define C-callable-wrapper of IStorage/OpenStorage
   input parameter This :: <mapped-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   input parameter pstgPriority :: <C-interface>;
   input parameter grfMode :: <DWORD>;
   input parameter snbExclude :: <SNB>;
@@ -2919,7 +2919,7 @@ end;
 
 define inline-only C-function IStorage_OpenStorage
   input parameter This :: <C-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   input parameter pstgPriority :: <Interface>;
   input parameter grfMode :: <DWORD>;
   input parameter snbExclude :: <SNB>;
@@ -2930,7 +2930,7 @@ define inline-only C-function IStorage_OpenStorage
 end;
 
 define method IStorage/OpenStorage(This :: <C-interface>,
-		pwcsName :: <C-unicode-string>, pstgPriority :: <Interface>,
+		pwcsName :: <C-utf-16-string>, pstgPriority :: <Interface>,
 		grfMode :: <ffi-integer>, snbExclude :: <SNB>,
 		reserved :: <ffi-integer>)
 		=> (status :: <HRESULT>, pstg :: <Interface>)
@@ -2974,9 +2974,9 @@ define open generic IStorage/MoveElementTo (This, pwcsName,
 
 define C-callable-wrapper of IStorage/MoveElementTo
   input parameter This :: <mapped-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   input parameter pstgDest :: <C-interface>;
-  /* constant */ input parameter pwcsNewName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsNewName :: <C-utf-16-string>;
   input parameter grfFlags :: <DWORD>;
   result status :: <C-HRESULT>;
   c-name: "DW_IStorage_MoveElementTo", c-modifiers: "__stdcall";
@@ -2984,17 +2984,17 @@ end;
 
 define inline-only C-function IStorage_MoveElementTo
   input parameter This :: <C-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   input parameter pstgDest :: <Interface>;
-  /* constant */ input parameter pwcsNewName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsNewName :: <C-utf-16-string>;
   input parameter grfFlags :: <DWORD>;
   result status :: <C-HRESULT>;
   c-name: "C_IStorage_MoveElementTo";
 end;
 
 define method IStorage/MoveElementTo(This :: <C-interface>,
-		pwcsName :: <C-unicode-string>, pstgDest :: <Interface>,
-		pwcsNewName :: <C-unicode-string>, grfFlags :: <ffi-integer>)
+		pwcsName :: <C-utf-16-string>, pstgDest :: <Interface>,
+		pwcsNewName :: <C-utf-16-string>, grfFlags :: <ffi-integer>)
 		=> (status :: <HRESULT>)
   IStorage_MoveElementTo(This, pwcsName, pstgDest, pwcsNewName,
 		grfFlags)
@@ -3078,7 +3078,7 @@ define open generic IStorage/DestroyElement (This, pwcsName)
 
 define C-callable-wrapper of IStorage/DestroyElement
   input parameter This :: <mapped-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   result status :: <C-HRESULT>;
   c-name: "DW_IStorage_DestroyElement",
 		c-modifiers: "__stdcall";
@@ -3086,13 +3086,13 @@ end;
 
 define inline-only C-function IStorage_DestroyElement
   input parameter This :: <C-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   result status :: <C-HRESULT>;
   c-name: "C_IStorage_DestroyElement";
 end;
 
 define method IStorage/DestroyElement(This :: <C-interface>,
-		pwcsName :: <C-unicode-string>) => (status :: <HRESULT>)
+		pwcsName :: <C-utf-16-string>) => (status :: <HRESULT>)
   IStorage_DestroyElement(This, pwcsName)
 end;
 
@@ -3101,23 +3101,23 @@ define open generic IStorage/RenameElement (This, pwcsOldName,
 
 define C-callable-wrapper of IStorage/RenameElement
   input parameter This :: <mapped-interface>;
-  /* constant */ input parameter pwcsOldName :: <C-unicode-string>;
-  /* constant */ input parameter pwcsNewName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsOldName :: <C-utf-16-string>;
+  /* constant */ input parameter pwcsNewName :: <C-utf-16-string>;
   result status :: <C-HRESULT>;
   c-name: "DW_IStorage_RenameElement", c-modifiers: "__stdcall";
 end;
 
 define inline-only C-function IStorage_RenameElement
   input parameter This :: <C-interface>;
-  /* constant */ input parameter pwcsOldName :: <C-unicode-string>;
-  /* constant */ input parameter pwcsNewName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsOldName :: <C-utf-16-string>;
+  /* constant */ input parameter pwcsNewName :: <C-utf-16-string>;
   result status :: <C-HRESULT>;
   c-name: "C_IStorage_RenameElement";
 end;
 
 define method IStorage/RenameElement(This :: <C-interface>,
-		pwcsOldName :: <C-unicode-string>,
-		pwcsNewName :: <C-unicode-string>) => (status :: <HRESULT>)
+		pwcsOldName :: <C-utf-16-string>,
+		pwcsNewName :: <C-utf-16-string>) => (status :: <HRESULT>)
   IStorage_RenameElement(This, pwcsOldName, pwcsNewName)
 end;
 
@@ -3126,7 +3126,7 @@ define open generic IStorage/SetElementTimes (This, pwcsName,
 
 define C-callable-wrapper of IStorage/SetElementTimes
   input parameter This :: <mapped-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   /* constant */ input parameter pctime :: <LPFILETIME>;
   /* constant */ input parameter patime :: <LPFILETIME>;
   /* constant */ input parameter pmtime :: <LPFILETIME>;
@@ -3137,7 +3137,7 @@ end;
 
 define inline-only C-function IStorage_SetElementTimes
   input parameter This :: <C-interface>;
-  /* constant */ input parameter pwcsName :: <C-unicode-string>;
+  /* constant */ input parameter pwcsName :: <C-utf-16-string>;
   /* constant */ input parameter pctime :: <LPFILETIME>;
   /* constant */ input parameter patime :: <LPFILETIME>;
   /* constant */ input parameter pmtime :: <LPFILETIME>;
@@ -3146,7 +3146,7 @@ define inline-only C-function IStorage_SetElementTimes
 end;
 
 define method IStorage/SetElementTimes(This :: <C-interface>,
-		pwcsName :: <C-unicode-string>, pctime :: <LPFILETIME>,
+		pwcsName :: <C-utf-16-string>, pctime :: <LPFILETIME>,
 		patime :: <LPFILETIME>, pmtime :: <LPFILETIME>)
 		=> (status :: <HRESULT>)
   IStorage_SetElementTimes(This, pwcsName, pctime, patime,
@@ -5726,13 +5726,13 @@ define open generic ILayoutStorage/ReLayoutDocfile (This,
 
 define inline-only C-function ILayoutStorage_ReLayoutDocfile
   input parameter This :: <C-interface>;
-  input parameter pwcsNewDfName :: <C-unicode-string>;
+  input parameter pwcsNewDfName :: <C-utf-16-string>;
   result status :: <C-HRESULT>;
   c-name: "C_ILayoutStorage_ReLayoutDocfile";
 end;
 
 define method ILayoutStorage/ReLayoutDocfile(This :: <C-interface>,
-		pwcsNewDfName :: <C-unicode-string>) => (status :: <HRESULT>)
+		pwcsNewDfName :: <C-utf-16-string>) => (status :: <HRESULT>)
   ILayoutStorage_ReLayoutDocfile(This, pwcsNewDfName)
 end;
 

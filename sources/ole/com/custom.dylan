@@ -512,7 +512,7 @@ d-type:
   { <DWORD> }		=> { <unsigned-long> }
   { <WORD> }		=> { <integer> }
   { <C-string> }        => { <string> }
-  { <C-unicode-string> } => { <string> }
+  { <C-utf-16-string> } => { <string> }
   { <mapped-interface> } => { <Interface> }
   { out-ref(?type:expression) } => { c-pointer-type-macro(?type) }
   { inout-ref(?type:expression) } => { c-pointer-type-macro(?type) }
