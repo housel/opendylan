@@ -39,7 +39,7 @@ define module COM
 				};
   use C-FFI, export: { null-pointer, null-pointer?, pointer-address,
 			pointer-value, pointer-value-setter,
-			<C-pointer>, <C-string>, <C-unicode-string>,
+			<C-pointer>, <C-string>, <C-utf-16-string>,
 		        <C-void*>, pointer-cast, c-type-cast,
 			destroy, with-stack-structure, with-c-string,
 		        size-of, <machine-word>, <ffi-integer>

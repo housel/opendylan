@@ -404,7 +404,7 @@ define sealed method text-size
  => (largest-x :: <integer>, largest-y :: <integer>,
      cursor-x :: <integer>, cursor-y :: <integer>, baseline :: <integer>)
   ignore(_start, _end, do-newlines?);
-  //---*** Should be using <C-unicode-string> when supported by following method
+  //---*** Should be using <C-utf-16-string> when supported by following method
   with-stack-structure (c-string :: <C-string>, size: 2, fill: char)
     text-size(_port, c-string, end: 1, text-style: text-style)
   end

@@ -262,8 +262,12 @@ define method size (c :: <C-string>) => (s :: <integer>);
   if (null-pointer?(c))
     0
   else
-    raw-as-integer(primitive-strlen(primitive-unwrap-c-pointer(c)))
-  end;
+    let raw-ptr = primitive-unwrap-c-pointer(c);
+    let raw-byte-size = primitive-strlen(raw-ptr);
+    raw-as-integer(primitive-utf-8-as-utf-32-size
+                     (raw-ptr, integer-as-raw(0), integer-as-raw(0),
+                      raw-byte-size))
+  end
 end;
 
 
@@ -293,38 +297,38 @@ define method \= (string-1 :: <C-string>, string-2 :: <C-string>)
 end method;
 
 
-// <C-unicode-string>
+// <C-utf-16-string>
 // ....
 
-/// top level exported <c-unicode-string>
+/// top level exported <c-utf-16-string>
 /// notice that import-map is not needed since the default import for
 /// any pointer is itself
-define open /* abstract */ simple-c-mapped-subtype <c-unicode-string>
+define open /* abstract */ simple-c-mapped-subtype <c-utf-16-string>
       (<c-unsigned-short*>, <string>)
-  pointer-type <c-unicode-string*>;
+  pointer-type <c-utf-16-string*>;
 end;
 
-/// the instantiation of <c-unicode-string>
-define sealed concrete c-subtype <instantiation-of-c-unicode-string> (<c-unicode-string>)
+/// the instantiation of <c-utf-16-string>
+define sealed concrete c-subtype <instantiation-of-c-utf-16-string> (<c-utf-16-string>)
 end;
 
 
-/// make a <c-unicode-string>.  Notice size and fill keywords accepted as
+/// make a <c-utf-16-string>.  Notice size and fill keywords accepted as
 /// any collection.
 define method make
-    (class == <c-unicode-string>, #rest other-keys,
+    (class == <c-utf-16-string>, #rest other-keys,
        #key size = #f, element-count = #f,
             fill = $not-given, address = #f)
- => (o :: <instantiation-of-c-unicode-string>);
+ => (o :: <instantiation-of-c-utf-16-string>);
   if (address)
-    apply(make, <instantiation-of-c-unicode-string>, other-keys);
+    apply(make, <instantiation-of-c-utf-16-string>, other-keys);
   else
     let (size, element-count)
       = check-c-string-size-options(class, size, element-count);
     // Extra-bytes and that stuff is handled in the default method, we just
     // arrange to default element-count to 1 + size to account for the null
     // terminator.
-    let result = apply(make, <instantiation-of-c-unicode-string>,
+    let result = apply(make, <instantiation-of-c-utf-16-string>,
                        element-count: element-count, other-keys);
     if (size)
       let size :: <integer> = size;
@@ -348,19 +352,19 @@ define method make
   end;
 end;
 
-define generic C-unicode-string-constant
+define generic C-utf-16-string-constant
     (string :: <string>)
- => (value :: <C-unicode-string>);
+ => (value :: <C-utf-16-string>);
 
-define method C-unicode-string-constant
-    (string :: <byte-string>) => (value :: <C-unicode-string>)
-  as(<C-unicode-string>, string);
+define method C-utf-16-string-constant
+    (string :: <byte-string>) => (value :: <C-utf-16-string>)
+  as(<C-utf-16-string>, string);
 end method;
 
 /*
 // For some reason this doesn't get called with the right stuff.
 /// This initialize method that accepts a fill: keyword can be inherited.
-define method initialize (result :: <c-unicode-string>,
+define method initialize (result :: <c-utf-16-string>,
                           #key fill = $not-given,
                                address,
                                element-count,
@@ -385,10 +389,10 @@ end;
 */
 
 
-/// pointer-value in a C-unicode-string returns a character.
+/// pointer-value in a C-utf-16-string returns a character.
 
 define inline function pointer-integer-value
-    (c-str :: <c-unicode-string>, #key index :: <integer> = 0) => (val :: <integer>)
+    (c-str :: <c-utf-16-string>, #key index :: <integer> = 0) => (val :: <integer>)
   raw-as-integer
     (primitive-c-unsigned-short-at
       (primitive-unwrap-c-pointer(c-str),
@@ -397,13 +401,13 @@ define inline function pointer-integer-value
 end function;
 
 define method pointer-value
-    (c-str :: <c-unicode-string>, #key index :: <integer> = 0)
+    (c-str :: <c-utf-16-string>, #key index :: <integer> = 0)
  => (c :: <character>);
   as(<character>, pointer-integer-value(c-str, index: index))
 end;
 
 define method pointer-value-setter
-    (c :: <character>, c-str :: <c-unicode-string>, #key index :: <integer> = 0)
+    (c :: <character>, c-str :: <c-utf-16-string>, #key index :: <integer> = 0)
  => (c :: <character>);
   primitive-c-unsigned-short-at-setter
     (integer-as-raw(as(<integer>, c)),
@@ -416,44 +420,44 @@ end;
 ///
 
 define inline function custr-next-state
-    (collection :: <c-unicode-string>, state :: <integer>)
+    (collection :: <c-utf-16-string>, state :: <integer>)
  => (next :: <integer>);
   state + 1
 end;
 
 define inline function custr-finished-state
-    (collection :: <c-unicode-string>, state :: <integer>, limit :: <boolean>)
+    (collection :: <c-utf-16-string>, state :: <integer>, limit :: <boolean>)
  => (b :: <boolean>)
   null-pointer?(collection)
     | 0 = pointer-integer-value(collection, index: state)
 end;
 
 define inline function custr-current-key
-    (c :: <c-unicode-string>, i :: <integer>)
+    (c :: <c-utf-16-string>, i :: <integer>)
  => (i :: <integer>);
   i
 end;
 
 define inline function custr-current-element
-    (c :: <c-unicode-string>, i :: <integer>)
+    (c :: <c-utf-16-string>, i :: <integer>)
  => (i :: <character>);
   pointer-value(c, index: i)
 end;
 
 define inline function custr-current-element-setter
-    (new :: <character>, c :: <c-unicode-string>, i :: <integer>)
+    (new :: <character>, c :: <c-utf-16-string>, i :: <integer>)
  => (i :: <character>);
   pointer-value-setter(new, c, index: i)
 end;
 
 define inline function custr-copy-state
-    (c :: <c-unicode-string>, s :: <integer>)
+    (c :: <c-utf-16-string>, s :: <integer>)
  => (s :: <integer>);
   s
 end;
 
 define method forward-iteration-protocol
-    (custr :: <c-unicode-string>)
+    (custr :: <c-utf-16-string>)
  => (initial-state :: <object>, limit :: <object>,
      next-state :: <function>, finished-state? :: <function>,
      current-key :: <function>,
@@ -470,7 +474,7 @@ define method forward-iteration-protocol
 end;
 
 define method element
-    (custr :: <c-unicode-string>, key :: <integer>,
+    (custr :: <c-utf-16-string>, key :: <integer>,
        #key default = $not-given)
  => (c :: <character>);
   if (key < 0)
@@ -485,7 +489,7 @@ define method element
 end;
 
 define method element-setter
-    (c :: <character>, custr :: <c-unicode-string>, key :: <integer>)
+    (c :: <character>, custr :: <c-utf-16-string>, key :: <integer>)
  => (c :: <character>);
   if (key < 0)
     error("ELEMENT outside of range: %= %=", custr, key)
@@ -493,7 +497,7 @@ define method element-setter
   pointer-value-setter(c, custr, index: key);
 end;
 
-define method size (c :: <c-unicode-string>) => (s :: <integer>);
+define method size (c :: <c-utf-16-string>) => (s :: <integer>);
   if (null-pointer?(c))
     0
   else
@@ -503,13 +507,13 @@ define method size (c :: <c-unicode-string>) => (s :: <integer>);
   end;
 end;
 
-define method empty? (obj :: <c-unicode-string>) => (b :: <boolean>);
+define method empty? (obj :: <c-utf-16-string>) => (b :: <boolean>);
   null-pointer?(obj)
     | 0 = pointer-integer-value(obj, index: 0)
 end;
 
 define method \=
-    (string-1 :: <C-unicode-string>, string-2 :: <C-unicode-string>)
+    (string-1 :: <C-utf-16-string>, string-2 :: <C-utf-16-string>)
  => (result :: <boolean>)
   if ((string-1 == string-2) | (empty?(string-1) & empty?(string-2)))
     #t;

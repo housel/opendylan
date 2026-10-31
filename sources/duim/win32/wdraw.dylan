@@ -575,7 +575,7 @@ define sealed method draw-text
       convert-to-device-coordinates!(transform, towards-x, towards-y)
     end;
     let old-alignment = SetTextAlign(hDC, windows-text-alignment(align-x, align-y));
-    //---*** Should be using <C-unicode-string> when supported by following method
+    //---*** Should be using <C-utf-16-string> when supported by following method
     with-stack-structure (c-string :: <C-string>, size: 2, fill: character)
       TextOut(hDC, x, y, c-string, 1)
     end;
