@@ -33,7 +33,7 @@ bits.
 +----------+--------------------+
 | 10       | Characters         |
 +----------+--------------------+
-| 11       | Unicode Characters |
+| 11       | Reserved           |
 +----------+--------------------+
 
 Integers and Characters
