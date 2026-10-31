@@ -30,7 +30,7 @@ end;
 
 define inline-only C-function gluErrorUnicodeStringEXT
   parameter errCode    :: <GLenum>;
-  result value ::  /* const */ <C-unicode-string>;
+  result value ::  /* const */ <C-utf-16-string>;
   c-name: "gluErrorUnicodeStringEXT", c-modifiers: "__stdcall";
 end;
 

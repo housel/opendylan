@@ -108,7 +108,7 @@ define sealed method encode-resource
 end method encode-resource;
 
 define sealed method encode-resource
-    (resource-id :: <C-unicode-string>) => (raw-id :: <raw-resource-id>)
+    (resource-id :: <C-utf-16-string>) => (raw-id :: <raw-resource-id>)
   as(<raw-resource-id>, resource-id)            // this should work
 end method encode-resource;
 
@@ -686,8 +686,8 @@ end method grok-resource-id;
 define method grok-resource-string
     (p :: <C-pointer>)
  => (string :: <string>, resource-size :: <integer>)
-  let resource-string :: <C-unicode-string>
-    = make(<C-unicode-string>, address: pointer-address(p));
+  let resource-string :: <C-utf-16-string>
+    = make(<C-utf-16-string>, address: pointer-address(p));
   //---*** (size(resource-string) + 1) * size-of(referenced-type(resource-string));
   let resource-size :: <integer> = (size(resource-string) + 1) * 2;
   values(resource-string, resource-size)

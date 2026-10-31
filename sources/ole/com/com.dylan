@@ -53,7 +53,7 @@ define constant <U32> = type-union(<abstract-integer>, <machine-word);
 
 //--
 
-define constant <LPOLESTR>  = <C-unicode-string>;
+define constant <LPOLESTR>  = <C-utf-16-string>;
 define C-pointer-type <LPLPOLESTR> => <LPOLESTR>;
 define constant <LPCOLESTR> = <LPOLESTR>;
 
