@@ -364,32 +364,25 @@ end method;
 define sealed method concatenate!
     (builder :: <string-builder>, #rest more)
  => (builder :: <string-builder>)
-  // Determine in advance the final needed representation capacity
-  let size-increment
-    = for (s in more, increment = 0 then increment + s.size)
-      finally
-        increment
-      end for;
-  let (representation, start)
-    = string-builder-reserve(builder, size-increment);
-
-  // Loop again to append the strings
-  for (s in more,
-       offset = start
-         then select (s by instance?)
-                <byte-string> =>
-                  primitive-replace-bytes!
-                    (representation,
-                     primitive-repeated-slot-offset(representation),
-                     integer-as-raw(offset),
-                     s,
-                     primitive-repeated-slot-offset(s),
-                     integer-as-raw(0),
-                     integer-as-raw(s.size));
-                   offset + s.size;
-                otherwise =>
-                  error("Concatenate of %= not yet supported", s);
-              end select)
+  for (s in more)
+    select (s by instance?)
+      <byte-string> =>
+        let s-size = s.size;    // TODO <utf-8-string> rep size
+        let (representation, start)
+          = string-builder-reserve(builder, s-size);
+        primitive-replace-bytes!
+          (representation,
+           primitive-repeated-slot-offset(representation),
+           integer-as-raw(start),
+           s,
+           primitive-repeated-slot-offset(s),
+           integer-as-raw(0),
+           integer-as-raw(s-size));
+      otherwise =>
+        for (c in s)
+          add!(builder, c);
+        end for;
+    end select;
   end for;
   builder
 end method concatenate!;
