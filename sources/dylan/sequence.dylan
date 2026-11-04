@@ -22,6 +22,10 @@ define open generic concatenate!
     (sequence :: <sequence>, #rest more-sequences :: <sequence>)
  => (result-sequence :: <sequence>);
 
+define open generic concatenate-subsequence!
+    (sequence :: <sequence>, source :: <sequence>, #key start, end: last)
+ => (result-sequence :: <sequence>);
+
 define constant <sequence-type>
   = type-union(subclass(<sequence>), <limited-sequence-type>);
 
@@ -150,6 +154,21 @@ define method concatenate!
  => (result-sequence :: <sequence>)
   apply(concatenate, sequence, more-sequences)
 end method concatenate!;
+
+//
+// CONCATENATE-SUBSEQUENCE!
+//
+
+define method concatenate-subsequence!   // Default version
+    (sequence :: <sequence>, source :: <sequence>,
+     #key start: first :: <integer> = 0, end: last = unsupplied())
+ => (result-sequence :: <sequence>);
+  if (supplied?(last))
+    concatenate!(sequence, copy-sequence(source, start: first, end: last))
+  else
+    concatenate!(sequence, copy-sequence(source, start: first))
+  end if
+end method concatenate-subsequence!;
 
 //
 // CONCATENATE-AS
