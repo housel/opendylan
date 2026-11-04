@@ -387,6 +387,24 @@ define sealed method concatenate!
   builder
 end method concatenate!;
 
+define sealed method concatenate-subsequence!
+    (builder :: <string-builder>, source :: <byte-string>,
+     #key start: first :: <integer> = 0, end: last = unsupplied())
+ => (result-sequence :: <string-builder>);
+  let last :: <integer> = check-start-compute-end(source, first, last);
+  let sz = last - first;
+  let (representation, start) = string-builder-reserve(builder, sz);
+  primitive-replace-bytes!
+    (representation,
+     primitive-repeated-slot-offset(representation),
+     integer-as-raw(start),
+     source,
+     primitive-repeated-slot-offset(source),
+     integer-as-raw(first),
+     integer-as-raw(sz));
+  builder
+end method concatenate-subsequence!;
+
 define sealed inline method as (class == <string>, builder :: <string-builder>)
  => (s :: <string>)
   let s-size = builder.%size;
