@@ -429,6 +429,7 @@ define method test-collection
      vector(// Functions on <sequence>
             do-test-concatenate,
             do-test-concatenate-as,
+            do-test-concatenate-subsequence!,
             do-test-first,
             do-test-second,
             do-test-third,
@@ -1108,6 +1109,35 @@ define method do-test-concatenate-as
                                & collection[sequence-size * 2] = sequence[0]))
                  end);
     end
+  end;
+end method;
+
+define method do-test-concatenate-subsequence!
+    (name :: <string>, sequence :: <sequence>) => ()
+  let sequence-size = size(sequence);
+  begin
+    let old-sequence = copy-sequence(sequence);
+    let new-sequence = concatenate-subsequence!(old-sequence, old-sequence);
+    check-equal(format-to-string("%s concatenate-subsequence! full", name),
+                sequence-size * 2, size(new-sequence));
+  end;
+
+  begin
+    let half-size = truncate/(sequence-size, 2);
+    let old-sequence = copy-sequence(sequence);
+    let new-sequence
+      = concatenate-subsequence!(old-sequence, old-sequence, end: half-size);
+    check-equal(format-to-string("%s concatenate-subsequence! front half", name),
+                sequence-size + half-size, size(new-sequence));
+  end;
+
+  begin
+    let half-size = truncate/(sequence-size, 2);
+    let old-sequence = copy-sequence(sequence);
+    let new-sequence
+      = concatenate-subsequence!(old-sequence, old-sequence, start: half-size);
+    check-equal(format-to-string("%s concatenate-subsequence! back half", name),
+                sequence-size * 2 - half-size, size(new-sequence));
   end;
 end method;
 

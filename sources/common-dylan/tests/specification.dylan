@@ -52,6 +52,8 @@ define interface-specification-suite common-extensions-specification-suite ()
    => (<sequence>);
   function join
     (<sequence>, <sequence>, #"key" #"key", #"conjunction") => (<sequence>);
+  open generic function concatenate-subsequence!
+      (<sequence>, <sequence>, #"key", #"start", #"end") => (<sequence>);
   open generic function remove-all-keys! (<mutable-collection>) => ();
   open generic function difference
       (<sequence>, <sequence>, #"key", #"test") => (<sequence>);

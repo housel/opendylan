@@ -824,7 +824,8 @@ define &module dylan-extensions
 
   create
     <string-builder-representation>,
-    string-builder-reserve;
+    string-builder-reserve,
+    concatenate-subsequence!;
 
   create
     power-of-two-ceiling;
