@@ -297,6 +297,24 @@ define method \= (string-1 :: <C-string>, string-2 :: <C-string>)
 end method;
 
 
+define sealed method concatenate-subsequence!
+    (builder :: <string-builder>, source :: <C-string>,
+     #key start: first :: <integer> = 0, end: last = unsupplied())
+ => (result-sequence :: <string-builder>);
+  let last :: <integer> = check-start-compute-end(source, first, last);
+  let sz = last - first;
+  let (representation, start) = string-builder-reserve(builder, sz);
+  primitive-replace-bytes!
+    (representation,
+     primitive-repeated-slot-offset(representation),
+     integer-as-raw(start),
+     primitive-unwrap-c-pointer(source),
+     integer-as-raw(0),
+     integer-as-raw(first),
+     integer-as-raw(sz));
+  builder
+end method concatenate-subsequence!;
+
 // <C-utf-16-string>
 // ....
 
