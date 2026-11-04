@@ -84,6 +84,7 @@ define module common-extensions
               <object-deque>,
               <stretchy-sequence>,
               <string-table>,
+              concatenate-subsequence!,
               false-or,
               ignorable,
               ignore,
