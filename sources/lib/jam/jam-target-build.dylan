@@ -19,7 +19,7 @@ define class <jam-action-command> (<object>)
     = make(<object-set>);
   slot action-command-predecessor-count :: <integer>,
     init-value: 0;
-  slot action-command-output-stream :: <sequence-stream>;
+  slot action-command-output-stream :: <string-stream>;
 end class;
 
 define sealed domain make(singleton(<jam-action-command>));
