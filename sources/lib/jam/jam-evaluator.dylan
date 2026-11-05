@@ -187,21 +187,11 @@ define function jam-expand-arg-colon
         #[""]
       end
     elseif (modifier == 'J')
-      let joiner = replacement | "";
       if (empty?(contents))
         #[]
       else
-        for (component in contents,
-             first? = #t then #f,
-             result = first(contents)
-               then if (first?)
-                      result
-                    else
-                      concatenate(result, joiner, component)
-                    end)
-        finally
-          vector(result)
-        end for
+        let joiner = replacement | "";
+        vector(join(contents, joiner))
       end if
     elseif (modifier == '@')
       if (empty?(contents))
