@@ -446,6 +446,7 @@ define method test-collection
             do-test-remove-duplicates,
             do-test-remove-duplicates!,
             do-test-copy-sequence,
+            do-test-copy-sequence-as,
             do-test-replace-subsequence!,
             do-test-reverse,
             do-test-reverse!,
@@ -1255,6 +1256,21 @@ define method do-test-copy-sequence
                let new-sequence = copy-sequence(sequence);
                valid-copy-of-sequence?(new-sequence, sequence)
              end)
+end method;
+
+define method do-test-copy-sequence-as
+    (name :: <string>, sequence :: <sequence>) => ()
+  for (class in instantiable-subclasses(<mutable-sequence>))
+    if (collection-valid-as-class?(class, sequence)
+          //---*** Currently pairs crash copy-sequence-as
+          & class ~== <pair>)
+      check-true(format-to-string("%s copy-sequence-as %s", name, class),
+                 begin
+                   let new-sequence = copy-sequence-as(class, sequence);
+                   new-sequence = sequence
+                 end)
+    end if;
+  end for;
 end method;
 
 define method do-test-replace-subsequence!

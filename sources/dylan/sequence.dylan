@@ -103,6 +103,10 @@ define open generic copy-sequence
     (source :: <sequence>, #key start, end: last)
  => (result-sequence :: <sequence>);
 
+define open generic copy-sequence-as
+    (type :: <sequence-type>, source :: <sequence>, #key start, end: last)
+ => (result-sequence :: <sequence>);
+
 define open generic replace-subsequence!
     (target-sequence :: <sequence>, insert-sequence :: <sequence>,
      #key start, end: last)
@@ -544,16 +548,16 @@ define inline method check-start-compute-end
 end method check-start-compute-end;
 
 
-define method copy-sequence
-    (source :: <sequence>,
+define method copy-sequence-as
+    (type :: <mutable-sequence-type>, source :: <sequence>,
      #key start: first :: <integer> = 0, end: last = unsupplied())
  => (result-sequence :: <sequence>);
   let last :: <integer> = check-start-compute-end(source, first, last);
 
-  if (first = last) as(type-for-copy(source), #())
+  if (first = last) as(type, #())
   else
     let result =
-      make(type-for-copy(source), size: last - first, fill: source[0]);
+      make(type, size: last - first, fill: source[0]);
 
     with-fip-of source
       for (index from 0 below first,
@@ -571,8 +575,14 @@ define method copy-sequence
     end;
     result
   end
-end method copy-sequence;
+end method copy-sequence-as;
 
+define method copy-sequence
+    (source :: <sequence>,
+     #key start: first :: <integer> = 0, end: last = unsupplied())
+ => (result-sequence :: <sequence>);
+  copy-sequence-as(type-for-copy(source), source, start: first, end: last)
+end method;
 
 //
 // REPLACE-SUBSEQUENCE!
