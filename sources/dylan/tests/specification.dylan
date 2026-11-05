@@ -218,6 +218,8 @@ define interface-specification-suite dylan-collections-specification-suite ()
       (<sequence>, #"key", #"test") => (<sequence>);
   open generic function copy-sequence
       (<sequence>, #"key", #"start", #"end") => (<sequence>);
+  open generic function copy-sequence-as
+      (<type>, <sequence>, #"key", #"start", #"end") => (<sequence>);
   function concatenate (<sequence>, #"rest") => (<sequence>);
   function concatenate-as (<type>, <sequence>, #"rest") => (<sequence>);
   open generic function concatenate! (<sequence>, #"rest") => (<sequence>);

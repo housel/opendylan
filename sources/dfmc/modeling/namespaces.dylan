@@ -1547,9 +1547,10 @@ define &module dylan
    remove-duplicates,
    remove-duplicates!,
    copy-sequence,
+   copy-sequence-as,            // DEP 15
    concatenate-as,
    concatenate,
-   concatenate!,                // DEP 14
+   concatenate!,                // DEP 15
    replace-subsequence!,
    reverse,
    reverse!,
