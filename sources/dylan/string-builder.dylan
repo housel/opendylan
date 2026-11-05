@@ -505,3 +505,44 @@ define method copy-sequence
     end if
   end for
 end method;
+
+define method copy-sequence-as
+    (type == <string>, builder :: <string-builder>,
+     #key start: first :: <integer> = 0, end: last = unsupplied())
+ => (copy :: <string>)
+  let representation = builder.builder-utf-32-representation;
+  let last :: <integer>
+    = if (unsupplied?(last))
+        builder.%size
+      else
+        if (last > builder.%size)
+          invalid-sequence-end-error(builder, last);
+        end if;
+        last
+      end;
+  if (first < 0)
+    invalid-sequence-start-error(builder, first);
+  elseif (last < first)
+    invalid-sequence-bounds-error(builder, first, last);
+  end if;
+  let codepoint-size :: <integer> = last - first;
+  let utf-8-size
+    = raw-as-integer
+    (primitive-utf-32-as-utf-8-size
+       (representation,
+        primitive-repeated-slot-offset(representation),
+        integer-as-raw(first),
+        integer-as-raw(codepoint-size)));
+  let copy = make(<byte-string>, size: utf-8-size);
+  let _transcoded-size
+    = primitive-transcode-utf-32-as-utf-8
+        (copy,
+         primitive-repeated-slot-offset(copy),
+         integer-as-raw(0),
+         representation,
+         primitive-repeated-slot-offset(representation),
+         integer-as-raw(first),
+         integer-as-raw(codepoint-size));
+  //assert(utf-8-size = raw-as-integer(transcoded-size));
+  copy
+end method;
