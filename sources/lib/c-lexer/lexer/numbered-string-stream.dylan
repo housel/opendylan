@@ -8,6 +8,6 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 // So that current-line can be called when lexing from a string stream.
 
-define class <numbered-string-stream> (<string-stream>)
+define class <numbered-string-stream> (<sequence-stream>)
   slot current-line :: <integer>, required-init-keyword: current-line: ;
 end class;
