@@ -59,9 +59,6 @@ define macro copy-down-stream-definer
           => (n-read) }
 end macro;
 
-define copy-down-stream <string-stream>
-   element <character> sequence <byte-string>;
-
 define macro copy-down-buffered-stream-definer
   { define copy-down-buffered-stream ?:name element ?elt:name sequence ?seq:name }
     => { define sealed domain do-get-input-buffer (?name);

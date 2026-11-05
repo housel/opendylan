@@ -744,27 +744,8 @@ define test test-position-sequence-stream ()
   positionable-stream-test(<sequence-stream>, #());
 end test;
 
-// <string-stream> stretchy vector tests
+// <sequence-stream> stretchy vector tests
 define test test-stretchy-stream ()
-  begin
-    let sv = make(<stretchy-vector>);
-    let s = make(<string-stream>, contents: sv, direction: #"output");
-    write(s, #(1, 2, 3));
-    write(s, #(4, 5, 6));
-
-    check-true("stretchy vector streched", sv = #(1, 2, 3, 4, 5, 6));
-    check("stretchy vector", \=, stream-contents(s),
-          as(<stretchy-vector>, list(1,2,3,4,5,6))  );
-  end;
-
-  begin
-    let v = make(<vector>, size: 3);
-    let s = make(<string-stream>, contents: v, direction: #"output");
-    write(s, #(1, 2, 3));
-    write(s, #(4, 5, 6));
-    check-true("test vector",v = #[1, 2, 3]);
-    check("test stream with vector", \=, stream-contents(s), #[1,2,3,4,5,6]);
-  end;
   begin
     let sv = make(<stretchy-vector>);
     let s = make(<sequence-stream>, contents: sv, direction: #"output");
@@ -778,7 +759,7 @@ define test test-stretchy-stream ()
     let s = make(<sequence-stream>, contents: v, direction: #"output");
     write(s, #(1, 2, 3));
     write(s, #(4, 5, 6));
-    check-true("test vector #2",v = #[1, 2, 3]);
+    check-true("test vector",v = #[1, 2, 3]);
     check-true("test stream vector", stream-contents(s) = #[1,2,3,4,5,6]);
   end;
 end test;
