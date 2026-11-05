@@ -346,6 +346,40 @@ define method join
   end if
 end method join;
 
+define method join
+    (sequences :: <sequence>, separator :: <string>,
+     #key key :: <function> = identity,
+          conjunction :: false-or(<sequence>))
+ => (joined :: <string>)
+  let sequences
+    = if (key == identity)
+        sequences
+      else
+        map(key, sequences)
+      end if;
+  let length :: <integer> = sequences.size;
+  if (length == 0)
+    ""
+  elseif (length == 1)
+    as(<string>, sequences[0])
+  else
+    let builder = make(<string-builder>);
+    concatenate!(builder, sequences[0]);
+
+    let max-index :: <integer> = length - 1;
+    for (i :: <integer> from 1 to max-index)
+      concatenate!(builder,
+                   if(conjunction & i == max-index)
+                     conjunction
+                   else
+                     separator
+                   end);
+      concatenate!(builder, sequences[i]);
+    end;
+    as(<string>, builder)
+  end if
+end method join;
+
 define open generic find-element
     (collection :: <collection>, predicate :: <function>,
      #key skip :: <integer>, failure)
