@@ -153,7 +153,7 @@ readable. Otherwise, it must be a sequence stream. The sequence returned
 never shares structure with any underlying sequence that might be used
 in the future by the stream. For instance, the string returned by
 calling :gf:`stream-contents` on an output :class:`<string-stream>` will
-not be the same string as that being used to represent the string
+not be the same collection as that being used to represent the string
 stream.
 
 When making an input :class:`<string-stream>`, you can cause the stream
@@ -215,20 +215,9 @@ writing a library that reads bytes from a network socket you might write tests
 that use a :class:`<sequence-stream>` over a :class:`<byte-vector>` to mock the
 network stream.
 
-String streams are the most commonly used type of sequence stream so there are
-several features to make using them easier.
-
-1. Calling ``make(<sequence-stream>, contents: "a string", direction: #"input")``
-   returns a :class:`<string-stream>`.
-
-2. :macro:`with-output-to-string` provides a convenient way to create a string
-   using multiple calls to :gf:`format`.
-
-3. :macro:`with-input-from-string` can be used to read the contents of a string.
-
-4. :gf:`format-to-string` is implemented by making an output
-   :class:`<string-stream>`, calling :gf:`format` on it, and then returning the
-   stream contents.
+String streams are similar to sequence streams, but differ in that
+they use their own opaque storage rather than using an arbitrary
+sequence provided when the stream is instantiated.
 
 Sequence streams and object identity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -299,6 +288,22 @@ use a stretchy vector to hold the stream data. A vector of at least 6 elements
 is necessary to accommodate the elements written to the stream, but ``v`` can
 hold only 5. Since the stream cannot change ``v``'s size, it must allocate a new
 vector each time it grows.
+
+String Streams
+^^^^^^^^^^^^^^
+
+String streams are a very common type of stream so there are several
+features to make using them easier.
+
+1. :macro:`with-output-to-string` provides a convenient way to create a string
+   using multiple calls to :gf:`format`.
+
+2. :macro:`with-input-from-string` can be used to read the contents of a string.
+
+3. :gf:`format-to-string` is implemented by making an output
+   :class:`<string-stream>`, calling :gf:`format` on it, and then returning the
+   stream contents.
+
 
 Closing streams
 ^^^^^^^^^^^^^^^
@@ -1939,9 +1944,11 @@ are exported from the *streams* module.
      If ``contents:`` is a stretchy vector, then it is the only storage
      used by the stream.
 
-     The :class:`<sequence-stream>` class can be used for streaming over all
-     sequences, but there is also a subclasses :class:`<string-stream>` which
-     is specialized for streaming over strings.
+     The :class:`<sequence-stream>` class can be used for streaming
+     over all sequences. Alternatively, for streaming over strings the
+     :class:`<string-stream>` class can be used; it differs from
+     :class:`<sequence-stream>` in that it provides its own (opaque)
+     underlying storage.
 
      The ``start:`` and ``end:`` init-keywords specify the portion of the
      sequence to create the stream over: ``start:`` is inclusive and
@@ -1954,7 +1961,6 @@ are exported from the *streams* module.
 
    :seealso:
 
-     - :class:`<byte-string-stream>`
      - :meth:`make(<sequence-stream>)`
      - :class:`<string-stream>`
 
@@ -2119,8 +2125,7 @@ are exported from the *streams* module.
 
      .. code-block:: dylan
 
-       let stream = make(<byte-string-stream>,
-                         direction: #"output");
+       let stream = make(<string-stream>, direction: #"output");
        write-element(stream, 'I');
        write-element(stream, ' ');
        write(stream, "see");
@@ -2403,7 +2408,7 @@ are exported from the *streams* module.
 
    The class of streams over strings.
 
-   :superclasses: :class:`<sequence-stream>`
+   :superclasses: :class:`<positionable-stream>`
 
    :keyword contents: A general instance of :drm:`<sequence>`.
    :keyword direction: Specifies the direction of the stream. It must
@@ -2420,8 +2425,8 @@ are exported from the *streams* module.
 
      The class of streams over strings.
 
-     The ``contents:`` init-keyword is used as the input for an input
-     stream, and as the initial storage for an output stream.
+     The ``contents:`` init-keyword is used as the initial content for
+     the stream.
 
      The ``start:`` init-keyword specifies the start position of the
      string to be streamed over.
@@ -2508,16 +2513,14 @@ are exported from the *streams* module.
      calls this function to determine the concrete subclass of
      :class:`<sequence-stream>` that it should instantiate.
 
-     There are :gf:`type-for-sequence-stream` methods for each of the string
-     classes. These methods return a stream class that the Streams module
-     considers appropriate.
+     The default method returns the :class:`<sequence-stream>` as the
+     :lib:`io` library does not currently provide any other concrete
+     subclasses.
 
    :seealso:
 
      - :meth:`make(<sequence-stream>)`
      - :class:`<sequence-stream>`
-     - :class:`<string-stream>`
-     - :class:`<byte-string-stream>`
 
 .. generic-function:: unlock-stream
    :open:
@@ -2880,8 +2883,7 @@ are exported from the *streams* module.
 
      .. code-block:: dylan
 
-       let stream = make(<byte-string-stream>,
-                         direction: #"output");
+       let stream = make(<string-stream>, direction: #"output");
        write-element(stream, 'I');
        write-element(stream, ' ');
        write(stream, "see");

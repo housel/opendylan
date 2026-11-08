@@ -659,7 +659,7 @@ readable. Otherwise, it must be a sequence stream. The sequence returned
 never shares structure with any underlying sequence that might be used
 in the future by the stream. For instance, the string returned by
 calling <a class="reference internal" href="#io:streams:stream-contents"><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">stream-contents</span></code></a> on an output <a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a> will
-not be the same string as that being used to represent the string
+not be the same collection as that being used to represent the string
 stream.</p>
 <p>When making an input <a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a>, you can cause the stream
 to produce elements from any subsequence of the supplied string. For
@@ -708,18 +708,9 @@ use the streams model to create or consume sequences. For example, if you’re
 writing a library that reads bytes from a network socket you might write tests
 that use a <a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a> over a <a class="reference internal" href="#io:streams:[byte-vector]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-vector&gt;</span></code></a> to mock the
 network stream.</p>
-<p>String streams are the most commonly used type of sequence stream so there are
-several features to make using them easier.</p>
-<ol class="arabic simple">
-<li><p>Calling <code class="docutils literal notranslate"><span class="pre">make(&lt;sequence-stream&gt;,</span> <span class="pre">contents:</span> <span class="pre">&quot;a</span> <span class="pre">string&quot;,</span> <span class="pre">direction:</span> <span class="pre">#&quot;input&quot;)</span></code>
-returns a <a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a>.</p></li>
-<li><p><a class="reference internal" href="#io:streams:with-output-to-string"><code class="xref dylan dylan-macro docutils literal notranslate"><span class="pre">with-output-to-string</span></code></a> provides a convenient way to create a string
-using multiple calls to <a class="reference internal" href="format.html#io:format:format"><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">format</span></code></a>.</p></li>
-<li><p><a class="reference internal" href="#io:streams:with-input-from-string"><code class="xref dylan dylan-macro docutils literal notranslate"><span class="pre">with-input-from-string</span></code></a> can be used to read the contents of a string.</p></li>
-<li><p><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">format-to-string</span></code> is implemented by making an output
-<a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a>, calling <a class="reference internal" href="format.html#io:format:format"><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">format</span></code></a> on it, and then returning the
-stream contents.</p></li>
-</ol>
+<p>String streams are similar to sequence streams, but differ in that
+they use their own opaque storage rather than using an arbitrary
+sequence provided when the stream is instantiated.</p>
 <section id="sequence-streams-and-object-identity">
 <h4>Sequence streams and object identity<a class="headerlink" href="#sequence-streams-and-object-identity" title="Link to this heading">¶</a></h4>
 <p>When writing to output streams over sequences, Dylan may from time to
@@ -778,6 +769,19 @@ is necessary to accommodate the elements written to the stream, but <code class=
 hold only 5. Since the stream cannot change <code class="docutils literal notranslate"><span class="pre">v</span></code>’s size, it must allocate a new
 vector each time it grows.</p>
 </section>
+</section>
+<section id="string-streams">
+<h3>String Streams<a class="headerlink" href="#string-streams" title="Link to this heading">¶</a></h3>
+<p>String streams are a very common type of stream so there are several
+features to make using them easier.</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#io:streams:with-output-to-string"><code class="xref dylan dylan-macro docutils literal notranslate"><span class="pre">with-output-to-string</span></code></a> provides a convenient way to create a string
+using multiple calls to <a class="reference internal" href="format.html#io:format:format"><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">format</span></code></a>.</p></li>
+<li><p><a class="reference internal" href="#io:streams:with-input-from-string"><code class="xref dylan dylan-macro docutils literal notranslate"><span class="pre">with-input-from-string</span></code></a> can be used to read the contents of a string.</p></li>
+<li><p><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">format-to-string</span></code> is implemented by making an output
+<a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a>, calling <a class="reference internal" href="format.html#io:format:format"><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">format</span></code></a> on it, and then returning the
+stream contents.</p></li>
+</ol>
 </section>
 <section id="closing-streams">
 <h3>Closing streams<a class="headerlink" href="#closing-streams" title="Link to this heading">¶</a></h3>
@@ -2728,9 +2732,11 @@ value: <em>contents.size</em>.</p></li>
 <a class="reference internal" href="#io:streams:[positionable-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;positionable-stream&gt;</span></code></a>.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">contents:</span></code> is a stretchy vector, then it is the only storage
 used by the stream.</p>
-<p>The <a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a> class can be used for streaming over all
-sequences, but there is also a subclasses <a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a> which
-is specialized for streaming over strings.</p>
+<p>The <a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a> class can be used for streaming
+over all sequences. Alternatively, for streaming over strings the
+<a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a> class can be used; it differs from
+<a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a> in that it provides its own (opaque)
+underlying storage.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">start:</span></code> and <code class="docutils literal notranslate"><span class="pre">end:</span></code> init-keywords specify the portion of the
 sequence to create the stream over: <code class="docutils literal notranslate"><span class="pre">start:</span></code> is inclusive and
 <code class="docutils literal notranslate"><span class="pre">end:</span></code> is exclusive. The default is to stream over the entire
@@ -2745,7 +2751,6 @@ sequence.</p>
 </dd>
 <dt class="field-odd">See also<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></p></li>
 <li><p><a class="reference internal" href="#io:streams:make([sequence-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make(&lt;sequence-stream&gt;)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a></p></li>
 </ul>
@@ -2943,8 +2948,7 @@ that being used to represent the string stream.</p>
 <dd class="field-odd"><p>The following forms bind <em>stream</em> to an output stream over an empty
 string and create the string “I see!”, using the function
 <code class="docutils literal notranslate"><span class="pre">stream-contents</span></code> to access all of the stream’s elements.</p>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="k">let</span><span class="w"> </span><span class="n">stream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="nc">&lt;byte-string-stream&gt;</span><span class="p">,</span>
-<span class="w">                  </span><span class="k">direction:</span><span class="w"> </span><span class="ss">#&quot;output&quot;</span><span class="p">);</span>
+<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="k">let</span><span class="w"> </span><span class="n">stream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="nc">&lt;string-stream&gt;</span><span class="p">,</span><span class="w"> </span><span class="k">direction:</span><span class="w"> </span><span class="ss">#&quot;output&quot;</span><span class="p">);</span>
 <span class="n">write-element</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;I&#39;</span><span class="p">);</span>
 <span class="n">write-element</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39; &#39;</span><span class="p">);</span>
 <span class="n">write</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;see&quot;</span><span class="p">);</span>
@@ -3334,7 +3338,7 @@ other such situations.</p></li>
 <dd><p>The class of streams over strings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Superclasses<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#io:streams:[positionable-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;positionable-stream&gt;</span></code></a></p>
 </dd>
 <dt class="field-even">Init-Keywords<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
@@ -3352,8 +3356,8 @@ Only valid when <code class="docutils literal notranslate"><span class="pre">dir
 </dd>
 <dt class="field-odd">Discussion<span class="colon">:</span></dt>
 <dd class="field-odd"><p><p>The class of streams over strings.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">contents:</span></code> init-keyword is used as the input for an input
-stream, and as the initial storage for an output stream.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">contents:</span></code> init-keyword is used as the initial content for
+the stream.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">start:</span></code> init-keyword specifies the start position of the
 string to be streamed over.</p>
 <p>The class supports the same init-keywords as <a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a>.</p>
@@ -3471,17 +3475,15 @@ a stream over the given sequence.</p>
 stream over <em>sequence</em>. The method for <a class="reference internal" href="#io:streams:make([sequence-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make(&lt;sequence-stream&gt;)</span></code></a>
 calls this function to determine the concrete subclass of
 <a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a> that it should instantiate.</p>
-<p>There are <a class="reference internal" href="#io:streams:type-for-sequence-stream"><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">type-for-sequence-stream</span></code></a> methods for each of the string
-classes. These methods return a stream class that the Streams module
-considers appropriate.</p>
+<p>The default method returns the <a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a> as the
+<code class="xref dylan dylan-lib docutils literal notranslate"><span class="pre">io</span></code> library does not currently provide any other concrete
+subclasses.</p>
 </p>
 </dd>
 <dt class="field-odd">See also<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><a class="reference internal" href="#io:streams:make([sequence-stream])"><code class="xref dylan dylan-meth docutils literal notranslate"><span class="pre">make(&lt;sequence-stream&gt;)</span></code></a></p></li>
 <li><p><a class="reference internal" href="#io:streams:[sequence-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;sequence-stream&gt;</span></code></a></p></li>
-<li><p><a class="reference internal" href="#io:streams:[string-stream]"><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;string-stream&gt;</span></code></a></p></li>
-<li><p><code class="xref dylan dylan-class docutils literal notranslate"><span class="pre">&lt;byte-string-stream&gt;</span></code></p></li>
 </ul>
 </p>
 </dd>
@@ -3895,8 +3897,7 @@ element type is the same as the element type of sequence.</p>
 string and create the string “I see!”, using the function
 <a class="reference internal" href="#io:streams:stream-contents"><code class="xref dylan dylan-gf docutils literal notranslate"><span class="pre">stream-contents</span></code></a> to access all of the stream’s
 elements.</p>
-<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="k">let</span><span class="w"> </span><span class="n">stream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="nc">&lt;byte-string-stream&gt;</span><span class="p">,</span>
-<span class="w">                  </span><span class="k">direction:</span><span class="w"> </span><span class="ss">#&quot;output&quot;</span><span class="p">);</span>
+<div class="highlight-dylan notranslate"><div class="highlight"><pre><span></span><span class="k">let</span><span class="w"> </span><span class="n">stream</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">make</span><span class="p">(</span><span class="nc">&lt;string-stream&gt;</span><span class="p">,</span><span class="w"> </span><span class="k">direction:</span><span class="w"> </span><span class="ss">#&quot;output&quot;</span><span class="p">);</span>
 <span class="n">write-element</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39;I&#39;</span><span class="p">);</span>
 <span class="n">write-element</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="sc">&#39; &#39;</span><span class="p">);</span>
 <span class="n">write</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;see&quot;</span><span class="p">);</span>
@@ -4071,6 +4072,7 @@ write to the stream.</p>
 <li><a class="reference internal" href="#sequence-streams-and-object-identity">Sequence streams and object identity</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#string-streams">String Streams</a></li>
 <li><a class="reference internal" href="#closing-streams">Closing streams</a></li>
 <li><a class="reference internal" href="#with-output-to-string-with-input-from-string-macros">with-output-to-string / with-input-from-string macros</a></li>
 <li><a class="reference internal" href="#locking-streams">Locking streams</a></li>
