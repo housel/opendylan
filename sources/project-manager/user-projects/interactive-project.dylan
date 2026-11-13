@@ -141,7 +141,7 @@ end;
 
 define method evaluate-expression
     (project :: <interactive-project>, runtime-context, module :: <symbol>,
-     source :: <byte-string>)
+     source :: <string>)
  => (id)
   verify-execution-target(project);
 
@@ -165,7 +165,7 @@ define method evaluate-expression
 end method;
 
 define method macroexpand-expression
-    (project :: <interactive-project>, module :: <symbol>, source :: <byte-string>,
+    (project :: <interactive-project>, module :: <symbol>, source :: <string>,
      #key expansion-stream)
  => ()
   //--- We have to use <interactive-source-record> since it is the only
@@ -185,7 +185,7 @@ define function parse-expression
     (project :: <interactive-project>,
      runtime-context,
      module :: <symbol>,
-     source :: <byte-string>)
+     source :: <string>)
  => (well? :: <boolean>, warnings :: <sequence>)
 
   verify-execution-target(project);
