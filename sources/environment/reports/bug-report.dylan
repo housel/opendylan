@@ -352,8 +352,8 @@ define function write-bug-report-names-and-values
  => ()
   let name-labels = map(name-label-key, names);
   let max-label-size = reduce(max, 0, map(size, name-labels));
-  let spaces :: <byte-string>
-    = make(<byte-string>, size: max-label-size + 1, fill: ' ');
+  let spaces :: <string>
+    = make(<string>, size: max-label-size + 1, fill: ' ');
   for (name-label in name-labels,
        value in values)
     write(stream, indentation);
@@ -653,8 +653,8 @@ define function write-html-bug-report-names-and-values
  => ()
   let name-labels = map(name-label-key, names);
   let max-label-size = reduce(max, 0, map(size, name-labels));
-  let spaces :: <byte-string>
-    = make(<byte-string>, size: max-label-size + 1, fill: ' ');
+  let spaces :: <string>
+    = make(<string>, size: max-label-size + 1, fill: ' ');
   write-html(stream, indentation, #"ul", '\n');
   for (name-label in name-labels,
        value in values)

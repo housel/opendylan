@@ -29,18 +29,19 @@ define sealed method write
     (stream :: <html-wrapper-stream>, string :: <string>,
      #key start: start-index = 0, end: end-index)
  => ()
-  for (index :: <integer> from start-index | 0 below end-index | string.size)
-    write-element(stream, string[index])
-  end
-end method write;
-
-define sealed method write
-    (stream :: <html-wrapper-stream>, string :: <byte-string>,
-     #key start: start-index = 0, end: end-index)
- => ()
-  for (index :: <integer> from start-index | 0 below end-index | string.size)
-    write-element(stream, string[index])
-  end
+  if (end-index)
+    for (c :: <character> in string, i :: <integer> from 0 below end-index)
+      if (i >= start-index)
+        write-element(stream, c);
+      end if;
+    end for;
+  else
+    for (c in string, i :: <integer> from 0)
+      if (i >= start-index)
+        write-element(stream, c);
+      end if;
+    end for;
+  end if;
 end method write;
 
 define method write-element

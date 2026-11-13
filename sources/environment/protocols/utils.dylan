@@ -617,7 +617,7 @@ define method print-environment-object-location
         let location = source-record.source-record-location;
         if (file-exists?(location))
           if (absolute-path?)
-            locator-as-string(<byte-string>, location);
+            locator-as-string(<string>, location);
           else
             location.locator-name;
           end;
@@ -639,7 +639,7 @@ define method print-environment-object-location
     local method printit (locator :: false-or(<locator>))
             if (locator)
               if (absolute-path?)
-                ret(locator-as-string(<byte-string>, locator))
+                ret(locator-as-string(<string>, locator))
               else
                 ret(as(<string>, locator))
               end;

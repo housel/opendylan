@@ -132,7 +132,7 @@ define method id-table-and-key
                          module: specializer.id-module);
     ignore(table);
     mangled-name
-      := concatenate-as(<byte-string>,
+      := concatenate-as(<string>,
                         mangled-name, $name-separator,
                         key)
   end;
