@@ -1205,7 +1205,7 @@ end method frame-warn-if-application-tethered;
 
 define function compilation-warning-count-message
     (project :: <project-object>, #key warnings)
- => (message :: false-or(<byte-string>))
+ => (message :: false-or(<string>))
   let ordinary = 0;
   let serious  = 0;
   let errors   = 0;

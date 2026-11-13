@@ -391,7 +391,7 @@ define function make-labels-layout
        index from 0)
     let label
       = if (prefix)
-          concatenate-as(<byte-string>, prefix, description)
+          concatenate-as(<string>, prefix, description)
         else
           description
         end;

@@ -11,7 +11,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 
 define abstract class <application-variable> (<object>)
 
-  constant slot application-variable-name :: <byte-string>,
+  constant slot application-variable-name :: <string>,
     required-init-keyword: name:;
 
   constant slot application-variable-namespace :: <dylan-name-context>,

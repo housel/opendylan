@@ -10,7 +10,7 @@ Warranty:     Distributed WITHOUT WARRANTY OF ANY KIND
 define constant $report-width = 72;
 
 define constant $report-separator
-  = make(<byte-string>, size: $report-width, fill: '-');
+  = make(<string>, size: $report-width, fill: '-');
 
 define constant <report-format> = one-of(#"text", #"dot", #"html", #"xml", #"rst");
 
