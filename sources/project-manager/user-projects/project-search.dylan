@@ -62,7 +62,7 @@ define method search-for-project (key :: <symbol>,
 end;
 
 define function find-project-in-subdirectory (dir :: <directory-locator>,
-                                              name :: <byte-string>,
+                                              name :: <string>,
                                               #key depth)
  => (locator :: false-or(<file-locator>))
   block (found)
@@ -84,7 +84,7 @@ end;
 /***
 Signature of <function> below
 define function process-directory-entry (dir :: <pathname>,
-                                         name :: <byte-string>,
+                                         name :: <string>,
                                          type :: <file-type>)
  => (value :: <object>)
 ***/
@@ -105,7 +105,7 @@ define method %do-directory-recursively (f :: <function>,
                                          directory :: <directory-locator>,
                                          #key test, recursive-level)
   local method browse-directory (dir :: <directory-locator>,
-                                 name :: <byte-string>,
+                                 name :: <string>,
                                  type :: <file-type>)
           search-debug("Directory: %s, name: %s, type: %s\n", dir, name, type);
           test(dir, name, type) &
