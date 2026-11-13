@@ -71,7 +71,7 @@ end method context-missing-error;
 
 define method project-macroexpand-code
     (database :: <dfmc-database>, module :: <module-object>,
-     code :: <byte-string>,
+     code :: <string>,
      #key expansion-stream :: false-or(<stream>) = #f)
  => ()
   let project = module-project-proxy(database, module);

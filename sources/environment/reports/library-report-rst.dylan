@@ -31,7 +31,7 @@ define method write-definition-name
   let title = concatenate("The ",
                           as-uppercase(library-name),
                           " library");
-  let decorator = make(<byte-string>, fill: '*', size: title.size);
+  let decorator = make(<string>, fill: '*', size: title.size);
   format(stream, "%s\n%s\n%s\n\n.. current-library:: %s\n\n",
          decorator,
          title,
@@ -49,7 +49,7 @@ define method write-definition-name
                           " module");
   format(stream, "\n%s\n%s\n\n.. current-module:: %s\n\n",
          title,
-         make(<byte-string>, fill: '*', size: title.size),
+         make(<string>, fill: '*', size: title.size),
          module-name)
 end method write-definition-name;
 

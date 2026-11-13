@@ -41,7 +41,7 @@ define function write-command-group-documentation
      group :: <command-group>,
      #key show-contents? :: <boolean> = #t)
  => ()
-  let separator = make(<byte-string>, size: 60, fill: '-');
+  let separator = make(<string>, size: 60, fill: '-');
   format(stream, "%s\n\n", separator);
   display-help(stream, context, group);
   if (show-contents?)

@@ -156,7 +156,7 @@ define function source-location-first-line
     (location :: <source-location>) => (line :: false-or(<string>))
   block ()
     let text = copy-source-location-contents(location);
-    first-line(as(<byte-string>, text))
+    first-line(as(<string>, text))
   exception (<source-record-missing>)
     #f;
   end
