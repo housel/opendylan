@@ -325,137 +325,30 @@ end;
 
 /// String
 
-// See Hacker's Delight, pp. 91-96
-// and http://hackersdelight.org/revisions.pdf page 29
-//
-define method op--word-contains-zero-byte?
-    (be :: <llvm-back-end>, v :: <llvm-value>)
- => (contains-zero-byte? :: <llvm-value>);
-  let word-size = back-end-word-size(be);
-  let iWord-type = be.%type-table["iWord"];
-  for (byte from 0 below word-size,
-       sub-value = 0 then generic/logior(generic/ash(sub-value,  8), #x01))
-  finally
-    let mask-value
-      = make(<llvm-binop-constant>, operator: #"SHL",
-             operands: vector(llvm-builder-value(be, sub-value),
-                              llvm-builder-value(be, 7))); // #x80808080...
-    let sub    = ins--sub(be, v, sub-value);
-    let masked = ins--and(be, v, mask-value);
-    let neg    = ins--xor(be, masked, mask-value);
-    let and    = ins--and(be, sub, neg);
-    ins--icmp-ne(be, and, 0)
-  end for
-end method;
 
-define side-effect-free stateless dynamic-extent &runtime-primitive-descriptor primitive-strlen
+define side-effect-free stateless dynamic-extent &primitive-descriptor primitive-strlen
     (x :: <raw-byte-string>) => (size :: <raw-integer>)
   let word-size = back-end-word-size(be);
   let iWord-type = be.%type-table["iWord"];
-  let iWord*-type = llvm-pointer-to(be, iWord-type);
 
-  // Basic blocks
-  let first-word-loop-init = make(<llvm-basic-block>);
-  let first-word-loop-head = make(<llvm-basic-block>);
-  let first-word-loop-body = make(<llvm-basic-block>);
-  let first-word-loop-inc  = make(<llvm-basic-block>);
-  let main-loop-head       = make(<llvm-basic-block>);
-  let main-loop            = make(<llvm-basic-block>);
-  let main-loop-inc        = make(<llvm-basic-block>);
-  let last-word-loop-init  = make(<llvm-basic-block>);
-  let last-word-loop-body  = make(<llvm-basic-block>);
-  let last-word-loop-inc   = make(<llvm-basic-block>);
-  let return               = make(<llvm-basic-block>);
-
-  // Round the start address down to a word boundary
-  let as-word = ins--ptrtoint(be, x, iWord-type);
-  let masked  = ins--and(be, as-word, -word-size);
-  let lp0     = ins--inttoptr(be, masked, iWord*-type);
-  let lp1     = ins--gep(be, lp0, 1);
-
-  // Read the first word (which, if the string was not word-aligned,
-  // may not all be part of the string) and see if it contains a zero
-  // byte
-  let first-word = ins--load(be, lp0, alignment: word-size);
-  let first-word-contains-zero? = op--word-contains-zero-byte?(be, first-word);
-  ins--br(be, first-word-contains-zero?, first-word-loop-init, main-loop-head);
-
-  // It does; loop to search for a zero in the first word
-  ins--block(be, first-word-loop-init);
-  let limit = ins--bitcast(be, lp1, $llvm-i8*-type);
-  ins--br(be, first-word-loop-head);
-
-  // If the loop reaches the end of the first word, continue to the
-  // main loop
-  ins--block(be, first-word-loop-head);
-  let p-placeholder
-    = make(<llvm-symbolic-value>, type: $llvm-i8*-type, name: "p");
-  let first-word-p = ins--phi*(be, x, first-word-loop-init,
-			       p-placeholder, first-word-loop-inc);
-  let done? = ins--icmp-eq(be, first-word-p, limit);
-  ins--br(be, done?, main-loop-head, first-word-loop-body);
-
-  // Check for zero bytes
-  ins--block(be, first-word-loop-body);
-  let byte = ins--load(be, first-word-p, type: $llvm-i8-type);
-  let zero-byte = be.%byte-constants[0];
-  let found? = ins--icmp-eq(be, byte, zero-byte);
-  ins--br(be, found?, return, first-word-loop-inc);
-
-  // Not found yet, increment the loop variable and continue
-  ins--block(be, first-word-loop-inc);
-  p-placeholder.llvm-placeholder-value-forward
-    := ins--gep(be, first-word-p, 1);
-  ins--br(be, first-word-loop-head);
-
-  ins--block(be, main-loop-head);
-  ins--br(be, main-loop);
-
-  // Loop, checking one word at a time for words containing zero bytes
-  ins--block(be, main-loop);
-  let lp-placeholder = make(<llvm-symbolic-value>,
-                            type: iWord*-type,
-                            name: "lp");
-  let lp = ins--phi*(be, lp1, main-loop-head,
-		     lp-placeholder, main-loop-inc);
-  let word = ins--load(be, lp, alignment: word-size);
-  let word-contains-zero? = op--word-contains-zero-byte?(be, word);
-  ins--br(be, word-contains-zero?, last-word-loop-init, main-loop-inc);
-
-  // Not found yet, increment the loop variable and continue
-  ins--block(be, main-loop-inc);
-  lp-placeholder.llvm-placeholder-value-forward
-    := ins--gep(be, lp, 1);
-  ins--br(be, main-loop);
-
-  // Found a zero byte in a word; loop to determine which byte
-  ins--block(be, last-word-loop-init);
-  let last-word-p-init = ins--bitcast(be, lp, $llvm-i8*-type);
-  ins--br(be, last-word-loop-body);
-
-  // Check this byte to see if it is zero
-  ins--block(be, last-word-loop-body);
-  let last-word-p-placeholder
-    = make(<llvm-symbolic-value>, type: $llvm-i8*-type, name: "p");
-  let last-word-p = ins--phi*(be, last-word-p-init, last-word-loop-init,
-			      last-word-p-placeholder, last-word-loop-inc);
-  let byte = ins--load(be, last-word-p, type: $llvm-i8-type);
-  let found? = ins--icmp-eq(be, byte, zero-byte);
-  ins--br(be, found?, return, last-word-loop-inc);
-
-  // Not found yet, increment the loop variable and continue
-  ins--block(be, last-word-loop-inc);
-  last-word-p-placeholder.llvm-placeholder-value-forward
-    := ins--gep(be, last-word-p, 1);
-  ins--br(be, last-word-loop-body);
-
-  // Return the difference between the address of the found zero byte
-  // and the start of the string
-  ins--block(be, return);
-  let p = ins--phi*(be, first-word-p, first-word-loop-body,
-		    last-word-p, last-word-loop-body);
-  let p-as-word = ins--ptrtoint(be, p, iWord-type);
-  ins--sub(be, p-as-word, as-word)
+  let name = "strlen";
+  unless (llvm-builder-global-defined?(be, name))
+    let function-type
+      = make(<llvm-function-type>,
+	     parameter-types: vector($llvm-i8*-type),
+	     return-type: iWord-type,
+	     varargs?: #f);
+    let global
+      = make(<llvm-function>,
+	     name: name,
+	     linkage: #"external",
+	     type: llvm-pointer-to(be, function-type),
+	     attribute-list: $llvm-empty-attribute-list);
+    llvm-builder-define-global(be, name, global);
+  end unless;
+  ins--call(be, llvm-builder-global(be, name),
+            vector(x),
+            attribute-list: $llvm-empty-attribute-list)
 end;
 
 define side-effect-free stateless indefinite-extent mapped-parameter &primitive-descriptor primitive-string-as-raw
